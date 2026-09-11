@@ -566,7 +566,9 @@ Execute manualmente antes de qualquer mudança estrutural grande no banco (nova 
 
 ### Acompanhamento da implementação — 10/09/2026
 
-Código do backend implementado na branch `codex/backend-foundation` do repositório Corretor-API. As caixas marcadas abaixo correspondem a código ou configuração verificados localmente. Conexão com Neon, aplicação da migration, criação real do administrador e serviços externos permanecem pendentes; nenhum banco local foi criado. Próxima etapa de negócio: fase 4, módulo de imóveis.
+Código do backend implementado na branch `codex/backend-foundation` do repositório Corretor-API. As caixas marcadas abaixo correspondem a código ou configuração verificados localmente. Conexão com Neon, aplicação da migration, criação real do administrador e serviços externos permanecem pendentes; nenhum banco local foi criado.
+
+Atualização de 11/09/2026: frontend público e painel administrativo implementados na branch `codex/editorial-frontend` do repositório Corretor-web; integração de sessão, gestão de corretores e ajustes de segurança implementados na branch `codex/frontend-integration` do Corretor-API. Testes automatizados, lint, typecheck e build passaram localmente. As caixas continuam desmarcadas quando dependem de credenciais ou validação em serviços externos.
 
 ### Fase 1 — Fundação de Infraestrutura
 - [ ] Projeto Neon criado, connection string salva
@@ -591,7 +593,7 @@ Código do backend implementado na branch `codex/backend-foundation` do reposit�
 - [x] Comandos explícitos de migration e criação do primeiro ADMIN, sem senha padrão
 - [x] Testes locais: login/cadastro via HTTP, tokens inválidos/expirados, roles atuais, conta inativa, hash protegido e configuração
 - [ ] Teste manual via Postman/Insomnia com Neon: login retorna token válido
-- [ ] Antes de integrar/publicar o painel: refresh via cookie httpOnly, logout/revogação, CORS e limitação de tentativas de login
+- [x] Antes de integrar/publicar o painel: refresh via cookie httpOnly, logout/revogação, CORS e limitação de tentativas de login
 
 ### Fase 4 — Módulo de Imóveis
 - [x] Entity `Property` com enums, constraints e migration inicial
@@ -616,18 +618,18 @@ Código do backend implementado na branch `codex/backend-foundation` do reposit�
 - [ ] Teste manual: enviar lead sem consentimento (deve rejeitar), com consentimento (deve salvar)
 
 ### Fase 7 — Frontend Público
-- [ ] Rotas configuradas (react-router-dom)
-- [ ] Página de catálogo com filtros consumindo a API
-- [ ] Página de detalhe com galeria de mídia
-- [ ] Formulário de lead com checkbox LGPD e redirecionamento WhatsApp
-- [ ] Página de Política de Privacidade
+- [x] Rotas configuradas (react-router-dom)
+- [x] Página de catálogo com filtros consumindo a API
+- [x] Página de detalhe com galeria de mídia
+- [x] Formulário de lead com checkbox LGPD e redirecionamento WhatsApp
+- [x] Página de Política de Privacidade (com campos institucionais configuráveis antes da publicação)
 
 ### Fase 8 — Painel Administrativo
-- [ ] Tela de login consumindo `/auth/login`
-- [ ] Dashboard simples (total de imóveis, leads recentes)
-- [ ] CRUD de imóveis com upload de mídia (compressão client-side incluída)
-- [ ] Listagem e gestão de leads
-- [ ] Gestão de corretores (visível só para ADMIN)
+- [x] Tela de login consumindo `/auth/login`
+- [x] Dashboard simples (total de imóveis, leads recentes)
+- [x] CRUD de imóveis com upload de mídia (compressão client-side incluída)
+- [x] Listagem e gestão de leads
+- [x] Gestão de corretores (visível só para ADMIN)
 
 ### Fase 9 — Deploy
 - [ ] Backend no Render: repositório conectado, variáveis de ambiente configuradas, build e start commands corretos
