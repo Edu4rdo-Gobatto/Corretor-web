@@ -1,12 +1,12 @@
-# corretor-web
+# Corretor Comercial
 
-Interface do sistema de gestão imobiliária para corretores. Desenvolvida em React com TypeScript, responsável pela exibição de imóveis, painel administrativo e captura de leads com redirecionamento para WhatsApp.
+Interface editorial para imóveis comerciais, com catálogo público, detalhe de imóvel, captação de contatos e painel administrativo. O front é um repositório separado da API NestJS em `../Corretor-API`.
 
 ## Stack
 
 - **Framework:** React 18 + TypeScript
 - **Build tool:** Vite
-- **Deploy:** Vercel
+- **Deploy:** Vercel (build estático)
 
 ## Pré-requisitos
 
@@ -25,8 +25,8 @@ cd corretor-web
 npm install
 
 # Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o .env com a URL da API
+Copy-Item .env.example .env
+# Em desenvolvimento, API_PROXY_TARGET aponta para http://localhost:3000
 
 # Inicie em modo desenvolvimento
 npm run dev
@@ -39,16 +39,23 @@ A aplicação estará disponível em `http://localhost:5173`.
 Crie um arquivo `.env` na raiz do projeto com base no `.env.example`:
 
 ```env
-# URL da API backend
-VITE_API_URL=http://localhost:3000
-
-# WhatsApp do corretor (usado na captura de leads)
-VITE_WHATSAPP_NUMBER=5511999999999
+# URL usada pelo navegador; /api mantém o cookie no domínio do front
+VITE_API_URL=/api
+# Destino do proxy Vite durante o desenvolvimento
+API_PROXY_TARGET=http://localhost:3000
+# Ative apenas para uma prévia visual local sem serviços externos
+VITE_DEMO_MODE=false
 ```
 
-> Em produção, `VITE_API_URL` deve apontar para a URL do backend no Render. Configure via painel da Vercel em Settings → Environment Variables.
+Em produção, configure a reescrita `/api/*` da Vercel para o domínio do backend Render, ou use o domínio da API diretamente e configure CORS com credenciais. A API não possui prefixo `/api`; o proxy deve removê-lo.
 
 > Nunca suba o `.env` para o repositório. Ele já está no `.gitignore`.
+
+## Modo demonstrativo
+
+O comando `npm run dev:demo` ativa dados fictícios somente por configuração explícita. A faixa superior e o login identificam o modo. Contatos, imóveis criados e mídias ficam em memória e desaparecem ao recarregar; uma falha de rede nunca ativa esse modo.
+
+Credenciais demonstrativas: use os botões Administrador ou Corretor na tela de login, ou `admin@demo.local` / `agent@demo.local`, senha `demo`.
 
 ## Scripts disponíveis
 
