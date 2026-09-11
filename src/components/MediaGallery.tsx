@@ -3,21 +3,8 @@ import { ImageOff, Play, Expand } from 'lucide-react';
 import type { PropertyMedia } from '../types';
 import Dialog from './Dialog';
 import styles from './MediaGallery.module.css';
-export function embedUrl(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'https:') return null;
-    if (['youtube.com','www.youtube.com','youtu.be'].includes(parsed.hostname)) {
-      const id = parsed.hostname === 'youtu.be' ? parsed.pathname.slice(1) : parsed.searchParams.get('v') || parsed.pathname.split('/').pop();
-      return id && /^[\w-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : null;
-    }
-    if (['vimeo.com','www.vimeo.com','player.vimeo.com'].includes(parsed.hostname)) {
-      const id = parsed.pathname.split('/').pop();
-      return id && /^\d+$/.test(id) ? `https://player.vimeo.com/video/${id}` : null;
-    }
-  } catch { /* Invalid remote media must never become iframe content. */ }
-  return null;
-}
+export { embedUrl } from '../services/embedUrl';
+import { embedUrl } from '../services/embedUrl';
 function MediaView({ media, title }: { media: PropertyMedia; title: string }) {
   if (media.type === 'IMAGE') return <img src={media.url} alt={title}/>;
   if (media.type === 'VIDEO_FILE') return <video src={media.url} controls preload="metadata" aria-label={`Vídeo: ${title}`}/>;
