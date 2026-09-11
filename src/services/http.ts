@@ -1,4 +1,4 @@
-const baseUrl = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/$/, '');
+const baseUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 let accessToken: string | null = null;
 let pendingRefresh: Promise<void> | null = null;
 export const setAccessToken = (token: string | null) => { accessToken = token; };

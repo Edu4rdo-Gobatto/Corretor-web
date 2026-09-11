@@ -7,7 +7,7 @@ describe('HTTP session', () => {
     vi.stubGlobal('fetch', fetcher);
     await expect(http('/auth/me')).resolves.toEqual({ name: 'Ana' });
     expect(fetcher.mock.calls[2][1].headers.get('Authorization')).toBe('Bearer fresh');
-    expect(fetcher.mock.calls[1][0]).toBe('/api/v1/auth/refresh');
+    expect(fetcher.mock.calls[1][0]).toBe('/api/auth/refresh');
   });
   it('never substitutes demo data on a failed request', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('network')));

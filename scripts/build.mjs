@@ -1,0 +1,30 @@
+import { build, loadEnv } from 'vite';
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { deploymentRoutes } from '../src/seo/deployment.ts';
+
+const mode = process.argv.includes('--demo') ? 'demo' : 'production';
+await build({ mode, build: { outDir: 'dist/client' } });
+await build({ mode, build: { outDir: 'dist/server', ssr: 'src/seo/server.tsx' }, ssr: { noExternal: true } });
+const { serverConfig } = await import('../dist/server/server.js');
+const config = serverConfig({ ...loadEnv(mode, process.cwd(), ''), ...process.env, NODE_ENV: 'production' });
+// Only this generated directory is replaced; never remove a computed parent.
+const output = path.resolve('.vercel/output');
+if (output !== path.join(process.cwd(), '.vercel', 'output')) throw new Error('Invalid output directory');
+await rm(output, { recursive: true, force: true });
+await mkdir(`${output}/functions/render.func`, { recursive: true });
+await cp('dist/client', `${output}/static`, { recursive: true, filter: source => path.resolve(source) !== path.resolve('dist/client/index.html') });
+await cp('dist/server', `${output}/functions/render.func/server`, { recursive: true });
+await cp('scripts/runtime.mjs', `${output}/functions/render.func/runtime.mjs`);
+await cp('dist/client/index.html', `${output}/functions/render.func/template.html`);
+await writeFile(`${output}/functions/render.func/index.mjs`, `import { readFile } from 'node:fs/promises';
+import { handleRequest, serverConfig } from './server/server.js';
+import { createHandler } from './runtime.mjs';
+const template = await readFile(new URL('./template.html', import.meta.url), 'utf8');
+export default createHandler(handleRequest, async () => template, serverConfig({ ...process.env, NODE_ENV: 'production', VITE_DEMO_MODE: ${JSON.stringify(mode === 'demo' ? 'true' : loadEnv(mode, process.cwd(), '').VITE_DEMO_MODE || 'false')} }));
+`);
+await writeFile(`${output}/functions/render.func/package.json`, JSON.stringify({ type: 'module' }));
+await writeFile(`${output}/functions/render.func/.vc-config.json`, JSON.stringify({ runtime: 'nodejs24.x', handler: 'index.mjs', launcherType: 'Nodejs', shouldAddHelpers: false, supportsResponseStreaming: true, maxDuration: 60 }));
+await writeFile(`${output}/config.json`, JSON.stringify({ version: 3, routes: deploymentRoutes(config.apiOrigin) }, null, 2));
+const manifest = JSON.parse(await readFile('package.json', 'utf8'));
+console.log(`${manifest.name}: client, SSR and Vercel Build Output generated.`);

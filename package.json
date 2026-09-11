@@ -7,13 +7,15 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "dev:demo": "vite --host 127.0.0.1 --mode demo",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview --host 127.0.0.1",
+    "dev": "node scripts/dev.mjs",
+    "dev:demo": "node scripts/dev.mjs --demo",
+    "build": "tsc -b && node scripts/build.mjs",
+    "preview": "node scripts/preview.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:demo": "tsc -b && node scripts/build.mjs --demo",
+    "preview:demo": "node scripts/preview.mjs --demo"
   },
   "dependencies": {
     "@fontsource/libre-baskerville": "^5.2.0",
