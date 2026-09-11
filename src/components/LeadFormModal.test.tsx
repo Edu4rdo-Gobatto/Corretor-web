@@ -1,0 +1,21 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeAll, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import LeadFormModal from './LeadFormModal';
+import { api } from '../services/api';
+import type { Property } from '../types';
+vi.mock('../services/api', () => ({ api: { createLead: vi.fn() } }));
+beforeAll(() => { HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) { this.setAttribute('open', ''); }); HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) { this.removeAttribute('open'); }); });
+it('opens WhatsApp immediately and reports a failed lead save without discarding input', async () => {
+  vi.mocked(api.createLead).mockRejectedValue(new Error('Falha de registro'));
+  const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+  const property = { id: 'property', title: 'Sala comercial', agent: { name: 'Ana', whatsappNumber: '5565999998888' } } as Property;
+  render(<MemoryRouter><LeadFormModal property={property} onClose={() => undefined}/></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText('Seu nome'), { target: { value: 'Visitante' } });
+  fireEvent.change(screen.getByLabelText('Telefone com DDD'), { target: { value: '65999998888' } });
+  fireEvent.click(screen.getByRole('checkbox'));
+  fireEvent.submit(screen.getByRole('button', { name: 'Falar pelo WhatsApp' }).closest('form')!);
+  await waitFor(() => expect(open).toHaveBeenCalled());
+  await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('não foi registrado'));
+  expect(screen.getByLabelText('Seu nome')).toHaveValue('Visitante');
+});

@@ -1,0 +1,8 @@
+.state { padding: 64px 24px; text-align: center; color: var(--muted); }
+.state svg { margin: 0 auto 12px; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 38px; }
+.dialog { border: 0; border-radius: 8px; padding: 32px; background: var(--paper); color: var(--ink); width: min(580px, calc(100vw - 32px)); max-height: 90dvh; }
+.dialog::backdrop { background: rgb(14 31 24 / .62); }
+.dialogHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+.dialogHeader h2 { font-size: 27px; margin-bottom: 0; }
+@media(max-width:520px) { .dialog { padding: 22px; } }
