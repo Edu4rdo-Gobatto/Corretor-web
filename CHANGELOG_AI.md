@@ -3,6 +3,49 @@
 Registro objetivo, do mais recente para o mais antigo. Cada entrada traz tarefa, alterações,
 testes com resultado real e pendências.
 
+## 2026-09-12 — Claude (ambiente de desenvolvimento e limpeza de dados fixos)
+
+Tarefa: subir o ambiente de desenvolvimento e remover dados fixos do código, a pedido do dono do projeto.
+
+Alterações em código:
+
+- **Modo demonstração removido por inteiro.** Apagados `src/services/demo.ts` (11 imóveis, 2 corretores e 4 leads
+  fictícios, com fotos do Unsplash), `src/services/demo.test.ts` e `.env.demo`. Retirados: a variável
+  `VITE_DEMO_MODE` (do `.env`, do `.env.example` e do `scripts/seo-smoke.mjs`), os scripts `dev:demo`, `build:demo`
+  e `preview:demo` do `package.json`, o argumento `--demo` dos três scripts de runtime, o campo `demo` de `SeoConfig`
+  e do bootstrap do SSR, o `isDemo` de `brand.ts`, o Proxy de `api.ts` (virou `export const api = realApi`), os botões
+  de entrada fictícia em `Login.tsx`, a faixa de aviso em `PublicLayout.tsx`, o sufixo "Demonstração" em
+  `AdminLayout.tsx`, os três ramos condicionais de `LeadFormModal.tsx` e as classes CSS `.demo` e `.demoNote`.
+- **Identidade centralizada em `src/config/brand.ts`**, agora com `name`, `logo`, `tagline`, `closing`, `region` e
+  `privacy`. Os 13 pontos que repetiam "Corretor Comercial" e "Mato Grosso" passaram a ler dali: títulos e descrições
+  de `metadata.ts`, `og:site_name`, JSON-LD `Organization` e `WebSite`, o `llms.txt` de `server.tsx`, o logotipo do
+  cabeçalho e o hero do catálogo.
+
+Testes executados:
+
+- `npm run typecheck`: sem erro.
+- `npm run lint`: sem erro.
+- `npm test`: 16 arquivos, 57 testes aprovados. Antes eram 17 arquivos e 64 testes; a diferença é o `demo.test.ts`
+  removido (7 testes que só exercitavam o módulo de demonstração).
+- `npm run build`: sem erro; gerou `dist/client`, `dist/server` e `.vercel/output`.
+- `node scripts/seo-smoke.mjs`: aprovado (SSR, metadados, paginação, 404, discovery e proxy de API com cookies,
+  mais a função da Vercel em runtime Node isolado).
+- Conferência manual com a API real no ar: `/` 200 com título, `og:site_name` e `<h1>` idênticos aos de antes do
+  refactor; `/admin/login` 200; `/privacidade` 200; `/api/properties` 200 pelo proxy; `/llms.txt` com o nome do
+  `brand`; rota inexistente 404; faixa de demonstração ausente do HTML.
+
+Achados:
+
+- `src/seo/fixture.ts` mantém dados de exemplo ("Rua de demonstração", Cuiabá/MT). Foi mantido de propósito: é
+  fixture de teste, usada por `server.test.ts` e `navigation.test.tsx`, e não entra no bundle do produto.
+- `brand.privacy` continua com `controller`, `contactEmail` e `address` vazios. A página `/privacidade` mostra o
+  aviso de conteúdo preparatório enquanto for assim — é o comportamento correto, mas bloqueia a publicação.
+
+Pendências:
+
+- Preencher `brand.privacy` e decidir o nome real do negócio (hoje "Corretor Comercial", um rótulo de andaime).
+- DEPLOY-002 e SEO-001 seguem bloqueadas pela publicação da API.
+
 ## 2026-09-11 — Claude (sincronização e homologação)
 
 Tarefa: SYNC-001 — sincronizar a entrega de SEO/SSR, validar localmente e homologar contra a API real.

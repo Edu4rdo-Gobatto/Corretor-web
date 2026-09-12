@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createServer, loadEnv } from 'vite';
 import { createHandler } from './runtime.mjs';
 
-const mode = process.argv.includes('--demo') ? 'demo' : 'development';
+const mode = 'development';
 const vite = await createServer({ mode, server: { middlewareMode: true, proxy: undefined }, appType: 'custom' });
 const environment = { ...loadEnv(mode, process.cwd(), ''), ...process.env };
 const { serverConfig } = await vite.ssrLoadModule('/src/seo/server.tsx');

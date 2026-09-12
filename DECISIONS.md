@@ -66,16 +66,41 @@ Não fazer:
 - Não gravar token em `localStorage`, `sessionStorage` ou cookie pelo front.
 - Não criar um segundo caminho de renovação.
 
-## 2026-09-11 — Modo demonstração só por configuração explícita
+## 2026-09-12 — Modo demonstração removido do produto
 
-Decisão: os dados fictícios só aparecem com `VITE_DEMO_MODE=true`, e o modo é sinalizado na interface.
+Decisão: o modo demonstração foi **removido por inteiro**, a pedido do dono do projeto. Saíram `src/services/demo.ts`
+(11 imóveis, 2 corretores e 4 leads fictícios), `src/services/demo.test.ts`, `.env.demo`, a variável `VITE_DEMO_MODE`,
+os scripts `dev:demo`, `build:demo` e `preview:demo`, o campo `demo` de `SeoConfig`, o proxy de `api.ts`, os botões de
+entrada fictícia no login, a faixa de aviso no site público, o sufixo "Demonstração" no painel e o comportamento
+alternativo do formulário de contato. O front agora só fala com a API real.
 
-Motivo: evita que uma falha de rede vire "dados de exemplo" silenciosos diante de um cliente.
+Motivo: o produto vai ao ar com dados reais, e o dono não quer dado fictício no código. O `api.ts` ficou mais simples:
+`export const api = realApi`, sem Proxy nem import dinâmico.
+
+Substitui a decisão de 11/09/2026 ("Modo demonstração só por configuração explícita"), que fica revogada.
 
 Não fazer:
 
-- Não usar o modo demonstração como fallback de erro.
-- Não misturar dados fictícios com dados reais na mesma sessão.
+- Não reintroduzir dados fictícios no código do produto. Dado de exemplo só em teste (`src/seo/fixture.ts` é o lugar).
+- Não usar fallback de dados locais em falha de rede: a página de indisponibilidade é o comportamento correto.
+- Se a demonstração voltar a ser necessária, discutir antes: ela deve ser um ambiente com banco próprio, não um
+  ramo de código dentro do produto.
+
+## 2026-09-12 — Identidade do site centralizada em `src/config/brand.ts`
+
+Decisão: nome, logotipo, tagline, frase de rodapé, região de atuação e dados de privacidade vivem só em
+`src/config/brand.ts`. Os 13 pontos que repetiam "Corretor Comercial" e "Mato Grosso" (títulos, descrições,
+`og:site_name`, JSON-LD `Organization`/`WebSite`, `llms.txt`, logotipo do cabeçalho e hero do catálogo)
+passaram a ler desse arquivo.
+
+Motivo: a marca atual é um rótulo genérico de andaime. Trocar pelo nome real do negócio precisa ser uma
+edição em um arquivo, não uma caçada por strings.
+
+Não fazer:
+
+- Não escrever nome de marca, região ou tagline direto em componente, título ou JSON-LD.
+- Não preencher `brand.privacy` com dado inventado: enquanto `controller`, `contactEmail` e `address` estiverem
+  vazios, a página `/privacidade` exibe o aviso de conteúdo preparatório, que é o comportamento correto.
 
 ## 2026-09-11 — Uma única branch: `main`
 

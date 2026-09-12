@@ -8,14 +8,11 @@
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "dev:demo": "node scripts/dev.mjs --demo",
     "build": "tsc -b && node scripts/build.mjs",
     "preview": "node scripts/preview.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run",
-    "build:demo": "tsc -b && node scripts/build.mjs --demo",
-    "preview:demo": "node scripts/preview.mjs --demo"
+    "test": "vitest run"
   },
   "dependencies": {
     "@fontsource/libre-baskerville": "^5.2.0",

@@ -4,7 +4,7 @@ import { handleRequest, serverConfig, sitemapChunks } from './server';
 import { buildSeo, serialize } from './metadata';
 import { sampleProperty } from './fixture';
 
-const config = { siteUrl: 'https://imoveis.example', apiOrigin: 'https://api.example', indexable: true, demo: false };
+const config = { siteUrl: 'https://imoveis.example', apiOrigin: 'https://api.example', indexable: true };
 const page = { items: [], total: 0, page: 1, limit: 9, totalPages: 0 };
 describe('public SEO responses', () => {
   it('renders the catalog without JavaScript and ignores visitor cookies', async () => {
@@ -71,13 +71,12 @@ describe('public SEO responses', () => {
     expect(buildSeo('/?page=2&utm_source=test', config, { catalog: page }).canonical).toBe('https://imoveis.example/?page=2');
     expect(buildSeo('/?page=1', config, { catalog: page }).canonical).toBe('https://imoveis.example/');
   });
-  it('requires valid production origins and forces previews and demos out of indexing', () => {
+  it('requires valid production origins and forces previews out of indexing', () => {
     expect(serverConfig({}).indexable).toBe(false);
     expect(() => serverConfig({ SEO_INDEXABLE: 'true', NODE_ENV: 'production' })).toThrow();
     const env = { SITE_URL: config.siteUrl, API_ORIGIN: config.apiOrigin, SEO_INDEXABLE: 'true', NODE_ENV: 'production' };
     expect(serverConfig(env).indexable).toBe(true);
     expect(serverConfig({ ...env, VERCEL_ENV: 'preview' }).indexable).toBe(false);
-    expect(serverConfig({ ...env, VITE_DEMO_MODE: 'true' }).indexable).toBe(false);
   });
   it('returns real 404 for unknown routes and out of range pagination', async () => {
     expect((await handleRequest('/does-not-exist', config)).status).toBe(404);

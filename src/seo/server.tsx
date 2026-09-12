@@ -5,6 +5,7 @@ import { BootstrapContext } from './context';
 import { absolute, buildSeo, escapeHtml, renderHead, serialize, type Bootstrap, type SeoConfig } from './metadata';
 import { readCatalogQuery, buildCatalogQuery } from '../services/catalog';
 import type { Page, Property } from '../types';
+import { brand } from '../config/brand';
 
 export interface ServerConfig extends SeoConfig { apiOrigin: string }
 export function serverConfig(env: Record<string, string | undefined>): ServerConfig {
@@ -16,10 +17,9 @@ export function serverConfig(env: Record<string, string | undefined>): ServerCon
     if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash || parsed.pathname !== '/') throw new Error(`Invalid ${key} origin`);
     if (key === 'site') siteUrl = parsed.origin; else apiOrigin = parsed.origin;
   }
-  const demo = env.VITE_DEMO_MODE === 'true';
-  const requested = env.SEO_INDEXABLE === 'true' && env.VERCEL_ENV !== 'preview' && env.NODE_ENV === 'production' && !demo;
+  const requested = env.SEO_INDEXABLE === 'true' && env.VERCEL_ENV !== 'preview' && env.NODE_ENV === 'production';
   if (requested && (!siteUrl.startsWith('https://') || !apiOrigin.startsWith('https://'))) throw new Error('Indexing requires HTTPS SITE_URL and API_ORIGIN');
-  return { siteUrl, apiOrigin, demo, indexable: requested };
+  return { siteUrl, apiOrigin, indexable: requested };
 }
 class PublicError extends Error { constructor(public status: number) { super('Public request failed'); } }
 async function publicGet<T>(path: string, config: ServerConfig, fetcher: typeof fetch, allowNotFound = false): Promise<T> {
@@ -75,30 +75,28 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
   const url = new URL(path, 'http://local');
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
   const headers: Record<string, string> = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=300', 'X-Robots-Tag': 'noindex,nofollow' };
-  const boot: Bootstrap = { url: url.pathname + url.search, config: { siteUrl: config.siteUrl, indexable: config.indexable, demo: config.demo }, data: {}, status: 200 };
+  const boot: Bootstrap = { url: url.pathname + url.search, config: { siteUrl: config.siteUrl, indexable: config.indexable }, data: {}, status: 200 };
   try {
     if (url.pathname === '/robots.txt' || url.pathname === '/llms.txt') {
       headers['Content-Type'] = 'text/plain; charset=utf-8';
       const body = url.pathname === '/robots.txt'
         ? `User-agent: *\n${config.indexable ? 'Disallow: /api/\nDisallow: /api\n' : 'Disallow: /\n'}${config.siteUrl ? `Sitemap: ${absolute('/sitemap.xml', config)}\n` : ''}`
-        : `# Corretor Comercial\n\n> Catálogo de imóveis comerciais para alugar e comprar em Mato Grosso.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
+        : `# ${brand.name}\n\n> Catálogo de imóveis comerciais para alugar e comprar em ${brand.region.name}.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
       return { status: 200, headers, body };
     }
     if (url.pathname === '/sitemap.xml' || url.pathname.startsWith('/sitemaps/')) {
-      const body = config.demo || !config.indexable ? xml('') : await sitemap(url.pathname, config, fetcher);
+      const body = !config.indexable ? xml('') : await sitemap(url.pathname, config, fetcher);
       headers['Content-Type'] = 'application/xml; charset=utf-8';
       return { status: 200, headers, body };
     }
     if (!admin) {
       if (url.pathname === '/') {
-        if (config.demo) { const { demo } = await import('../services/demo'); boot.data.catalog = await demo.listProperties(readCatalogQuery(url.searchParams)); }
-        else boot.data.catalog = await publicGet<Page<Property>>(`/properties?${buildCatalogQuery(readCatalogQuery(url.searchParams))}`, config, fetcher);
+        boot.data.catalog = await publicGet<Page<Property>>(`/properties?${buildCatalogQuery(readCatalogQuery(url.searchParams))}`, config, fetcher);
         const query = readCatalogQuery(url.searchParams);
         if (query.page > Math.max(1, boot.data.catalog.totalPages)) boot.status = 404;
       } else if (/^\/imoveis\/[^/]+$/.test(url.pathname)) {
         const slug = decodeURIComponent(url.pathname.slice('/imoveis/'.length));
-        if (config.demo) { const { demo } = await import('../services/demo'); try { boot.data.property = await demo.getProperty(slug); } catch { throw new PublicError(404); } }
-        else boot.data.property = await publicGet<Property>(`/properties/${encodeURIComponent(slug)}`, config, fetcher, true);
+        boot.data.property = await publicGet<Property>(`/properties/${encodeURIComponent(slug)}`, config, fetcher, true);
       } else if (url.pathname !== '/privacidade') boot.status = 404;
     }
   } catch (error) { boot.status = error instanceof PublicError ? error.status : error instanceof URIError ? 404 : 503; boot.data = {}; }

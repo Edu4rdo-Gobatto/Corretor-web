@@ -27,7 +27,7 @@ Critérios de conclusão:
 
 - Plataforma definida e registrada em `DECISIONS.md`.
 - Variáveis de produção configuradas: `VITE_API_URL=/api`, `API_ORIGIN` com o domínio HTTPS da API,
-  `SITE_URL` com o domínio público do site, `SEO_INDEXABLE` conforme a decisão e `VITE_DEMO_MODE=false`.
+  `SITE_URL` com o domínio público do site e `SEO_INDEXABLE` conforme a decisão.
 - `ALLOWED_ORIGINS` da API atualizado com o domínio do front, senão login, refresh e logout respondem 403.
 - Conferir em produção: catálogo, detalhe de imóvel, login no painel com cookie de refresh, upload de mídia,
   envio de lead, `robots.txt`, `sitemap.xml` e uma rota inexistente.
@@ -80,8 +80,8 @@ Objetivo:
 
 O `README.md` está desatualizado: pede Node 20+ (o `package.json` exige `>=24 <25`), usa `Copy-Item` do PowerShell,
 diz que a aplicação sobe em `localhost:5173` (o servidor escuta em `127.0.0.1`), descreve o proxy do Vite, que não
-existe mais, e não lista os scripts `dev:demo`, `build:demo`, `preview:demo`, `test` e `typecheck`, nem as variáveis
-`API_ORIGIN`, `SITE_URL` e `SEO_INDEXABLE`.
+existe mais, e não lista os scripts `test` e `typecheck`, nem as variáveis `API_ORIGIN`, `SITE_URL` e `SEO_INDEXABLE`.
+Desde 12/09 também não existem mais os scripts `dev:demo`, `build:demo` e `preview:demo`, nem a variável `VITE_DEMO_MODE`.
 
 Critérios de conclusão:
 

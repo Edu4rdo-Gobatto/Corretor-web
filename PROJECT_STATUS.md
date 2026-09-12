@@ -1,16 +1,26 @@
 # Estado atual — corretor-web
 
-Atualizado em: 2026-09-11
-Agente responsável: Claude (sessão de infraestrutura e homologação)
+Atualizado em: 2026-09-12
+Agente responsável: Claude (sessão de ambiente de desenvolvimento e limpeza de dados fixos)
 Commit da `main`: `d4f6b2f` — "feat: add complete SEO and SSR delivery"
 Repositório irmão: corretor-api, `main` em `a41f49b`
 
 ## Em andamento
 
-- Nada em execução por agente neste momento.
+- Ambiente de desenvolvimento no ar: front SSR em `http://127.0.0.1:5173` e API em `http://localhost:3000`.
 - Pesquisa de deploy (Render e Vercel) iniciada pelo Claude; resultado ainda não incorporado às tarefas.
 
 ## Concluído recentemente
+
+- **Modo demonstração removido por inteiro (12/09/2026).** Saíram `src/services/demo.ts`, `src/services/demo.test.ts`,
+  `.env.demo`, a variável `VITE_DEMO_MODE`, os scripts `dev:demo`/`build:demo`/`preview:demo`, o campo `demo` de
+  `SeoConfig`, o Proxy de `api.ts` e todos os ramos de interface (botões de login fictício, faixa de aviso no site,
+  sufixo no painel, textos alternativos do formulário de contato). Decisão registrada em `DECISIONS.md`.
+- **Identidade centralizada em `src/config/brand.ts` (12/09/2026).** Os 13 pontos que repetiam "Corretor Comercial"
+  e "Mato Grosso" passaram a ler do `brand`, incluindo logotipo do cabeçalho, `og:site_name`, JSON-LD e `llms.txt`.
+  A renderização final não mudou: foi conferida antes e depois.
+- **Verificação após as duas mudanças:** 16 arquivos de teste e 57 testes aprovados (eram 17 e 64 — a diferença é o
+  `demo.test.ts` removido); lint, typecheck e build sem erro; `scripts/seo-smoke.mjs` aprovado.
 
 - **Sincronização:** a cópia local estava em `78200ff` e foi atualizada para `d4f6b2f`, que trouxe SSR das páginas
   públicas, metadados com Open Graph e Twitter Cards, JSON-LD, `robots.txt`, `sitemap.xml` e `llms.txt` dinâmicos,
@@ -39,11 +49,16 @@ plano Hobby e o formato de build atual, que é específico da Vercel (Build Outp
 
 ## Arquivos modificados recentemente
 
-Nenhum arquivo de código foi alterado nesta sessão. Foram criados apenas os arquivos de contexto
-(`AGENTS.md`, `CLAUDE.md`, `PROJECT_STATUS.md`, `DECISIONS.md`, `TASKS.md`, `CHANGELOG_AI.md`, `docs/handoffs/`).
+Removidos: `src/services/demo.ts`, `src/services/demo.test.ts`, `.env.demo`.
+Alterados: `src/config/brand.ts` (reescrito), `src/services/api.ts`, `src/seo/server.tsx`, `src/seo/metadata.ts`,
+`src/seo/server.test.ts`, `src/seo/navigation.test.tsx`, `src/pages/admin/Login.tsx`, `src/pages/admin/AdminLayout.tsx`,
+`src/pages/admin/Admin.module.css`, `src/pages/public/Catalog.tsx`, `src/pages/public/PrivacyPolicy.tsx`,
+`src/components/PublicLayout.tsx`, `src/components/PublicLayout.module.css`, `src/components/LeadFormModal.tsx`,
+`src/components/LeadFormModal.module.css`, `scripts/dev.mjs`, `scripts/build.mjs`, `scripts/preview.mjs`,
+`scripts/seo-smoke.mjs`, `package.json`, `.env.example`, `DECISIONS.md`, `TASKS.md`, `PROJECT_STATUS.md`, `CHANGELOG_AI.md`.
 
 ## Ambiente local
 
 `.env` (não versionado) com `VITE_API_URL=/api`, `API_ORIGIN=http://localhost:3000`,
-`SITE_URL=http://127.0.0.1:5173` e `SEO_INDEXABLE=false`. A `SITE_URL` local foi definida nesta sessão porque
+`SITE_URL=http://127.0.0.1:5173` e `SEO_INDEXABLE=false`. A linha `VITE_DEMO_MODE` foi retirada em 12/09. A `SITE_URL` local foi definida nesta sessão porque
 sem ela o SSR não gera canonical nem JSON-LD.

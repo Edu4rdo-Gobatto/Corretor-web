@@ -12,7 +12,7 @@ describe('hydrated public navigation', () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     const get = vi.spyOn(api, 'getProperty').mockImplementation(async slug => ({ ...sampleProperty, slug, title: slug === 'second' ? 'Segundo anúncio' : 'Primeiro atualizado' }));
     const url = `/imoveis/${sampleProperty.slug}`;
-    render(<BootstrapContext.Provider value={{ url, data: { property: sampleProperty }, config: { siteUrl: 'https://imoveis.example', indexable: true, demo: false }, status: 200 }}><MemoryRouter initialEntries={[url]}><Navigation/><AppRoutes/></MemoryRouter></BootstrapContext.Provider>);
+    render(<BootstrapContext.Provider value={{ url, data: { property: sampleProperty }, config: { siteUrl: 'https://imoveis.example', indexable: true }, status: 200 }}><MemoryRouter initialEntries={[url]}><Navigation/><AppRoutes/></MemoryRouter></BootstrapContext.Provider>);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(sampleProperty.title);
     expect(get).not.toHaveBeenCalled();
     fireEvent.click(screen.getByText('Outro anúncio'));

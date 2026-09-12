@@ -1,5 +1,4 @@
 import type { Agent, AgentInput, CatalogQuery, Lead, LeadInput, Page, Property, PropertyInput, Session } from '../types';
-import { isDemo } from '../config/brand';
 import { buildCatalogQuery } from './catalog';
 import { http, setAccessToken } from './http';
 
@@ -34,14 +33,4 @@ const realApi = {
   logout: async () => { await http<void>('/auth/logout', json('POST'), false); setAccessToken(null); },
   me: () => http<Agent>('/auth/me'),
 };
-// The demo module is only loaded when explicitly enabled, never on a network error.
-const demoModule = isDemo ? import('./demo') : null;
-export const api: typeof realApi = isDemo ? new Proxy(realApi, {
-  get(_target, key: keyof typeof realApi) {
-    return async (...args: unknown[]) => {
-      const { demo } = await demoModule!;
-      const method = demo[key] as (...parameters: unknown[]) => Promise<unknown>;
-      return method(...args);
-    };
-  },
-}) : realApi;
+export const api = realApi;

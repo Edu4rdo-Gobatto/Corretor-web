@@ -22,7 +22,7 @@ const api = createServer(async (req, res) => {
   } else { res.writeHead(401); res.end(JSON.stringify({ message: 'Sessão de teste não autenticada' })); }
 });
 await new Promise(resolve => api.listen(4199, '127.0.0.1', resolve));
-const preview = spawn(process.execPath, ['scripts/preview.mjs'], { env: { ...process.env, API_ORIGIN: 'http://127.0.0.1:4199', SITE_URL: 'https://imoveis.example', SEO_INDEXABLE: 'false', VITE_DEMO_MODE: 'false', PORT: '4180' }, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+const preview = spawn(process.execPath, ['scripts/preview.mjs'], { env: { ...process.env, API_ORIGIN: 'http://127.0.0.1:4199', SITE_URL: 'https://imoveis.example', SEO_INDEXABLE: 'false', PORT: '4180' }, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
 preview.stdout.pipe(process.stdout); preview.stderr.pipe(process.stderr);
 await new Promise((resolve, reject) => { preview.stdout.once('data', resolve); preview.once('error', reject); preview.once('exit', code => reject(new Error(`Preview exited: ${code}`))); });
 try {

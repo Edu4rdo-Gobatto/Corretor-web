@@ -5,7 +5,7 @@ import { loadEnv } from 'vite';
 import { handleRequest, serverConfig } from '../dist/server/server.js';
 import { createHandler } from './runtime.mjs';
 
-const mode = process.argv.includes('--demo') ? 'demo' : 'production';
+const mode = 'production';
 const config = serverConfig({ ...loadEnv(mode, process.cwd(), ''), ...process.env, NODE_ENV: 'production' });
 const template = await readFile('dist/client/index.html', 'utf8');
 const handler = createHandler(handleRequest, async () => template, config);

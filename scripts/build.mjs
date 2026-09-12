@@ -3,7 +3,7 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { deploymentRoutes } from '../src/seo/deployment.ts';
 
-const mode = process.argv.includes('--demo') ? 'demo' : 'production';
+const mode = 'production';
 await build({ mode, build: { outDir: 'dist/client' } });
 await build({ mode, build: { outDir: 'dist/server', ssr: 'src/seo/server.tsx' }, ssr: { noExternal: true } });
 const { serverConfig } = await import('../dist/server/server.js');
@@ -21,7 +21,7 @@ await writeFile(`${output}/functions/render.func/index.mjs`, `import { readFile 
 import { handleRequest, serverConfig } from './server/server.js';
 import { createHandler } from './runtime.mjs';
 const template = await readFile(new URL('./template.html', import.meta.url), 'utf8');
-export default createHandler(handleRequest, async () => template, serverConfig({ ...process.env, NODE_ENV: 'production', VITE_DEMO_MODE: ${JSON.stringify(mode === 'demo' ? 'true' : loadEnv(mode, process.cwd(), '').VITE_DEMO_MODE || 'false')} }));
+export default createHandler(handleRequest, async () => template, serverConfig({ ...process.env, NODE_ENV: 'production' }));
 `);
 await writeFile(`${output}/functions/render.func/package.json`, JSON.stringify({ type: 'module' }));
 await writeFile(`${output}/functions/render.func/.vc-config.json`, JSON.stringify({ runtime: 'nodejs24.x', handler: 'index.mjs', launcherType: 'Nodejs', shouldAddHelpers: false, supportsResponseStreaming: true, maxDuration: 60 }));

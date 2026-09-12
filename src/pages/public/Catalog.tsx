@@ -10,6 +10,7 @@ import AsyncState from '../../components/AsyncState';
 import Pagination from '../../components/Pagination';
 import styles from './Catalog.module.css';
 import { Seo, useInitialData } from '../../seo/context';
+import { brand } from '../../config/brand';
 
 const icons = { GALPAO: Warehouse, SALA: Building2, PREDIO: Layers, LOJA: Store, TERRENO: Trees };
 export default function Catalog() {
@@ -44,7 +45,7 @@ export default function Catalog() {
   return <>
     <Seo data={{ catalog: properties }} status={errorStatus || 200}/>
     <section className={`container ${styles.hero}`}>
-      <div className={styles.heroCopy}><p className="eyebrow"><span className={styles.smallLine}/> Imóveis comerciais</p><h1>Imóveis comerciais para alugar e comprar <em>em Mato Grosso.</em></h1><p className={styles.intro}>Encontre salas comerciais, lojas, galpões, prédios e terrenos.<br className={styles.desktopBreak}/> Consulte as opções para o seu negócio em Mato Grosso.</p><a className={styles.explore} href="#catalogo">Explore os imóveis <ArrowDown size={17}/></a><div className={styles.heroNote}><span>01 —</span> Um lugar para o que vem a seguir.</div></div>
+      <div className={styles.heroCopy}><p className="eyebrow"><span className={styles.smallLine}/> Imóveis comerciais</p><h1>Imóveis comerciais para alugar e comprar <em>em {brand.region.name}.</em></h1><p className={styles.intro}>Encontre salas comerciais, lojas, galpões, prédios e terrenos.<br className={styles.desktopBreak}/> Consulte as opções para o seu negócio em {brand.region.name}.</p><a className={styles.explore} href="#catalogo">Explore os imóveis <ArrowDown size={17}/></a><div className={styles.heroNote}><span>01 —</span> Um lugar para o que vem a seguir.</div></div>
       <div className={styles.heroVisual}><img src="/assets/commercial-space-1200.webp" srcSet="/assets/commercial-space-640.webp 640w, /assets/commercial-space-960.webp 960w, /assets/commercial-space-1200.webp 1200w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 800px) 50vw, 600px" width="1200" height="900" alt="Ambiente comercial iluminado, com mesas, vegetação e janelas amplas" {...{ fetchpriority: "high" }}/><div className={styles.imageCaption}><span>ESPAÇOS QUE INSPIRAM</span><ArrowUpRight size={19}/></div><div className={styles.verticalText}>TRABALHAR. CRIAR. CRESCER.</div></div>
     </section>
     <div className={`container ${styles.searchArea}`}><form ref={formRef} onSubmit={search} className={styles.searchForm} aria-label="Buscar imóveis">

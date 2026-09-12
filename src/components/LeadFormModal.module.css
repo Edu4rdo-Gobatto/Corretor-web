@@ -3,5 +3,4 @@
 .form .consent { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; font-weight: 400; }
 .consent input { margin-top: 4px; }
 .success { display: grid; gap: 16px; justify-items: start; }.success svg { color: var(--green); }
-.demoNote { padding: 12px; background: var(--soft); font-size: 13px; }
 .manualLink { text-align: center; font-size: 14px; }
