@@ -1,0 +1,11 @@
+import { z } from 'zod';
+const civilDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Informe uma data válida.').refine(v => { const d = new Date(`${v}T12:00:00Z`); return !Number.isNaN(d.valueOf()) && d.toISOString().slice(0,10) === v; }, 'Informe uma data válida.');
+export const partySchema = z.object({kind:z.enum(['OWNER','TENANT']),personType:z.enum(['PF','PJ']),name:z.string().trim().min(2).max(200),taxId:z.string().regex(/^\d{11}(\d{3})?$/, 'Informe CPF ou CNPJ somente com números.'),email:z.union([z.literal(''),z.email()]),phone:z.string().max(30),address:z.string().max(1000),birthDate:z.union([z.literal(''),civilDate]),notes:z.string().max(5000),bankName:z.string().max(100),bankAgency:z.string().max(30),bankAccount:z.string().max(50),pixKey:z.string().max(254),active:z.boolean()}).refine(v=>v.taxId.length===(v.personType==='PF'?11:14),{path:['taxId'],message:'CPF deve ter 11 dígitos; CNPJ, 14.'});
+export const leaseSchema=z.object({reference:z.string().trim().min(1).max(100),propertyId:z.uuid('Selecione um imóvel.'),ownerId:z.uuid('Selecione um proprietário.'),tenantId:z.uuid('Selecione um inquilino.'),startDate:civilDate,endDate:civilDate,rentAmount:z.string().regex(/^\d{1,10}(\.\d{1,2})?$/, 'Use um valor como 1500.00.').refine(v=>Number(v)>0,'Informe um valor positivo.'),dueDay:z.number().int().min(1).max(31),status:z.enum(['DRAFT','ACTIVE','ENDED']),notes:z.string().max(5000)}).refine(v=>v.endDate>=v.startDate,{path:['endDate'],message:'A data final deve ser igual ou posterior ao início.'});
+export type RentalPartyInput=z.infer<typeof partySchema>;
+export type LeaseInput=z.infer<typeof leaseSchema>;
+export type RentalParty=RentalPartyInput & {id:string};
+export type Lease=LeaseInput & {id:string;propertyTitle:string;ownerName:string;tenantName:string};
+export interface RentalDocument {id:string;fileName:string;contentType:string;size:number;createdAt:string;partyId:string|null;leaseId:string|null}
+export interface CommissionInstallment { id:string; installmentNumber:number; dueDate:string; amount:string; status:'PENDING'|'PAID'; paidAt:string|null; paymentNote:string|null }
+export interface AcquisitionCommission { id:string; leaseId:string; totalAmount:string; installmentCount:number; paidAmount:string; balanceAmount:string; notes:string; installments:CommissionInstallment[] }

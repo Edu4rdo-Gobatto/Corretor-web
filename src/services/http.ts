@@ -29,7 +29,7 @@ async function refreshAccess(): Promise<void> {
   const session = await response.json();
   accessToken = session.accessToken;
 }
-export async function http<T>(path: string, options: RequestInit = {}, canRefresh = true): Promise<T> {
+async function authenticatedResponse(path: string, options: RequestInit = {}, canRefresh = true): Promise<Response> {
   let response = await send(path, options);
   if (response.status === 401 && canRefresh && !path.startsWith('/auth/login') && !path.startsWith('/auth/refresh') && !path.startsWith('/auth/logout')) {
     if (!pendingRefresh) pendingRefresh = refreshAccess().finally(() => { pendingRefresh = null; });
@@ -42,5 +42,12 @@ export async function http<T>(path: string, options: RequestInit = {}, canRefres
     const message = typeof body.message === 'string' ? body.message : body.message?.join(' ');
     throw new ApiError(response.status >= 500 ? 'O serviço está indisponível. Aguarde um momento e tente novamente.' : message || fallback[response.status] || 'Não foi possível concluir a solicitação.', response.status);
   }
+  return response;
+}
+export async function http<T>(path: string, options: RequestInit = {}, canRefresh = true): Promise<T> {
+  const response = await authenticatedResponse(path, options, canRefresh);
   return response.status === 204 ? undefined as T : response.json() as Promise<T>;
+}
+export async function httpBlob(path: string): Promise<Blob> {
+  return (await authenticatedResponse(path, {cache:'no-store'})).blob();
 }

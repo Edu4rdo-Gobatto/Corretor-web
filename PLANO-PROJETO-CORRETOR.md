@@ -654,3 +654,14 @@ Sempre que for adicionar uma feature nova, pergunte antes de escrever código:
 3. Ela está no escopo da validação, ou é uma otimização prematura pra um problema que ainda não existe?
 
 Se a resposta de qualquer uma dessas for "não", pare e questione antes de seguir — é exatamente esse tipo de decisão que gerou a complexidade que descartamos nesse planejamento.
+
+
+## Atualização compartilhada — 12/09/2026: administração de locações
+
+Esta atualização prevalece sobre marcações históricas de escopo. A versão anterior divergente da API foi preservada em docs/handoffs/2026-09-12-plano-anterior-api.md no repositório da API.
+
+Primeira entrega aprovada: proprietário → inquilino → contrato → documentos privados, exclusivamente ADMIN. Fichas completas PF/PJ, dados bancários do proprietário, busca, paginação, datas e valor contratual. Um imóvel e uma parte de cada tipo por contrato. Cadastros e contratos são mantidos no histórico; documentos têm download autenticado, nunca URL pública.
+
+Implementação: entidades rental_parties, leases, rental_documents; módulo rentals; rotas administrativas dos dois repositórios. Detalhes em docs/plans/2026-09-12-rental-administration.md e corretor-spec.json. Migration e bucket privado precisam de homologação real antes da operação.
+
+Etapa financeira futura: a regra de comissão está explicitamente pendente. Recebimentos e repasses serão registrados manualmente no primeiro MVP financeiro; integrações bancárias não estão aprovadas. SI9/Imonov permanecem independentes; carga inicial manual. Relatórios, cobranças e alertas não foram implementados nesta primeira entrega.

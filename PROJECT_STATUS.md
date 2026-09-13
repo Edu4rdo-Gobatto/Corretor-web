@@ -62,3 +62,16 @@ Alterados: `src/config/brand.ts` (reescrito), `src/services/api.ts`, `src/seo/se
 `.env` (não versionado) com `VITE_API_URL=/api`, `API_ORIGIN=http://localhost:3000`,
 `SITE_URL=http://127.0.0.1:5173` e `SEO_INDEXABLE=false`. A linha `VITE_DEMO_MODE` foi retirada em 12/09. A `SITE_URL` local foi definida nesta sessão porque
 sem ela o SSR não gera canonical nem JSON-LD.
+
+## 2026-09-12 — Codex: administração de locações em implementação
+
+Área assumida: cadastros, contratos e documentos privados (ADMIN). Escopo aprovado em docs/plans/2026-09-12-rental-administration.md. Comissão e financeiro aguardam etapa própria. Alterações preexistentes preservadas; sem commit/push e sem mudança automática do banco real.
+
+Implementação local concluída e pronta para revisão. Front: rotas de proprietários, inquilinos e contratos, fichas, busca/paginação, seletores de imóvel/partes, anexos privados e download autenticado. API: módulo `rentals`, migration aditiva, criptografia de dados privados, validação de arquivos e regras de vínculo. Comissão de captação iniciada: valor equivalente a um aluguel, parcelas configuráveis e confirmação manual ADMIN. Migration do Neon e bucket R2 privado ainda não foram aplicados/configurados. SI9/Imonov permanece fora do escopo.
+
+### Ambiente de teste (2026-09-13)
+- Bucket privado R2 criado: \corretor-documentos-test\.
+- Deploy Vercel e branch Neon pendentes de reconexão das sessões locais (CLI sem autenticação válida).
+
+- Vercel conectado e primeiro deploy publicado: https://corretor-web-test.vercel.app
+- Neon conectado; projeto de teste \oyal-haze-18985318\ (corretor-db-test), migrations aplicadas.

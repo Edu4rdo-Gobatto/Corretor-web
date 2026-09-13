@@ -96,3 +96,19 @@ Critérios de conclusão:
 Cópia local atualizada de `78200ff` para `d4f6b2f`; 64 testes aprovados; lint, typecheck e build sem erro;
 smoke do SSR em modo demo aprovado; homologação com API, Neon e R2 reais, com JSON-LD e `og:image` verificados.
 Detalhes em `docs/handoffs/2026-09-11-infra-neon-r2.md`.
+
+## RENTAL-001 — Cadastros, contratos e documentos privados — em revisão
+
+Responsável: Codex. Escopo e interfaces: docs/plans/2026-09-12-rental-administration.md.
+
+Critérios: ADMIN em todas as rotas; fichas PF/PJ e dados bancários; contrato com vínculos válidos; documentos privados com tamanho/assinatura validados; busca/paginação; nenhuma comissão presumida. Validação local e revisão em andamento, resultados finais no CHANGELOG_AI.md.
+
+## RENTAL-002 — Homologar banco e documentos privados — bloqueada por ambiente
+
+Disponibilizar o .env local pelo fluxo habitual do dono, sem enviá-lo ao chat. Verificar acesso ADMIN, fazer backup do Neon, conferir migrations já aplicadas e executar a nova migration explicitamente. Provisionar bucket privado R2 e acesso do token; configurar R2_DOCUMENTS_BUCKET. Verificar cadastro/edição de pessoa, criação/encerramento de contrato, upload/download/exclusão reais e recusa de download anônimo. Confirmar no painel R2 ausência de acesso público. Nenhum dado real foi alterado nesta sessão.
+
+## RENTAL-003 — Comissão de captação parcelada — em implementação
+
+Regra provisória informada pelo dono em 12/09/2026: a comissão de captação equivale a um aluguel do contrato. O proprietário pode pagar esse valor parcelado; a quantidade de parcelas e vencimentos devem ficar registrados, e cada parcela será confirmada manualmente. A implementação deve mostrar total da comissão, parcelas, recebido e saldo. Essa é uma regra operacional a validar com o responsável contábil, não uma presunção jurídica.
+
+Próxima entrega: entidades de comissão/parcela, pagamentos de aluguel e repasse mensal, com acesso ADMIN, histórico, filtros e relatórios. Não misturar comissão de captação com o cálculo do repasse mensal do proprietário. SI9/Imonov, importação e alertas seguem fora do escopo.

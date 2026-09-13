@@ -14,6 +14,11 @@ const PropertyList = lazy(() => import('./pages/admin/PropertyList'));
 const PropertyForm = lazy(() => import('./pages/admin/PropertyForm'));
 const LeadsList = lazy(() => import('./pages/admin/LeadsList'));
 const AgentsList = lazy(() => import('./pages/admin/AgentsList'));
+const RentalGuard = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.RentalGuard})));
+const Parties = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.Parties})));
+const PartyDetail = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.PartyDetail})));
+const LeaseList = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.LeaseList})));
+const LeaseDetail = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.LeaseDetail})));
 function ScrollToTop() { const { pathname } = useLocation(); useEffect(() => { window.scrollTo(0,0); }, [pathname]); return null; }
 export default function App() {
   return <BrowserRouter><AppRoutes/></BrowserRouter>;
@@ -32,7 +37,7 @@ export function AppRoutes() {
   const error = initial && initial.status !== 200;
   return <BootstrapContext.Provider value={navigated ? { ...bootstrap, url: '', data: {}, status: 200 } : bootstrap}><ScrollToTop/>{admin && <Seo/>}<Suspense fallback={<AsyncState loading/>}><Routes>
     <Route element={<PublicLayout/>}><Route index element={error ? <ErrorPage status={initial.status}/> : <Catalog key={location.pathname + location.search}/>}/><Route path="imoveis/:slug" element={error ? <ErrorPage status={initial.status}/> : <PropertyDetail key={location.pathname}/>}/><Route path="privacidade" element={error ? <ErrorPage status={initial.status}/> : <PrivacyPolicy/>}/><Route path="*" element={<ErrorPage status={error ? initial.status : 404}/>}/></Route>
-    <Route path="admin" element={<AuthProvider><AdminLayout/></AuthProvider>}><Route index element={<Dashboard/>}/><Route path="imoveis" element={<PropertyList/>}/><Route path="imoveis/novo" element={<PropertyForm/>}/><Route path="imoveis/:id/editar" element={<PropertyForm/>}/><Route path="leads" element={<LeadsList/>}/><Route path="corretores" element={<AgentsList/>}/></Route>
+    <Route path="admin" element={<AuthProvider><AdminLayout/></AuthProvider>}><Route index element={<Dashboard/>}/><Route path="imoveis" element={<PropertyList/>}/><Route path="imoveis/novo" element={<PropertyForm/>}/><Route path="imoveis/:id/editar" element={<PropertyForm/>}/><Route path="leads" element={<LeadsList/>}/><Route path="corretores" element={<AgentsList/>}/><Route path="proprietarios" element={<RentalGuard><Parties key="OWNER" kind="OWNER"/></RentalGuard>}/><Route path="inquilinos" element={<RentalGuard><Parties key="TENANT" kind="TENANT"/></RentalGuard>}/><Route path="proprietarios/:id" element={<RentalGuard><PartyDetail key={location.pathname}/></RentalGuard>}/><Route path="inquilinos/:id" element={<RentalGuard><PartyDetail key={location.pathname}/></RentalGuard>}/><Route path="contratos" element={<RentalGuard><LeaseList/></RentalGuard>}/><Route path="contratos/:id" element={<RentalGuard><LeaseDetail key={location.pathname}/></RentalGuard>}/></Route>
     <Route path="admin/login" element={<AuthProvider><Login/></AuthProvider>}/>
   </Routes></Suspense></BootstrapContext.Provider>;
 }

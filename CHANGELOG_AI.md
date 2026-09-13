@@ -1,5 +1,21 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — Codex — comissão de captação parcelada
+
+Adicionada à ficha do contrato a comissão de captação equivalente a um aluguel, com quantidade de parcelas, primeiro vencimento, total, saldo e confirmação manual ADMIN. A interface chama as rotas financeiras protegidas e mantém SI9/Imonov fora do fluxo.
+
+Verificação: typecheck e suíte completa do front (18 arquivos, 62 testes) aprovados antes/apos a inclusão da área; a API passou typecheck, lint, build e 18 suítes/190 testes. A migration financeira ainda aguarda aplicação no Neon.
+
+## 2026-09-12 — Codex — primeira entrega de administração de locações
+
+Tarefa: RENTAL-001. Implementadas no painel ADMIN as páginas e formulários de proprietários, inquilinos e contratos, com busca/paginação, vínculos a imóveis de locação, dados bancários do proprietário, fichas detalhadas, contratos vinculados e anexos privados. O cliente HTTP ganhou chamadas tipadas e download binário com o mesmo refresh de sessão compartilhado.
+
+Arquivos principais: `src/pages/admin/Rentals.tsx`, `src/pages/admin/rentalSchema.ts`, `src/services/api.ts`, `src/services/http.ts`, `src/App.tsx`, `src/pages/admin/AdminLayout.tsx` e testes de autorização/contratos.
+
+Verificação real: `npm run typecheck`, `npm run lint`, `npm test` (18 arquivos, 62 testes) e `npm run build` passaram. O build produziu cliente, SSR e `.vercel/output`; os avisos emitidos vieram de comentários de pureza em dependências do Zod durante o Rollup. Smoke SSR ainda depende de executar `node scripts/seo-smoke.mjs` com ambiente de preview e será repetido na validação final.
+
+Pendências: aplicar a migration da API após backup do Neon, configurar `R2_DOCUMENTS_BUCKET` privado e homologar o fluxo real. Comissão, cobrança, repasse, SI9/Imonov e importação de planilhas permanecem fora do escopo.
+
 Registro objetivo, do mais recente para o mais antigo. Cada entrada traz tarefa, alterações,
 testes com resultado real e pendências.
 
@@ -89,3 +105,11 @@ Pendências:
 
 O trabalho anterior a 11/09/2026 está nos commits do Git, no `PLANO-PROJETO-CORRETOR.md` e no `AUDITORIA-FRONTEND.md`.
 Não havia registro por agente antes desta data.
+
+## 2026-09-13 — Ambiente de teste
+- Provisionamento Cloudflare R2 registrado; bucket privado \corretor-documentos-test\ criado para documentos administrativos.
+- Vercel/Neon aguardam autenticação válida da sessão local.
+
+## 2026-09-13 — Ambientes conectados
+- Vercel: projeto \corretor-web-test\ publicado em https://corretor-web-test.vercel.app.
+- Neon: projeto \oyal-haze-18985318\ criado e oito migrations aplicadas com sucesso.

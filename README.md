@@ -128,3 +128,13 @@ node scripts/seo-smoke.mjs --serve # Mantém a prévia de QA em http://127.0.0.1
 O smoke test usa as portas locais 4180 e 4199. `PORT` permite escolher outra porta para `dev`/`preview`. `API_PROXY_TARGET` continua aceito como fallback em desenvolvimento. Use `Ctrl+C` para encerrar as prévias.
 
 Referências: [SSR do Vite](https://vite.dev/guide/ssr), [SEO JavaScript do Google](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics) e [Vercel Functions](https://vercel.com/docs/build-output-api/primitives).
+
+## Administração de locações — entrega de 12/09/2026
+
+Cadastros de proprietários e inquilinos PF/PJ, dados bancários do proprietário, contratos e documentos privados estão disponíveis para ADMIN. Consulte `docs/plans/2026-09-12-rental-administration.md` para interfaces, limites e fluxo. Comissão, cobranças e repasses ainda não fazem parte desta entrega.
+
+No painel: Proprietários → Novo cadastro; Inquilinos → Novo cadastro; Contratos → selecionar imóvel de locação e as duas partes. As fichas permitem editar dados, consultar contratos vinculados e anexar documentos. Pessoas com contrato ativo não podem ser desativadas. Contratos encerrados permanecem no histórico.
+
+Pré-requisitos novos na API: aplicar a migration `1789257600000-create-rental-administration` após backup do Neon e configurar `R2_DOCUMENTS_BUCKET` com bucket **privado**, separado de `corretor-midia`, e permissão S3 de leitura/escrita no token existente. Sem bucket configurado, os anexos retornam 503; não há fallback público. Não aplicar migrations sem revisar o histórico existente. Não publicar arquivos .env nem dados pessoais.
+
+Verificações: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` em cada repositório. No front, `node scripts/seo-smoke.mjs` confere SSR, proxy e discovery após o build. Node suportado: >=24 <25.

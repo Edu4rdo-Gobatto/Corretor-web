@@ -1,9 +1,25 @@
 import type { Agent, AgentInput, CatalogQuery, Lead, LeadInput, Page, Property, PropertyInput, Session } from '../types';
 import { buildCatalogQuery } from './catalog';
-import { http, setAccessToken } from './http';
+import { http, httpBlob, setAccessToken } from './http';
+import type { RentalParty, RentalPartyInput, Lease, LeaseInput, RentalDocument, AcquisitionCommission } from '../pages/admin/rentalSchema';
+const rentalQuery = (query: Record<string, string | number | boolean | undefined>) => new URLSearchParams(Object.entries(query).filter(([,v])=>v!==undefined&&v!=='').map(([k,v])=>[k,String(v)])).toString();
 
 const json = (method: string, body?: unknown): RequestInit => ({ method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
 const realApi = {
+  listRentalParties: (query: {page?:number;limit?:number;search?:string;kind?:'OWNER'|'TENANT';active?:boolean}) => http<Page<RentalParty>>(`/admin/rental-parties?${rentalQuery(query)}`),
+  getRentalParty: (id:string) => http<RentalParty>(`/admin/rental-parties/${id}`),
+  saveRentalParty: (input:RentalPartyInput,id?:string) => http<RentalParty>(`/admin/rental-parties${id?`/${id}`:''}`,json(id?'PATCH':'POST',input)),
+  listLeases: (query: {page?:number;limit?:number;search?:string;partyId?:string;status?:string}) => http<Page<Lease>>(`/admin/leases?${rentalQuery(query)}`),
+  getLease: (id:string) => http<Lease>(`/admin/leases/${id}`),
+  saveLease: (input:LeaseInput,id?:string) => http<Lease>(`/admin/leases${id?`/${id}`:''}`,json(id?'PATCH':'POST',input)),
+  listRentalProperties: (page:number,search:string) => http<Page<Property>>(`/admin/properties?${rentalQuery({page,limit:15,search})}`),
+  listRentalDocuments: (link: {partyId?:string;leaseId?:string}) => http<RentalDocument[]>(`/admin/rental-documents?${rentalQuery(link)}`),
+  uploadRentalDocument: (file:File,link:{partyId?:string;leaseId?:string}) => {const body=new FormData();body.append('file',file);Object.entries(link).forEach(([k,v])=>{if(v)body.append(k,v);});return http<RentalDocument>('/admin/rental-documents',{method:'POST',body});},
+  deleteRentalDocument: (id:string) => http<void>(`/admin/rental-documents/${id}`,json('DELETE')),
+  downloadRentalDocument: (id:string) => httpBlob(`/admin/rental-documents/${id}/download`),
+  getCommission: (leaseId:string) => http<AcquisitionCommission>(`/admin/finance/commissions/lease/${leaseId}`),
+  createCommission: (input:{leaseId:string;installmentCount:number;firstDueDate:string;notes?:string}) => http<AcquisitionCommission>('/admin/finance/commissions',json('POST',input)),
+  markCommissionPaid: (id:string,paymentNote='') => http<AcquisitionCommission>(`/admin/finance/commissions/installments/${id}/paid`,json('PATCH',{paymentNote})),
   listProperties: (query: CatalogQuery, managed = false) => http<Page<Property>>(`${managed ? '/admin' : ''}/properties?${buildCatalogQuery(query)}`),
   getProperty: (slug: string) => http<Property>(`/properties/${encodeURIComponent(slug)}`),
   getManagedProperty: (id: string) => http<Property>(`/admin/properties/${id}`),
