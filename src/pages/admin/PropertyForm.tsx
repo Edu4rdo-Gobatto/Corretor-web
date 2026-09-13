@@ -124,9 +124,9 @@ export default function PropertyForm() {
   }
 
   return <>
-    <header className="mb-8 flex items-center justify-between gap-5 max-lg:items-start">
+    <header className="mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full">
       <div>
-        <Link to="/admin/imoveis">← Imóveis</Link>
+        <Link to="/admin/imoveis" className="inline-flex min-h-11 items-center">← Imóveis</Link>
         <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">{id ? 'Editar imóvel' : 'Um novo espaço.'}</h1>
         <p className="muted">Conte o que torna este imóvel uma boa oportunidade.</p>
       </div>
@@ -174,7 +174,7 @@ export default function PropertyForm() {
         </section>
         {error && <p className="error" role="alert">{error}</p>}
         {success && <p className="rounded bg-[#eaf0e8] p-3.5 text-[#174d3b] dark:bg-white/10 dark:text-white" role="status">{success}</p>}
-        <div className="my-7 flex items-center gap-3.5">
+        <div className="my-7 flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full">
           <button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar imóvel'}</button>
           <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link>
         </div>

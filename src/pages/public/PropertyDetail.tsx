@@ -110,7 +110,7 @@ export default function PropertyDetail() {
               </section>
               <RelatedProperties current={property} />
             </div>
-            <aside className="min-w-0 max-[760px]:row-[1]">
+            <aside className="min-w-0">
               <div className="sticky top-6 rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-[0_18px_38px_rgb(10_32_66/0.10)] max-[1000px]:p-[22px] max-[760px]:static max-[480px]:px-5 max-[480px]:py-6">
                 <p className="eyebrow">{property.purpose === 'LOCACAO' ? 'Valor de locação' : 'Valor de venda'}</p>
                 <p className="mb-[22px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">
@@ -120,8 +120,8 @@ export default function PropertyDetail() {
                   {property.condoFee !== null && <div><dt>Condomínio</dt><dd>{money(property.condoFee)}</dd></div>}
                   {property.iptuFee !== null && <div><dt>IPTU informado</dt><dd>{money(property.iptuFee)}</dd></div>}
                 </dl>
-                <button className="button w-full" onClick={() => setContactOpen(true)}>Tenho interesse <ArrowUpRight size={18} /></button>
-                <p className="mb-[25px] mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
+                <button className="button w-full max-[760px]:hidden" onClick={() => setContactOpen(true)}>Falar com corretor <ArrowUpRight size={18} /></button>
+                <p className="mb-[25px] mt-[10px] text-center text-xs text-muted max-[760px]:hidden">Converse diretamente com o corretor.</p>
                 <div className="flex items-center gap-3 border-t border-line pt-[22px]">
                   <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">
                     {property.agent.avatarUrl ? <img src={property.agent.avatarUrl} alt="" /> : property.agent.name.charAt(0)}
@@ -133,9 +133,9 @@ export default function PropertyDetail() {
               <p className="break-words px-2 py-[14px] text-[11px] text-muted max-[760px]:hidden">Referência: {property.id}</p>
             </aside>
           </div>
-          <div className="hidden max-[760px]:sticky max-[760px]:bottom-0 max-[760px]:z-[5] max-[760px]:mt-6 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-4 max-[760px]:rounded-[5px] max-[760px]:border max-[760px]:border-line max-[760px]:bg-paper max-[760px]:p-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-[0_-8px_24px_rgb(10_32_66/0.10)]">
-            <div><span className="block text-xs text-muted">{property.purpose === 'LOCACAO' ? 'Locação' : 'Venda'}</span><strong className="text-[19px] text-brand">{money(property.price)}{property.purpose === 'LOCACAO' && ' /mês'}</strong></div>
-            <button className="button" onClick={() => setContactOpen(true)}>Tenho interesse</button>
+          <div className="hidden max-[760px]:sticky max-[760px]:bottom-0 max-[760px]:z-[5] max-[760px]:mt-6 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-4 max-[760px]:rounded-[5px] max-[760px]:border max-[760px]:border-navy max-[760px]:bg-navy max-[760px]:p-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-[0_-8px_24px_rgb(10_32_66/0.10)]">
+            <div><span className="block text-xs text-[#C6CEDD]">{property.purpose === 'LOCACAO' ? 'Locação' : 'Venda'}</span><strong className="font-display text-[19px] text-white">{money(property.price)}{property.purpose === 'LOCACAO' && ' /mês'}</strong></div>
+            <button className="button min-h-12 border-b-gold bg-gold text-navy hover:bg-[#b38935]" onClick={() => setContactOpen(true)}>Falar com corretor</button>
           </div>
           {contactOpen && <LeadFormModal property={property} onClose={() => setContactOpen(false)} />}
         </>

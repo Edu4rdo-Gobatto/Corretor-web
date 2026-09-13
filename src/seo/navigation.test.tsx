@@ -38,7 +38,7 @@ describe('catalog URL navigation', () => {
     await waitFor(() => expect(list).toHaveBeenCalledWith(expect.objectContaining({purpose:'LOCACAO',type:'SALA'})));
     fireEvent.click(screen.getByRole('button', {name:'Galpões'}));
     await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/imoveis/para-alugar/galpoes?utm_source=test'));
-    fireEvent.click(screen.getByRole('button', {name:'Limpar filtros'}));
+    fireEvent.click(screen.getAllByRole('button', {name:'Limpar filtros'})[0]);
     await waitFor(() => expect(screen.getByTestId('url').textContent).toBe('/?utm_source=test'));
     fireEvent.click(screen.getByRole('button', {name:'Voltar histórico'}));
     await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/imoveis/para-alugar/galpoes'));

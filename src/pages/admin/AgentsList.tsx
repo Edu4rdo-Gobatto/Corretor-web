@@ -57,7 +57,7 @@ function AgentEditor({ agent, onClose, onSaved }: { agent: Agent | null; onClose
           <label className="col-span-full">{agent ? 'Nova senha (opcional)' : 'Senha *'}<input type="password" autoComplete="new-password" {...register('password')} /><span className={hint}>{agent ? 'Deixe em branco para manter a senha atual. ' : ''}Mínimo de 12 caracteres.</span>{errors.password && <span className={errorText}>{errors.password.message}</span>}</label>
         </div>
         {error && <p className="error" role="alert">{error}</p>}
-        <div className="my-7 flex items-center gap-3.5">
+        <div className="my-7 flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full">
           <button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar corretor'}</button>
           <button className="buttonGhost" type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
         </div>
@@ -91,7 +91,7 @@ export default function AgentsList() {
   }
   return (
     <>
-      <header className="mb-8 flex items-center justify-between gap-5 max-lg:items-start">
+      <header className="mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full">
         <div>
           <p className="eyebrow">NOSSA EQUIPE</p>
           <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">Corretores</h1>
@@ -103,7 +103,7 @@ export default function AgentsList() {
       <AsyncState loading={loading} error={error} retry={refresh} />
       {data && !error && (
         <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
-          <div className="overflow-x-auto">
+            <div className="overflow-x-auto overscroll-contain">
             <table className="w-full min-w-[640px] border-collapse text-left">
               <thead>
                 <tr>
@@ -126,7 +126,7 @@ export default function AgentsList() {
                       <span className="inline-block rounded bg-[#eaf0e8] px-2.5 py-1 text-[13px] text-[#174d3b] dark:bg-white/10 dark:text-white">{a.active ? 'Ativo' : 'Inativo'}</span>
                     </td>
                     <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
-                      <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
+                      <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
                         <button className="buttonGhost" onClick={() => setEditing(a)}>Editar</button>
                         <button className="buttonGhost" disabled={!!busy} onClick={() => void toggle(a)}>{busy === a.id ? 'Atualizando…' : a.active ? 'Desativar' : 'Reativar'}</button>
                       </div>

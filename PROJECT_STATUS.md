@@ -131,6 +131,22 @@ Logs do Render para o POST de mídia registram `write EPROTO ... SSL alert hands
 
 Área assumida: `docs/plans/2026-09-13-mobile-public.md` — tese ponto comercial Juara/MT, tokens navy/gold existentes, assinatura soleira dourada + placa de rua, wireframes 360px, P0/P1 com visual + P2 microcopy, validação 320–390px sem scroll-X e toques ≥44px. Sem código, sem commit (aguardando confirmação do dono).
 
+## 2026-09-13 — opencode: menu mobile não abria (corrigido e conferido no navegador, sem commit)
+Causa: `max-[650px]:hidden` + `max-[650px]:flex` aplicados juntos no `<nav>` — no CSS gerado o `hidden` vence o `flex`, então o menu nunca aparecia. Fix: classes mutuamente exclusivas + teste de regressão das classes. Conferido em 390px com dados reais: sheet navy abre com as 4 opções + CRECI. Typecheck, lint e testes do menu/navegação aprovados. Sem commit/push (aguardando confirmação do dono).
+
+## 2026-09-13 — opencode: mobile do admin (implementado, sem commit)
+Área assumida: mesmo padrão do público, agora no painel (`AdminLayout`, login, dashboard, listas, formulário, mídias, locações); sem `any`/dependência nova. Typecheck, lint, 21 arquivos/98 testes e build aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador 320–390px com login: navegação lateral, cabeçalhos, tabelas, filtros, formulário, mídias e fichas de locação.
+
+## 2026-09-13 — opencode: mobile público vitrine (implementado, sem commit)
+Área assumida: `docs/plans/2026-09-13-mobile-public.md` — só público (header, catálogo, detalhe, galeria, busca, modal lead); admin fora. Base atual usa Tailwind (sem `.module.css`), então o plano foi aplicado como utilities, sem `any`/`fetch` direto/dependência nova. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador 320–390px: menu, hero sem scroll-X, busca 1 coluna, CTA sticky navy único, galeria com snap, modal lead e toques ≥44px.
+
+## 2026-09-13 — opencode: header do admin afinado no mobile (implementado, sem commit)
+Área assumida: `AdminLayout` — topo navy ocupava altura demais no mobile (print do dono).
+Fix só com utilities: `aside` com `py-2.5/gap-2`, marca `16px/leading-tight`, nav sem `pb`
+e links `min-h-10/text-14`, linha do usuário sem `mt-auto` no mobile e botão sair `min-h-9`.
+Desktop (`lg:`) preservado. Typecheck, lint e teste do AdminLayout aprovados. Sem commit
+(aguardando confirmação do dono). Pendente conferir no navegador 320–390px.
+
 ## 2026-09-13 — opencode: capa no catálogo + decode no upload (implementado, sem commit)
 Área assumida: capa some no catálogo embora apareça no detalhe, mais o erro inglês "The source image could not be decoded." no formulário. Causa da capa na API (`PropertiesService.list()` sem `media`; corrigido no repositório irmão). Front: `prepareMediaFiles` agora pula arquivo ilegível com aviso em PT e mantém os válidos no lote; `MediaManager` exibe quais foram pulados e só envia quando há algo válido. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir com a API no ar: catálogo com capa, upload misto (válido + corrompido) e redeploy da API no Render.
 

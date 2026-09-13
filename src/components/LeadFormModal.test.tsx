@@ -14,7 +14,7 @@ it('opens WhatsApp immediately and reports a failed lead save without discarding
   fireEvent.change(screen.getByLabelText('Seu nome'), { target: { value: 'Visitante' } });
   fireEvent.change(screen.getByLabelText('Telefone com DDD'), { target: { value: '65999998888' } });
   fireEvent.click(screen.getByRole('checkbox'));
-  fireEvent.submit(screen.getByRole('button', { name: 'Falar pelo WhatsApp' }).closest('form')!);
+  fireEvent.submit(screen.getByRole('button', { name: 'Falar com corretor' }).closest('form')!);
   await waitFor(() => expect(open).toHaveBeenCalled());
   await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('não foi registrado'));
   expect(screen.getByLabelText('Seu nome')).toHaveValue('Visitante');

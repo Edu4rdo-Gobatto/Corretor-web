@@ -29,7 +29,7 @@ export default function PropertyList() {
   }
   return (
     <>
-      <header className="mb-8 flex items-center justify-between gap-5 max-lg:items-start">
+      <header className="mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full">
         <div>
           <p className="eyebrow">SEU PORTFÓLIO</p>
           <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">Imóveis</h1>
@@ -49,7 +49,7 @@ export default function PropertyList() {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overscroll-contain">
                 <table className="w-full min-w-[640px] border-collapse text-left">
                   <thead>
                     <tr>
@@ -74,7 +74,7 @@ export default function PropertyList() {
                           <span className="inline-block rounded bg-[#eaf0e8] px-2.5 py-1 text-[13px] text-[#174d3b] dark:bg-white/10 dark:text-white">{propertyStatuses[p.status]}</span>
                         </td>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
-                          <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
+                          <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
                             <Link to={`/admin/imoveis/${p.id}/editar`}>Editar</Link>
                             <Link to={`/imoveis/${p.slug}`}>Ver ↗</Link>
                             <button className="buttonGhost text-error!" disabled={!!busy} onClick={() => void remove(p.id)}>

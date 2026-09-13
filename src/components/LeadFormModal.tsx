@@ -40,7 +40,7 @@ export default function LeadFormModal({ property, onClose }: { property: Propert
       <label>Mensagem (opcional)<textarea {...register('message')} maxLength={2000}/></label>
       <div><label className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-[13px] font-normal [&_input]:mt-1"><input type="checkbox" {...register('consentGiven')}/><span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank">Política de Privacidade</Link>.</span></label>{errors.consentGiven && <span className="error">{errors.consentGiven.message}</span>}</div>
       {failure && <p className="error" role="alert">{failure}</p>}
-      <button className="button" type="submit" disabled={saving}>{saving ? 'Registrando contato…' : failure ? 'Tentar registrar novamente' : 'Falar pelo WhatsApp'}<ArrowUpRight size={17}/></button>
+      <button className="button" type="submit" disabled={saving}>{saving ? 'Registrando contato…' : failure ? 'Tentar registrar novamente' : 'Falar com corretor'}<ArrowUpRight size={17}/></button>
       {contactOpened && <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="text-center text-sm">Se o WhatsApp não abriu, clique aqui</a>}
     </form></>}
   </Dialog>;

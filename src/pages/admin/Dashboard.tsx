@@ -20,7 +20,7 @@ export default function Dashboard() {
   );
   return (
     <>
-      <header className="mb-8 flex items-center justify-between gap-5 max-lg:items-start">
+      <header className="mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full">
         <div>
           <p className="eyebrow">VISÃO GERAL</p>
           <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">Olá, {agent?.name.split(' ')[0]}.</h1>
@@ -32,17 +32,17 @@ export default function Dashboard() {
       {data && !error && (
         <>
           <section className="mb-8 grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-5">
-            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7">
+            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
               <span>Imóveis no portfólio</span>
               <strong className="m-0 block font-display text-[28px] text-ink lg:my-[18px] lg:mb-2 lg:text-[38px]">{data.properties.total}</strong>
               <Link to="/admin/imoveis">Gerenciar imóveis →</Link>
             </div>
-            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7">
+            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
               <span>Contatos recebidos</span>
               <strong className="m-0 block font-display text-[28px] text-ink lg:my-[18px] lg:mb-2 lg:text-[38px]">{data.leads.total}</strong>
               <Link to={routes.contacts}>Ver oportunidades →</Link>
             </div>
-            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7">
+            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
               <span>Sua vitrine está pronta</span>
               <strong className="m-0 block font-display text-[28px] text-ink lg:my-[18px] lg:mb-2 lg:text-[38px]">↗</strong>
               <Link to={routes.home}>Explorar o site público</Link>
@@ -53,7 +53,7 @@ export default function Dashboard() {
             {data.leads.items.length === 0 ? (
               <p className="px-5 py-10 text-center text-muted">Os novos contatos aparecerão aqui.</p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overscroll-contain">
                 <table className="w-full min-w-[640px] border-collapse text-left">
                   <thead>
                     <tr>

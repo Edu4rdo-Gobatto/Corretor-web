@@ -15,22 +15,22 @@ type Kind = 'OWNER' | 'TENANT';
 const pathFor = (kind: Kind) => `/admin/${kind === 'OWNER' ? 'proprietarios' : 'inquilinos'}`;
 const statusNames = { DRAFT: 'Rascunho', ACTIVE: 'Ativo', ENDED: 'Encerrado' };
 
-const heading = 'mb-8 flex items-center justify-between gap-5 max-lg:items-start';
+const heading = 'mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full';
 const headingTitle = 'my-2 text-[clamp(26px,3vw,38px)] text-ink';
 const panel = 'mb-6 rounded border border-line bg-paper p-5 lg:p-7';
 const panelTitle = 'mb-6 mt-0 text-[22px] text-ink';
-const tableWrap = 'overflow-x-auto';
+const tableWrap = 'overflow-x-auto overscroll-contain';
 const table = 'w-full min-w-[640px] border-collapse text-left';
 const th = 'border-b border-line px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted max-lg:px-2 max-lg:py-3';
 const td = 'border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3';
 const cellSmall = 'mt-1 block text-muted';
-const actions = 'flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap';
+const actions = 'flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap';
 const grid2 = 'grid grid-cols-1 gap-[22px] md:grid-cols-2';
-const toolbar = 'mb-6 flex flex-wrap items-end gap-3 [&_label]:grid [&_label]:gap-1.5';
+const toolbar = 'mb-6 flex flex-wrap items-end gap-3 max-[560px]:grid max-[560px]:grid-cols-1 max-[560px]:[&_input]:min-w-0 [&_label]:grid [&_label]:gap-1.5';
 const formField = '[&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold [&_select]:w-full [&_textarea]:min-h-[130px] [&_textarea]:w-full';
 const errorText = 'm-0 text-[13px] text-error';
 const hint = 'text-[13px] font-normal text-muted';
-const formFooter = 'my-7 flex items-center gap-3.5';
+const formFooter = 'my-7 flex flex-wrap items-center gap-3.5';
 const empty = 'px-5 py-10 text-center text-muted';
 
 export function RentalGuard({ children }: { children: ReactNode }) {
@@ -113,7 +113,7 @@ export function Parties({ kind }: { kind: Kind }) {
                   <td className={td}>{p.name}</td>
                   <td className={td}>{p.personType}</td>
                   <td className={td}>{p.active ? 'Ativo' : 'Inativo'}</td>
-                  <td className={td}><Link to={`${pathFor(kind)}/${p.id}`}>Abrir ficha</Link></td>
+                  <td className={td}><Link to={`${pathFor(kind)}/${p.id}`} className="inline-flex min-h-11 items-center">Abrir ficha</Link></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -184,7 +184,7 @@ export function RentalDocuments({ partyId, leaseId }: { partyId?: string; leaseI
       {mutationError && <p role="alert" className="error">{mutationError}</p>}
       <AsyncState loading={loading} error={error} retry={refresh} />
       {data && !error && (
-        <ul>{data.map((d) => (
+        <ul className="m-0 grid list-none gap-3 p-0">{data.map((d) => (
           <li key={d.id}>
             <div className={actions}>
               <span>{d.fileName} ({Math.ceil(d.size / 1024)} KB)</span>
@@ -210,14 +210,14 @@ export function PartyDetail() {
         <>
           <header className={heading}>
             <div>
-              <Link to={pathFor(data.kind)}>Voltar aos cadastros</Link>
+              <Link to={pathFor(data.kind)} className="inline-flex min-h-11 items-center">Voltar aos cadastros</Link>
               <h1 className={headingTitle}>{data.name}</h1>
               <p>{data.personType} · {data.active ? 'Ativo' : 'Inativo'}</p>
             </div>
             <button className="button" onClick={() => setEditing(true)}>Editar cadastro</button>
           </header>
           <section className={panel}>
-            <dl>{([
+            <dl className="m-0 grid gap-3.5 [&_dd]:m-0 [&_dd]:[overflow-wrap:anywhere] [&_dt]:font-semibold">{([
               ['CPF / CNPJ', data.taxId],
               ['E-mail', data.email],
               ['Telefone', data.phone],
@@ -338,7 +338,7 @@ export function LeaseList({ partyId }: { partyId?: string }) {
                   <td className={td}>{l.reference}<small className={cellSmall}>{l.propertyTitle}</small></td>
                   <td className={td}>{l.ownerName}<small className={cellSmall}>{l.tenantName}</small></td>
                   <td className={td}>{statusNames[l.status]}</td>
-                  <td className={td}><Link to={`/admin/contratos/${l.id}`}>Abrir contrato</Link></td>
+                  <td className={td}><Link to={`/admin/contratos/${l.id}`} className="inline-flex min-h-11 items-center">Abrir contrato</Link></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -363,7 +363,7 @@ export function LeaseDetail() {
         <>
           <header className={heading}>
             <div>
-              <Link to="/admin/contratos">Voltar aos contratos</Link>
+              <Link to="/admin/contratos" className="inline-flex min-h-11 items-center">Voltar aos contratos</Link>
               <h1 className={headingTitle}>{data.reference}</h1>
               <p>{statusNames[data.status]}</p>
             </div>
@@ -371,8 +371,8 @@ export function LeaseDetail() {
           </header>
           <section className={panel}>
             <h2 className={panelTitle}>{data.propertyTitle}</h2>
-            <p>Proprietário: <Link to={`/admin/proprietarios/${data.ownerId}`}>{data.ownerName}</Link></p>
-            <p>Inquilino: <Link to={`/admin/inquilinos/${data.tenantId}`}>{data.tenantName}</Link></p>
+            <p>Proprietário: <Link to={`/admin/proprietarios/${data.ownerId}`} className="inline-flex min-h-11 items-center">{data.ownerName}</Link></p>
+            <p>Inquilino: <Link to={`/admin/inquilinos/${data.tenantId}`} className="inline-flex min-h-11 items-center">{data.tenantName}</Link></p>
             <p>Período: {data.startDate} a {data.endDate}</p>
             <p>Aluguel: {Number(data.rentAmount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} · Vencimento: dia {data.dueDay}</p>
             <p>{data.notes}</p>

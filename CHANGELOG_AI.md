@@ -1,5 +1,104 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — opencode — Header do admin afinado no mobile
+
+Relato do dono com print: a parte de cima do painel estava muito grossa no mobile.
+
+Causa: `AdminLayout` empilhava marca + nav scroll + linha do usuário com `py-[18px]`,
+`gap-3.5`, links `min-h-11/p-3` e `mt-auto` na linha do usuário, que abria um vazio
+entre a nav e o usuário.
+
+Alterações em código (front apenas):
+
+- `src/pages/admin/AdminLayout.tsx`: `aside` com `px-4 py-2.5 gap-2`; marca
+  `text-[16px] leading-tight`; nav sem `pb` e com `gap-1`; links `min-h-10 px-2.5 py-1.5
+  text-[14px]`; linha do usuário sem `mt-auto` no mobile (`lg:mt-auto` só no desktop);
+  botão `Sair da conta` com `min-h-9 px-3 py-1.5 text-[13px]`. Desktop via `lg:` inalterado.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test -- --run src/pages/admin/AdminLayout.test.tsx`: 3 testes aprovados.
+
+Risco/pendência: suíte completa e build não repetidos; conferir no navegador 320–390px.
+Sem commit/push (aguardando confirmação do dono).
+
+## 2026-09-13 — opencode — Menu mobile não abria (corrigido)
+
+ relato do dono com print: após clicar no hambúrguer (virava X), nenhuma opção aparecia.
+
+Causa: no `<nav>` de `PublicLayout.tsx`, `max-[650px]:hidden` (base) e `max-[650px]:flex` (quando aberto) ficavam ativos ao mesmo tempo; na ordem do CSS gerado o `hidden` vence o `flex`, então o menu nunca exibia.
+
+Alterações em código (front apenas):
+
+- `src/components/PublicLayout.tsx`: `max-[650px]:hidden` saiu da base e virou alternativa exclusiva — aberto usa `max-[650px]:flex`, fechado usa `max-[650px]:hidden`.
+- `src/components/PublicLayout.test.tsx`: regressão — nav fechada tem `max-[650px]:hidden`; aberta tem `max-[650px]:flex` e não tem `hidden`; Escape volta a esconder.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test -- --run src/components/PublicLayout.test.tsx src/seo/navigation.test.tsx`: 2 arquivos, 3 testes aprovados.
+- Conferência no navegador (390px, `npm run dev` com dados reais): hambúrguer abre o sheet navy com Encontrar um imóvel, Alugar, Comprar, Área do corretor e rodapé CRECI 15776; print salvo em sessão.
+
+Risco/pendência: suíte completa e build não foram repetidos após este fix de uma linha (só typecheck, lint e os testes do menu). Sem commit/push (aguardando confirmação do dono).
+
+## 2026-09-13 — opencode — Mobile do admin (MOBILE-001)
+
+Tarefa: pedido do dono ("faça tbm") — estender o padrão mobile do público ao painel, sem mudar rotas, contratos ou validações.
+
+Alterações em código (front apenas):
+
+- `src/pages/admin/AdminLayout.tsx`: links de navegação com 44px (`min-h-11`) e `snap-start`; barra horizontal com `snap-x` + `overscroll-contain` e respiro nas bordas; botão `Sair da conta` com 44px no mobile.
+- Cabeçalhos (`Dashboard`, `PropertyList`, `LeadsList`, `AgentsList`, `PropertyForm`, const `heading` em `Rentals.tsx`): `flex-wrap` + empilhamento em ≤560px com CTA full-width.
+- Tabelas (`tableWrap` em `Rentals.tsx`, `Dashboard`, `PropertyList`, `LeadsList`, `AgentsList`): `overscroll-contain`.
+- Links de ação com 44px: `actions` em `Rentals.tsx`/`PropertyList`/`LeadsList`/`AgentsList`, `Abrir ficha`, `Abrir contrato`, voltar (`Imóveis`, `cadastros`, `contratos`, `site`), proprietario/inquilino na ficha do contrato e links dos cartões do dashboard.
+- Filtros em 1 coluna no ≤560px: `toolbar` em `Rentals.tsx` e busca de contatos em `LeadsList.tsx` (botões full-width).
+- `src/components/MediaManager.tsx`: botões de mídia com 44px (`min-h-11`, padding 12px/8px em vez de 9px/5px).
+- Rodapés de formulário com `flex-wrap` (`PropertyForm`, `formFooter` em `Rentals.tsx`, editor de corretor); lista de documentos sem recuo padrão; ficha da pessoa (`dl`) com espaçamento e quebra de linha.
+- `src/pages/admin/Login.tsx`: link `Voltar ao site` com 44px.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 21 arquivos, 98 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (avisos de pureza do Zod no Rollup, já conhecidos).
+
+Risco/pendência:
+
+- Conferência manual 320–390px com login pendente (navegação lateral, tabelas, filtros, formulário, mídias, locações).
+- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
+
+## 2026-09-13 — opencode — Mobile público vitrine (P0/P1+P2, sem admin)
+
+Tarefa: implementar `docs/plans/2026-09-13-mobile-public.md` só no público, adaptado ao Tailwind (os `.module.css` do plano não existem mais).
+
+Alterações em código (front apenas):
+
+- `src/components/PublicLayout.tsx`: menu `inset-x-0` alinhado ao container (sem `-18px`), links com 48px em sheet navy serif 19px + rodapé `CRECI 15776`, backdrop + trava de scroll, Escape com retorno de foco; removido o `onClick` no `<nav>` que roubava foco (fechar só no link/botão/backdrop/Escape). Rodapé compacto no mobile com links de 44px e `safe-area`.
+- `src/pages/public/Catalog.tsx`: h1 32px + `text-balance` e intro 16px/1.6 no ≤560px; vitrine `clamp(220px,62vw,300px)` sem `margin-right`, `::before` escondido no mobile com soleira ouro `inset` + placa navy `#0A2042CC`, `verticalText` escondido; busca em 1 coluna, controles 48px sem `border-bottom` mobile, labels 12px caixa-alta, botão `Buscar` full-width 48px, `Limpar filtros` 44px; vazio "Nenhum ponto com esse filtro — limpe a cidade ou o preço." com botão `Limpar filtros`; grid mobile com gap 28px; `hero-anim` fade-up 240ms.
+- `src/pages/public/PropertyDetail.tsx`: removido `row-[1]` do `aside` (ordem galeria > fatos > descrição > contato); botão do card escondido no mobile, CTA sticky único navy (preço serif branco + `Falar com corretor` ouro) com `safe-area`; referência segue escondida no mobile.
+- `src/components/PropertyCard.tsx`: aspect 4/3 no mobile, seta 44px, título 19px, preço com wrap/`anywhere` + sufixo `/mês`, soleira ouro 3px no link da imagem.
+- `src/components/MediaGallery.tsx`: altura `clamp` no mobile, soleira ouro, contador pill 13px navy `#0A2042CC`, thumbs 72px com `snap-mandatory`/`snap-start` + `overscroll-contain`.
+- `src/components/LeadFormModal.tsx`: botão `Falar com corretor` (verbo único do plano).
+- `src/styles/global.css`: `touch-action:manipulation` em botões/links, `overflow-x:clip` no body, `fade-up` só sem `prefers-reduced-motion`.
+- `src/seo/navigation.test.tsx` + `src/components/LeadFormModal.test.tsx`: ajustes aos novos rótulos (`getAllByRole` para os dois `Limpar filtros`, `Falar com corretor`).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 21 arquivos, 98 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (avisos de pureza do Zod no Rollup, já conhecidos); CSS `index-*.css` com 51,0 KB.
+- `node scripts/seo-smoke.mjs`: aprovado (SSR, metadados, paginação, 404, discovery, proxy e função Vercel).
+
+Risco/pendência:
+
+- Conferência manual 360/390px pendente (menu, busca, grid, galeria, CTA sticky, modal lead, `robots.txt`, `sitemap.xml` e 404) com a API no ar; hero sem scroll-X em 320–390px e toques ≥44px a confirmar no aparelho.
+- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
+
 ## 2026-09-13 — opencode — Tailwind v4 migração total (público + admin, com dark)
 
 Tarefa: adotar o Tailwind no sistema (migração total, tudo junto, com dark preparado).

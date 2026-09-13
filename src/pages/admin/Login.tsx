@@ -63,7 +63,7 @@ export default function Login() {
             {error && <p className="error" role="alert">{error}</p>}
             <button className="button" disabled={isSubmitting || loading}>{isSubmitting ? 'Entrando…' : 'Entrar na conta →'}</button>
           </form>
-          <p><Link to={routes.home}>← Voltar ao site</Link></p>
+          <p><Link to={routes.home} className="inline-flex min-h-11 items-center">← Voltar ao site</Link></p>
         </div>
       </main>
     </div>

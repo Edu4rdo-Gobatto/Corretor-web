@@ -154,5 +154,18 @@ Responsável: Codex
 Deploy READY em https://corretor-web-test.vercel.app. Typecheck, lint, 68 testes, builds e SEO smoke aprovados. QA mobile e formulário com fixture local. Catálogo remoto vazio; homologação de detalhe real e fluxos autenticados permanece pendente. Sem commit/push. DEPLOY-002 continua referente ao lançamento comercial, distinto desta atualização do projeto de teste.
 
 
+## MOBILE-001 — Mobile no painel admin — concluída
+Responsável: opencode — concluída em 13/09/2026 (sem commit)
+
+Objetivo:
+
+Estender o padrão mobile do plano `docs/plans/2026-09-13-mobile-public.md` (toques ≥44px, sem scroll-X, sem espremer) ao painel: navegação, cabeçalhos, tabelas, filtros, formulários, mídias e locações.
+
+Critérios de conclusão:
+
+- Links de navegação e de ação do admin com 44px; botões de mídia sem padding de 5px.
+- Cabeçalhos empilham em ≤560px com CTA full-width; tabelas com `overscroll-contain`; filtros em 1 coluna.
+- Typecheck, lint, testes, build aprovados; conferência manual 320–390px com login pendente.
+
 ## URL-001 — Padronizar URLs — concluída
 Responsável: Codex. Implementação e publicação no front, contratos da API preservados. Validação e limites registrados em PROJECT_STATUS.md e CHANGELOG_AI.md.
