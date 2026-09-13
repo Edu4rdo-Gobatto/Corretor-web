@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Agent } from '../types';
 import { api } from '../services/api';
 
-interface AuthContextValue { agent: Agent | null; loading: boolean; login: (email: string, password: string) => Promise<void>; logout: () => Promise<void> }
+interface AuthContextValue { agent: Agent | null; loading: boolean; login: (email: string, password: string) => Promise<void>; logout: () => Promise<void>; refresh: () => Promise<void> }
 const AuthContext = createContext<AuthContextValue | null>(null);
 let restoration: ReturnType<typeof api.refresh> | null = null;
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -18,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
   async function login(email: string, password: string) { const session = await api.login(email, password); setAgent(session.agent); }
   async function logout() { await api.logout(); setAgent(null); restoration = null; }
-  return <AuthContext.Provider value={{ agent, loading, login, logout }}>{children}</AuthContext.Provider>;
+  async function refresh() { setAgent(await api.me()); }
+  return <AuthContext.Provider value={{ agent, loading, login, logout, refresh }}>{children}</AuthContext.Provider>;
 }
 export function useAuth() { const context = useContext(AuthContext); if (!context) throw new Error('AuthProvider ausente.'); return context; }

@@ -192,6 +192,26 @@ Não fazer:
 - Não quebrar o SSR: componentes de rota pública seguem sem `window`/`document` no render; asserts de
   SSR devem casar `<h1[^>]*>` (h1 agora carrega classes).
 
+## 2026-09-13 — Avatar do usuário e alternador de tema (opencode)
+
+Decisão: o bloco do usuário no painel exibe o `avatarUrl` do `Agent` (foto HTTPS cadastrada em
+Corretores, com inicial como fallback e troca silenciosa se a URL quebrar). No desktop o conjunto
+avatar + nome + papel + "Sair da conta" fica no rodapé do `aside`; no mobile a foto fica no topo e
+abre um dropdown (`aria-haspopup="menu"`, fecha em Escape/clique fora) com nome, papel e
+"Sair da conta". O modo noturno, antes só preparado no CSS, ganha alternador visível no cabeçalho
+público e no painel (topo no mobile, rodapé no desktop), via `useTheme`: persiste em
+`localStorage "theme"`, respeita `prefers-color-scheme` sem escolha salva e aplica `.dark` no
+`documentElement`; script inline no `index.html` evita flash. Rotas públicas seguem sem `window`
+no render (o hook só toca o DOM em efeito).
+
+Motivo: pedido do dono — avatar não aparecia e o modo noturno não tinha onde ser ligado.
+
+Não fazer:
+
+- Não buscar a foto de outro lugar: a fonte é `Agent.avatarUrl`, a mesma do detalhe do imóvel.
+- Não exibir mensagem de erro por URL de foto quebrada: cair para a inicial.
+- Não guardar outro estado de tema além de `localStorage "theme"` + `.dark` no `documentElement`.
+
 ## 2026-09-13 — Upload pula arquivo ilegível sem derrubar o lote (opencode)
 
 Decisão: `prepareMediaFiles` relata arquivos ilegíveis via callback `onError` e retorna só os válidos (em ordem, com progresso contando todos); o `MediaManager` envia os válidos, avisa os nomes pulados e só bloqueia o envio quando nada é legível.
@@ -202,3 +222,44 @@ Não fazer:
 
 - Não reintroduzir falha total do lote por um arquivo ruim.
 - Não exibir a mensagem original em inglês: o texto ao usuário cita o nome do arquivo em português.
+
+## 2026-09-13 — Perfil em /admin/perfil via avatar (opencode)
+
+Decisão: a foto do AdminLayout leva a /admin/perfil (link no desktop, item "Meu perfil" no dropdown do
+mobile, dropdown preservado). A página mostra foto grande (96px, fallback da inicial, troca silenciosa se a
+URL quebrar), dados (e-mail em leitura), métricas do próprio usuário, edição própria e troca de senha.
+Rota registrada em outes.profile e no regex do 
+ormalizedUrl; painel segue 
+oindex e fora do SSR.
+
+Motivo: pedido do dono — clicar na foto e ver foto maior + métricas.
+
+Não fazer:
+
+- Não indexar o perfil nem incluí-lo no sitemap: é /admin/*, fora do SSR.
+- Não exibir mensagem de erro por URL de foto quebrada: cair para a inicial, como no side.
+
+## 2026-09-13 — Métricas do perfil sem endpoint novo (opencode)
+
+Decisão: as métricas usam os endpoints existentes (GET /admin/properties com o status? novo e
+GET /admin/leads com createdFrom), 7 consultas limit=1 em paralelo. O escopo por usuário já vem da API
+(ADMIN vê tudo, AGENT vê só o próprio), sem filtro no front.
+
+Motivo: evita endpoint de stats e segue a regra de ouro (caber no padrão existente).
+
+Não fazer:
+
+- Não filtrar por gentId no front: a API já restringe pelo viewer; filtro duplo mascara bug de permissão.
+- Não criar GET /admin/stats sem necessidade comprovada de desempenho.
+
+## 2026-09-13 — E-mail só via Corretores/ADMIN (opencode)
+
+Decisão: o perfil exibe o e-mail como leitura ("só o admin altera"); a troca é exclusiva da página Corretores
+(ADMIN) via PATCH /agents/:id, que já trata o 409 de e-mail duplicado.
+
+Motivo: e-mail é identidade de login com unicidade no banco; edição própria exigiria verificação de posse
+do endereço novo, fora do escopo.
+
+Não fazer:
+
+- Não incluir email no PATCH /auth/me: o pipe da API devolve 400 e o front nem oferece o campo.

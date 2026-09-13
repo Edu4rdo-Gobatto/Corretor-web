@@ -169,3 +169,8 @@ Critérios de conclusão:
 
 ## URL-001 — Padronizar URLs — concluída
 Responsável: Codex. Implementação e publicação no front, contratos da API preservados. Validação e limites registrados em PROJECT_STATUS.md e CHANGELOG_AI.md.
+
+## PROFILE-001 — Perfil do admin, senha e métricas — concluída
+Responsável: opencode — concluída em 13/09/2026 (sem commit)
+Objetivo: /admin/perfil via avatar (foto grande, dados, métricas por status, edição própria), troca da própria senha no perfil, reset pelo ADMIN com senha escolhida na hora, e-mail só via Corretores.
+Critérios: rota + normalizedUrl, avatar-link com dropdown preservado, métricas sem endpoint novo, whitelist no PATCH /auth/me, verificação da senha atual, reset reuse PATCH /agents/:id. Typecheck, lint, 24 arquivos/109 testes, build e seo-smoke aprovados. Conferência no navegador com login pendente.

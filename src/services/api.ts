@@ -1,4 +1,4 @@
-import type { Agent, AgentInput, CatalogQuery, Lead, LeadInput, Page, Property, PropertyInput, Session } from '../types';
+import type { Agent, AgentInput, CatalogQuery, Lead, LeadInput, Page, Property, PropertyInput, PropertyStatus, Session } from '../types';
 import { buildCatalogQuery } from './catalog';
 import { http, httpBlob, setAccessToken } from './http';
 import type { RentalParty, RentalPartyInput, Lease, LeaseInput, RentalDocument, AcquisitionCommission } from '../pages/admin/rentalSchema';
@@ -20,13 +20,13 @@ const realApi = {
   getCommission: (leaseId:string) => http<AcquisitionCommission>(`/admin/finance/commissions/lease/${leaseId}`),
   createCommission: (input:{leaseId:string;installmentCount:number;firstDueDate:string;notes?:string}) => http<AcquisitionCommission>('/admin/finance/commissions',json('POST',input)),
   markCommissionPaid: (id:string,paymentNote='') => http<AcquisitionCommission>(`/admin/finance/commissions/installments/${id}/paid`,json('PATCH',{paymentNote})),
-  listProperties: (query: CatalogQuery, managed = false) => http<Page<Property>>(`${managed ? '/admin' : ''}/properties?${buildCatalogQuery(query)}`),
+  listProperties: (query: CatalogQuery & { status?: PropertyStatus }, managed = false) => http<Page<Property>>(`${managed ? '/admin' : ''}/properties?${buildCatalogQuery(query)}`),
   getProperty: (slug: string) => http<Property>(`/properties/${encodeURIComponent(slug)}`),
   getManagedProperty: (id: string) => http<Property>(`/admin/properties/${id}`),
   saveProperty: (input: PropertyInput, id?: string) => http<Property>(`/properties${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', input)),
   deleteProperty: (id: string) => http<void>(`/properties/${id}`, json('DELETE')),
   createLead: (input: LeadInput) => http<Lead>('/leads', json('POST', input)),
-  listLeads: (query: { page?: number; limit?: number; search?: string; propertyId?: string } = {}) => http<Page<Lead>>(`/admin/leads?${new URLSearchParams(Object.entries(query).filter(([,value])=> value !== undefined && value !== '').map(([key,value])=>[key,String(value)]))}`),
+  listLeads: (query: { page?: number; limit?: number; search?: string; propertyId?: string; createdFrom?: string; createdTo?: string } = {}) => http<Page<Lead>>(`/admin/leads?${new URLSearchParams(Object.entries(query).filter(([,value])=> value !== undefined && value !== '').map(([key,value])=>[key,String(value)]))}`),
   deleteLead: (id: string) => http<void>(`/admin/leads/${id}`, json('DELETE')),
   listAgents: (page = 1, limit = 20) => http<Page<Agent>>(`/agents?page=${page}&limit=${limit}`),
   saveAgent: (input: AgentInput, id?: string) => http<Agent>(`/agents${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', input)),
@@ -48,5 +48,7 @@ const realApi = {
   },
   logout: async () => { await http<void>('/auth/logout', json('POST'), false); setAccessToken(null); },
   me: () => http<Agent>('/auth/me'),
+  updateProfile: (input: { name: string; whatsappNumber: string; creci: string | null; avatarUrl: string | null }) => http<Agent>('/auth/me', json('PATCH', input)),
+  changePassword: (input: { currentPassword: string; newPassword: string }) => http<Agent>('/auth/me/password', json('PATCH', input)),
 };
 export const api = realApi;

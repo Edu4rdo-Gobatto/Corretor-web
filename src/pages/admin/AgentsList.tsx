@@ -66,10 +66,49 @@ function AgentEditor({ agent, onClose, onSaved }: { agent: Agent | null; onClose
   );
 }
 
+const resetSchema = z.object({
+  newPassword: z.string().min(12, 'Use entre 12 e 128 caracteres.').max(128).refine((v) => /\S/.test(v), 'Use entre 12 e 128 caracteres.'),
+  confirmPassword: z.string(),
+}).refine((v) => v.newPassword === v.confirmPassword, { message: 'A confirmação não confere.', path: ['confirmPassword'] });
+type ResetValues = z.infer<typeof resetSchema>;
+
+function PasswordResetDialog({ agent, onClose, onSaved }: { agent: Agent; onClose: () => void; onSaved: () => void }) {
+  const [error, setError] = useState('');
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ResetValues>({
+    resolver: zodResolver(resetSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
+  });
+  async function reset(v: ResetValues) {
+    setError('');
+    try {
+      await api.saveAgent({ name: agent.name, email: agent.email, whatsappNumber: agent.whatsappNumber, role: agent.role, creci: agent.creci, avatarUrl: agent.avatarUrl, password: v.newPassword }, agent.id);
+      onSaved();
+      onClose();
+    } catch (e) {
+      setError(errorMessage(e));
+    }
+  }
+  return (
+    <Dialog title={`Redefinir senha de ${agent.name}`} onClose={() => { if (!isSubmitting) onClose(); }}>
+      <p className="muted">Escolha a nova senha na hora e avise a pessoa: o acesso atual dela continua valendo até sair ou o token expirar.</p>
+      <form className="grid grid-cols-1 gap-[22px]" onSubmit={handleSubmit(reset)} noValidate>
+        <label className="grid gap-[7px] font-semibold">Nova senha<input type="password" autoComplete="new-password" aria-label="Nova senha" {...register('newPassword')} aria-invalid={!!errors.newPassword} /><span className={hint}>Mínimo de 12 caracteres.</span>{errors.newPassword && <span className={errorText}>{errors.newPassword.message}</span>}</label>
+        <label className="grid gap-[7px] font-semibold">Confirmar nova senha<input type="password" autoComplete="new-password" aria-label="Confirmar nova senha" {...register('confirmPassword')} aria-invalid={!!errors.confirmPassword} />{errors.confirmPassword && <span className={errorText}>{errors.confirmPassword.message}</span>}</label>
+        {error && <p className="error" role="alert">{error}</p>}
+        <div className="my-7 flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full">
+          <button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Definir nova senha'}</button>
+          <button className="buttonGhost" type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}
+
 export default function AgentsList() {
   const { agent } = useAuth();
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Agent | null | undefined>(undefined);
+  const [resetting, setResetting] = useState<Agent | undefined>(undefined);
   const [mutationError, setMutationError] = useState('');
   const [busy, setBusy] = useState('');
   const { data, loading, error, refresh } = useAdminData(
@@ -128,6 +167,7 @@ export default function AgentsList() {
                     <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                       <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
                         <button className="buttonGhost" onClick={() => setEditing(a)}>Editar</button>
+                        <button className="buttonGhost" onClick={() => setResetting(a)}>Redefinir senha</button>
                         <button className="buttonGhost" disabled={!!busy} onClick={() => void toggle(a)}>{busy === a.id ? 'Atualizando…' : a.active ? 'Desativar' : 'Reativar'}</button>
                       </div>
                     </td>
@@ -141,6 +181,7 @@ export default function AgentsList() {
         </section>
       )}
       {editing !== undefined && <AgentEditor agent={editing} onClose={() => setEditing(undefined)} onSaved={refresh} />}
+      {resetting && <PasswordResetDialog agent={resetting} onClose={() => setResetting(undefined)} onSaved={refresh} />}
     </>
   );
 }

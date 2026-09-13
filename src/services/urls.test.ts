@@ -29,5 +29,6 @@ describe('public URLs', () => {
     expect(normalizedUrl('/admin/login/')).toBe('/admin/entrar');
     expect(normalizedUrl('/admin/leads?pagina=2')).toBe('/admin/contatos?pagina=2');
     expect(normalizedUrl('/admin/contratos/id/')).toBe('/admin/contratos/id');
+    expect(normalizedUrl('/admin/perfil/')).toBe('/admin/perfil');
   });
 });

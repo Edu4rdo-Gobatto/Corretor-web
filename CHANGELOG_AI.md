@@ -1,5 +1,76 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — opencode — Perfil do admin + senha (front)
+
+Pedido do dono: `/admin/perfil` ao clicar na foto, com foto maior e métricas do usuário; troca de senha
+dentro do perfil; botão de redefinição onde o admin escolhe a senha na hora; e-mail só alterado pelo admin.
+
+Alterações em código (front):
+
+- `src/pages/admin/Profile.tsx` (nova) + `Profile.test.tsx` (3 testes): foto 96px com fallback da inicial,
+  dados da conta (e-mail em leitura, "só o admin altera"), métricas (imóveis total + disponíveis/reservados/
+  concluídos via `status`, contatos total + últimos 30 dias + recentes), edição própria (nome, WhatsApp, CRECI,
+  foto HTTPS) com `refresh()` da sessão pós-save, e troca de senha (atual + nova + confirmação).
+- `src/App.tsx` + `src/services/urls.ts` (+ teste): rota `perfil` em `/admin`, `routes.profile` e regex do
+  `normalizedUrl`; painel segue `noindex`, fora do SSR.
+- `src/services/api.ts`: `listProperties` aceita `status?`, `listLeads` aceita `createdFrom/To` (a API já
+  suportava), novos `updateProfile` (`PATCH /auth/me`) e `changePassword` (`PATCH /auth/me/password`).
+- `src/hooks/useAuth.tsx`: exposto `refresh()` (`GET /auth/me`); mocks de `Rentals.test`/`AdminLayout.test`
+  atualizados.
+- `src/pages/admin/AdminLayout.tsx` (+ teste): foto do desktop vira link "Ver perfil de …"; dropdown do
+  mobile ganha item "Meu perfil"; sair e tema preservados.
+- `src/pages/admin/AgentsList.tsx` + `AgentsList.test.tsx` (novo, 1 teste): botão "Redefinir senha" por linha
+  (só ADMIN, como a página), diálogo com nova senha + confirmação (mín. 12), chamando o `PATCH /agents/:id`
+  existente; aviso de que o acesso atual do alvo segue válido até sair ou o token expirar.
+- Correção de teste: `aria-label` explícito nos campos de senha novos (o texto de dica/erro dentro do `<label>`
+  mudava o nome acessível e quebrava o `getByLabelText`).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 24 arquivos, 109 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- API (repositório irmão): typecheck, lint e 18 suítes/195 testes aprovados.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado);
+conferência no navegador com login pendente (perfil mobile/desktop, foto quebrada, troca invalidando a antiga,
+reset pelo ADMIN); troca/reset não revoga outras sessões; deploy da API no Render pendente para os endpoints
+novos valerem em produção.
+
+## 2026-09-13 — opencode — Avatar do usuário + modo noturno visível
+
+Pedido do dono (com prints): o avatar não aparecia no painel e o modo noturno não tinha onde ser ligado.
+
+Alterações em código (front apenas):
+
+- `src/hooks/useTheme.ts` (novo) + `src/hooks/useTheme.test.ts`: tema claro/escuro com persistência
+  em `localStorage "theme"`, `prefers-color-scheme` como padrão e aplicação de `.dark` no
+  `documentElement`; SSR-seguro (sem `window` no render, DOM só em efeito).
+- `src/pages/admin/AdminLayout.tsx`: avatar (`avatarUrl`, fallback inicial, troca silenciosa se a
+  URL quebrar); desktop com bloco no rodapé do `aside`; mobile com foto no topo abrindo dropdown
+  (`menu`, Escape/clique fora) com nome, papel e "Sair da conta"; alternador de tema nos dois.
+- `src/components/PublicLayout.tsx`: botão Sol/Lua no cabeçalho (desktop + mobile), ao lado do hambúrguer.
+- `index.html`: script inline anti-flash que aplica `.dark` antes do bundle quando há escolha salva
+  ou preferência do sistema.
+- `src/pages/admin/AdminLayout.test.tsx` (3 → 6 testes) e `src/components/PublicLayout.test.tsx`
+  (+1 teste): avatar, dropdown com logout, toggle com persistência.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 22 arquivos, 104 testes aprovados.
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`).
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono); conferir no navegador com login
+o dropdown em 320–390px e o dark no público e no admin (contraste do dourado); `avatarUrl`
+desatualizado após edição em Corretores até o próximo login (sem refetch do `useAuth`).
+
+Ajuste posterior (mesma sessão, a pedido do dono): foto do mobile reduzida para 32px dentro do
+botão de 44px (toque preservado). Typecheck, lint e 6 testes do `AdminLayout` aprovados.
+
 ## 2026-09-13 — opencode — Commit e push `5f916cb` (mobile vitrine + menu + admin)
 
 A pedido do dono: commit e push direto na `main` das alterações pendentes (menu mobile,

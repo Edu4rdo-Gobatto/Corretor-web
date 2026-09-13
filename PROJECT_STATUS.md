@@ -147,6 +147,27 @@ e links `min-h-10/text-14`, linha do usuário sem `mt-auto` no mobile e botão s
 Desktop (`lg:`) preservado. Typecheck, lint e teste do AdminLayout aprovados.
 Commit `5f916cb` na main. Pendente conferir no navegador 320–390px.
 
+## 2026-09-13 — opencode: avatar do usuário + modo noturno visível (implementado, sem commit)
+
+Área assumida: a pedido do dono — avatar não aparecia e o modo noturno não tinha onde ser ligado.
+`AdminLayout` exibe `avatarUrl` (fallback inicial); desktop mantém o bloco no rodapé do `aside`,
+mobile mostra a foto no topo com dropdown (nome, papel, "Sair da conta", fecha em Escape/clique
+fora). `useTheme` novo persiste `localStorage "theme"`, respeita `prefers-color-scheme` e aplica
+`.dark`; alternador no header público e no painel + script anti-flash no `index.html`.
+Typecheck, lint, 22 arquivos/104 testes e build aprovados. Sem commit/push (aguardando confirmação
+do dono). Pendente conferir no navegador: dropdown 320–390px com login, dark no público e no admin.
+
+## 2026-09-13 — opencode: perfil do admin + senha (implementado, sem commit)
+
+Área assumida e concluída: `/admin/perfil` (foto grande, dados, métricas por status, edição própria),
+troca da própria senha, reset de senha pelo ADMIN e filtro `status` no gerenciado da API.
+Escopo autorizado pelo dono em 13/09/2026, incluindo back (repositório irmão).
+E-mail só via Corretores/ADMIN, nunca no perfil.
+Typecheck, lint, 24 arquivos/109 testes, build e seo-smoke aprovados.
+Sem commit/push (aguardando confirmação do dono).
+Pendente conferir no navegador com login: perfil 320–390px e desktop, avatar quebrado, edição,
+troca de senha invalidando a antiga e reset pelo ADMIN.
+
 ## 2026-09-13 — opencode: capa no catálogo + decode no upload (commit `376219d`)
 Área assumida: capa some no catálogo embora apareça no detalhe, mais o erro inglês "The source image could not be decoded." no formulário. Causa da capa na API (`PropertiesService.list()` sem `media`; corrigido no repositório irmão). Front: `prepareMediaFiles` agora pula arquivo ilegível com aviso em PT e mantém os válidos no lote; `MediaManager` exibe quais foram pulados e só envia quando há algo válido. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Commit `376219d` na main. Pendente conferir com a API no ar: catálogo com capa, upload misto (válido + corrompido) e redeploy da API no Render.
 
