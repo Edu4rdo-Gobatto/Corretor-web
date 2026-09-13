@@ -164,7 +164,8 @@ troca da própria senha, reset de senha pelo ADMIN e filtro `status` no gerencia
 Escopo autorizado pelo dono em 13/09/2026, incluindo back (repositório irmão).
 E-mail só via Corretores/ADMIN, nunca no perfil.
 Typecheck, lint, 24 arquivos/109 testes, build e seo-smoke aprovados.
-Sem commit/push (aguardando confirmação do dono).
+Commit `31ee9bc` na main (inclui o trabalho pendente de avatar + modo noturno, `useTheme` e ajustes do
+`PublicLayout`/`AdminLayout`, que estavam sem commit). Push `3f9f53f..31ee9bc main -> main`.
 Pendente conferir no navegador com login: perfil 320–390px e desktop, avatar quebrado, edição,
 troca de senha invalidando a antiga e reset pelo ADMIN.
 
