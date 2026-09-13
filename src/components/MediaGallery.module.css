@@ -1,9 +1,10 @@
-.main { height: 475px; background: var(--soft); position: relative; overflow: hidden; border-radius: 4px; }
+.main { height: 475px; background: var(--soft); position: relative; overflow: hidden; border-radius: 5px; box-shadow: 0 16px 34px rgb(36 40 36 / .08); }
 .main > img, .main > video, .main > iframe { width: 100%; height: 100%; object-fit: cover; border: 0; }
 .expand { display: flex; align-items: center; gap: 8px; position: absolute; bottom: 18px; left: 18px; background: var(--paper); border: 0; border-radius: 3px; padding: 10px 14px; min-height: 44px; font-size: 13px; }
 .counter { position: absolute; right: 18px; bottom: 23px; padding: 4px 12px; background: #142B20CC; color: white; border-radius: 3px; font-size: 12px; }
 .thumbnails { display: flex; gap: 10px; overflow-x: auto; padding: 12px 3px; }
-.thumbnails button { flex: 0 0 100px; height: 73px; padding: 0; background: var(--soft); border: 2px solid transparent; border-radius: 3px; overflow: hidden; display: grid; place-items: center; }
+.thumbnails button { flex: 0 0 100px; height: 73px; padding: 0; background: var(--soft); border: 2px solid transparent; border-radius: 3px; overflow: hidden; display: grid; place-items: center; transition: border-color .18s, transform .18s; }
+.thumbnails button:hover { transform: translateY(-2px); }
 .thumbnails img { width: 100%; height: 100%; object-fit: cover; }
 .thumbnails button.active { border-color: var(--green); outline: 2px solid var(--paper); outline-offset: -4px; }
 .placeholder { min-height: 320px; background: var(--soft); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; color: var(--muted); padding: 30px; text-align: center; }

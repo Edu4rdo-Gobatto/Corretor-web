@@ -69,6 +69,22 @@ Critérios de conclusão:
   ou aceitar o comportamento atual.
 - Registrar a decisão em `DECISIONS.md` e, se houver mudança de código, cobrir com teste.
 
+## UX-002 — Refinar catálogo e detalhe público
+
+Status: concluída
+Responsável: Claude — concluída em 13/09/2026
+
+Objetivo:
+
+Melhorar a hierarquia visual, responsividade e interações do catálogo público e do detalhe de imóvel sem alterar a
+API, os contratos de dados, as URLs ou o fluxo de captação de lead.
+
+Critérios de conclusão:
+
+- Catálogo com busca, filtros, cartões e estados vazio/erro confortáveis em desktop, teclado e mobile.
+- Detalhe com galeria, preço, informações, CTA e características visualmente mais claros.
+- Testes, typecheck, lint e build aprovados; conferência manual limitada pela API local indisponível.
+
 ---
 
 ## DOC-002 — Atualizar o README do front

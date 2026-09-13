@@ -1,5 +1,44 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — Claude — refinamento do catálogo e detalhe público
+
+Tarefa: UX-002 — melhorar o front sem alterar o backend.
+
+Alterações em andamento:
+
+- Refinados hero, busca, estados vazios, espaçamentos e CTA final do catálogo em `Catalog.module.css`.
+- Refinados hover/foco e leitura visual dos cartões em `PropertyCard.module.css`.
+- Refinados hierarquia do detalhe, card de contato, fatos da área e responsividade em `PropertyDetail.module.css`.
+- Galeria agora aceita navegação por setas quando focada, além de receber acabamento visual e feedback nos thumbnails.
+
+Validação parcial:
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 18 arquivos e 62 testes aprovados; mensagens de erro simuladas pelo teste de boundary são esperadas.
+
+Validação final:
+
+- `npm run build`: aprovado; cliente, SSR e `.vercel/output` gerados.
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 18 arquivos e 62 testes aprovados.
+- Conferência no navegador: o runtime respondeu a página de indisponibilidade, comportamento esperado sem a API local;
+  não foi possível conferir dados reais, galeria populada e modal de lead nessa execução.
+
+Risco/pêndencia:
+
+- Repetir a conferência manual com a API local disponível antes de publicar, especialmente catálogo com resultados,
+  detalhe, filtros, galeria populada e modal de contato.
+
+## 2026-09-13 — Codex — diagnóstico de 404 no painel de locações
+
+O deploy `corretor-web-test.vercel.app` retornava 404 em `/api/admin/rental-parties` e `/api/admin/leases`. A investigação confirmou que o proxy do SSR repassa corretamente as requisições e que o front usa os caminhos previstos. O código atual da API (`4b9377c`) possui `RentalsModule` e os controllers; o serviço alcançado pelo deploy responde `Cannot GET /admin/...` e corresponde ao backend anterior `a41f49b`, que não importava o módulo.
+
+Conclusão: não há correção de código no front. Publicar o `corretor-api` em `4b9377c` ou posterior, aplicar a migration de locações no banco de teste e confirmar `API_ORIGIN` no projeto Vercel. Nenhuma alteração externa ou segredo foi realizado nesta sessão.
+
+Correção: deploy do serviço Render `Corretor-API` disparado no commit `4b9377c` e concluído com status `live`. Verificação direta no Render e pelo proxy da Vercel retornou `401 Unauthorized` para as rotas protegidas, confirmando que o 404 foi eliminado. A migration já aplicada no banco de teste não precisou ser executada novamente.
+
 ## 2026-09-13 — Codex — comissão de captação parcelada
 
 Adicionada à ficha do contrato a comissão de captação equivalente a um aluguel, com quantidade de parcelas, primeiro vencimento, total, saldo e confirmação manual ADMIN. A interface chama as rotas financeiras protegidas e mantém SI9/Imonov fora do fluxo.
