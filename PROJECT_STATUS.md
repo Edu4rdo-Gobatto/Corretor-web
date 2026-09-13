@@ -90,7 +90,8 @@ Implementação local concluída e pronta para revisão. Front: rotas de proprie
 - Deploy Vercel e branch Neon pendentes de reconexão das sessões locais (CLI sem autenticação válida).
 
 - Vercel conectado e primeiro deploy publicado: https://corretor-web-test.vercel.app
-- Neon conectado; projeto de teste \oyal-haze-18985318\ (corretor-db-test), migrations aplicadas.
+- Neon conectado; projeto de teste \
+oyal-haze-18985318\ (corretor-db-test), migrations aplicadas.
 
 ## 2026-09-13 — Codex: revisão e deploy do front
 Área assumida: revisão de UX-003/UX-004, validação e atualização do projeto Vercel corretor-web-test, conforme pedido do dono. Em andamento; alterações preexistentes preservadas.
@@ -98,3 +99,17 @@ Implementação local concluída e pronta para revisão. Front: rotas de proprie
 
 ### Revisão/deploy finalizados — 13/09/2026
 Codex concluiu UX-003/UX-004 no ambiente https://corretor-web-test.vercel.app (dpl_8ZTk6bsKwV8xnqye5nUDo6EdcRV4, READY). Typecheck, lint, 68 testes, builds local/remoto e SEO smoke aprovados. Catálogo vazio na API remota; detalhe/modal/CTA conferidos com fixture local. Sem commit/push. Logo oficial, dados de privacidade, homologação autenticada e lançamento comercial continuam pendentes. Este registro substitui o estado em andamento desta revisão e corrige os bloqueios históricos de infraestrutura para o ambiente de teste.
+
+
+## 2026-09-13 — Codex: URLs em português
+Área assumida: rotas do front, compatibilidade e SEO; implementação do plano aprovado em andamento. API sem mudanças de contrato.
+
+
+## 2026-09-13 — Codex: URLs em português concluídas
+Rotas públicas: /imoveis/{tipo}, /imoveis/para-alugar, /imoveis/para-comprar e combinações; query cidade/preco-minimo/preco-maximo/pagina. Painel: /admin/entrar e /admin/contatos. URLs antigas redirecionam 301; navegador usa replace; slugs e APIs preservados.
+Publicação Vercel dpl_Bbf5617bGJdqKv79WJbuDDFJaP1M READY, alias https://corretor-web-test.vercel.app. SITE_URL e SEO_INDEXABLE configuradas em Production conforme autorização. Robots, llms e sitemap respondem 200; raiz index,follow; filtros noindex,follow; painel noindex,nofollow. Sitemap contém início e privacidade (catálogo público sem imóveis no momento).
+Validação: typecheck, lint, build, suíte de 93 testes e teste adicional de navegação aprovado (94 no total coberto); smoke SSR/proxy/discovery aprovado. Navegador: redirecionamento, paginação e detalhe com fixture local; catálogo filtrado publicado confirmado. Login autenticado/logout e fichas reais não exercitados no navegador nesta sessão; permissões existentes cobertas pela suíte. Sem commit/push.
+
+
+## 2026-09-13 — Preparação de commit e push autorizada
+Codex: revisão do diff concluída; typecheck, lint, 21 arquivos/94 testes, build e smoke de SEO aprovados novamente. Front: código e documentação das URLs; API: somente documentação correspondente. Alterações anteriores da API em .env.example e .gitignore excluídas do commit.

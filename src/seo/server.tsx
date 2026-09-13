@@ -1,9 +1,11 @@
+import { propertyUrl } from '../services/urls';
+import { normalizedUrl, readCatalogUrl } from '../services/urls';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import { AppRoutes } from '../App';
 import { BootstrapContext } from './context';
 import { absolute, buildSeo, escapeHtml, renderHead, serialize, type Bootstrap, type SeoConfig } from './metadata';
-import { readCatalogQuery, buildCatalogQuery } from '../services/catalog';
+import { buildCatalogQuery } from '../services/catalog';
 import type { Page, Property } from '../types';
 import { brand } from '../config/brand';
 
@@ -50,7 +52,7 @@ async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch
     if (!Array.isArray(result.items) || !Number.isInteger(result.totalPages) || result.totalPages < 0) throw new PublicError(503);
     for (const property of result.items) {
       if (!property.slug || typeof property.slug !== 'string') throw new PublicError(503);
-      const url = `/imoveis/${encodeURIComponent(property.slug)}`;
+      const url = propertyUrl(property.slug);
       const date = new Date(property.updatedAt);
       entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc>${Number.isNaN(date.valueOf()) ? '' : `<lastmod>${date.toISOString()}</lastmod>`}</url>`);
     }
@@ -73,6 +75,9 @@ async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch
 }
 export async function handleRequest(path: string, config: ServerConfig, fetcher: typeof fetch = fetch, template = '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"/><!--seo-head--></head><body><div id="root"><!--app-html--></div><!--bootstrap--></body></html>') {
   const url = new URL(path, 'http://local');
+  const normalized = normalizedUrl(path);
+  if (normalized !== url.pathname + url.search) return { status: 301, headers: { Location: normalized, 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex,nofollow' }, body: '' };
+  const catalog = readCatalogUrl(path);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
   const headers: Record<string, string> = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=300', 'X-Robots-Tag': 'noindex,nofollow' };
   const boot: Bootstrap = { url: url.pathname + url.search, config: { siteUrl: config.siteUrl, indexable: config.indexable }, data: {}, status: 200 };
@@ -81,7 +86,7 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
       headers['Content-Type'] = 'text/plain; charset=utf-8';
       const body = url.pathname === '/robots.txt'
         ? `User-agent: *\n${config.indexable ? 'Disallow: /api/\nDisallow: /api\n' : 'Disallow: /\n'}${config.siteUrl ? `Sitemap: ${absolute('/sitemap.xml', config)}\n` : ''}`
-        : `# ${brand.name}\n\n> Catálogo de imóveis comerciais para alugar e comprar em ${brand.region.name}.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
+        : `# ${brand.name}\n\n> Catálogo de imóveis comerciais para alugar e comprar em ${brand.region.name}.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Alugar](${absolute('/imoveis/para-alugar', config) || '/imoveis/para-alugar'}): imóveis para locação.\n- [Comprar](${absolute('/imoveis/para-comprar', config) || '/imoveis/para-comprar'}): imóveis à venda.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
       return { status: 200, headers, body };
     }
     if (url.pathname === '/sitemap.xml' || url.pathname.startsWith('/sitemaps/')) {
@@ -90,9 +95,9 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
       return { status: 200, headers, body };
     }
     if (!admin) {
-      if (url.pathname === '/') {
-        boot.data.catalog = await publicGet<Page<Property>>(`/properties?${buildCatalogQuery(readCatalogQuery(url.searchParams))}`, config, fetcher);
-        const query = readCatalogQuery(url.searchParams);
+      if (catalog) {
+        boot.data.catalog = await publicGet<Page<Property>>(`/properties?${buildCatalogQuery(catalog)}`, config, fetcher);
+        const query = catalog;
         if (query.page > Math.max(1, boot.data.catalog.totalPages)) boot.status = 404;
       } else if (/^\/imoveis\/[^/]+$/.test(url.pathname)) {
         const slug = decodeURIComponent(url.pathname.slice('/imoveis/'.length));

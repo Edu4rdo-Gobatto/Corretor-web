@@ -32,7 +32,7 @@ export default function PropertyDetail() {
   const [linkCopied, setLinkCopied] = useState(false);
   async function share() {
     if (!property) return;
-    const url = typeof window === 'undefined' ? '' : window.location.href;
+    const url = typeof window === 'undefined' ? '' : new URL(window.location.pathname, window.location.origin).href;
     try {
       if (typeof navigator !== 'undefined' && 'share' in navigator) {
         await navigator.share({ title: property.title, url });

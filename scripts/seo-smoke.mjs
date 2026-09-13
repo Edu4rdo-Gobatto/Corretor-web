@@ -28,7 +28,11 @@ await new Promise((resolve, reject) => { preview.stdout.once('data', resolve); p
 try {
   const catalog = await fetch('http://127.0.0.1:4180/'); const html = await catalog.text();
   assert.equal(catalog.status, 200); assert.match(html, /<h1>Imóveis comerciais/); assert.match(html, /Sala comercial no Centro 1/);
-  assert.match(html, /href="\/\?page=2"/); assert.match(html, /application\/ld\+json/);
+  assert.match(html, /href="\/\?pagina=2"/); assert.match(html, /application\/ld\+json/);
+  const redirected = await fetch('http://127.0.0.1:4180/?purpose=VENDA&type=GALPAO', { redirect: 'manual' });
+  assert.equal(redirected.status, 301);
+  assert.equal(redirected.headers.get('location'), '/imoveis/para-comprar/galpoes');
+  assert.equal((await fetch('http://127.0.0.1:4180/imoveis/para-comprar/galpoes')).status, 200);
   const property = await fetch(`http://127.0.0.1:4180/imoveis/${properties[0].slug}`);
   assert.equal(property.status, 200); assert.match(await property.text(), /BreadcrumbList/);
   assert.equal((await fetch('http://127.0.0.1:4180/imoveis/missing')).status, 404);

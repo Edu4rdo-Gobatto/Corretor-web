@@ -1,3 +1,4 @@
+import { propertyUrl } from '../../services/urls';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -120,7 +121,7 @@ export default function PropertyForm() {
   }
 
   return <>
-    <header className={styles.heading}><div><Link to="/admin/imoveis">← Imóveis</Link><h1>{id ? 'Editar imóvel' : 'Um novo espaço.'}</h1><p className="muted">Conte o que torna este imóvel uma boa oportunidade.</p></div>{property && <Link to={`/imoveis/${property.slug}`} className="buttonSecondary">Ver no site ↗</Link>}</header>
+    <header className={styles.heading}><div><Link to="/admin/imoveis">← Imóveis</Link><h1>{id ? 'Editar imóvel' : 'Um novo espaço.'}</h1><p className="muted">Conte o que torna este imóvel uma boa oportunidade.</p></div>{property && <Link to={propertyUrl(property.slug)} className="buttonSecondary">Ver no site ↗</Link>}</header>
     <AsyncState loading={loading} error={loadError} retry={() => void load()} />
     {!loading && !loadError && <>
       <form className={styles.form} onSubmit={handleSubmit(save)} noValidate>

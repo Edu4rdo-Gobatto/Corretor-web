@@ -152,3 +152,7 @@ Próxima entrega: entidades de comissão/parcela, pagamentos de aluguel e repass
 Status: concluída em 13/09/2026
 Responsável: Codex
 Deploy READY em https://corretor-web-test.vercel.app. Typecheck, lint, 68 testes, builds e SEO smoke aprovados. QA mobile e formulário com fixture local. Catálogo remoto vazio; homologação de detalhe real e fluxos autenticados permanece pendente. Sem commit/push. DEPLOY-002 continua referente ao lançamento comercial, distinto desta atualização do projeto de teste.
+
+
+## URL-001 — Padronizar URLs — concluída
+Responsável: Codex. Implementação e publicação no front, contratos da API preservados. Validação e limites registrados em PROJECT_STATUS.md e CHANGELOG_AI.md.

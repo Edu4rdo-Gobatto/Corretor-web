@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter, useNavigate, useLocation } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../App';
 import { BootstrapContext } from './context';
@@ -21,5 +21,28 @@ describe('hydrated public navigation', () => {
     await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Primeiro atualizado'));
     expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1);
     expect(document.head.querySelectorAll('meta[name="description"]')).toHaveLength(1);
+  });
+});
+
+function CatalogNavigation() {
+  const navigate = useNavigate(); const location = useLocation();
+  return <><output data-testid="url">{location.pathname + location.search}</output><button onClick={() => navigate(-1)}>Voltar histórico</button><button onClick={() => navigate(1)}>Avançar histórico</button></>;
+}
+describe('catalog URL navigation', () => {
+  it('replaces legacy URLs, changes filters, clears and restores history', async () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    Element.prototype.scrollIntoView = vi.fn();
+    const list = vi.spyOn(api, 'listProperties').mockResolvedValue({items:[],total:0,totalPages:0,page:1,limit:9});
+    render(<MemoryRouter initialEntries={['/?purpose=LOCACAO&type=SALA&utm_source=test']}><CatalogNavigation/><AppRoutes/></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/imoveis/para-alugar/salas?utm_source=test'));
+    await waitFor(() => expect(list).toHaveBeenCalledWith(expect.objectContaining({purpose:'LOCACAO',type:'SALA'})));
+    fireEvent.click(screen.getByRole('button', {name:'Galpões'}));
+    await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/imoveis/para-alugar/galpoes?utm_source=test'));
+    fireEvent.click(screen.getByRole('button', {name:'Limpar filtros'}));
+    await waitFor(() => expect(screen.getByTestId('url').textContent).toBe('/?utm_source=test'));
+    fireEvent.click(screen.getByRole('button', {name:'Voltar histórico'}));
+    await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/imoveis/para-alugar/galpoes'));
+    fireEvent.click(screen.getByRole('button', {name:'Avançar histórico'}));
+    await waitFor(() => expect(screen.getByTestId('url').textContent).toBe('/?utm_source=test'));
   });
 });

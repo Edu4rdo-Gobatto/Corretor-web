@@ -68,7 +68,7 @@ describe('public SEO responses', () => {
     expect(sitemapChunks(['<url>á</url>', '<url>b</url>'], 100, 20)).toHaveLength(2);
   });
   it('normalizes pagination canonicals and excludes tracking parameters', () => {
-    expect(buildSeo('/?page=2&utm_source=test', config, { catalog: page }).canonical).toBe('https://imoveis.example/?page=2');
+    expect(buildSeo('/?page=2&utm_source=test', config, { catalog: page }).canonical).toBe('https://imoveis.example/?pagina=2');
     expect(buildSeo('/?page=1', config, { catalog: page }).canonical).toBe('https://imoveis.example/');
   });
   it('requires valid production origins and forces previews out of indexing', () => {
@@ -80,7 +80,7 @@ describe('public SEO responses', () => {
   });
   it('returns real 404 for unknown routes and out of range pagination', async () => {
     expect((await handleRequest('/does-not-exist', config)).status).toBe(404);
-    expect((await handleRequest('/?page=2', config, vi.fn().mockResolvedValue(new Response(JSON.stringify(page))))).status).toBe(404);
+    expect((await handleRequest('/?pagina=2', config, vi.fn().mockResolvedValue(new Response(JSON.stringify(page))))).status).toBe(404);
   });
   it('preserves dollar replacement sequences in titles and bootstrap data', async () => {
     const property = { ...sampleProperty, title: 'Sala $& $` exemplo' };
@@ -88,5 +88,34 @@ describe('public SEO responses', () => {
     expect(result.body).toContain('<h1>Sala $&amp; $` exemplo</h1>');
     expect(result.body).not.toContain('<!--app-html-->');
     expect(result.body).toContain('"title":"Sala $\\u0026 $` exemplo"');
+  });
+});
+
+
+describe('friendly URL SSR', () => {
+  it('redirects before fetching and does not loop', async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify(page)));
+    const old = await handleRequest('/?type=SALA&purpose=LOCACAO', config, fetcher);
+    expect(old.status).toBe(301);
+    expect(old.headers.Location).toBe('/imoveis/para-alugar/salas');
+    expect(fetcher).not.toHaveBeenCalled();
+    const result = await handleRequest(old.headers.Location!, config, fetcher);
+    expect(result.status).toBe(200);
+    expect(fetcher.mock.calls[0][0]).toContain('type=SALA');
+    expect(fetcher.mock.calls[0][0]).toContain('purpose=LOCACAO');
+    expect(result.headers['X-Robots-Tag']).toBe('noindex,follow');
+    expect(result.body).toContain('https://imoveis.example/imoveis/para-alugar/salas');
+    expect(result.body).toContain('ItemList');
+  });
+  it('keeps tracking out of canonicals and Portuguese filters in', () => {
+    expect(buildSeo('/imoveis/salas?cidade=Juara&pagina=2&utm_source=wa', config, {catalog: page}).canonical).toBe('https://imoveis.example/imoveis/salas?cidade=Juara&pagina=2');
+  });
+  it('publishes discovery files only as configured', async () => {
+    const robots = await handleRequest('/robots.txt', config);
+    expect(robots.body).toContain('Sitemap: https://imoveis.example/sitemap.xml');
+    expect(robots.body).not.toContain('Disallow: /\n');
+    expect((await handleRequest('/llms.txt', config)).body).toContain('https://imoveis.example/imoveis/para-alugar');
+    expect((await handleRequest('/robots.txt', {...config,indexable:false})).body).toContain('Disallow: /\n');
+    expect((await handleRequest('/sitemap.xml', {...config,indexable:false})).body).not.toContain('<url>');
   });
 });

@@ -1,5 +1,6 @@
+import { propertyUrl } from '../services/urls';
 import type { Page, Property } from '../types';
-import { readCatalogQuery, buildCatalogQuery } from '../services/catalog';
+import { readCatalogUrl, catalogUrl } from '../services/urls';
 import { propertyType } from '../services/format';
 import { brand } from '../config/brand';
 
@@ -13,14 +14,11 @@ export function absolute(path: string, config: SeoConfig) { return config.siteUr
 
 export function buildSeo(path: string, config: SeoConfig, data: PublicData = {}, status = 200) {
   const url = new URL(path, 'http://local');
-  const query = readCatalogQuery(url.searchParams);
-  const filtered = ['type', 'purpose', 'city', 'minPrice', 'maxPrice'].some(key => url.searchParams.has(key));
+  const catalog = readCatalogUrl(path);
+  const query = catalog || { page: 1, limit: 9 };
+  const filtered = Boolean(query.type || query.purpose || query.city || query.minPrice !== undefined || query.maxPrice !== undefined);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
-  let canonicalPath = url.pathname;
-  if (url.pathname === '/') {
-    const normalized = buildCatalogQuery({ ...query, limit: undefined, page: query.page > 1 ? query.page : undefined });
-    canonicalPath = normalized ? `/?${normalized}` : '/';
-  }
+  const canonicalPath = catalog ? catalogUrl(query) : url.pathname;
   let title = `Imóveis comerciais em ${brand.region.name} | ${brand.name}`;
   let description = `Encontre salas comerciais, lojas, galpões, prédios e terrenos para alugar ou comprar em ${brand.region.name}. Consulte os imóveis e fale com o corretor responsável.`;
   let image = absolute('/assets/commercial-space-1200.webp', config);
@@ -30,8 +28,14 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
     { '@type': 'RealEstateAgent', '@id': `${config.siteUrl}/#organization`, name: brand.name, url: config.siteUrl, identifier: `CRECI ${brand.creci}`, areaServed: { '@type': brand.region.schemaType, name: brand.region.name } },
     { '@type': 'WebSite', '@id': `${config.siteUrl}/#website`, name: brand.name, url: config.siteUrl, inLanguage: 'pt-BR', publisher: { '@id': `${config.siteUrl}/#organization` } },
   );
-  if (url.pathname === '/' && query.page > 1) title = `Imóveis comerciais em ${brand.region.name} — Página ${query.page} | ${brand.name}`;
-  if (url.pathname === '/' && data.catalog && config.siteUrl) graph.push({ '@type': 'ItemList', itemListElement: data.catalog.items.map((p, index) => ({ '@type': 'ListItem', position: (query.page - 1) * query.limit + index + 1, name: p.title, url: absolute(`/imoveis/${encodeURIComponent(p.slug)}`, config) })) });
+  if (catalog && filtered) {
+    const kind = query.type ? propertyType[query.type] : 'Imóveis comerciais';
+    const purpose = query.purpose === 'LOCACAO' ? ' para alugar' : query.purpose === 'VENDA' ? ' para comprar' : '';
+    title = `${kind}${purpose} em ${query.city || brand.region.name} | ${brand.name}`;
+    description = `Confira ${kind.toLowerCase()}${purpose} em ${query.city || brand.region.name} e consulte valores e disponibilidade com o corretor.`;
+  }
+  if (catalog && query.page > 1) title = `${title} — Página ${query.page}`;
+  if (catalog && data.catalog && config.siteUrl) graph.push({ '@type': 'ItemList', itemListElement: data.catalog.items.map((p, index) => ({ '@type': 'ListItem', position: (query.page - 1) * query.limit + index + 1, name: p.title, url: absolute(propertyUrl(p.slug), config) })) });
   if (url.pathname === '/privacidade') { title = `Política de privacidade | ${brand.name}`; description = `Saiba como ${brand.privacy.controller || brand.name} utiliza os dados fornecidos para atendimento sobre imóveis comerciais.`; }
   const p = data.property;
   if (p) {
@@ -49,7 +53,7 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
   if (admin) { title = `Área do corretor | ${brand.name}`; description = `Acesso ao painel do ${brand.name}.`; }
   if (status === 404) { title = `Página não encontrada | ${brand.name}`; description = 'Este endereço não está disponível. Consulte o catálogo de imóveis comerciais.'; }
   if (status >= 500) { title = `Serviço temporariamente indisponível | ${brand.name}`; description = 'Tente novamente em alguns instantes.'; }
-  const missingData = (url.pathname.startsWith('/imoveis/') && !p) || (url.pathname === '/' && !data.catalog);
+  const missingData = (!catalog && url.pathname.startsWith('/imoveis/') && !p) || (catalog && !data.catalog);
   const robots = !config.indexable || admin || status !== 200 || missingData ? 'noindex,nofollow' : filtered ? 'noindex,follow' : 'index,follow';
   return { title, description, canonical, image, robots, jsonLd: { '@context': 'https://schema.org', '@graph': status === 200 && !admin ? graph : [] } };
 }
