@@ -1,5 +1,26 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — opencode — Hambúrguer só no mobile
+
+Tarefa: esconder o botão hambúrguer no desktop, mantendo-o só no mobile (≤650px).
+
+Alterações em código (front apenas):
+
+- `src/components/PublicLayout.module.css`: `.menuToggle` → `button.menuToggle` no desktop
+  e no `@media(max-width:650px)`. Motivo: `.buttonGhost` do `global.css` tem a mesma
+  especificidade com `display:inline-flex` e vencia/empatava conforme a ordem do bundle,
+  deixando o botão visível no desktop junto da navegação.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 21 arquivos, 98 testes aprovados (ruído `render failed` do teste de boundary
+  é esperado, como nas sessões anteriores).
+
+Pendências: conferir no navegador desktop (>650px, sem botão) e mobile (≤650px, com botão).
+Sem commit/push (aguardando confirmação do dono).
+
 ## 2026-09-13 — opencode — UX-004 melhorias de front sem back
 
 Tarefa: aplicar as fatias P0–P3 do plano de melhorias (conversão mobile, galeria, lead, cards,
