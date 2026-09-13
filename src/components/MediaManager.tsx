@@ -32,6 +32,8 @@ export default function MediaManager({ property, onChange }: { property: Propert
   }
 
   async function upload(files: File[]) {
+    let succeeded = false;
+    let skipped = '';
     await run(async () => {
       if (files.length > 20) throw new Error('Selecione no máximo 20 arquivos por envio.');
       for (const file of files) {
@@ -39,10 +41,25 @@ export default function MediaManager({ property, onChange }: { property: Propert
         if (file.size > 30 * 1024 * 1024) throw new Error(`${file.name}: o limite é 30 MB por arquivo.`);
       }
       setProgress({ completed: 0, total: files.length });
-      const prepared = await prepareMediaFiles(files, (completed, total) => setProgress({ completed, total }));
+      const unreadable: string[] = [];
+      const prepared = await prepareMediaFiles(
+        files,
+        (completed, total) => setProgress({ completed, total }),
+        (file) => unreadable.push(file.name),
+      );
+      if (!prepared.length) {
+        throw new Error(
+          unreadable.length
+            ? `Não foi possível ler: ${unreadable.join(', ')}. Use imagens JPG, PNG ou WebP válidas.`
+            : 'Nenhum arquivo para enviar.',
+        );
+      }
       await api.uploadMedia(property.id, prepared);
+      succeeded = true;
+      if (unreadable.length) skipped = `Arquivos adicionados. Não foi possível ler: ${unreadable.join(', ')}.`;
     }, 'Arquivos adicionados.');
     setProgress(null);
+    if (succeeded && skipped) setMessage(skipped);
   }
 
   async function embed() {

@@ -172,3 +172,14 @@ Decisão: atender ao pedido de deploy publicando os arquivos locais no corretor-
 
 ## 2026-09-13 — URLs públicas e indexação (Codex)
 Plano aprovado: finalidades para-alugar/para-comprar e tipos salas/lojas/galpoes/predios/terrenos em /imoveis; cidade, preco-minimo, preco-maximo e pagina na query. Slugs estáveis e endpoints da API preservados. Aliases administrativos login -> entrar e leads -> contatos, com 301 no SSR e replace no cliente. Filtros continuam noindex,follow. Dono autorizou SITE_URL=https://corretor-web-test.vercel.app e SEO_INDEXABLE=true em Production da Vercel; API_ORIGIN existente deve ser HTTPS; previews bloqueados. Não alterar banco, storage ou permissões.
+
+## 2026-09-13 — Upload pula arquivo ilegível sem derrubar o lote (opencode)
+
+Decisão: `prepareMediaFiles` relata arquivos ilegíveis via callback `onError` e retorna só os válidos (em ordem, com progresso contando todos); o `MediaManager` envia os válidos, avisa os nomes pulados e só bloqueia o envio quando nada é legível.
+
+Motivo: o `createImageBitmap` rejeita com "The source image could not be decoded." para arquivo corrompido ou com extensão trocada, e o erro cru em inglês abria o lote inteiro.
+
+Não fazer:
+
+- Não reintroduzir falha total do lote por um arquivo ruim.
+- Não exibir a mensagem original em inglês: o texto ao usuário cita o nome do arquivo em português.

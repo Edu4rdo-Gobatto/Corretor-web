@@ -254,3 +254,29 @@ Arquivos do front: services/urls.ts e testes, App.tsx, Catalog, PublicLayout, Pr
 
 ## 2026-09-13 — Preparação de commit e push autorizada
 Codex: revisão do diff concluída; typecheck, lint, 21 arquivos/94 testes, build e smoke de SEO aprovados novamente. Front: código e documentação das URLs; API: somente documentação correspondente. Alterações anteriores da API em .env.example e .gitignore excluídas do commit.
+
+## 2026-09-13 — opencode: capa no catálogo + decode no upload
+
+Tarefa: capa definida no painel não aparecia no catálogo ("Foto em breve"), só no detalhe; formulário exibia "The source image could not be decoded." em inglês.
+
+Causa da capa (API, repositório irmão): `PropertiesService.list()` carregava só `agent`, então `toPropertyResponse` devolvia `media: []` na listagem. Corrigido com segunda query por imóvel, paginação preservada; teste novo de capa ordenada.
+
+Alterações em código (front apenas):
+
+- `src/components/mediaUpload.ts`: `createImageBitmap` com erro PT por arquivo; `prepareMediaFiles` pula ilegíveis via `onError`, mantém ordem e progresso.
+- `src/components/MediaManager.tsx`: envia os válidos, avisa os pulados, bloqueia só quando nada é legível.
+- `src/components/mediaUpload.test.ts` (+2 testes) e `src/components/MediaManager.test.tsx` (+2 testes).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 21 arquivos, 98 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- API: `npm run typecheck`, `npm run lint` e `npm test` aprovados (18 suítes, 191 testes).
+
+Risco/pendência:
+
+- Conferência manual com a API no ar (catálogo com capa, upload misto, `robots.txt`, `sitemap.xml`, 404) e redeploy da API no Render pendentes.
+- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
