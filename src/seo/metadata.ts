@@ -27,7 +27,7 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
   const canonical = absolute(canonicalPath, config);
   const graph: Record<string, unknown>[] = [];
   if (config.siteUrl) graph.push(
-    { '@type': 'Organization', '@id': `${config.siteUrl}/#organization`, name: brand.name, url: config.siteUrl, areaServed: { '@type': brand.region.schemaType, name: brand.region.name } },
+    { '@type': 'RealEstateAgent', '@id': `${config.siteUrl}/#organization`, name: brand.name, url: config.siteUrl, identifier: `CRECI ${brand.creci}`, areaServed: { '@type': brand.region.schemaType, name: brand.region.name } },
     { '@type': 'WebSite', '@id': `${config.siteUrl}/#website`, name: brand.name, url: config.siteUrl, inLanguage: 'pt-BR', publisher: { '@id': `${config.siteUrl}/#organization` } },
   );
   if (url.pathname === '/' && query.page > 1) title = `Imóveis comerciais em ${brand.region.name} — Página ${query.page} | ${brand.name}`;

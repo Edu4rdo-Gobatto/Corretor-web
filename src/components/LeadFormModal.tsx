@@ -10,7 +10,7 @@ import Dialog from './Dialog';
 import styles from './LeadFormModal.module.css';
 
 export default function LeadFormModal({ property, onClose }: { property: Property; onClose: () => void }) {
-  const { register, getValues, setError, clearErrors, formState: { errors } } = useForm<ContactFields>({ resolver: zodResolver(leadSchema), defaultValues: { leadName: '', leadPhone: '', leadEmail: '', message: '', consentGiven: false } });
+  const { register, getValues, setError, setFocus, clearErrors, formState: { errors } } = useForm<ContactFields>({ resolver: zodResolver(leadSchema), defaultValues: { leadName: '', leadPhone: '', leadEmail: '', message: '', consentGiven: false } });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [failure, setFailure] = useState('');
@@ -24,6 +24,8 @@ export default function LeadFormModal({ property, onClose }: { property: Propert
     const result = leadSchema.safeParse(getValues());
     if (!result.success) {
       result.error.issues.forEach(issue => setError(issue.path[0] as keyof ContactFields, { message: issue.message }));
+      const firstField = result.error.issues[0]?.path[0] as keyof ContactFields | undefined;
+      if (firstField) setFocus(firstField);
       return;
     }
     if (!contactOpened) { window.open(contactUrl, '_blank', 'noopener,noreferrer'); setContactOpened(true); }
@@ -34,7 +36,7 @@ export default function LeadFormModal({ property, onClose }: { property: Propert
   return <Dialog title={saved ? 'Obrigado pelo seu interesse.' : 'Vamos falar sobre este espaço?'} onClose={onClose}>
     {saved ? <div className={styles.success}><CheckCircle2 size={32}/><p>Seu interesse foi registrado. Continue a conversa com o corretor pelo WhatsApp.</p><a className="button" href={contactUrl} target="_blank" rel="noopener noreferrer">Continuar no WhatsApp <ArrowUpRight size={17}/></a><button className="buttonSecondary" onClick={onClose}>Concluir</button></div> : <><p className="muted">{property.title}<br/>Atendimento com {property.agent.name}.</p><form onSubmit={submit} className={styles.form} noValidate>
       <label>Seu nome<input autoComplete="name" {...register('leadName')} aria-invalid={Boolean(errors.leadName)}/>{errors.leadName && <span className="error">{errors.leadName.message}</span>}</label>
-      <label>Telefone com DDD<input type="tel" autoComplete="tel" placeholder="(65) 99999-9999" {...register('leadPhone')} aria-invalid={Boolean(errors.leadPhone)}/>{errors.leadPhone && <span className="error">{errors.leadPhone.message}</span>}</label>
+      <label>Telefone com DDD<input type="tel" inputMode="tel" autoComplete="tel" placeholder="(65) 99999-9999" {...register('leadPhone')} aria-invalid={Boolean(errors.leadPhone)}/>{errors.leadPhone && <span className="error">{errors.leadPhone.message}</span>}</label>
       <label>E-mail (opcional)<input type="email" autoComplete="email" {...register('leadEmail')}/>{errors.leadEmail && <span className="error">{errors.leadEmail.message}</span>}</label>
       <label>Mensagem (opcional)<textarea {...register('message')} maxLength={2000}/></label>
       <div><label className={styles.consent}><input type="checkbox" {...register('consentGiven')}/><span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank">Política de Privacidade</Link>.</span></label>{errors.consentGiven && <span className="error">{errors.consentGiven.message}</span>}</div>

@@ -1,5 +1,79 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — opencode — UX-004 melhorias de front sem back
+
+Tarefa: aplicar as fatias P0–P3 do plano de melhorias (conversão mobile, galeria, lead, cards,
+skeletons, a11y, admin) sem nenhuma mudança no back: sem rota, DTO, migration ou contrato novo.
+
+Alterações em código (front apenas):
+
+- `src/pages/public/PropertyDetail.tsx` (+ `.module.css`): ações Compartilhar (Web Share com
+  fallback clipboard, SSR-safe) e Ver no mapa (Google Maps por query); barra de CTA fixa no
+  mobile com `safe-area`; breadcrumb com classe (sem `style` inline); características via
+  `featureLabel`/`featureValue`; seção "Você também pode gostar" com `api.listProperties`
+  existente (client-side, sem back novo).
+- `src/services/format.ts` (+ `format.test.ts`): `featureLabel`/`featureValue` sem `any`
+  (boolean→Sim/Não, listas/objetos sem `JSON.stringify` cru).
+- `src/components/MediaGallery.tsx`: primeira mídia `eager` + `fetchpriority`, demais `lazy`;
+  `decoding="async"`; contador com `aria-live`; `aria-current` nos thumbnails; lightbox só
+  para imagem.
+- `src/components/PropertyCard.tsx`: fallback "Foto em breve" em vez de `display:none`;
+  `loading="lazy" decoding="async"`.
+- `src/components/AsyncState.tsx` (+ `AsyncState.test.tsx`, `Shared.module.css`): variante
+  skeleton `cards`/`detail` com shimmer (respeita `prefers-reduced-motion` global); usada no
+  catálogo e no detalhe.
+- `src/components/LeadFormModal.tsx` (+ CSS): `inputMode="tel"`, foco no primeiro campo com
+  erro via `setFocus`, área de toque do consent com 44 px.
+- `src/components/PublicLayout.tsx`: `end` no NavLink inicial (o RR já emite `aria-current`).
+- `src/pages/admin/Admin.module.css`: arte do login no navy da marca; `.table` com
+  `min-width` para rolagem horizontal correta.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 20 arquivos, 68 testes aprovados (ruído `render failed` do teste de boundary
+  é esperado, como nas sessões anteriores).
+- `npm run build`: aprovado (avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Bundle SSR (`dist/server/server.js`) contém as novas marcas: Compartilhar, mobileCta,
+  breadcrumb, skeletons, aria-live, inputMode.
+
+Risco/pêndencia:
+
+- Conferência visual manual (detalhe com fotos, modal, CTA mobile, semelhantes) pendente
+  com a API local no ar.
+- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
+
+## 2026-09-13 — Codex — rebrand Lucas Gobatto (UX-003, só front)
+
+Tarefa: aplicar a marca real (azul-marinho + dourado + branco, Lucas Gobatto — CRECI 15776, Juara/MT)
+sem nenhuma mudança no back.
+
+Alterações em código (front apenas):
+
+- `src/config/brand.ts`: nome, credential, creci, logo, tagline, closing e região `Juara, Mato Grosso` (`City`).
+- `src/styles/global.css`: tokens navy/gold/branco; `--green` mantido como apelido do navy; botão, foco e eyebrow atualizados.
+- `src/components/PublicLayout.tsx` + `.module.css`: marca SVG inline dourada, header branco com filete dourado, rodapé navy com CRECI.
+- `Catalog.module.css` (filetes dourados, bloco de fechamento navy), `PropertyCard.module.css` (selo navy/gold),
+  `PropertyDetail.module.css` (card de contato com topo dourado), `Admin.module.css` (sidebar navy).
+- `public/favicon.svg`, `index.html` (`theme-color #0A2042`).
+- `src/seo/metadata.ts`: JSON-LD `Organization` → `RealEstateAgent` com `identifier: CRECI 15776`.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 18 arquivos, 62 testes aprovados (mensagens de erro simuladas do teste de boundary são esperadas).
+- `npm run build`: aprovado; cliente, SSR e `.vercel/output` gerados (avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado (SSR, metadados, paginação, 404, discovery e proxy com cookies).
+
+Risco/pêndencia:
+
+- Logo atual é SVG inline aproximado; trocar pelo PNG/SVG oficial com fundo transparente quando o dono enviar.
+- Conferência visual manual (catálogo, detalhe, mobile) pendente com a API local no ar; dourado restrito a detalhes por contraste.
+- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
+
 ## 2026-09-13 — Claude — refinamento do catálogo e detalhe público
 
 Tarefa: UX-002 — melhorar o front sem alterar o backend.
@@ -152,3 +226,19 @@ Não havia registro por agente antes desta data.
 ## 2026-09-13 — Ambientes conectados
 - Vercel: projeto \corretor-web-test\ publicado em https://corretor-web-test.vercel.app.
 - Neon: projeto \oyal-haze-18985318\ criado e oito migrations aplicadas com sucesso.
+
+## 2026-09-13 — Codex: revisão e deploy UX-003/UX-004 concluídos
+
+Pedido do dono: revisar, opinar e publicar as alterações locais do front. Main sincronizada com origin/main em 433392d após git fetch (0/0). Revisão do diff sem bloqueador para atualizar o ambiente de teste; código preexistente preservado, sem commit/push.
+
+Publicação: https://corretor-web-test.vercel.app — deployment dpl_8ZTk6bsKwV8xnqye5nUDo6EdcRV4, READY, target production do projeto de teste existente. Build remoto a partir dos arquivos locais via Vercel CLI, mantendo as variáveis configuradas no projeto.
+
+Validação: typecheck e lint aprovados; 20 arquivos/68 testes aprovados; build local e remoto aprovados; scripts/seo-smoke.mjs aprovado, incluindo função Vercel independente, SSR, metadados, paginação, 404 e proxy com cookies. Avisos de anotação do Zod no Rollup não impediram o build. Conferência no navegador em viewport estreita: catálogo, detalhe com fixture local, CTA mobile, modal e foco no primeiro erro aprovados. Catálogo publicado confirmado com a nova marca.
+
+HTTP publicado: /, /admin/login, /robots.txt e /sitemap.xml = 200; rota e imóvel inexistentes = 404; /api/properties = 200 com zero imóveis; /api/admin/leases = 401 sem autenticação. Robots mantém Disallow: / e sitemap vazio no ambiente de teste.
+
+Opinião: navy/gold e tipografia deixam a identidade mais consistente; ações de mapa/compartilhar, CTA mobile e foco de formulário melhoram a navegação. Próximo refinamento: nomes de características com acentuação e preservação dos rótulos de objetos (featureValue hoje reduz objetos aos valores).
+
+Limites: catálogo remoto vazio impede homologar detalhe real; detalhe conferido apenas com fixture local. Não foram executados login autenticado, upload, criação real de lead, compartilhamento nativo ou navegação da galeria com múltiplas fotos. Logo oficial e dados de brand.privacy continuam pendentes para lançamento comercial. Os registros antigos de API/Vercel não publicados estão superados para o ambiente de teste; lançamento comercial e indexação continuam pendentes.
+
+Arquivos alterados nesta revisão: PROJECT_STATUS.md, TASKS.md, DECISIONS.md e CHANGELOG_AI.md (registros aditivos). Nenhuma dependência ou mudança no backend.

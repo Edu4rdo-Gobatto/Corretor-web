@@ -102,6 +102,24 @@ Não fazer:
 - Não preencher `brand.privacy` com dado inventado: enquanto `controller`, `contactEmail` e `address` estiverem
   vazios, a página `/privacidade` exibe o aviso de conteúdo preparatório, que é o comportamento correto.
 
+## 2026-09-13 — Marca real Lucas Gobatto, só no front
+
+Decisão: identidade `Lucas Gobatto — Corretor de imóveis — CRECI 15776`, região `Juara, Mato Grosso`,
+paleta azul-marinho `#0A2042` + dourado `#C99B3F` + branco. `brand.ts` é a fonte única; `--green` foi
+mantido como apelido do navy para não reescrever todos os módulos. JSON-LD usa `RealEstateAgent` com
+`identifier: CRECI 15776`. O logotipo atual é um SVG inline aproximado; o PNG/SVG oficial com fundo
+transparente enviado pelo dono entra em `public/assets/` quando chegar. Dashboard estilo Imobia é só
+referência futura; Si9/Imonov seguem fora do escopo.
+
+Motivo: o rótulo de andaime "Corretor Comercial / Mato Grosso" conflita com a marca enviada pelo dono
+e o verde/creme atual não pertence a ela. A troca é exclusivamente visual no front.
+
+Não fazer:
+
+- Não mudar nada no back por causa do rebrand: sem migration, rota, DTO ou integração.
+- Não usar dourado em texto corrido sobre branco (falha de contraste): dourado só em filetes, marcas e focos.
+- Não reintroduzir "Corretor Comercial" ou `Organization` genérica no SEO.
+
 ## 2026-09-11 — Uma única branch: `main`
 
 Decisão: o trabalho acontece direto na `main`, nos dois repositórios. No `corretor-api`, a branch `shura` foi
@@ -147,3 +165,6 @@ Não confundir essa comissão de captação com o repasse mensal do aluguel ao p
 Operação: migration aditiva 1789257600000; não altera migrations anteriores e não roda automaticamente. Backup e validação do histórico do Neon são pré-requisitos de aplicação. Nenhum .env encontrado nos dois checkouts desta sessão; não foram reconstruídas credenciais nem escritos dados no Neon/R2. A migration de hardening preexistente 1789084805000 continua fora do data-source como estava: revisar seu histórico separadamente antes de aplicá-la, sem presumir que foi executada.
 
 Correção de compatibilidade: mensagens do filtro global da API agora seguem string/lista em message, como esperado pelo front. Busca parcial por título foi adicionada somente ao DTO do catálogo administrativo para seleção de imóveis; contrato público/SSR preservado.
+
+## 2026-09-13 — Atualizar o projeto Vercel de teste existente
+Decisão: atender ao pedido de deploy publicando os arquivos locais no corretor-web-test via CLI com build remoto, preservando as variáveis e indexação bloqueada do ambiente. Motivo: o front e a API de teste já estão disponíveis; os registros antigos de ausência de deploy estão superados para teste. Não confundir target production da Vercel com autorização de lançamento comercial definitivo; não ligar indexação nem criar outro projeto. Sem commit/push nesta tarefa.

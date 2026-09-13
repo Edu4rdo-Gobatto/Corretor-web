@@ -87,6 +87,25 @@ Critérios de conclusão:
 
 ---
 
+## UX-003 — Rebrand Lucas Gobatto (Juara/MT)
+
+Status: concluída
+Responsável: Codex — concluída em 13/09/2026
+
+Objetivo:
+
+Aplicar a identidade real (azul-marinho + dourado + branco, Lucas Gobatto — CRECI 15776, Juara/MT)
+só no front, sem nenhuma mudança no back (sem migration, rota, DTO ou integração Si9/Imonov).
+
+Critérios de conclusão:
+
+- `brand.ts` com nome, CRECI, tagline e região de Juara; cabeçalho/rodapé, favicon e `theme-color` na nova marca.
+- Tokens navy/gold aplicados via `global.css`; JSON-LD `RealEstateAgent` com CRECI e `areaServed` Juara.
+- Typecheck, lint, testes, build e `seo-smoke` aprovados.
+- PNG provisório do logo pendente: marca atual em SVG inline até o dono enviar o vetorial com fundo transparente.
+
+---
+
 ## DOC-002 — Atualizar o README do front
 
 Status: aberta
@@ -128,3 +147,8 @@ Disponibilizar o .env local pelo fluxo habitual do dono, sem enviá-lo ao chat. 
 Regra provisória informada pelo dono em 12/09/2026: a comissão de captação equivale a um aluguel do contrato. O proprietário pode pagar esse valor parcelado; a quantidade de parcelas e vencimentos devem ficar registrados, e cada parcela será confirmada manualmente. A implementação deve mostrar total da comissão, parcelas, recebido e saldo. Essa é uma regra operacional a validar com o responsável contábil, não uma presunção jurídica.
 
 Próxima entrega: entidades de comissão/parcela, pagamentos de aluguel e repasse mensal, com acesso ADMIN, histórico, filtros e relatórios. Não misturar comissão de captação com o cálculo do repasse mensal do proprietário. SI9/Imonov, importação e alertas seguem fora do escopo.
+
+## DEPLOY-003 — Revisar e publicar UX-003/UX-004 no ambiente existente
+Status: concluída em 13/09/2026
+Responsável: Codex
+Deploy READY em https://corretor-web-test.vercel.app. Typecheck, lint, 68 testes, builds e SEO smoke aprovados. QA mobile e formulário com fixture local. Catálogo remoto vazio; homologação de detalhe real e fluxos autenticados permanece pendente. Sem commit/push. DEPLOY-002 continua referente ao lançamento comercial, distinto desta atualização do projeto de teste.

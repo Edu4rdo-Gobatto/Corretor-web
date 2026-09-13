@@ -4,9 +4,9 @@
 .imageLink img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
 .imageLink:hover img, .imageLink:focus-visible img { transform: scale(1.045); }
 .imageLink:hover::after, .imageLink:focus-visible::after { opacity: 1; }
-.purpose { position: absolute; top: 17px; left: 17px; background: var(--paper); font-size: 11px; letter-spacing: .065em; text-transform: uppercase; font-weight: 600; padding: 6px 11px; border-radius: 2px; }
+.purpose { position: absolute; top: 17px; left: 17px; background: var(--navy); color: #FFF; font-size: 11px; letter-spacing: .065em; text-transform: uppercase; font-weight: 600; padding: 6px 11px; border-radius: 2px; border-bottom: 2px solid var(--gold); }
 .arrow { position: absolute; bottom: 14px; right: 14px; width: 38px; height: 38px; display: grid; place-items: center; background: var(--paper); border-radius: 50%; z-index: 1; transition: transform .2s ease, background .2s ease; }
-.imageLink:hover .arrow, .imageLink:focus-visible .arrow { transform: translate(2px, -2px); background: white; }
+.imageLink:hover .arrow, .imageLink:focus-visible .arrow { transform: translate(2px, -2px); background: var(--gold-soft); }
 .content { padding: 20px 0 0; }
 .category { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: var(--green); margin-bottom: 8px; font-weight: 600; }
 .content h3 { margin-bottom: 8px; font-size: 21px; }

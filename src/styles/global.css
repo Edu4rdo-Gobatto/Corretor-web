@@ -5,7 +5,7 @@
 @import '@fontsource/source-sans-3/latin-600.css';
 @import '@fontsource/source-sans-3/latin-700.css';
 
-:root { font-family: 'Source Sans 3', sans-serif; color: #242824; background: #F7F5F0; font-synthesis: none; --paper: #F7F5F0; --ink: #242824; --green: #174D3B; --muted: #666A61; --line: #DDDCD3; --white: #FFF; --error: #9C302B; --soft: #ECEFE7; --display: 'Libre Baskerville', Georgia, serif; }
+:root { font-family: 'Source Sans 3', sans-serif; color: #0A2042; background: #FFFFFF; font-synthesis: none; --paper: #FFFFFF; --ink: #0A2042; --navy: #0A2042; --navy-deep: #071733; --green: #0A2042; --gold: #C99B3F; --gold-soft: #F4E9CF; --muted: #556074; --line: #E2E6EC; --white: #FFF; --error: #9C302B; --soft: #EEF1F6; --display: 'Libre Baskerville', Georgia, serif; }
 * { box-sizing: border-box; }
 body { margin: 0; font-size: 16px; line-height: 1.55; }
 button, input, select, textarea { font: inherit; }
@@ -20,7 +20,7 @@ h1 { font-size: clamp(32px, 4vw, 56px); }
 h2 { font-size: clamp(26px, 3vw, 38px); }
 h3 { font-size: 20px; font-weight: 600; line-height: 1.35; }
 button:disabled { cursor: not-allowed; opacity: .55; }
-:focus-visible { outline: 3px solid #A57730; outline-offset: 4px; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
 input,select,textarea { min-width: 0; width: 100%; background: var(--white); color: var(--ink); border: 1px solid #B7BCB1; border-radius: 4px; min-height: 46px; padding: 10px 12px; }
 input[type=checkbox] { width: 19px; height: 19px; min-height: 19px; accent-color: var(--green); flex-shrink: 0; }
 textarea { resize: vertical; min-height: 112px; }
@@ -28,8 +28,8 @@ label { display: block; font-size: 15px; font-weight: 600; }
 label input, label select, label textarea { margin-top: 6px; }
 .container { max-width: 1320px; width: calc(100% - 112px); margin-inline: auto; }
 .button,.buttonSecondary,.buttonGhost { display: inline-flex; gap: 10px; align-items: center; justify-content: center; min-height: 46px; padding: 12px 22px; border: 1px solid transparent; border-radius: 4px; font-weight: 600; text-decoration: none; transition: background .18s, color .18s; }
-.button { background: var(--green); color: white; }
-.button:hover { background: #103D2F; }
+.button { background: var(--navy); color: white; border-bottom: 2px solid var(--gold); }
+.button:hover { background: var(--navy-deep); }
 .buttonSecondary { border-color: #B9BEB3; background: transparent; color: var(--green); }
 .buttonSecondary:hover { background: var(--soft); }
 .buttonGhost { padding: 10px 12px; background: transparent; }

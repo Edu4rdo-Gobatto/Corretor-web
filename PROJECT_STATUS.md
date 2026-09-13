@@ -1,18 +1,27 @@
 # Estado atual — corretor-web
 
-Atualizado em: 2026-09-12
-Agente responsável: Claude (sessão de ambiente de desenvolvimento e limpeza de dados fixos)
+Atualizado em: 2026-09-13
+Agente responsável: Codex (UX-003 rebrand Lucas Gobatto, só front)
 Commit da `main`: `d4f6b2f` — "feat: add complete SEO and SSR delivery"
 Repositório irmão: corretor-api, `main` em `a41f49b`
 
 ## Em andamento
 
+- UX-003 rebrand concluído no código (13/09/2026, Codex): marca Lucas Gobatto CRECI 15776, Juara/MT,
+  navy/gold/branco só no front; typecheck, lint, 18 arquivos/62 testes, build e seo-smoke aprovados.
+  Sem commit (aguardando confirmação do dono); SVG/PNG oficial do logo pendente.
 - Correção do 404 do painel de locações concluída: o serviço Render `Corretor-API` foi atualizado para `4b9377c`; API direta e proxy Vercel agora respondem `401 Unauthorized` nas rotas protegidas, confirmando que as rotas estão publicadas. A migration de locações já estava aplicada no banco de teste.
 
 - Ambiente de desenvolvimento no ar: front SSR em `http://127.0.0.1:5173` e API em `http://localhost:3000`.
 - Pesquisa de deploy (Render e Vercel) iniciada pelo Claude; resultado ainda não incorporado às tarefas.
 
 ## Concluído recentemente
+
+- **UX-004 melhorias de front sem back (13/09/2026, opencode).** Conversão mobile (CTA fixo, share,
+  mapa), galeria (eager/lazy, `aria-live`), LeadFormModal (`inputMode`, foco no erro), cards com
+  fallback, skeletons, breadcrumb com classe, características legíveis, semelhantes, `end` no NavLink
+  inicial e retoques do admin. Typecheck, lint, 20 arquivos/68 testes, build e seo-smoke aprovados.
+  Sem commit (aguardando confirmação do dono).
 
 - **Catálogo e detalhe público refinados (13/09/2026).** Melhorados hero, busca, estados vazios, cartões, card de
   contato, fatos da área, galeria com navegação por teclado e responsividade, sem alterar a API ou o fluxo de leads.
@@ -82,3 +91,10 @@ Implementação local concluída e pronta para revisão. Front: rotas de proprie
 
 - Vercel conectado e primeiro deploy publicado: https://corretor-web-test.vercel.app
 - Neon conectado; projeto de teste \oyal-haze-18985318\ (corretor-db-test), migrations aplicadas.
+
+## 2026-09-13 — Codex: revisão e deploy do front
+Área assumida: revisão de UX-003/UX-004, validação e atualização do projeto Vercel corretor-web-test, conforme pedido do dono. Em andamento; alterações preexistentes preservadas.
+
+
+### Revisão/deploy finalizados — 13/09/2026
+Codex concluiu UX-003/UX-004 no ambiente https://corretor-web-test.vercel.app (dpl_8ZTk6bsKwV8xnqye5nUDo6EdcRV4, READY). Typecheck, lint, 68 testes, builds local/remoto e SEO smoke aprovados. Catálogo vazio na API remota; detalhe/modal/CTA conferidos com fixture local. Sem commit/push. Logo oficial, dados de privacidade, homologação autenticada e lançamento comercial continuam pendentes. Este registro substitui o estado em andamento desta revisão e corrige os bloqueios históricos de infraestrutura para o ambiente de teste.
