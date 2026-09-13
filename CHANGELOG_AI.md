@@ -1,5 +1,28 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — opencode — Commit e push `5f916cb` (mobile vitrine + menu + admin)
+
+A pedido do dono: commit e push direto na `main` das alterações pendentes (menu mobile,
+mobile do admin, mobile público vitrine, header do admin afinado + plano
+`docs/plans/2026-09-13-mobile-public.md`) — 23 arquivos.
+
+Testes executados antes do commit (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 21 arquivos, 98 testes aprovados.
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`).
+- Sem segredo no diff (`.env`, `dist/`, `.vercel/` ignorados).
+
+Commit `5f916cb` ("feat: mobile vitrine no público, menu navegável e admin afinado"),
+push `4e928e4..5f916cb main -> main`, árvore limpa e sincronizada com `origin/main`.
+`PROJECT_STATUS.md` atualizado: itens pendentes passaram a apontar os commits
+(`71d809b` UX-003/UX-004, `4e928e4` Tailwind, `2d0d8ac` hambúrguer, `376219d` capa/decode,
+`5f916cb` menu/mobile/vitrine/header).
+
+Risco/pendência: conferências manuais no navegador seguem pendentes (mobile 320–390px,
+desktop do hambúrguer, catálogo com capa e upload misto com a API no ar).
+
 ## 2026-09-13 — opencode — Header do admin afinado no mobile
 
 Relato do dono com print: a parte de cima do painel estava muito grossa no mobile.

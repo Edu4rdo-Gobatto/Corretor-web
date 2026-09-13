@@ -1,19 +1,19 @@
 # Estado atual — corretor-web
 
 Atualizado em: 2026-09-13
-Agente responsável: opencode (Tailwind v4 migração total concluída no código 13/09/2026, sem commit)
-Commit da `main`: `d4f6b2f` — "feat: add complete SEO and SSR delivery"
+Agente responsável: opencode (commit e push `5f916cb` em 13/09/2026, a pedido do dono)
+Commit da `main`: `5f916cb` — "feat: mobile vitrine no público, menu navegável e admin afinado"
 Repositório irmão: corretor-api, `main` em `a41f49b`
 
 ## Em andamento
 
 - Tailwind v4 migração total concluída no código (13/09/2026, opencode): `tailwindcss` + `@tailwindcss/vite`,
   `src/styles/tailwind.css` com `@theme` navy/gold + `.dark`, zero `.module.css` restantes (público + admin);
-  typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit (aguardando confirmação do dono).
-  Pendente conferir no navegador: catálogo, detalhe, admin, dark e mobile 320–390px.
-- UX-003 rebrand concluído no código (13/09/2026, Codex): marca Lucas Gobatto CRECI 15776, Juara/MT,
-  navy/gold/branco só no front; typecheck, lint, 18 arquivos/62 testes, build e seo-smoke aprovados.
-  Sem commit (aguardando confirmação do dono); SVG/PNG oficial do logo pendente.
+   typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Commit `4e928e4` na main.
+   Pendente conferir no navegador: catálogo, detalhe, admin, dark e mobile 320–390px.
+- UX-003 rebrand concluído e commitado em `71d809b` (13/09/2026, Codex): marca Lucas Gobatto CRECI 15776, Juara/MT,
+   navy/gold/branco só no front; typecheck, lint, 18 arquivos/62 testes, build e seo-smoke aprovados.
+   SVG/PNG oficial do logo pendente.
 - Correção do 404 do painel de locações concluída: o serviço Render `Corretor-API` foi atualizado para `4b9377c`; API direta e proxy Vercel agora respondem `401 Unauthorized` nas rotas protegidas, confirmando que as rotas estão publicadas. A migration de locações já estava aplicada no banco de teste.
 
 - Ambiente de desenvolvimento no ar: front SSR em `http://127.0.0.1:5173` e API em `http://localhost:3000`.
@@ -24,8 +24,8 @@ Repositório irmão: corretor-api, `main` em `a41f49b`
 - **UX-004 melhorias de front sem back (13/09/2026, opencode).** Conversão mobile (CTA fixo, share,
   mapa), galeria (eager/lazy, `aria-live`), LeadFormModal (`inputMode`, foco no erro), cards com
   fallback, skeletons, breadcrumb com classe, características legíveis, semelhantes, `end` no NavLink
-  inicial e retoques do admin. Typecheck, lint, 20 arquivos/68 testes, build e seo-smoke aprovados.
-  Sem commit (aguardando confirmação do dono).
+   inicial e retoques do admin. Typecheck, lint, 20 arquivos/68 testes, build e seo-smoke aprovados.
+   Commit `71d809b` na main.
 
 - **Catálogo e detalhe público refinados (13/09/2026).** Melhorados hero, busca, estados vazios, cartões, card de
   contato, fatos da área, galeria com navegação por teclado e responsividade, sem alterar a API ou o fluxo de leads.
@@ -124,29 +124,29 @@ Logs do Render para o POST de mídia registram `write EPROTO ... SSL alert hands
 Área assumida: erro HTTP 500 ao enviar mídia no ambiente corretor-web-test; rastrear proxy, API e R2. Em andamento (opencode, 13/09/2026, 15h42: token corrigido — saiu `AccessDenied`, agora `NoSuchBucket` no `PutObject` do bucket hardcoded `corretor-midia` em `media.service.ts:48`; falta criar o bucket de mídia na conta de teste).
 
 
-## 2026-09-13 — opencode: hambúrguer só no mobile (implementado, sem commit)
-Área assumida: botão hambúrguer aparecendo no desktop junto da navegação. Causa no `PublicLayout.module.css`: `.menuToggle{display:none}` empatava com `.buttonGhost{display:inline-flex}` do global. Fix com `button.menuToggle` (maior especificidade) no desktop e no `@media(max-width:650px)`. Typecheck, lint e 21 arquivos/98 testes aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador: desktop >650px sem botão, mobile ≤650px com botão.
+## 2026-09-13 — opencode: hambúrguer só no mobile (commit `2d0d8ac`)
+Área assumida: botão hambúrguer aparecendo no desktop junto da navegação. Causa no `PublicLayout.module.css`: `.menuToggle{display:none}` empatava com `.buttonGhost{display:inline-flex}` do global. Fix com `button.menuToggle` (maior especificidade) no desktop e no `@media(max-width:650px)`. Typecheck, lint e 21 arquivos/98 testes aprovados. Commit `2d0d8ac` na main. Pendente conferir no navegador: desktop >650px sem botão, mobile ≤650px com botão.
 
-## 2026-09-13 — opencode: mobile público com direção vitrine (plano incrementado, sem código)
+## 2026-09-13 — opencode: mobile público com direção vitrine (plano commitado em `5f916cb`)
 
-Área assumida: `docs/plans/2026-09-13-mobile-public.md` — tese ponto comercial Juara/MT, tokens navy/gold existentes, assinatura soleira dourada + placa de rua, wireframes 360px, P0/P1 com visual + P2 microcopy, validação 320–390px sem scroll-X e toques ≥44px. Sem código, sem commit (aguardando confirmação do dono).
+Área assumida: `docs/plans/2026-09-13-mobile-public.md` — tese ponto comercial Juara/MT, tokens navy/gold existentes, assinatura soleira dourada + placa de rua, wireframes 360px, P0/P1 com visual + P2 microcopy, validação 320–390px sem scroll-X e toques ≥44px. Plano e implementação commitados em `5f916cb`.
 
-## 2026-09-13 — opencode: menu mobile não abria (corrigido e conferido no navegador, sem commit)
-Causa: `max-[650px]:hidden` + `max-[650px]:flex` aplicados juntos no `<nav>` — no CSS gerado o `hidden` vence o `flex`, então o menu nunca aparecia. Fix: classes mutuamente exclusivas + teste de regressão das classes. Conferido em 390px com dados reais: sheet navy abre com as 4 opções + CRECI. Typecheck, lint e testes do menu/navegação aprovados. Sem commit/push (aguardando confirmação do dono).
+## 2026-09-13 — opencode: menu mobile não abria (corrigido, commit `5f916cb`)
+Causa: `max-[650px]:hidden` + `max-[650px]:flex` aplicados juntos no `<nav>` — no CSS gerado o `hidden` vence o `flex`, então o menu nunca aparecia. Fix: classes mutuamente exclusivas + teste de regressão das classes. Conferido em 390px com dados reais: sheet navy abre com as 4 opções + CRECI. Typecheck, lint e testes do menu/navegação aprovados. Commit `5f916cb` na main.
 
-## 2026-09-13 — opencode: mobile do admin (implementado, sem commit)
-Área assumida: mesmo padrão do público, agora no painel (`AdminLayout`, login, dashboard, listas, formulário, mídias, locações); sem `any`/dependência nova. Typecheck, lint, 21 arquivos/98 testes e build aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador 320–390px com login: navegação lateral, cabeçalhos, tabelas, filtros, formulário, mídias e fichas de locação.
+## 2026-09-13 — opencode: mobile do admin (implementado, commit `5f916cb`)
+Área assumida: mesmo padrão do público, agora no painel (`AdminLayout`, login, dashboard, listas, formulário, mídias, locações); sem `any`/dependência nova. Typecheck, lint, 21 arquivos/98 testes e build aprovados. Commit `5f916cb` na main. Pendente conferir no navegador 320–390px com login: navegação lateral, cabeçalhos, tabelas, filtros, formulário, mídias e fichas de locação.
 
-## 2026-09-13 — opencode: mobile público vitrine (implementado, sem commit)
-Área assumida: `docs/plans/2026-09-13-mobile-public.md` — só público (header, catálogo, detalhe, galeria, busca, modal lead); admin fora. Base atual usa Tailwind (sem `.module.css`), então o plano foi aplicado como utilities, sem `any`/`fetch` direto/dependência nova. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador 320–390px: menu, hero sem scroll-X, busca 1 coluna, CTA sticky navy único, galeria com snap, modal lead e toques ≥44px.
+## 2026-09-13 — opencode: mobile público vitrine (implementado, commit `5f916cb`)
+Área assumida: `docs/plans/2026-09-13-mobile-public.md` — só público (header, catálogo, detalhe, galeria, busca, modal lead); admin fora. Base atual usa Tailwind (sem `.module.css`), então o plano foi aplicado como utilities, sem `any`/`fetch` direto/dependência nova. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Commit `5f916cb` na main. Pendente conferir no navegador 320–390px: menu, hero sem scroll-X, busca 1 coluna, CTA sticky navy único, galeria com snap, modal lead e toques ≥44px.
 
-## 2026-09-13 — opencode: header do admin afinado no mobile (implementado, sem commit)
+## 2026-09-13 — opencode: header do admin afinado no mobile (commit `5f916cb`)
 Área assumida: `AdminLayout` — topo navy ocupava altura demais no mobile (print do dono).
 Fix só com utilities: `aside` com `py-2.5/gap-2`, marca `16px/leading-tight`, nav sem `pb`
 e links `min-h-10/text-14`, linha do usuário sem `mt-auto` no mobile e botão sair `min-h-9`.
-Desktop (`lg:`) preservado. Typecheck, lint e teste do AdminLayout aprovados. Sem commit
-(aguardando confirmação do dono). Pendente conferir no navegador 320–390px.
+Desktop (`lg:`) preservado. Typecheck, lint e teste do AdminLayout aprovados.
+Commit `5f916cb` na main. Pendente conferir no navegador 320–390px.
 
-## 2026-09-13 — opencode: capa no catálogo + decode no upload (implementado, sem commit)
-Área assumida: capa some no catálogo embora apareça no detalhe, mais o erro inglês "The source image could not be decoded." no formulário. Causa da capa na API (`PropertiesService.list()` sem `media`; corrigido no repositório irmão). Front: `prepareMediaFiles` agora pula arquivo ilegível com aviso em PT e mantém os válidos no lote; `MediaManager` exibe quais foram pulados e só envia quando há algo válido. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir com a API no ar: catálogo com capa, upload misto (válido + corrompido) e redeploy da API no Render.
+## 2026-09-13 — opencode: capa no catálogo + decode no upload (commit `376219d`)
+Área assumida: capa some no catálogo embora apareça no detalhe, mais o erro inglês "The source image could not be decoded." no formulário. Causa da capa na API (`PropertiesService.list()` sem `media`; corrigido no repositório irmão). Front: `prepareMediaFiles` agora pula arquivo ilegível com aviso em PT e mantém os válidos no lote; `MediaManager` exibe quais foram pulados e só envia quando há algo válido. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Commit `376219d` na main. Pendente conferir com a API no ar: catálogo com capa, upload misto (válido + corrompido) e redeploy da API no Render.
 
