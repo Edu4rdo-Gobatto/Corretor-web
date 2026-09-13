@@ -6,5 +6,80 @@ import { useAuth } from '../../hooks/useAuth';
 import { date } from '../../services/format';
 import AsyncState from '../../components/AsyncState';
 import { useAdminData } from './useAdminData';
-import styles from './Admin.module.css';
-export default function Dashboard(){const {agent}=useAuth();const {data,loading,error,refresh}=useAdminData(useCallback(async()=>{const [properties,leads]=await Promise.all([api.listProperties({page:1,limit:1},true),api.listLeads({page:1,limit:5})]);return {properties,leads};},[]));return <><header className={styles.heading}><div><p className="eyebrow">VISÃO GERAL</p><h1>Olá, {agent?.name.split(' ')[0]}.</h1><p className="muted">Um olhar sobre suas próximas oportunidades.</p></div><Link className="button" to="/admin/imoveis/novo">+ Novo imóvel</Link></header><AsyncState loading={loading} error={error} retry={refresh}/>{data&&!error&&<><section className={styles.stats}><div className={styles.stat}><span>Imóveis no portfólio</span><strong>{data.properties.total}</strong><Link to="/admin/imoveis">Gerenciar imóveis →</Link></div><div className={styles.stat}><span>Contatos recebidos</span><strong>{data.leads.total}</strong><Link to={routes.contacts}>Ver oportunidades →</Link></div><div className={styles.stat}><span>Sua vitrine está pronta</span><strong>↗</strong><Link to={routes.home}>Explorar o site público</Link></div></section><section className={styles.panel}><h2>Contatos recentes</h2>{data.leads.items.length===0?<p className={styles.empty}>Os novos contatos aparecerão aqui.</p>:<div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>Contato</th><th>Telefone</th><th>Recebido em</th></tr></thead><tbody>{data.leads.items.map(lead=><tr key={lead.id}><td><strong>{lead.leadName}</strong><small>{lead.leadEmail}</small></td><td>{lead.leadPhone}</td><td>{date(lead.createdAt)}</td></tr>)}</tbody></table></div>}</section></>}</>}
+
+export default function Dashboard() {
+  const { agent } = useAuth();
+  const { data, loading, error, refresh } = useAdminData(
+    useCallback(async () => {
+      const [properties, leads] = await Promise.all([
+        api.listProperties({ page: 1, limit: 1 }, true),
+        api.listLeads({ page: 1, limit: 5 }),
+      ]);
+      return { properties, leads };
+    }, []),
+  );
+  return (
+    <>
+      <header className="mb-8 flex items-center justify-between gap-5 max-lg:items-start">
+        <div>
+          <p className="eyebrow">VISÃO GERAL</p>
+          <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">Olá, {agent?.name.split(' ')[0]}.</h1>
+          <p className="muted">Um olhar sobre suas próximas oportunidades.</p>
+        </div>
+        <Link className="button" to="/admin/imoveis/novo">+ Novo imóvel</Link>
+      </header>
+      <AsyncState loading={loading} error={error} retry={refresh} />
+      {data && !error && (
+        <>
+          <section className="mb-8 grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-5">
+            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7">
+              <span>Imóveis no portfólio</span>
+              <strong className="m-0 block font-display text-[28px] text-ink lg:my-[18px] lg:mb-2 lg:text-[38px]">{data.properties.total}</strong>
+              <Link to="/admin/imoveis">Gerenciar imóveis →</Link>
+            </div>
+            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7">
+              <span>Contatos recebidos</span>
+              <strong className="m-0 block font-display text-[28px] text-ink lg:my-[18px] lg:mb-2 lg:text-[38px]">{data.leads.total}</strong>
+              <Link to={routes.contacts}>Ver oportunidades →</Link>
+            </div>
+            <div className="flex flex-wrap items-center gap-5 rounded border border-line bg-paper p-[18px] lg:block lg:p-7">
+              <span>Sua vitrine está pronta</span>
+              <strong className="m-0 block font-display text-[28px] text-ink lg:my-[18px] lg:mb-2 lg:text-[38px]">↗</strong>
+              <Link to={routes.home}>Explorar o site público</Link>
+            </div>
+          </section>
+          <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
+            <h2 className="mb-6 mt-0 text-[22px] text-ink">Contatos recentes</h2>
+            {data.leads.items.length === 0 ? (
+              <p className="px-5 py-10 text-center text-muted">Os novos contatos aparecerão aqui.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-left">
+                  <thead>
+                    <tr>
+                      <th className="border-b border-line px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted max-lg:px-2 max-lg:py-3">Contato</th>
+                      <th className="border-b border-line px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted max-lg:px-2 max-lg:py-3">Telefone</th>
+                      <th className="border-b border-line px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted max-lg:px-2 max-lg:py-3">Recebido em</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.leads.items.map((lead) => (
+                      <tr key={lead.id}>
+                        <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
+                          <strong>{lead.leadName}</strong>
+                          <small className="mt-1 block text-muted">{lead.leadEmail}</small>
+                        </td>
+                        <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">{lead.leadPhone}</td>
+                        <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">{date(lead.createdAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </>
+  );
+}

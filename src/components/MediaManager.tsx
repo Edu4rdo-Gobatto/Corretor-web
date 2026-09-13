@@ -4,7 +4,6 @@ import { api } from '../services/api';
 import { errorMessage } from '../services/format';
 import { embedUrl } from '../services/embedUrl';
 import { prepareMediaFiles } from './mediaUpload';
-import styles from './MediaManager.module.css';
 
 const acceptedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
 
@@ -71,17 +70,18 @@ export default function MediaManager({ property, onChange }: { property: Propert
   }
 
   return (
-    <section className={styles.panel}>
-      <h2>05. Fotos e vídeos</h2>
+    <section className="mt-7 border border-[#dedfd5] bg-[#fffefa] p-7 max-[500px]:p-5 dark:border-line dark:bg-soft">
+      <h2 className="text-[22px] dark:text-ink">05. Fotos e vídeos</h2>
       <p className="muted">A primeira impressão começa por uma boa imagem. Escolha uma foto de capa.</p>
-      <label className={styles.upload}>
+      <label className="mb-6 block border border-dashed border-[#899e88] bg-[#f3f5ef] p-7 dark:border-line dark:bg-soft dark:text-ink">
         Adicionar fotos ou vídeos
-        <span className={styles.message}> · Até 20 arquivos por envio, 30 MB por arquivo. Imagens são otimizadas em WebP.</span>
+        <span className="text-[13px] text-[#687166] dark:text-muted"> · Até 20 arquivos por envio, 30 MB por arquivo. Imagens são otimizadas em WebP.</span>
         <input
           type="file"
           multiple
           accept={acceptedTypes.join(',')}
           disabled={busy}
+          className="mt-[14px] block max-w-full"
           onChange={(event) => {
             const files = Array.from(event.target.files ?? []);
             if (files.length) void upload(files);
@@ -89,8 +89,8 @@ export default function MediaManager({ property, onChange }: { property: Propert
           }}
         />
       </label>
-      <form className={styles.embed} onSubmit={(event) => { event.preventDefault(); void embed(); }}>
-        <label>
+      <form className="mb-[26px] flex items-end gap-3 max-[500px]:flex-col max-[500px]:items-stretch" onSubmit={(event) => { event.preventDefault(); void embed(); }}>
+        <label className="grid flex-1 gap-2">
           Link do YouTube ou Vimeo
           <input
             type="url"
@@ -106,16 +106,16 @@ export default function MediaManager({ property, onChange }: { property: Propert
       {error && <p role="alert" className="error">{error}</p>}
       {progress && <p role="status">Processando {progress.completed} de {progress.total}…</p>}
       {message && <p role="status">{message}</p>}
-      <div className={styles.grid}>
+      <div className="grid grid-cols-3 gap-[18px] max-[800px]:grid-cols-2 max-[500px]:grid-cols-1">
         {media.map((item, index) => {
           const safeUrl = item.type === 'VIDEO_EMBED' ? embedUrl(item.url) : null;
           return (
-            <article className={styles.item} key={item.id}>
-              {item.type === 'IMAGE' ? <img className={styles.preview} src={item.url} alt={`Foto ${index + 1} do imóvel`} />
-                : item.type === 'VIDEO_FILE' ? <video className={styles.preview} src={item.url} controls preload="metadata" aria-label={`Vídeo ${index + 1} do imóvel`} />
-                  : <div className={styles.placeholder}>{safeUrl ? <a href={safeUrl} target="_blank" rel="noopener noreferrer">Assistir ao vídeo ↗</a> : <span>Vídeo indisponível</span>}</div>}
-              <div className={styles.controls}>
-                {item.isCover ? <span className={styles.cover}>Capa</span> : item.type === 'IMAGE' && <button type="button" className="buttonGhost" disabled={busy} onClick={() => void run(() => api.coverMedia(property.id, item.id), 'Capa atualizada.')}>Definir capa</button>}
+            <article className="border border-[#dedfd5] bg-white dark:border-line dark:bg-paper" key={item.id}>
+              {item.type === 'IMAGE' ? <img className="h-[150px] w-full bg-[#e9ede5] object-cover dark:bg-soft" src={item.url} alt={`Foto ${index + 1} do imóvel`} />
+                : item.type === 'VIDEO_FILE' ? <video className="h-[150px] w-full bg-[#e9ede5] object-cover dark:bg-soft" src={item.url} controls preload="metadata" aria-label={`Vídeo ${index + 1} do imóvel`} />
+                  : <div className="grid h-[150px] place-items-center break-anywhere bg-[#e9ede5] p-4 dark:bg-soft dark:text-ink">{safeUrl ? <a href={safeUrl} target="_blank" rel="noopener noreferrer">Assistir ao vídeo ↗</a> : <span>Vídeo indisponível</span>}</div>}
+              <div className="flex flex-wrap items-center gap-[10px] p-3 [&>button]:px-[9px] [&>button]:py-[5px] [&>button]:text-[13px]">
+                {item.isCover ? <span className="bg-[#174d3b] px-2 py-[3px] text-xs text-white">Capa</span> : item.type === 'IMAGE' && <button type="button" className="buttonGhost" disabled={busy} onClick={() => void run(() => api.coverMedia(property.id, item.id), 'Capa atualizada.')}>Definir capa</button>}
                 <button type="button" className="buttonGhost" aria-label={`Mover mídia ${index + 1} para cima`} disabled={busy || index === 0} onClick={() => void run(() => { const ids = media.map((mediaItem) => mediaItem.id); [ids[index - 1], ids[index]] = [ids[index], ids[index - 1]]; return api.reorderMedia(property.id, ids); }, 'Ordem atualizada.')}>↑</button>
                 <button type="button" className="buttonGhost" aria-label={`Mover mídia ${index + 1} para baixo`} disabled={busy || index === media.length - 1} onClick={() => void run(() => { const ids = media.map((mediaItem) => mediaItem.id); [ids[index], ids[index + 1]] = [ids[index + 1], ids[index]]; return api.reorderMedia(property.id, ids); }, 'Ordem atualizada.')}>↓</button>
                 <button type="button" className="buttonGhost" disabled={busy} onClick={() => { if (confirm('Excluir esta mídia permanentemente?')) void run(() => api.deleteMedia(property.id, item.id), 'Mídia excluída.'); }}>Excluir</button>

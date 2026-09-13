@@ -11,7 +11,10 @@ import AsyncState from '../../components/AsyncState';
 import MediaManager from '../../components/MediaManager';
 import { MAX_FEATURES_TEXT_LENGTH, propertySchema, states, type PropertyValues } from './propertySchema';
 import { clearPropertyDraft, propertyDraftKey, readPropertyDraft, writePropertyDraft } from './propertyDraft';
-import styles from './Admin.module.css';
+
+const formField = '[&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold [&_input]:w-full [&_select]:w-full [&_textarea]:w-full [&_textarea]:min-h-[130px]';
+const errorText = 'm-0 text-[13px] text-error';
+const hint = 'text-[13px] font-normal text-muted';
 
 export default function PropertyForm() {
   const { id } = useParams();
@@ -94,10 +97,10 @@ export default function PropertyForm() {
   }, [agent?.role]);
 
   const textField = (name: 'title' | 'addressStreet' | 'addressNumber' | 'addressCity' | 'neighborhood', label: string) => (
-    <label>{label}<input {...register(name)} aria-invalid={!!errors[name]} />{errors[name] && <span className={styles.errorText}>{errors[name]?.message}</span>}</label>
+    <label>{label}<input {...register(name)} aria-invalid={!!errors[name]} />{errors[name] && <span className={errorText}>{errors[name]?.message}</span>}</label>
   );
   const numberField = (name: 'price' | 'condoFee' | 'iptuFee' | 'usableArea' | 'totalArea', label: string, optional = false) => (
-    <label>{label}<input type="number" min={name.includes('Area') ? '0.01' : '0'} step="0.01" {...register(name, { setValueAs: (value: string) => optional && value === '' ? null : value === '' ? NaN : Number(value) })} aria-invalid={!!errors[name]} />{errors[name] && <span className={styles.errorText}>{errors[name]?.message}</span>}</label>
+    <label>{label}<input type="number" min={name.includes('Area') ? '0.01' : '0'} step="0.01" {...register(name, { setValueAs: (value: string) => optional && value === '' ? null : value === '' ? NaN : Number(value) })} aria-invalid={!!errors[name]} />{errors[name] && <span className={errorText}>{errors[name]?.message}</span>}</label>
   );
 
   async function save(values: PropertyValues) {
@@ -121,20 +124,69 @@ export default function PropertyForm() {
   }
 
   return <>
-    <header className={styles.heading}><div><Link to="/admin/imoveis">← Imóveis</Link><h1>{id ? 'Editar imóvel' : 'Um novo espaço.'}</h1><p className="muted">Conte o que torna este imóvel uma boa oportunidade.</p></div>{property && <Link to={propertyUrl(property.slug)} className="buttonSecondary">Ver no site ↗</Link>}</header>
+    <header className="mb-8 flex items-center justify-between gap-5 max-lg:items-start">
+      <div>
+        <Link to="/admin/imoveis">← Imóveis</Link>
+        <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">{id ? 'Editar imóvel' : 'Um novo espaço.'}</h1>
+        <p className="muted">Conte o que torna este imóvel uma boa oportunidade.</p>
+      </div>
+      {property && <Link to={propertyUrl(property.slug)} className="buttonSecondary">Ver no site ↗</Link>}
+    </header>
     <AsyncState loading={loading} error={loadError} retry={() => void load()} />
     {!loading && !loadError && <>
-      <form className={styles.form} onSubmit={handleSubmit(save)} noValidate>
-        {draftRestored && <p className={styles.success} role="status">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</p>}
+      <form className={formField} onSubmit={handleSubmit(save)} noValidate>
+        {draftRestored && <p className="rounded bg-[#eaf0e8] p-3.5 text-[#174d3b] dark:bg-white/10 dark:text-white" role="status">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</p>}
         {draftWarning && <p className="error" role="alert">{draftWarning}</p>}
-        <section className={styles.panel}><h2>01. Apresentação</h2><div className={styles.grid}><div className={styles.wide}>{textField('title', 'Título do anúncio *')}</div><label>Tipo de imóvel *<select {...register('type')}>{Object.entries(propertyType).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Finalidade *<select {...register('purpose')}><option value="LOCACAO">Locação</option><option value="VENDA">Venda</option></select></label><label>Status *<select {...register('status')}>{Object.entries(propertyStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>{agent?.role === 'ADMIN' && <label>Corretor responsável<select {...register('agentId')}><option value="">Minha conta</option>{agents.filter((item) => item.active || item.id === property?.agentId).map((item) => <option key={item.id} value={item.id}>{item.name}{!item.active ? ' (inativo)' : ''}</option>)}</select></label>}<label className={styles.wide}>Descrição *<textarea rows={6} {...register('description')} aria-invalid={!!errors.description} />{errors.description && <span className={styles.errorText}>{errors.description.message}</span>}</label></div></section>
-        <section className={styles.panel}><h2>02. Valores e dimensões</h2><div className={styles.grid}>{numberField('price', 'Preço de venda ou aluguel mensal (R$) *')}{numberField('condoFee', 'Condomínio mensal (R$)', true)}{numberField('iptuFee', 'IPTU (R$)', true)}{numberField('usableArea', 'Área útil (m²) *')}{numberField('totalArea', 'Área total (m²) *')}</div></section>
-        <section className={styles.panel}><h2>03. Localização</h2><div className={styles.grid}>{textField('addressStreet', 'Rua / avenida *')}{textField('addressNumber', 'Número *')}{textField('neighborhood', 'Bairro *')}{textField('addressCity', 'Cidade *')}<label>Estado *<select {...register('addressState')}>{states.map((state) => <option key={state}>{state}</option>)}</select></label></div></section>
-        <section className={styles.panel}><h2>04. Características</h2><label>Características adicionais em JSON<textarea maxLength={MAX_FEATURES_TEXT_LENGTH} {...register('featuresText')} spellCheck={false} aria-invalid={!!errors.featuresText} /><span className={styles.hint}>Exemplo: {`{"Vagas": 4, "Pé-direito": "8 m", "Acessibilidade": true}`}</span>{errors.featuresText && <span className={styles.errorText}>{errors.featuresText.message}</span>}</label></section>
-        {error && <p className="error" role="alert">{error}</p>}{success && <p className={styles.success} role="status">{success}</p>}
-        <div className={styles.formFooter}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar imóvel'}</button><Link to="/admin/imoveis" className="buttonGhost">Voltar</Link></div>
+        <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
+          <h2 className="mb-6 mt-0 text-[22px] text-ink">01. Apresentação</h2>
+          <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
+            <div className="col-span-full">{textField('title', 'Título do anúncio *')}</div>
+            <label>Tipo de imóvel *<select {...register('type')}>{Object.entries(propertyType).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+            <label>Finalidade *<select {...register('purpose')}><option value="LOCACAO">Locação</option><option value="VENDA">Venda</option></select></label>
+            <label>Status *<select {...register('status')}>{Object.entries(propertyStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+            {agent?.role === 'ADMIN' && <label>Corretor responsável<select {...register('agentId')}><option value="">Minha conta</option>{agents.filter((item) => item.active || item.id === property?.agentId).map((item) => <option key={item.id} value={item.id}>{item.name}{!item.active ? ' (inativo)' : ''}</option>)}</select></label>}
+            <label className="col-span-full">Descrição *<textarea rows={6} {...register('description')} aria-invalid={!!errors.description} />{errors.description && <span className={errorText}>{errors.description.message}</span>}</label>
+          </div>
+        </section>
+        <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
+          <h2 className="mb-6 mt-0 text-[22px] text-ink">02. Valores e dimensões</h2>
+          <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
+            {numberField('price', 'Preço de venda ou aluguel mensal (R$) *')}
+            {numberField('condoFee', 'Condomínio mensal (R$)', true)}
+            {numberField('iptuFee', 'IPTU (R$)', true)}
+            {numberField('usableArea', 'Área útil (m²) *')}
+            {numberField('totalArea', 'Área total (m²) *')}
+          </div>
+        </section>
+        <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
+          <h2 className="mb-6 mt-0 text-[22px] text-ink">03. Localização</h2>
+          <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
+            {textField('addressStreet', 'Rua / avenida *')}
+            {textField('addressNumber', 'Número *')}
+            {textField('neighborhood', 'Bairro *')}
+            {textField('addressCity', 'Cidade *')}
+            <label>Estado *<select {...register('addressState')}>{states.map((state) => <option key={state}>{state}</option>)}</select></label>
+          </div>
+        </section>
+        <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
+          <h2 className="mb-6 mt-0 text-[22px] text-ink">04. Características</h2>
+          <label>Características adicionais em JSON<textarea maxLength={MAX_FEATURES_TEXT_LENGTH} {...register('featuresText')} spellCheck={false} aria-invalid={!!errors.featuresText} /><span className={hint}>Exemplo: {`{"Vagas": 4, "Pé-direito": "8 m", "Acessibilidade": true}`}</span>{errors.featuresText && <span className={errorText}>{errors.featuresText.message}</span>}</label>
+        </section>
+        {error && <p className="error" role="alert">{error}</p>}
+        {success && <p className="rounded bg-[#eaf0e8] p-3.5 text-[#174d3b] dark:bg-white/10 dark:text-white" role="status">{success}</p>}
+        <div className="my-7 flex items-center gap-3.5">
+          <button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar imóvel'}</button>
+          <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link>
+        </div>
       </form>
-      {property ? <MediaManager property={property} onChange={async () => { setProperty(await api.getManagedProperty(property.id)); }} /> : <section className={styles.panel}><h2>05. Fotos e vídeos</h2><p className="muted">Salve o imóvel para adicionar fotos e vídeos.</p></section>}
+      {property ? (
+        <MediaManager property={property} onChange={async () => { setProperty(await api.getManagedProperty(property.id)); }} />
+      ) : (
+        <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
+          <h2 className="mb-6 mt-0 text-[22px] text-ink">05. Fotos e vídeos</h2>
+          <p className="muted">Salve o imóvel para adicionar fotos e vídeos.</p>
+        </section>
+      )}
     </>}
   </>;
 }

@@ -173,6 +173,25 @@ Decisão: atender ao pedido de deploy publicando os arquivos locais no corretor-
 ## 2026-09-13 — URLs públicas e indexação (Codex)
 Plano aprovado: finalidades para-alugar/para-comprar e tipos salas/lojas/galpoes/predios/terrenos em /imoveis; cidade, preco-minimo, preco-maximo e pagina na query. Slugs estáveis e endpoints da API preservados. Aliases administrativos login -> entrar e leads -> contatos, com 301 no SSR e replace no cliente. Filtros continuam noindex,follow. Dono autorizou SITE_URL=https://corretor-web-test.vercel.app e SEO_INDEXABLE=true em Production da Vercel; API_ORIGIN existente deve ser HTTPS; previews bloqueados. Não alterar banco, storage ou permissões.
 
+## 2026-09-13 — Tailwind CSS v4 como sistema de estilos (opencode)
+
+Decisão: adotar `tailwindcss` + `@tailwindcss/vite` (devDependencies) com configuração CSS-first em
+`src/styles/tailwind.css` (`@import "tailwindcss"`, `@theme` com navy `#0A2042`/gold `#C99B3F` e tokens
+paper/ink/muted/line/soft/error, `@custom-variant dark` + overrides `.dark`, `@layer base`). Os 10
+`.module.css` foram removidos; todos os componentes e páginas usam utilities. As classes globais legadas
+(`container`, `button`, `buttonSecondary`, `buttonGhost`, `field`, `error`, `muted`, `eyebrow`, `srOnly`,
+`skipLink`) permanecem em `global.css` até migração própria.
+
+Motivo: padronizar tokens (incluindo dark), responsivo e acessibilidade num só sistema, eliminando
+duplicação entre módulos e hex hardcoded do admin.
+
+Não fazer:
+
+- Não reintroduzir `.module.css` nem hex fora do `@theme` (use `bg-navy`, `text-gold`, `border-line`, etc.).
+- Não usar `dark:` sem conferir contraste (dourado só em filetes/marcas/focos sobre branco).
+- Não quebrar o SSR: componentes de rota pública seguem sem `window`/`document` no render; asserts de
+  SSR devem casar `<h1[^>]*>` (h1 agora carrega classes).
+
 ## 2026-09-13 — Upload pula arquivo ilegível sem derrubar o lote (opencode)
 
 Decisão: `prepareMediaFiles` relata arquivos ilegíveis via callback `onError` e retorna só os válidos (em ordem, com progresso contando todos); o `MediaManager` envia os válidos, avisa os nomes pulados e só bloqueia o envio quando nada é legível.

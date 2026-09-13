@@ -1,5 +1,32 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-13 — opencode — Tailwind v4 migração total (público + admin, com dark)
+
+Tarefa: adotar o Tailwind no sistema (migração total, tudo junto, com dark preparado).
+
+Alterações em código (front apenas):
+
+- Infra: `tailwindcss` + `@tailwindcss/vite` em devDependencies; plugin no `vite.config.ts`;
+  novo `src/styles/tailwind.css` (`@theme` navy/gold/paper/ink/muted/line/soft/error, `font-display/sans`,
+  radius, `animate-shimmer`, `@custom-variant dark` + `.dark`); importado em `src/main.tsx` antes do `global.css`.
+- Migrados para utilities (imports de `.module.css` removidos e arquivos excluídos): `Shared` (AsyncState,
+  Pagination, Dialog), `PropertyCard`, `PublicLayout`, `MediaGallery`, `LeadFormModal`, `PrivacyPolicy`,
+  `MediaManager`, `Catalog`, `PropertyDetail` e o painel admin (`AdminLayout`, `Dashboard`, `PropertyList`,
+  `PropertyForm`, `LeadsList`, `AgentsList`, `Login`, `Rentals` + `Admin.module.css`).
+- Ajustes de teste/SRR: `src/seo/server.test.ts` e `scripts/seo-smoke.mjs` passam a casar `<h1[^>]*>`
+  (o h1 agora carrega classes Tailwind); conteúdo e escaping preservados.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 21 arquivos, 98 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`); bundle CSS `index-*.css` com 47,2 KB.
+- `node scripts/seo-smoke.mjs`: aprovado (SSR, metadados, paginação, 404, discovery, proxy e função Vercel).
+
+Pendências: conferir no navegador catálogo, detalhe, `robots`/`sitemap`/rota inexistente, fluxos do admin,
+modo `.dark`, mobile 320–390px sem scroll-X e toques ≥44px. Sem commit/push (aguardando confirmação do dono).
+
 ## 2026-09-13 — opencode — Hambúrguer só no mobile
 
 Tarefa: esconder o botão hambúrguer no desktop, mantendo-o só no mobile (≤650px).

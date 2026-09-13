@@ -45,7 +45,7 @@ describe('public SEO responses', () => {
     const property = { ...sampleProperty, title: 'Sala </script><script>injected</script>' };
     const result = await handleRequest(`/imoveis/${property.slug}`, config, vi.fn().mockResolvedValue(new Response(JSON.stringify(property))));
     expect(result.status).toBe(200);
-    expect(result.body).toContain('<h1>Sala &lt;/script&gt;');
+    expect(result.body).toMatch(/<h1[^>]*>Sala &lt;\/script&gt;/);
     expect(result.body).toContain('BreadcrumbList');
     expect(result.body).toContain('RealEstateListing');
     expect(result.body).toContain('LeaseOut');
@@ -85,7 +85,7 @@ describe('public SEO responses', () => {
   it('preserves dollar replacement sequences in titles and bootstrap data', async () => {
     const property = { ...sampleProperty, title: 'Sala $& $` exemplo' };
     const result = await handleRequest(`/imoveis/${property.slug}`, config, vi.fn().mockResolvedValue(new Response(JSON.stringify(property))));
-    expect(result.body).toContain('<h1>Sala $&amp; $` exemplo</h1>');
+    expect(result.body).toMatch(/<h1[^>]*>Sala \$&amp; \$` exemplo<\/h1>/);
     expect(result.body).not.toContain('<!--app-html-->');
     expect(result.body).toContain('"title":"Sala $\\u0026 $` exemplo"');
   });

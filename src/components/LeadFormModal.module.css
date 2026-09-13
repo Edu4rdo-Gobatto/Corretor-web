@@ -1,6 +1,0 @@
-.form { display: grid; gap: 15px; }
-.form label { display: grid; gap: 4px; }
-.form .consent { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; font-weight: 400; min-height: 44px; padding-block: 6px; cursor: pointer; }
-.consent input { margin-top: 4px; }
-.success { display: grid; gap: 16px; justify-items: start; }.success svg { color: var(--green); }
-.manualLink { text-align: center; font-size: 14px; }

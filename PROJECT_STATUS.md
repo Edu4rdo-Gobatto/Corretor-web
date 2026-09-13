@@ -1,12 +1,16 @@
 # Estado atual — corretor-web
 
 Atualizado em: 2026-09-13
-Agente responsável: Codex (UX-003 rebrand Lucas Gobatto, só front)
+Agente responsável: opencode (Tailwind v4 migração total concluída no código 13/09/2026, sem commit)
 Commit da `main`: `d4f6b2f` — "feat: add complete SEO and SSR delivery"
 Repositório irmão: corretor-api, `main` em `a41f49b`
 
 ## Em andamento
 
+- Tailwind v4 migração total concluída no código (13/09/2026, opencode): `tailwindcss` + `@tailwindcss/vite`,
+  `src/styles/tailwind.css` com `@theme` navy/gold + `.dark`, zero `.module.css` restantes (público + admin);
+  typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit (aguardando confirmação do dono).
+  Pendente conferir no navegador: catálogo, detalhe, admin, dark e mobile 320–390px.
 - UX-003 rebrand concluído no código (13/09/2026, Codex): marca Lucas Gobatto CRECI 15776, Juara/MT,
   navy/gold/branco só no front; typecheck, lint, 18 arquivos/62 testes, build e seo-smoke aprovados.
   Sem commit (aguardando confirmação do dono); SVG/PNG oficial do logo pendente.
@@ -122,6 +126,10 @@ Logs do Render para o POST de mídia registram `write EPROTO ... SSL alert hands
 
 ## 2026-09-13 — opencode: hambúrguer só no mobile (implementado, sem commit)
 Área assumida: botão hambúrguer aparecendo no desktop junto da navegação. Causa no `PublicLayout.module.css`: `.menuToggle{display:none}` empatava com `.buttonGhost{display:inline-flex}` do global. Fix com `button.menuToggle` (maior especificidade) no desktop e no `@media(max-width:650px)`. Typecheck, lint e 21 arquivos/98 testes aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador: desktop >650px sem botão, mobile ≤650px com botão.
+
+## 2026-09-13 — opencode: mobile público com direção vitrine (plano incrementado, sem código)
+
+Área assumida: `docs/plans/2026-09-13-mobile-public.md` — tese ponto comercial Juara/MT, tokens navy/gold existentes, assinatura soleira dourada + placa de rua, wireframes 360px, P0/P1 com visual + P2 microcopy, validação 320–390px sem scroll-X e toques ≥44px. Sem código, sem commit (aguardando confirmação do dono).
 
 ## 2026-09-13 — opencode: capa no catálogo + decode no upload (implementado, sem commit)
 Área assumida: capa some no catálogo embora apareça no detalhe, mais o erro inglês "The source image could not be decoded." no formulário. Causa da capa na API (`PropertiesService.list()` sem `media`; corrigido no repositório irmão). Front: `prepareMediaFiles` agora pula arquivo ilegível com aviso em PT e mantém os válidos no lote; `MediaManager` exibe quais foram pulados e só envia quando há algo válido. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir com a API no ar: catálogo com capa, upload misto (válido + corrompido) e redeploy da API no Render.

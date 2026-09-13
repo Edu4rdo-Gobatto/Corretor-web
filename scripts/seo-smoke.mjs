@@ -27,7 +27,7 @@ preview.stdout.pipe(process.stdout); preview.stderr.pipe(process.stderr);
 await new Promise((resolve, reject) => { preview.stdout.once('data', resolve); preview.once('error', reject); preview.once('exit', code => reject(new Error(`Preview exited: ${code}`))); });
 try {
   const catalog = await fetch('http://127.0.0.1:4180/'); const html = await catalog.text();
-  assert.equal(catalog.status, 200); assert.match(html, /<h1>Imóveis comerciais/); assert.match(html, /Sala comercial no Centro 1/);
+  assert.equal(catalog.status, 200); assert.match(html, /<h1[^>]*>Imóveis comerciais/); assert.match(html, /Sala comercial no Centro 1/);
   assert.match(html, /href="\/\?pagina=2"/); assert.match(html, /application\/ld\+json/);
   const redirected = await fetch('http://127.0.0.1:4180/?purpose=VENDA&type=GALPAO', { redirect: 'manual' });
   assert.equal(redirected.status, 301);
@@ -50,7 +50,7 @@ try {
   try {
     const deployed = await fetch(`http://127.0.0.1:${generated.address().port}/imoveis/${properties[0].slug}`);
     assert.equal(deployed.status, 200);
-    assert.match(await deployed.text(), /<h1>Sala comercial no Centro 1<\/h1>/);
+    assert.match(await deployed.text(), /<h1[^>]*>Sala comercial no Centro 1<\/h1>/);
   } finally { generated.close(); }
   console.log('Production smoke passed: SSR, metadata, pagination, 404, discovery and streaming API proxy with cookies.');
   console.log('Generated Vercel function passed in standalone Node runtime.');

@@ -7,7 +7,6 @@ import type { Property } from '../types';
 import { api } from '../services/api';
 import { leadSchema, whatsappUrl, type ContactFields } from '../services/lead';
 import Dialog from './Dialog';
-import styles from './LeadFormModal.module.css';
 
 export default function LeadFormModal({ property, onClose }: { property: Property; onClose: () => void }) {
   const { register, getValues, setError, setFocus, clearErrors, formState: { errors } } = useForm<ContactFields>({ resolver: zodResolver(leadSchema), defaultValues: { leadName: '', leadPhone: '', leadEmail: '', message: '', consentGiven: false } });
@@ -34,15 +33,15 @@ export default function LeadFormModal({ property, onClose }: { property: Propert
     api.createLead({ ...required, propertyId: property.id, ...(leadEmail ? { leadEmail } : {}), ...(message ? { message } : {}) }).then(() => setSaved(true)).catch(() => setFailure('Seu contato não foi registrado no site. Você pode continuar pelo WhatsApp ou tentar registrar novamente.')).finally(() => setSaving(false));
   }
   return <Dialog title={saved ? 'Obrigado pelo seu interesse.' : 'Vamos falar sobre este espaço?'} onClose={onClose}>
-    {saved ? <div className={styles.success}><CheckCircle2 size={32}/><p>Seu interesse foi registrado. Continue a conversa com o corretor pelo WhatsApp.</p><a className="button" href={contactUrl} target="_blank" rel="noopener noreferrer">Continuar no WhatsApp <ArrowUpRight size={17}/></a><button className="buttonSecondary" onClick={onClose}>Concluir</button></div> : <><p className="muted">{property.title}<br/>Atendimento com {property.agent.name}.</p><form onSubmit={submit} className={styles.form} noValidate>
+    {saved ? <div className="grid justify-items-start gap-4 [&_svg]:text-brand"><CheckCircle2 size={32}/><p>Seu interesse foi registrado. Continue a conversa com o corretor pelo WhatsApp.</p><a className="button" href={contactUrl} target="_blank" rel="noopener noreferrer">Continuar no WhatsApp <ArrowUpRight size={17}/></a><button className="buttonSecondary" onClick={onClose}>Concluir</button></div> : <><p className="muted">{property.title}<br/>Atendimento com {property.agent.name}.</p><form onSubmit={submit} className="grid gap-[15px] [&_label]:grid [&_label]:gap-1" noValidate>
       <label>Seu nome<input autoComplete="name" {...register('leadName')} aria-invalid={Boolean(errors.leadName)}/>{errors.leadName && <span className="error">{errors.leadName.message}</span>}</label>
       <label>Telefone com DDD<input type="tel" inputMode="tel" autoComplete="tel" placeholder="(65) 99999-9999" {...register('leadPhone')} aria-invalid={Boolean(errors.leadPhone)}/>{errors.leadPhone && <span className="error">{errors.leadPhone.message}</span>}</label>
       <label>E-mail (opcional)<input type="email" autoComplete="email" {...register('leadEmail')}/>{errors.leadEmail && <span className="error">{errors.leadEmail.message}</span>}</label>
       <label>Mensagem (opcional)<textarea {...register('message')} maxLength={2000}/></label>
-      <div><label className={styles.consent}><input type="checkbox" {...register('consentGiven')}/><span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank">Política de Privacidade</Link>.</span></label>{errors.consentGiven && <span className="error">{errors.consentGiven.message}</span>}</div>
+      <div><label className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-[13px] font-normal [&_input]:mt-1"><input type="checkbox" {...register('consentGiven')}/><span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank">Política de Privacidade</Link>.</span></label>{errors.consentGiven && <span className="error">{errors.consentGiven.message}</span>}</div>
       {failure && <p className="error" role="alert">{failure}</p>}
       <button className="button" type="submit" disabled={saving}>{saving ? 'Registrando contato…' : failure ? 'Tentar registrar novamente' : 'Falar pelo WhatsApp'}<ArrowUpRight size={17}/></button>
-      {contactOpened && <a href={contactUrl} target="_blank" rel="noopener noreferrer" className={styles.manualLink}>Se o WhatsApp não abriu, clique aqui</a>}
+      {contactOpened && <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="text-center text-sm">Se o WhatsApp não abriu, clique aqui</a>}
     </form></>}
   </Dialog>;
 }

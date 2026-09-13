@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-paper: #ffffff;
+  --color-ink: #0a2042;
+  --color-navy: #0a2042;
+  --color-navy-deep: #071733;
+  --color-brand: #0a2042;
+  --color-gold: #c99b3f;
+  --color-gold-soft: #f4e9cf;
+  --color-muted: #556074;
+  --color-line: #e2e6ec;
+  --color-soft: #eef1f6;
+  --color-error: #9c302b;
+  --color-background: #ffffff;
+  --color-foreground: #0a2042;
+
+  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  --font-display: "Libre Baskerville", Georgia, serif;
+
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 5px;
+  --radius-xl: 8px;
+
+  --animate-shimmer: shimmer 1.4s ease infinite;
+
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
+.dark {
+  --color-paper: #071733;
+  --color-ink: #f4e9cf;
+  --color-navy: #0a2042;
+  --color-navy-deep: #040f24;
+  --color-brand: #f4e9cf;
+  --color-gold: #c99b3f;
+  --color-gold-soft: #3a2f18;
+  --color-muted: #a3adc0;
+  --color-line: #24365c;
+  --color-soft: #101f3d;
+  --color-error: #e08a85;
+  --color-background: #071733;
+  --color-foreground: #f4e9cf;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-gold);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
