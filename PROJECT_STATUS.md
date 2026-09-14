@@ -176,5 +176,5 @@ troca de senha invalidando a antiga e reset pelo ADMIN.
 ## 2026-09-13 — Codex: contrato da nova API em acompanhamento
 Refatoração integral autorizada no repositório irmão; documentação compartilhada sob responsabilidade do Codex principal. Novo contrato português exige adaptação futura do front antes da publicação conjunta; esta tarefa implementa backend. Alteração preexistente .vscode/ preservada.
 
-## 2026-09-14 — opencode: hamburger fora do desktop (implementado, sem commit)
-Área assumida: a pedido do dono — botão hamburger aparecia no desktop. Causa: `buttonGhost` do `global.css` empatava com o `hidden` do Tailwind. Fix: botão só com utilities (`hidden` + `max-[650px]:inline-flex`). Typecheck, lint e teste do PublicLayout aprovados. Sem commit/push. Pendente conferir no navegador >650px e ≤650px.
+## 2026-09-14 — opencode: hamburger fora do desktop (commit `6c99b3c`)
+Área assumida: a pedido do dono — botão hamburger aparecia no desktop. Causa: `buttonGhost` do `global.css` empatava com o `hidden` do Tailwind. Fix: botão só com utilities (`hidden` + `max-[650px]:inline-flex`). Typecheck, lint, 24 arquivos/109 testes aprovados. Commit `6c99b3c` na main. Pendente conferir no navegador >650px e ≤650px.

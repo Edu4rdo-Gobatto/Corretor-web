@@ -542,4 +542,4 @@ Testes executados (resultado real):
 Risco/pendência:
 
 - Conferir no navegador: desktop >650px sem botão, mobile ≤650px com botão.
-- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
+- Commit `6c99b3c` na main (direto na `main`, a pedido do dono).
