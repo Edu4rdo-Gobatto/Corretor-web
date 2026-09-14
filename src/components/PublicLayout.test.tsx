@@ -16,6 +16,9 @@ describe('menu móvel público', () => {
     const firstLink = screen.getByRole('navigation').querySelector('a')!;
 
     const nav = screen.getByRole('navigation');
+    expect(toggle.className).toContain('hidden');
+    expect(toggle.className).toContain('max-[650px]:inline-flex');
+    expect(toggle.className).not.toContain('buttonGhost');
     expect(nav.className).toContain('max-[650px]:hidden');
 
     fireEvent.click(toggle);

@@ -172,3 +172,9 @@ troca de senha invalidando a antiga e reset pelo ADMIN.
 ## 2026-09-13 — opencode: capa no catálogo + decode no upload (commit `376219d`)
 Área assumida: capa some no catálogo embora apareça no detalhe, mais o erro inglês "The source image could not be decoded." no formulário. Causa da capa na API (`PropertiesService.list()` sem `media`; corrigido no repositório irmão). Front: `prepareMediaFiles` agora pula arquivo ilegível com aviso em PT e mantém os válidos no lote; `MediaManager` exibe quais foram pulados e só envia quando há algo válido. Typecheck, lint, 21 arquivos/98 testes, build e seo-smoke aprovados. Commit `376219d` na main. Pendente conferir com a API no ar: catálogo com capa, upload misto (válido + corrompido) e redeploy da API no Render.
 
+
+## 2026-09-13 — Codex: contrato da nova API em acompanhamento
+Refatoração integral autorizada no repositório irmão; documentação compartilhada sob responsabilidade do Codex principal. Novo contrato português exige adaptação futura do front antes da publicação conjunta; esta tarefa implementa backend. Alteração preexistente .vscode/ preservada.
+
+## 2026-09-14 — opencode: hamburger fora do desktop (implementado, sem commit)
+Área assumida: a pedido do dono — botão hamburger aparecia no desktop. Causa: `buttonGhost` do `global.css` empatava com o `hidden` do Tailwind. Fix: botão só com utilities (`hidden` + `max-[650px]:inline-flex`). Typecheck, lint e teste do PublicLayout aprovados. Sem commit/push. Pendente conferir no navegador >650px e ≤650px.

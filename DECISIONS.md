@@ -263,3 +263,13 @@ do endereço novo, fora do escopo.
 Não fazer:
 
 - Não incluir email no PATCH /auth/me: o pipe da API devolve 400 e o front nem oferece o campo.
+
+## 2026-09-14 — Hamburger sem buttonGhost no desktop (opencode)
+
+Decisão: o botão do menu público não usa `buttonGhost`; usa só utilities (`hidden` + `max-[650px]:inline-flex` com estilo fantasma equivalente).
+
+Motivo: o `.buttonGhost` do `global.css` (carregado depois do Tailwind) tem a mesma especificidade do `hidden` e vencia no desktop, exibindo o hamburger junto da navegação.
+
+Não fazer:
+
+- Não combinar `buttonGhost` com `hidden` em elemento que deve sumir no desktop.

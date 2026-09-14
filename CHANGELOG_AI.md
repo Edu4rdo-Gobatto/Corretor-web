@@ -521,3 +521,25 @@ Risco/pendência:
 
 - Conferência manual com a API no ar (catálogo com capa, upload misto, `robots.txt`, `sitemap.xml`, 404) e redeploy da API no Render pendentes.
 - Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
+
+## 2026-09-14 — opencode — Hamburger fora do desktop
+
+Pedido do dono: tirar o hamburger da versão desktop.
+
+Causa: o botão usava `buttonGhost hidden max-[650px]:inline-flex`; o `.buttonGhost` do `global.css` (`display: inline-flex`, carregado depois do Tailwind) empatava com o `hidden` e o botão aparecia no desktop.
+
+Alterações:
+
+- `src/components/PublicLayout.tsx`: botão do menu sem `buttonGhost`, só com utilities (`hidden` + `max-[650px]:inline-flex` e estilo fantasma equivalente).
+- `src/components/PublicLayout.test.tsx`: regressão — botão com `hidden`/`max-[650px]:inline-flex` e sem `buttonGhost`.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test -- src/components/PublicLayout.test.tsx`: 2 testes aprovados.
+
+Risco/pendência:
+
+- Conferir no navegador: desktop >650px sem botão, mobile ≤650px com botão.
+- Sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado).
