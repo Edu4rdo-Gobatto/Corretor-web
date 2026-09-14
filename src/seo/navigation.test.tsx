@@ -3,7 +3,7 @@ import { MemoryRouter, useNavigate, useLocation } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../App';
 import { BootstrapContext } from './context';
-import { sampleProperty } from './fixture';
+import { sampleProperty, sampleClassifications } from './fixture';
 import { api } from '../services/api';
 
 function Navigation() { const navigate = useNavigate(); return <><button onClick={() => navigate('/imoveis/second')}>Outro anúncio</button><button onClick={() => navigate(`/imoveis/${sampleProperty.slug}`)}>Primeiro anúncio</button></>; }
@@ -32,6 +32,7 @@ describe('catalog URL navigation', () => {
   it('replaces legacy URLs, changes filters, clears and restores history', async () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     Element.prototype.scrollIntoView = vi.fn();
+    vi.spyOn(api,'classifications').mockResolvedValue(sampleClassifications);
     const list = vi.spyOn(api, 'listProperties').mockResolvedValue({items:[],total:0,totalPages:0,page:1,limit:9});
     render(<MemoryRouter initialEntries={['/?purpose=LOCACAO&type=SALA&utm_source=test']}><CatalogNavigation/><AppRoutes/></MemoryRouter>);
     await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/imoveis/para-alugar/salas?utm_source=test'));

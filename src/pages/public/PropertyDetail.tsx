@@ -74,7 +74,7 @@ export default function PropertyDetail() {
             <Link to="/">Imóveis comerciais</Link> / <span aria-current="page">{property.title}</span>
           </nav>
           <div className="py-[30px] max-[760px]:pt-6">
-            <p className="eyebrow mb-[14px]">{propertyType[property.type]} · {property.purpose === 'LOCACAO' ? 'Para alugar' : 'À venda'}</p>
+            <p className="eyebrow mb-[14px]">{property.typeName || propertyType[property.type] || 'Imóvel'} · {property.purposeName || (property.purpose === 'LOCACAO' ? 'Para alugar' : 'À venda')}</p>
             <h1 className="mb-[15px] max-w-[950px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{property.title}</h1>
             <p className="mb-0 flex items-center gap-[7px] text-muted">
               <MapPin size={17} />{property.neighborhood}, {property.addressCity} — {property.addressState}
@@ -112,7 +112,7 @@ export default function PropertyDetail() {
             </div>
             <aside className="min-w-0">
               <div className="sticky top-6 rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-[0_18px_38px_rgb(10_32_66/0.10)] max-[1000px]:p-[22px] max-[760px]:static max-[480px]:px-5 max-[480px]:py-6">
-                <p className="eyebrow">{property.purpose === 'LOCACAO' ? 'Valor de locação' : 'Valor de venda'}</p>
+                <p className="eyebrow">{property.purpose === 'LOCACAO' ? 'Valor de locação' : property.purpose === 'VENDA' ? 'Valor de venda' : 'Valor anunciado'}</p>
                 <p className="mb-[22px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">
                   {money(property.price)}{property.purpose === 'LOCACAO' && <span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span>}
                 </p>
@@ -134,7 +134,7 @@ export default function PropertyDetail() {
             </aside>
           </div>
           <div className="hidden max-[760px]:sticky max-[760px]:bottom-0 max-[760px]:z-[5] max-[760px]:mt-6 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-4 max-[760px]:rounded-[5px] max-[760px]:border max-[760px]:border-navy max-[760px]:bg-navy max-[760px]:p-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-[0_-8px_24px_rgb(10_32_66/0.10)]">
-            <div><span className="block text-xs text-[#C6CEDD]">{property.purpose === 'LOCACAO' ? 'Locação' : 'Venda'}</span><strong className="font-display text-[19px] text-white">{money(property.price)}{property.purpose === 'LOCACAO' && ' /mês'}</strong></div>
+            <div><span className="block text-xs text-[#C6CEDD]">{property.purposeName || (property.purpose === 'LOCACAO' ? 'Locação' : 'Venda')}</span><strong className="font-display text-[19px] text-white">{money(property.price)}{property.purpose === 'LOCACAO' && ' /mês'}</strong></div>
             <button className="button min-h-12 border-b-gold bg-gold text-navy hover:bg-[#b38935]" onClick={() => setContactOpen(true)}>Falar com corretor</button>
           </div>
           {contactOpen && <LeadFormModal property={property} onClose={() => setContactOpen(false)} />}

@@ -543,3 +543,16 @@ Risco/pendência:
 
 - Conferir no navegador: desktop >650px sem botão, mobile ≤650px com botão.
 - Commit `6c99b3c` na main (direto na `main`, a pedido do dono).
+
+## 2026-09-14 — Codex: contexto da API integral sincronizado
+
+Atualizados AGENTS.md, README.md, PROJECT_STATUS.md, TASKS.md, DECISIONS.md, PLANO-PROJETO-CORRETOR.md, corretor-spec.json e docs/handoffs/2026-09-14-backend-portugues.md; pedido preservado em docs/specs/2026-09-13-backend-integral.md. Histórico mantido. Nenhum código de UI alterado; .vscode/ preexistente preservada.
+
+Backend irmão validado com typecheck/lint/build, 169 testes locais + 4 PostgreSQL/HTTP reais. Frontend não retestado nesta entrega documental. A API nova muda endpoints/DTOs/auth/classificação/contratos/financeiro: adaptação e testes ponta a ponta do frontend são pré-requisito de deploy conjunto. Sem commit/push/deploy. Workspace/Drive e novo upload R2 ainda exigem homologação real; banco publicado não migrado.
+## 14/09/2026 — integração frontend ao contrato português
+
+- Adaptados `src/services/api.ts`, `http.ts` e `portuguese.ts` para autenticação, DTOs snake_case, paginação `itens`, classificações UUID, clientes, imóveis e mídia.
+- SSR, catálogo, URLs amigáveis, SEO, seletores dinâmicos e painel administrativo atualizados. Incluídos cadastros, clientes manuais, leitura interna de imóveis, contratos com status/retry do Drive e comissões com parcelamento e baixa confirmada.
+- Telefones brasileiros normalizados para WhatsApp; edições preservam vínculos históricos inativos quando não alterados; uploads usam `arquivos`, limites 10/30/60 MiB e bucket público de mídia.
+- Validação: `npm run typecheck`, `npm run lint`, `npm run build`, smoke SSR/Vercel e testes direcionados passaram; 120 testes passaram na suíte completa, com dois erros transitórios de worker/jsdom no Windows na última execução concorrente.
+- Pendente: credenciais e homologação real do Drive compartilhado, complementos/backup para migração de dados e publicação coordenada. Nenhum segredo foi adicionado.

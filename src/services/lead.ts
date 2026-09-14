@@ -7,7 +7,8 @@ export const leadSchema = z.object({
   consentGiven: z.boolean().refine(value => value, 'Autorize o contato para continuar.'),
 });
 export type ContactFields = z.infer<typeof leadSchema>;
+export function whatsappPhone(value:string) { const phone=value.replace(/\D/g,''); return phone.length===10||phone.length===11?`55${phone}`:phone; }
 export function whatsappUrl(property: { id: string; title: string; agent: { name: string; whatsappNumber: string } }) {
-  const phone = property.agent.whatsappNumber.replace(/\D/g, '');
+  const phone = whatsappPhone(property.agent.whatsappNumber);
   return `https://wa.me/${phone}?text=${encodeURIComponent(`Olá ${property.agent.name}, tenho interesse no imóvel ${property.title} (Ref: ${property.id}).`)}`;
 }

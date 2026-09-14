@@ -15,7 +15,7 @@ async function send(path: string, options: RequestInit): Promise<Response> {
   }
 }
 async function refreshAccess(): Promise<void> {
-  const response = await send('/auth/refresh', { method: 'POST' });
+  const response = await send('/autenticacao/renovar', { method: 'POST' });
   if (!response.ok) {
     const body = await response.json().catch(() => ({})) as { message?: string | string[] };
     const message = typeof body.message === 'string' ? body.message : body.message?.join(' ');
@@ -27,11 +27,11 @@ async function refreshAccess(): Promise<void> {
     throw new ApiError(message || 'O serviço de sessão está indisponível. Tente novamente.', response.status);
   }
   const session = await response.json();
-  accessToken = session.accessToken;
+  accessToken = session.token_acesso;
 }
 async function authenticatedResponse(path: string, options: RequestInit = {}, canRefresh = true): Promise<Response> {
   let response = await send(path, options);
-  if (response.status === 401 && canRefresh && !path.startsWith('/auth/login') && !path.startsWith('/auth/refresh') && !path.startsWith('/auth/logout')) {
+  if (response.status === 401 && canRefresh && !path.startsWith('/autenticacao/entrar') && !path.startsWith('/autenticacao/renovar') && !path.startsWith('/autenticacao/sair')) {
     if (!pendingRefresh) pendingRefresh = refreshAccess().finally(() => { pendingRefresh = null; });
     await pendingRefresh;
     response = await send(path, options);

@@ -122,14 +122,14 @@ export default function AdminLayout() {
           <NavLink to={routes.admin} end className={navLink}>Visão geral</NavLink>
           <NavLink to="/admin/imoveis" className={navLink}>Imóveis</NavLink>
           <NavLink to={routes.contacts} className={navLink}>Contatos</NavLink>
-          {agent.role === 'ADMIN' && (
+          {agent.role === 'ADMIN' && <NavLink to="/admin/corretores" className={navLink}>Corretores</NavLink>}
+          <NavLink to="/admin/cadastros" className={navLink}>Cadastros</NavLink>
+          <NavLink to="/admin/comissoes" className={navLink}>Comissões</NavLink>
             <>
-              <NavLink to="/admin/corretores" className={navLink}>Corretores</NavLink>
               <NavLink to="/admin/proprietarios" className={navLink}>Proprietários</NavLink>
               <NavLink to="/admin/inquilinos" className={navLink}>Inquilinos</NavLink>
               <NavLink to="/admin/contratos" className={navLink}>Contratos</NavLink>
             </>
-          )}
           <Link to={routes.home} className={navLink}>Ver site ↗</Link>
         </nav>
         <div className="mt-auto hidden gap-2.5 lg:grid">

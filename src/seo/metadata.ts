@@ -1,11 +1,12 @@
 import { propertyUrl } from '../services/urls';
+import type { Classifications } from '../services/portuguese';
 import type { Page, Property } from '../types';
 import { readCatalogUrl, catalogUrl } from '../services/urls';
 import { propertyType } from '../services/format';
 import { brand } from '../config/brand';
 
 export interface SeoConfig { siteUrl: string; indexable: boolean }
-export interface PublicData { catalog?: Page<Property>; property?: Property }
+export interface PublicData { classifications?: Classifications; catalog?: Page<Property>; property?: Property }
 export interface Bootstrap { url: string; config: SeoConfig; data: PublicData; status: number }
 export const defaultConfig: SeoConfig = { siteUrl: '', indexable: false };
 export const serialize = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
@@ -29,7 +30,7 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
     { '@type': 'WebSite', '@id': `${config.siteUrl}/#website`, name: brand.name, url: config.siteUrl, inLanguage: 'pt-BR', publisher: { '@id': `${config.siteUrl}/#organization` } },
   );
   if (catalog && filtered) {
-    const kind = query.type ? propertyType[query.type] : 'Imóveis comerciais';
+    const kind = query.type ? ((Object.hasOwn(propertyType,query.type)?propertyType[query.type]:undefined) || data.classifications?.types.find(t=>t.slug===query.type||t.id===query.type)?.nome || 'Imóveis comerciais') : 'Imóveis comerciais';
     const purpose = query.purpose === 'LOCACAO' ? ' para alugar' : query.purpose === 'VENDA' ? ' para comprar' : '';
     title = `${kind}${purpose} em ${query.city || brand.region.name} | ${brand.name}`;
     description = `Confira ${kind.toLowerCase()}${purpose} em ${query.city || brand.region.name} e consulte valores e disponibilidade com o corretor.`;
@@ -39,14 +40,14 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
   if (url.pathname === '/privacidade') { title = `Política de privacidade | ${brand.name}`; description = `Saiba como ${brand.privacy.controller || brand.name} utiliza os dados fornecidos para atendimento sobre imóveis comerciais.`; }
   const p = data.property;
   if (p) {
-    const purpose = p.purpose === 'LOCACAO' ? 'para alugar' : 'à venda';
+    const purpose = p.purpose === 'LOCACAO' ? 'para alugar' : p.purpose === 'VENDA' ? 'à venda' : p.purposeName || '';
     title = `${p.title} | ${p.addressCity}/${p.addressState} | ${brand.name}`;
-    description = `${propertyType[p.type]} ${purpose} em ${p.neighborhood}, ${p.addressCity}/${p.addressState}, com ${p.usableArea} m². ${p.description.replace(/\s+/g, ' ').trim()}`.slice(0, 170);
+    description = `${p.typeName || propertyType[p.type] || 'Imóvel'} ${purpose} em ${p.neighborhood}, ${p.addressCity}/${p.addressState}, com ${p.usableArea} m². ${p.description.replace(/\s+/g, ' ').trim()}`.slice(0, 170);
     const cover = p.media.find(m => m.type === 'IMAGE' && m.isCover) || p.media.find(m => m.type === 'IMAGE');
     if (cover && /^https?:\/\//.test(cover.url)) image = cover.url;
     else if (cover?.url.startsWith('/') && !cover.url.startsWith('//')) image = absolute(cover.url, config);
     if (config.siteUrl) graph.push(
-      { '@type': 'RealEstateListing', '@id': canonical, url: canonical, name: p.title, description: p.description, image, dateModified: p.updatedAt, mainEntity: { '@type': 'Place', name: p.title, address: { '@type': 'PostalAddress', streetAddress: `${p.addressStreet}, ${p.addressNumber}`, addressLocality: p.addressCity, addressRegion: p.addressState, addressCountry: 'BR' } }, offers: { '@type': 'Offer', price: p.price, priceCurrency: 'BRL', url: canonical, businessFunction: p.purpose === 'LOCACAO' ? 'http://purl.org/goodrelations/v1#LeaseOut' : 'http://purl.org/goodrelations/v1#Sell' } },
+      { '@type': 'RealEstateListing', '@id': canonical, url: canonical, name: p.title, description: p.description, image, dateModified: p.updatedAt, mainEntity: { '@type': 'Place', name: p.title, address: { '@type': 'PostalAddress', streetAddress: `${p.addressStreet}, ${p.addressNumber}`, addressLocality: p.addressCity, addressRegion: p.addressState, addressCountry: 'BR' } }, offers: { '@type': 'Offer', price: p.price, priceCurrency: 'BRL', url: canonical, businessFunction: p.purpose === 'LOCACAO' ? 'http://purl.org/goodrelations/v1#LeaseOut' : p.purpose === 'VENDA' ? 'http://purl.org/goodrelations/v1#Sell' : undefined } },
       { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Imóveis comerciais', item: absolute('/', config) }, { '@type': 'ListItem', position: 2, name: p.title, item: canonical }] },
     );
   }

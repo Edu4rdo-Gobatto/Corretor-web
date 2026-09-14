@@ -6,7 +6,7 @@ export const purposeSegments: Record<PropertyPurpose, string> = { LOCACAO: 'para
 export const routes = { home: '/', privacy: '/privacidade', admin: '/admin', login: '/admin/entrar', contacts: '/admin/contatos', profile: '/admin/perfil' };
 export const propertyUrl = (slug: string) => `/imoveis/${encodeURIComponent(slug)}`;
 export const catalogPaths = [ '/', ...Object.values(typeSegments).map(t => `/imoveis/${t}`), ...Object.values(purposeSegments).flatMap(p => [`/imoveis/${p}`, ...Object.values(typeSegments).map(t => `/imoveis/${p}/${t}`)]) ];
-const fields = { city: 'cidade', minPrice: 'preco-minimo', maxPrice: 'preco-maximo', page: 'pagina' } as const;
+const fields = { type: 'tipo', purpose: 'finalidade', city: 'cidade', minPrice: 'preco-minimo', maxPrice: 'preco-maximo', page: 'pagina' } as const;
 const internalKeys = new Set(['type', 'purpose', 'limit', ...Object.keys(fields), ...Object.values(fields)]);
 export function readCatalogUrl(path: string): CatalogQuery | null {
   const url = new URL(path, 'https://local');
@@ -20,10 +20,12 @@ export function readCatalogUrl(path: string): CatalogQuery | null {
   return readCatalogQuery(params);
 }
 export function catalogUrl(query: Partial<CatalogQuery> = {}, extras = new URLSearchParams()): string {
-  const segments = [query.purpose && purposeSegments[query.purpose], query.type && typeSegments[query.type]].filter(Boolean);
+  const segments = [query.purpose && Object.hasOwn(purposeSegments,query.purpose) && purposeSegments[query.purpose], query.type && Object.hasOwn(typeSegments,query.type) && typeSegments[query.type]].filter(Boolean);
   const path = segments.length ? `/imoveis/${segments.join('/')}` : '/';
   const params = new URLSearchParams();
   for (const [key, translated] of Object.entries(fields)) {
+    if (key === 'type' && query.type && typeSegments[query.type]) continue;
+    if (key === 'purpose' && query.purpose && purposeSegments[query.purpose]) continue;
     const value = query[key as keyof typeof fields];
     if (value !== undefined && value !== '' && !(key === 'page' && value === 1)) params.set(translated, String(value));
   }
@@ -37,6 +39,6 @@ export function normalizedUrl(path: string): string {
   let pathname = url.pathname.replace(/\/+$/, '') || '/';
   if (pathname === '/admin/login') pathname = routes.login;
   if (pathname === '/admin/leads') pathname = routes.contacts;
-  const known = pathname === routes.privacy || /^\/imoveis\/[^/]+$/.test(pathname) || /^\/admin(?:\/(?:entrar|contatos|corretores|perfil|imoveis(?:\/(?:novo|[^/]+\/editar))?|(?:proprietarios|inquilinos|contratos)(?:\/[^/]+)?))?$/.test(pathname);
+  const known = pathname === routes.privacy || /^\/imoveis\/[^/]+$/.test(pathname) || /^\/admin(?:\/(?:entrar|contatos|corretores|perfil|cadastros|comissoes|imoveis(?:\/(?:novo|[^/]+\/editar))?|(?:proprietarios|inquilinos|contratos)(?:\/[^/]+)?))?$/.test(pathname);
   return (known ? pathname : url.pathname) + url.search + url.hash;
 }

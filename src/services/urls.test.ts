@@ -16,7 +16,7 @@ describe('public URLs', () => {
     expect(normalizedUrl('/imoveis/para-alugar/salas/?purpose=VENDA&type=LOJA&limit=9&pagina=1')).toBe('/imoveis/para-alugar/salas');
   });
   it('omits invalid and empty filters and stays idempotent', () => {
-    expect(normalizedUrl('/?type=OTHER&city=&minPrice=abc&page=-2')).toBe('/');
+    expect(normalizedUrl('/?type=%3Cinvalid%3E&city=&minPrice=abc&page=-2')).toBe('/');
     for (const path of catalogPaths) expect(normalizedUrl(normalizedUrl(path))).toBe(path);
   });
   it('recognizes only supported catalog paths and keeps property slugs', () => {

@@ -1,3 +1,6 @@
+import { whatsappPhone } from '../../services/lead';
+import ClientEditor from './ClientEditor';
+import type { Lead } from '../../types';
 import { useCallback, useState } from 'react';
 import { api } from '../../services/api';
 import { date, errorMessage } from '../../services/format';
@@ -6,16 +9,18 @@ import Pagination from '../../components/Pagination';
 import { useAdminData } from './useAdminData';
 
 export default function LeadsList() {
+  const [editing,setEditing]=useState<Lead|null|undefined>();
+  const [active,setActive]=useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [draft, setDraft] = useState('');
   const [mutationError, setMutationError] = useState('');
   const [busy, setBusy] = useState('');
   const { data, loading, error, refresh } = useAdminData(
-    useCallback(() => api.listLeads({ page, limit: 15, search: search || undefined }), [page, search]),
+    useCallback(() => api.listLeads({ page, limit: 15, active, search: search || undefined }), [page, search, active]),
   );
   async function remove(id: string) {
-    if (!confirm('Excluir este contato permanentemente?')) return;
+    if (!confirm('Desativar este cliente? Seu histórico será preservado.')) return;
     setBusy(id);
     setMutationError('');
     try {
@@ -33,13 +38,13 @@ export default function LeadsList() {
       <header className="mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full">
         <div>
           <p className="eyebrow">NOVAS CONEXÕES</p>
-          <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">Contatos recebidos</h1>
+          <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">Clientes e contatos</h1>
           <p className="muted">Pessoas interessadas em encontrar o espaço certo.</p>
         </div>
-      </header>
+      <button className="button" onClick={()=>setEditing(null)}>Novo cliente</button></header>
       <form className="mb-6 flex flex-wrap items-end gap-3 max-[560px]:grid max-[560px]:grid-cols-1 max-[560px]:[&_button]:w-full max-[560px]:[&_input]:min-w-0 [&_input]:min-w-[220px] [&_label]:grid [&_label]:gap-1.5" onSubmit={(e) => { e.preventDefault(); setPage(1); setSearch(draft.trim()); }}>
-        <label>Buscar contato<input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Nome, e-mail ou telefone" /></label>
-        <button className="buttonSecondary">Buscar</button>
+        <label>Buscar contato<input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Nome do cliente" /></label>
+        <label>Situação<select value={String(active)} onChange={e=>{setActive(e.target.value==='true');setPage(1);}}><option value="true">Ativos</option><option value="false">Inativos</option></select></label><button className="buttonSecondary">Buscar</button>
         {search && <button type="button" className="buttonGhost" onClick={() => { setDraft(''); setSearch(''); setPage(1); }}>Limpar</button>}
       </form>
       {mutationError && <p className="error" role="alert">{mutationError}</p>}
@@ -70,16 +75,16 @@ export default function LeadsList() {
                         </td>
                         <td className="max-w-[340px] whitespace-normal border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           {lead.message || 'Sem mensagem adicional'}
-                          <small className="mt-1 block text-muted">{lead.propertyId ? <a href={`/admin/imoveis/${lead.propertyId}/editar`}>Ver imóvel de interesse →</a> : 'Imóvel removido'}</small>
+                          <small className="mt-1 block text-muted">{lead.propertyId ? <a href={`/admin/imoveis/${lead.propertyId}/editar`}>Ver imóvel de interesse →</a> : 'Sem imóvel vinculado'}</small>
                         </td>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           {date(lead.createdAt)}
-                          <small className="mt-1 block text-muted">{lead.consentGiven ? 'Consentimento registrado' : 'Sem consentimento'} · {lead.termsVersion}</small>
+                          <small className="mt-1 block text-muted">{lead.consentGiven ? 'Consentimento registrado' : lead.origin === 'MANUAL' ? 'Cadastro manual' : 'Sem consentimento'} · {lead.termsVersion}</small>
                         </td>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
-                            <a href={`https://wa.me/${lead.leadPhone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>
-                            <button className="buttonGhost text-error!" disabled={!!busy} onClick={() => void remove(lead.id)}>{busy === lead.id ? 'Excluindo…' : 'Excluir'}</button>
+                            <a href={`https://wa.me/${whatsappPhone(lead.leadPhone)}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>
+                            <button className="buttonGhost" onClick={()=>setEditing(lead)}>Editar</button><button className="buttonGhost text-error!" disabled={!!busy} onClick={() => void remove(lead.id)}>{busy === lead.id ? 'Desativando…' : 'Desativar'}</button>
                           </div>
                         </td>
                       </tr>
@@ -92,6 +97,6 @@ export default function LeadsList() {
           )}
         </section>
       )}
-    </>
+    {editing!==undefined&&<ClientEditor client={editing} close={()=>setEditing(undefined)} saved={refresh}/>}</>
   );
 }

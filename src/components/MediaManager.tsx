@@ -53,6 +53,8 @@ export default function MediaManager({ property, onChange }: { property: Propert
             : 'Nenhum arquivo para enviar.',
         );
       }
+      if(prepared.some(file=>file.type.startsWith('image/')&&file.size>10*1024*1024)) throw new Error('A imagem otimizada excedeu 10 MB. Escolha uma imagem menor.');
+      if(prepared.reduce((total,file)=>total+file.size,0)>60*1024*1024) throw new Error('O envio excede 60 MB. Envie os arquivos em grupos menores.');
       await api.uploadMedia(property.id, prepared);
       succeeded = true;
       if (unreadable.length) skipped = `Arquivos adicionados. Não foi possível ler: ${unreadable.join(', ')}.`;
@@ -75,7 +77,7 @@ export default function MediaManager({ property, onChange }: { property: Propert
       <p className="muted">A primeira impressão começa por uma boa imagem. Escolha uma foto de capa.</p>
       <label className="mb-6 block border border-dashed border-[#899e88] bg-[#f3f5ef] p-7 dark:border-line dark:bg-soft dark:text-ink">
         Adicionar fotos ou vídeos
-        <span className="text-[13px] text-[#687166] dark:text-muted"> · Até 20 arquivos por envio, 30 MB por arquivo. Imagens são otimizadas em WebP.</span>
+        <span className="text-[13px] text-[#687166] dark:text-muted"> · Até 20 arquivos por envio, 30 MB por vídeo e 60 MB no total. Imagens são otimizadas em WebP.</span>
         <input
           type="file"
           multiple

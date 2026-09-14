@@ -37,7 +37,7 @@ describe('redefinição de senha', () => {
     fireEvent.change(screen.getByLabelText('Confirmar nova senha'), { target: { value: 'nova-senha-12345' } });
     fireEvent.click(screen.getByRole('button', { name: 'Definir nova senha' }));
     await waitFor(() => expect(save).toHaveBeenCalledWith(
-      { name: 'Beto', email: 'beto@example.test', whatsappNumber: '5565988888888', role: 'AGENT', creci: '123', avatarUrl: null, password: 'nova-senha-12345' },
+      { name: 'Beto', cpf:undefined, email: 'beto@example.test', whatsappNumber: '5565988888888', role: 'AGENT', creci: '123', avatarUrl: null, password: 'nova-senha-12345' },
       'agent-2',
     ));
   });

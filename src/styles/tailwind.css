@@ -35,6 +35,15 @@
 }
 
 .dark {
+  /* Shared legacy controls follow the same palette as Tailwind utilities. */
+  --paper: var(--color-paper);
+  --ink: var(--color-ink);
+  --green: var(--color-brand);
+  --white: var(--color-soft);
+  --soft: var(--color-soft);
+  --muted: var(--color-muted);
+  --line: var(--color-line);
+  --error: var(--color-error);
   --color-paper: #071733;
   --color-ink: #f4e9cf;
   --color-navy: #0a2042;

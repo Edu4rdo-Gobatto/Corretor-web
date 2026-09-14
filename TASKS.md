@@ -174,3 +174,13 @@ Responsável: Codex. Implementação e publicação no front, contratos da API p
 Responsável: opencode — concluída em 13/09/2026 (sem commit)
 Objetivo: /admin/perfil via avatar (foto grande, dados, métricas por status, edição própria), troca da própria senha no perfil, reset pelo ADMIN com senha escolhida na hora, e-mail só via Corretores.
 Critérios: rota + normalizedUrl, avatar-link com dropdown preservado, métricas sem endpoint novo, whitelist no PATCH /auth/me, verificação da senha atual, reset reuse PATCH /agents/:id. Typecheck, lint, 24 arquivos/109 testes, build e seo-smoke aprovados. Conferência no navegador com login pendente.
+
+## API-PT-001 — Documentação do backend integral — concluída em 14/09/2026
+
+Responsável: Codex. Especificação, plano/contexto e handoff sincronizados com Corretor-API. Backend validado com 169 testes locais + 4 integrados em Neon/PostgreSQL 16.15; typecheck/lint/build aprovados. O frontend não recebeu mudanças de código nesta tarefa e suas verificações de UI não foram repetidas por serem alterações documentais.
+
+## API-PT-002 — Adaptar frontend antes da publicação conjunta — concluída (14/09/2026)
+
+Serviços, SSR, catálogo, cadastros, clientes, mídia, contratos, Drive e comissões integrados. Restam somente configuração do Drive, complementos/backup da migração real e publicação coordenada.
+
+Substituir endpoints/payloads em inglês; login token_acesso/cookie corretor_renovacao; seletores dinâmicos de tipos/finalidades/características; clientes manuais; contratos/partes com permissões atualizadas; pastas Drive e estados/retentativa; financeiro exclusivo de comissões, removendo UI antiga de documentos/repasse de aluguel. Manter RHF/zod, cliente API central e SSR. Validar catálogo/detalhe/SEO/login e todo o painel com a API nova antes de publicar. Health da API passa a /api/v1/saude. Referência: docs/handoffs/2026-09-14-backend-portugues.md.

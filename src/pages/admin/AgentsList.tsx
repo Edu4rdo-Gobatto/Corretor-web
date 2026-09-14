@@ -14,6 +14,7 @@ import { useAdminData } from './useAdminData';
 
 export const agentSchema = z.object({
   name: z.string().trim().min(2, 'Use pelo menos 2 caracteres.').max(100),
+  cpf: z.string().regex(/^\d{11}$/, 'Informe os 11 dígitos do CPF.'),
   email: z.email('Informe um e-mail válido.').max(254),
   whatsappNumber: z.string().regex(/^[1-9]\d{9,14}$/, 'Use DDI e DDD, somente números. Ex.: 5565999999999.'),
   creci: z.string().max(50),
@@ -30,7 +31,7 @@ function AgentEditor({ agent, onClose, onSaved }: { agent: Agent | null; onClose
   const [error, setError] = useState('');
   const { register, handleSubmit, setError: setFieldError, formState: { errors, isSubmitting } } = useForm<Values>({
     resolver: zodResolver(agentSchema),
-    defaultValues: { name: agent?.name ?? '', email: agent?.email ?? '', whatsappNumber: agent?.whatsappNumber ?? '', creci: agent?.creci ?? '', role: agent?.role ?? 'AGENT', avatarUrl: agent?.avatarUrl ?? '', password: '' },
+    defaultValues: { cpf: agent?.cpf ?? '', name: agent?.name ?? '', email: agent?.email ?? '', whatsappNumber: agent?.whatsappNumber ?? '', creci: agent?.creci ?? '', role: agent?.role ?? 'AGENT', avatarUrl: agent?.avatarUrl ?? '', password: '' },
   });
   async function save(v: Values) {
     if (!agent && !v.password) {
@@ -50,7 +51,7 @@ function AgentEditor({ agent, onClose, onSaved }: { agent: Agent | null; onClose
     <Dialog title={agent ? 'Editar corretor' : 'Novo corretor'} onClose={() => { if (!isSubmitting) onClose(); }}>
       <form className="[&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold [&_select]:w-full [&_textarea]:min-h-[130px] [&_textarea]:w-full" onSubmit={handleSubmit(save)} noValidate>
         <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
-          {([['name', 'Nome', 'text'], ['email', 'E-mail', 'email'], ['whatsappNumber', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text'], ['avatarUrl', 'URL da foto (HTTPS)', 'url']] as const).map(([name, label, type]) => (
+          {([['name', 'Nome', 'text'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsappNumber', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text'], ['avatarUrl', 'URL da foto (HTTPS)', 'url']] as const).map(([name, label, type]) => (
             <label key={name}>{label}<input type={type} {...register(name)} aria-invalid={!!errors[name]} />{errors[name] && <span className={errorText}>{errors[name]?.message}</span>}</label>
           ))}
           <label>Permissão<select {...register('role')}><option value="AGENT">Corretor</option><option value="ADMIN">Administrador</option></select></label>
@@ -81,7 +82,7 @@ function PasswordResetDialog({ agent, onClose, onSaved }: { agent: Agent; onClos
   async function reset(v: ResetValues) {
     setError('');
     try {
-      await api.saveAgent({ name: agent.name, email: agent.email, whatsappNumber: agent.whatsappNumber, role: agent.role, creci: agent.creci, avatarUrl: agent.avatarUrl, password: v.newPassword }, agent.id);
+      await api.saveAgent({ name: agent.name, cpf: agent.cpf, email: agent.email, whatsappNumber: agent.whatsappNumber, role: agent.role, creci: agent.creci, avatarUrl: agent.avatarUrl, password: v.newPassword }, agent.id);
       onSaved();
       onClose();
     } catch (e) {

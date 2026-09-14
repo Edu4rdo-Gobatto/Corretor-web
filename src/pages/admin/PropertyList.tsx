@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
 import { money, propertyStatuses, propertyType, errorMessage } from '../../services/format';
 import AsyncState from '../../components/AsyncState';
@@ -7,18 +8,20 @@ import Pagination from '../../components/Pagination';
 import { useAdminData } from './useAdminData';
 
 export default function PropertyList() {
+  const {agent}=useAuth();
+  const [active,setActive]=useState(true);
   const [page, setPage] = useState(1);
   const [mutationError, setMutationError] = useState('');
   const [busy, setBusy] = useState('');
   const { data, loading, error, refresh } = useAdminData(
-    useCallback(() => api.listProperties({ page, limit: 12 }, true), [page]),
+    useCallback(() => api.listProperties({ page, limit: 12, active }, true), [page,active]),
   );
   async function remove(id: string) {
-    if (!confirm('Excluir este imóvel e suas mídias? Esta ação não pode ser desfeita.')) return;
+    if (!confirm(active?'Desativar este imóvel? Seu histórico e suas mídias serão preservados.':'Reativar este imóvel?')) return;
     setBusy(id);
     setMutationError('');
     try {
-      await api.deleteProperty(id);
+      await api.setPropertyActive(id,!active);
       if (data?.items.length === 1 && page > 1) setPage(page - 1);
       else refresh();
     } catch (e) {
@@ -37,6 +40,7 @@ export default function PropertyList() {
         </div>
         <Link className="button" to="/admin/imoveis/novo">+ Novo imóvel</Link>
       </header>
+<label>Situação<select value={String(active)} onChange={e=>{setActive(e.target.value==='true');setPage(1);}}><option value="true">Ativos</option><option value="false">Inativos</option></select></label>
       {mutationError && <p className="error" role="alert">{mutationError}</p>}
       <AsyncState loading={loading} error={error} retry={refresh} />
       {data && !error && (
@@ -64,22 +68,22 @@ export default function PropertyList() {
                       <tr key={p.id}>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           <strong>{p.title}</strong>
-                          <small className="mt-1 block text-muted">{propertyType[p.type]} · {p.addressCity}/{p.addressState}</small>
+                          <small className="mt-1 block text-muted">{p.typeName || propertyType[p.type] || 'Imóvel'} · {p.addressCity}/{p.addressState}</small>
                         </td>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           {money(p.price)}
-                          <small className="mt-1 block text-muted">{p.purpose === 'LOCACAO' ? 'Por mês' : 'Venda'}</small>
+                          <small className="mt-1 block text-muted">{p.purposeName || (p.purpose === 'LOCACAO' ? 'Por mês' : 'Venda')}</small>
                         </td>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           <span className="inline-block rounded bg-[#eaf0e8] px-2.5 py-1 text-[13px] text-[#174d3b] dark:bg-white/10 dark:text-white">{propertyStatuses[p.status]}</span>
                         </td>
                         <td className="border-b border-line px-3 py-[18px] align-middle max-lg:px-2 max-lg:py-3">
                           <div className="flex flex-wrap items-center gap-2.5 max-lg:justify-end [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
-                            <Link to={`/admin/imoveis/${p.id}/editar`}>Editar</Link>
-                            <Link to={`/imoveis/${p.slug}`}>Ver ↗</Link>
-                            <button className="buttonGhost text-error!" disabled={!!busy} onClick={() => void remove(p.id)}>
-                              {busy === p.id ? 'Excluindo…' : 'Excluir'}
-                            </button>
+                            {(agent?.role==='ADMIN'||agent?.id===p.agentId)&&<Link to={`/admin/imoveis/${p.id}/editar`}>Editar</Link>}
+                            <Link to={`/admin/imoveis/${p.id}/editar`}>Ver detalhes</Link>
+                            {(agent?.role==='ADMIN'||agent?.id===p.agentId)&&<button className="buttonGhost text-error!" disabled={!!busy} onClick={() => void remove(p.id)}>
+                              {busy === p.id ? 'Salvando…' : active?'Desativar':'Reativar'}
+                            </button>}
                           </div>
                         </td>
                       </tr>

@@ -2,13 +2,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { handleRequest, serverConfig, sitemapChunks } from './server';
 import { buildSeo, serialize } from './metadata';
-import { sampleProperty } from './fixture';
+import { sampleWireProperty, sampleClassifications } from './fixture';
 
 const config = { siteUrl: 'https://imoveis.example', apiOrigin: 'https://api.example', indexable: true };
+const wirePage = {itens:[],total:0,pagina:1,limite:9,total_paginas:0};
+const catalogFetcher = () => vi.fn<typeof fetch>(async (input,options)=>{void options;const path=String(input);const items=path.includes('/tipos-imovel')?sampleClassifications.types:path.includes('/finalidades-imovel')?sampleClassifications.purposes:[];return new Response(JSON.stringify({...wirePage,itens:items,total:items.length}));});
 const page = { items: [], total: 0, page: 1, limit: 9, totalPages: 0 };
 describe('public SEO responses', () => {
   it('renders the catalog without JavaScript and ignores visitor cookies', async () => {
-    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify(page)));
+    const fetcher = catalogFetcher();
     const response = await handleRequest('/', config, fetcher);
     expect(response.status).toBe(200);
     expect(response.body).toContain('Imóveis comerciais para alugar e comprar');
@@ -29,8 +31,8 @@ describe('public SEO responses', () => {
     expect(buildSeo('/', { ...config, indexable: false }).robots).toContain('noindex');
   });
   it('collects every sitemap page, escapes XML and never returns a partial sitemap', async () => {
-    const property = { slug: 'sala-&-loja', updatedAt: '2026-09-11T00:00:00Z' };
-    const fetcher = vi.fn().mockImplementation(async (url: string) => new Response(JSON.stringify({ ...page, totalPages: 2, items: url.includes('page=1') ? [property] : [{ ...property }, { ...property, slug: 'outro' }] })));
+    const property = { ...sampleWireProperty, slug: 'sala-&-loja', alterado_em: '2026-09-11T00:00:00Z' };
+    const fetcher = vi.fn().mockImplementation(async (url: string) => new Response(JSON.stringify({ ...wirePage, total_paginas: 2, itens: url.includes('pagina=1') ? [property] : [{ ...property }, { ...property, slug: 'outro' }] })));
     const result = await handleRequest('/sitemap.xml', config, fetcher);
     expect(result.body.match(/<url>/g)).toHaveLength(4);
     expect(result.body).toContain('sala-%26-loja');
@@ -42,7 +44,7 @@ describe('public SEO responses', () => {
     expect(serialize({ text: '</script><script>alert(1)</script>' })).not.toContain('</script>');
   });
   it('renders a property, breadcrumbs and offer safely without exposing the API origin', async () => {
-    const property = { ...sampleProperty, title: 'Sala </script><script>injected</script>' };
+    const property = { ...sampleWireProperty, titulo: 'Sala </script><script>injected</script>' };
     const result = await handleRequest(`/imoveis/${property.slug}`, config, vi.fn().mockResolvedValue(new Response(JSON.stringify(property))));
     expect(result.status).toBe(200);
     expect(result.body).toMatch(/<h1[^>]*>Sala &lt;\/script&gt;/);
@@ -53,13 +55,13 @@ describe('public SEO responses', () => {
     expect(result.body).not.toContain(config.apiOrigin);
   });
   it('keeps concurrent responses isolated', async () => {
-    const fetcher = vi.fn().mockImplementation(async (url: string) => new Response(JSON.stringify({ ...sampleProperty, title: url.endsWith('/one') ? 'Anúncio um' : 'Anúncio dois' })));
+    const fetcher = vi.fn().mockImplementation(async (url: string) => new Response(JSON.stringify({ ...sampleWireProperty, titulo: url.endsWith('/one') ? 'Anúncio um' : 'Anúncio dois' })));
     const [one, two] = await Promise.all([handleRequest('/imoveis/one', config, fetcher), handleRequest('/imoveis/two', config, fetcher)]);
     expect(one.body).toContain('Anúncio um'); expect(one.body).not.toContain('Anúncio dois');
     expect(two.body).toContain('Anúncio dois'); expect(two.body).not.toContain('Anúncio um');
   });
   it('returns 503 if a later sitemap page fails', async () => {
-    const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ ...page, items: [sampleProperty], totalPages: 2 }))).mockRejectedValueOnce(new Error('offline'));
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ ...wirePage, itens: [sampleWireProperty], total_paginas: 2 }))).mockRejectedValueOnce(new Error('offline'));
     const result = await handleRequest('/sitemap.xml', config, fetcher);
     expect(result.status).toBe(503); expect(result.body).not.toContain('<urlset');
   });
@@ -80,10 +82,10 @@ describe('public SEO responses', () => {
   });
   it('returns real 404 for unknown routes and out of range pagination', async () => {
     expect((await handleRequest('/does-not-exist', config)).status).toBe(404);
-    expect((await handleRequest('/?pagina=2', config, vi.fn().mockResolvedValue(new Response(JSON.stringify(page))))).status).toBe(404);
+    expect((await handleRequest('/?pagina=2', config, catalogFetcher())).status).toBe(404);
   });
   it('preserves dollar replacement sequences in titles and bootstrap data', async () => {
-    const property = { ...sampleProperty, title: 'Sala $& $` exemplo' };
+    const property = { ...sampleWireProperty, titulo: 'Sala $& $` exemplo' };
     const result = await handleRequest(`/imoveis/${property.slug}`, config, vi.fn().mockResolvedValue(new Response(JSON.stringify(property))));
     expect(result.body).toMatch(/<h1[^>]*>Sala \$&amp; \$` exemplo<\/h1>/);
     expect(result.body).not.toContain('<!--app-html-->');
@@ -94,15 +96,15 @@ describe('public SEO responses', () => {
 
 describe('friendly URL SSR', () => {
   it('redirects before fetching and does not loop', async () => {
-    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify(page)));
+    const fetcher = catalogFetcher();
     const old = await handleRequest('/?type=SALA&purpose=LOCACAO', config, fetcher);
     expect(old.status).toBe(301);
     expect(old.headers.Location).toBe('/imoveis/para-alugar/salas');
     expect(fetcher).not.toHaveBeenCalled();
     const result = await handleRequest(old.headers.Location!, config, fetcher);
     expect(result.status).toBe(200);
-    expect(fetcher.mock.calls[0][0]).toContain('type=SALA');
-    expect(fetcher.mock.calls[0][0]).toContain('purpose=LOCACAO');
+    expect(fetcher.mock.calls.some(([path])=>String(path).includes('tipo_id=11111111-1111-4111-8111-111111111111'))).toBe(true);
+    expect(fetcher.mock.calls.some(([path])=>String(path).includes('finalidade_id=33333333-3333-4333-8333-333333333333'))).toBe(true);
     expect(result.headers['X-Robots-Tag']).toBe('noindex,follow');
     expect(result.body).toContain('https://imoveis.example/imoveis/para-alugar/salas');
     expect(result.body).toContain('ItemList');

@@ -1,5 +1,7 @@
 # Corretor Comercial
 
+> **Integração portuguesa — 14/09/2026:** serviços, autenticação, SSR, classificações, clientes, mídia, contratos no Drive e comissões já usam o contrato novo da API irmã. A configuração externa do Drive e a migração do banco real continuam operacionais antes da publicação conjunta. Consulte a [entrega e migração](docs/handoffs/2026-09-14-backend-portugues.md).
+
 Interface editorial para imóveis comerciais, com catálogo público, detalhe de imóvel, captação de contatos e painel administrativo. O front é um repositório separado da API NestJS em `../Corretor-API`.
 
 ## Stack

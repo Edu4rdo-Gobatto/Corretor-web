@@ -1,20 +1,22 @@
+import PropertyReadOnly from './PropertyReadOnly';
 import { propertyUrl } from '../../services/urls';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import type { Agent, Property } from '../../types';
-import { errorMessage, propertyType, propertyStatuses } from '../../services/format';
+import { errorMessage, propertyStatuses } from '../../services/format';
 import AsyncState from '../../components/AsyncState';
 import MediaManager from '../../components/MediaManager';
-import { MAX_FEATURES_TEXT_LENGTH, propertySchema, states, type PropertyValues } from './propertySchema';
+import { propertySchema, states, type PropertyValues } from './propertySchema';
+import type { Classifications } from '../../services/portuguese';
 import { clearPropertyDraft, propertyDraftKey, readPropertyDraft, writePropertyDraft } from './propertyDraft';
 
 const formField = '[&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold [&_input]:w-full [&_select]:w-full [&_textarea]:w-full [&_textarea]:min-h-[130px]';
 const errorText = 'm-0 text-[13px] text-error';
-const hint = 'text-[13px] font-normal text-muted';
+
 
 export default function PropertyForm() {
   const { id } = useParams();
@@ -25,21 +27,25 @@ export default function PropertyForm() {
   const [draftRestored, setDraftRestored] = useState(false);
   const [draftWarning, setDraftWarning] = useState('');
   const [property, setProperty] = useState<Property>();
+  const [classifications, setClassifications] = useState<Classifications>({types:[],purposes:[],features:[]});
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(!!id);
   const [loadError, setLoadError] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const { register, handleSubmit, reset, getValues, watch, formState: { errors, isSubmitting } } = useForm<PropertyValues>({
+  const { register, control, handleSubmit, reset, getValues, watch, formState: { errors, isSubmitting } } = useForm<PropertyValues>({
     resolver: zodResolver(propertySchema),
-    defaultValues: { title: '', type: 'GALPAO', purpose: 'LOCACAO', status: 'DISPONIVEL', price: 0, condoFee: null, iptuFee: null, usableArea: 0, totalArea: 0, addressStreet: '', addressNumber: '', addressCity: '', addressState: 'MT', neighborhood: '', description: '', featuresText: '{}', agentId: '' },
+    defaultValues: { title: '', type: '', purpose: '', postalCode:'', addressComplement:'', featureValues:[], status: 'DISPONIVEL', price: 0, condoFee: null, iptuFee: null, usableArea: 0, totalArea: 0, addressStreet: '', addressNumber: '', addressCity: '', addressState: 'MT', neighborhood: '', description: '', agentId: '' },
   });
 
+  const {fields:featureFields,append:appendFeature,remove:removeFeature}=useFieldArray({control,name:'featureValues'});
   const load = useCallback(async () => {
     draftEnabled.current = false;
+    setLoadError('');
     const draft = readPropertyDraft(sessionStorage, draftKey);
     setDraftRestored(!!draft);
     setDraftWarning('');
+    try { setClassifications(await api.classifications(true)); } catch(cause) { setLoadError(errorMessage(cause)); setLoading(false); return; }
     if (!id) {
       setProperty(undefined);
       if (draft) reset({ ...getValues(), ...draft });
@@ -52,7 +58,7 @@ export default function PropertyForm() {
     try {
       const loaded = await api.getManagedProperty(id);
       setProperty(loaded);
-      reset({ ...propertySchema.parse({ ...loaded, featuresText: JSON.stringify(loaded.features ?? {}, null, 2) }), ...draft });
+      reset({ ...propertySchema.parse({ ...loaded, type:loaded.typeId??loaded.type, purpose:loaded.purposeId??loaded.purpose }), ...draft });
       draftEnabled.current = true;
     } catch (cause) {
       setLoadError(errorMessage(cause));
@@ -64,15 +70,15 @@ export default function PropertyForm() {
   useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
-    const subscription = watch((values) => {
+    const subscription = watch(() => {
       if (!draftEnabled.current) return;
-      const result = writePropertyDraft(sessionStorage, draftKey, values);
+      const result = writePropertyDraft(sessionStorage, draftKey, getValues());
       if (result === 'quota') setDraftWarning('Não foi possível salvar o rascunho: o armazenamento desta aba está cheio. Salve o imóvel para não perder as alterações.');
-      if (result === 'too_large') setDraftWarning('Não foi possível salvar o rascunho: use no máximo 20.000 caracteres nas características.');
+      if (result === 'too_large') setDraftWarning('Não foi possível salvar o rascunho: use no máximo 100 características com 500 caracteres por valor.');
       if (result === 'unavailable') setDraftWarning('O rascunho não pôde ser salvo nesta aba. Continue editando e salve o imóvel.');
     });
     return () => subscription.unsubscribe();
-  }, [watch, draftKey]);
+  }, [watch, draftKey, getValues]);
 
   useEffect(() => {
     if (agent?.role !== 'ADMIN') return;
@@ -96,7 +102,7 @@ export default function PropertyForm() {
     return () => { active = false; };
   }, [agent?.role]);
 
-  const textField = (name: 'title' | 'addressStreet' | 'addressNumber' | 'addressCity' | 'neighborhood', label: string) => (
+  const textField = (name: 'title' | 'addressStreet' | 'addressNumber' | 'addressCity' | 'neighborhood' | 'postalCode' | 'addressComplement', label: string) => (
     <label>{label}<input {...register(name)} aria-invalid={!!errors[name]} />{errors[name] && <span className={errorText}>{errors[name]?.message}</span>}</label>
   );
   const numberField = (name: 'price' | 'condoFee' | 'iptuFee' | 'usableArea' | 'totalArea', label: string, optional = false) => (
@@ -106,14 +112,14 @@ export default function PropertyForm() {
   async function save(values: PropertyValues) {
     setError('');
     setSuccess('');
-    const { featuresText, agentId, ...fields } = values;
+    const { agentId, ...fields } = values;
     try {
-      const saved = await api.saveProperty({ ...fields, features: JSON.parse(featuresText) as Record<string, unknown>, ...(agent?.role === 'ADMIN' && agentId ? { agentId } : {}) }, id);
+      const saved = await api.saveProperty({ ...fields, features: {}, ...(agent?.role === 'ADMIN' ? { agentId: agentId || agent.id } : {}) }, id, property);
       draftEnabled.current = false;
       clearPropertyDraft(sessionStorage, draftKey);
       setDraftRestored(false);
       setDraftWarning('');
-      reset(propertySchema.parse({ ...saved, featuresText: JSON.stringify(saved.features ?? {}, null, 2) }));
+      reset(propertySchema.parse({ ...saved, type:saved.typeId??saved.type, purpose:saved.purposeId??saved.purpose }));
       draftEnabled.current = true;
       setProperty(saved);
       setSuccess('Imóvel salvo. Você pode gerenciar as fotos e os vídeos abaixo.');
@@ -133,7 +139,7 @@ export default function PropertyForm() {
       {property && <Link to={propertyUrl(property.slug)} className="buttonSecondary">Ver no site ↗</Link>}
     </header>
     <AsyncState loading={loading} error={loadError} retry={() => void load()} />
-    {!loading && !loadError && <>
+    {property && agent?.role !== 'ADMIN' && agent?.id !== property.agentId ? <PropertyReadOnly property={property}/> : !loading && !loadError && <>
       <form className={formField} onSubmit={handleSubmit(save)} noValidate>
         {draftRestored && <p className="rounded bg-[#eaf0e8] p-3.5 text-[#174d3b] dark:bg-white/10 dark:text-white" role="status">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</p>}
         {draftWarning && <p className="error" role="alert">{draftWarning}</p>}
@@ -141,13 +147,14 @@ export default function PropertyForm() {
           <h2 className="mb-6 mt-0 text-[22px] text-ink">01. Apresentação</h2>
           <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
             <div className="col-span-full">{textField('title', 'Título do anúncio *')}</div>
-            <label>Tipo de imóvel *<select {...register('type')}>{Object.entries(propertyType).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-            <label>Finalidade *<select {...register('purpose')}><option value="LOCACAO">Locação</option><option value="VENDA">Venda</option></select></label>
+            <label>Tipo de imóvel *<select {...register('type')} aria-invalid={!!errors.type}><option value="">Selecione</option>{classifications.types.filter(v=>v.ativo||v.id===property?.typeId).map(v=><option key={v.id} value={v.id}>{v.nome}{!v.ativo?" (inativo)":""}</option>)}</select></label>
+            <label>Finalidade *<select {...register('purpose')} aria-invalid={!!errors.purpose}><option value="">Selecione</option>{classifications.purposes.filter(v=>v.ativo||v.id===property?.purposeId).map(v=><option key={v.id} value={v.id}>{v.nome}{!v.ativo?" (inativo)":""}</option>)}</select></label>
             <label>Status *<select {...register('status')}>{Object.entries(propertyStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
             {agent?.role === 'ADMIN' && <label>Corretor responsável<select {...register('agentId')}><option value="">Minha conta</option>{agents.filter((item) => item.active || item.id === property?.agentId).map((item) => <option key={item.id} value={item.id}>{item.name}{!item.active ? ' (inativo)' : ''}</option>)}</select></label>}
             <label className="col-span-full">Descrição *<textarea rows={6} {...register('description')} aria-invalid={!!errors.description} />{errors.description && <span className={errorText}>{errors.description.message}</span>}</label>
           </div>
         </section>
+        <div className="error" role="alert">{errors.type?.message} {errors.purpose?.message}</div>
         <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
           <h2 className="mb-6 mt-0 text-[22px] text-ink">02. Valores e dimensões</h2>
           <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
@@ -161,7 +168,7 @@ export default function PropertyForm() {
         <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
           <h2 className="mb-6 mt-0 text-[22px] text-ink">03. Localização</h2>
           <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2">
-            {textField('addressStreet', 'Rua / avenida *')}
+            {textField('postalCode', 'CEP')}{textField('addressComplement', 'Complemento')}{textField('addressStreet', 'Rua / avenida *')}
             {textField('addressNumber', 'Número *')}
             {textField('neighborhood', 'Bairro *')}
             {textField('addressCity', 'Cidade *')}
@@ -170,7 +177,10 @@ export default function PropertyForm() {
         </section>
         <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
           <h2 className="mb-6 mt-0 text-[22px] text-ink">04. Características</h2>
-          <label>Características adicionais em JSON<textarea maxLength={MAX_FEATURES_TEXT_LENGTH} {...register('featuresText')} spellCheck={false} aria-invalid={!!errors.featuresText} /><span className={hint}>Exemplo: {`{"Vagas": 4, "Pé-direito": "8 m", "Acessibilidade": true}`}</span>{errors.featuresText && <span className={errorText}>{errors.featuresText.message}</span>}</label>
+          <p className="muted">Selecione as características cadastradas e informe seus valores.</p>
+          {featureFields.map((field,index)=><div key={field.id} className="my-3 grid gap-3 md:grid-cols-3"><label>Característica<select {...register(`featureValues.${index}.caracteristica_id`)}><option value="">Selecione</option>{classifications.features.filter(v=>v.ativo).map(v=><option key={v.id} value={v.id}>{v.nome}</option>)}</select></label><label>Valor<input {...register(`featureValues.${index}.valor`)} maxLength={500}/></label><button type="button" className="buttonGhost" onClick={()=>removeFeature(index)}>Remover característica</button></div>)}
+          {errors.featureValues&&<p className="error">Revise as características: selecione cada uma apenas uma vez e use até 500 caracteres no valor.</p>}
+          <button type="button" className="buttonSecondary" disabled={featureFields.length>=100} onClick={()=>appendFeature({caracteristica_id:'',valor:''})}>Adicionar característica</button>
         </section>
         {error && <p className="error" role="alert">{error}</p>}
         {success && <p className="rounded bg-[#eaf0e8] p-3.5 text-[#174d3b] dark:bg-white/10 dark:text-white" role="status">{success}</p>}

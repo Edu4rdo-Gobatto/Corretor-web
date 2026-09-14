@@ -7,7 +7,7 @@ describe('catalog filters', () => {
     expect(query).toEqual({ type: 'SALA', purpose: 'LOCACAO', city: 'Cuiabá', minPrice: 1000, maxPrice: 9000, page: 3, limit: 9 });
     expect(new URLSearchParams(buildCatalogQuery(query)).get('city')).toBe('Cuiabá');
   });
-  it('ignores unknown enum values and invalid page numbers', () => {
-    expect(readCatalogQuery(new URLSearchParams('type=OTHER&page=-5&minPrice=abc'))).toEqual({ page: 1, limit: 9 });
+  it('ignores malformed classification values and invalid page numbers', () => {
+    expect(readCatalogQuery(new URLSearchParams('type=%3Cinvalid%3E&page=-5&minPrice=abc'))).toEqual({ page: 1, limit: 9 });
   });
 });

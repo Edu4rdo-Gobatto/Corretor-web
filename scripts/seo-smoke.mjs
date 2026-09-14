@@ -1,19 +1,21 @@
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { sampleProperty } from '../src/seo/fixture.ts';
+import { sampleWireProperty as sampleProperty, sampleClassifications } from '../src/seo/fixture.ts';
 
-const properties = Array.from({ length: 11 }, (_, i) => ({ ...sampleProperty, id: `test-${i}`, slug: `${sampleProperty.slug}-${i}`, title: `${sampleProperty.title} ${i + 1}` }));
+const properties = Array.from({ length: 11 }, (_, i) => ({ ...sampleProperty, id: `test-${i}`, slug: `${sampleProperty.slug}-${i}`, titulo: `${sampleProperty.titulo} ${i + 1}` }));
 const api = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   res.setHeader('Content-Type', 'application/json');
-  if (url.pathname === '/properties') {
-    const page = Number(url.searchParams.get('page') || 1); const limit = Number(url.searchParams.get('limit') || 9);
-    res.end(JSON.stringify({ items: properties.slice((page - 1) * limit, page * limit), total: properties.length, page, limit, totalPages: Math.ceil(properties.length / limit) }));
-  } else if (url.pathname.startsWith('/properties/')) {
-    const property = properties.find(item => item.slug === decodeURIComponent(url.pathname.slice(12)));
+  if (['/tipos-imovel','/finalidades-imovel','/caracteristicas'].includes(url.pathname)) {
+    const itens=url.pathname==='/tipos-imovel'?sampleClassifications.types:url.pathname==='/finalidades-imovel'?sampleClassifications.purposes:[];res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
+  } else if (url.pathname === '/imoveis') {
+    const page = Number(url.searchParams.get('pagina') || 1); const limit = Number(url.searchParams.get('limite') || 9);
+    res.end(JSON.stringify({ itens: properties.slice((page - 1) * limit, page * limit), total: properties.length, pagina:page, limite:limit, total_paginas: Math.ceil(properties.length / limit) }));
+  } else if (url.pathname.startsWith('/imoveis/')) {
+    const property = properties.find(item => item.slug === decodeURIComponent(url.pathname.slice(9)));
     res.writeHead(property ? 200 : 404); res.end(JSON.stringify(property || { message: 'Não encontrado' }));
-  } else if (url.pathname === '/leads' && req.method === 'POST') {
+  } else if (url.pathname === '/clientes' && req.method === 'POST') {
     res.writeHead(201); res.end(JSON.stringify({ id: 'test-lead' }));
   } else if (url.pathname === '/proxy-check') {
     let body = ''; for await (const part of req) body += part;

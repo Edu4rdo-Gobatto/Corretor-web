@@ -1,54 +1,48 @@
-import type { Agent, AgentInput, CatalogQuery, Lead, LeadInput, Page, Property, PropertyInput, PropertyStatus, Session } from '../types';
-import { buildCatalogQuery } from './catalog';
-import { http, httpBlob, setAccessToken } from './http';
-import type { RentalParty, RentalPartyInput, Lease, LeaseInput, RentalDocument, AcquisitionCommission } from '../pages/admin/rentalSchema';
-const rentalQuery = (query: Record<string, string | number | boolean | undefined>) => new URLSearchParams(Object.entries(query).filter(([,v])=>v!==undefined&&v!=='').map(([k,v])=>[k,String(v)])).toString();
-
-const json = (method: string, body?: unknown): RequestInit => ({ method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
-const realApi = {
-  listRentalParties: (query: {page?:number;limit?:number;search?:string;kind?:'OWNER'|'TENANT';active?:boolean}) => http<Page<RentalParty>>(`/admin/rental-parties?${rentalQuery(query)}`),
-  getRentalParty: (id:string) => http<RentalParty>(`/admin/rental-parties/${id}`),
-  saveRentalParty: (input:RentalPartyInput,id?:string) => http<RentalParty>(`/admin/rental-parties${id?`/${id}`:''}`,json(id?'PATCH':'POST',input)),
-  listLeases: (query: {page?:number;limit?:number;search?:string;partyId?:string;status?:string}) => http<Page<Lease>>(`/admin/leases?${rentalQuery(query)}`),
-  getLease: (id:string) => http<Lease>(`/admin/leases/${id}`),
-  saveLease: (input:LeaseInput,id?:string) => http<Lease>(`/admin/leases${id?`/${id}`:''}`,json(id?'PATCH':'POST',input)),
-  listRentalProperties: (page:number,search:string) => http<Page<Property>>(`/admin/properties?${rentalQuery({page,limit:15,search})}`),
-  listRentalDocuments: (link: {partyId?:string;leaseId?:string}) => http<RentalDocument[]>(`/admin/rental-documents?${rentalQuery(link)}`),
-  uploadRentalDocument: (file:File,link:{partyId?:string;leaseId?:string}) => {const body=new FormData();body.append('file',file);Object.entries(link).forEach(([k,v])=>{if(v)body.append(k,v);});return http<RentalDocument>('/admin/rental-documents',{method:'POST',body});},
-  deleteRentalDocument: (id:string) => http<void>(`/admin/rental-documents/${id}`,json('DELETE')),
-  downloadRentalDocument: (id:string) => httpBlob(`/admin/rental-documents/${id}/download`),
-  getCommission: (leaseId:string) => http<AcquisitionCommission>(`/admin/finance/commissions/lease/${leaseId}`),
-  createCommission: (input:{leaseId:string;installmentCount:number;firstDueDate:string;notes?:string}) => http<AcquisitionCommission>('/admin/finance/commissions',json('POST',input)),
-  markCommissionPaid: (id:string,paymentNote='') => http<AcquisitionCommission>(`/admin/finance/commissions/installments/${id}/paid`,json('PATCH',{paymentNote})),
-  listProperties: (query: CatalogQuery & { status?: PropertyStatus }, managed = false) => http<Page<Property>>(`${managed ? '/admin' : ''}/properties?${buildCatalogQuery(query)}`),
-  getProperty: (slug: string) => http<Property>(`/properties/${encodeURIComponent(slug)}`),
-  getManagedProperty: (id: string) => http<Property>(`/admin/properties/${id}`),
-  saveProperty: (input: PropertyInput, id?: string) => http<Property>(`/properties${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', input)),
-  deleteProperty: (id: string) => http<void>(`/properties/${id}`, json('DELETE')),
-  createLead: (input: LeadInput) => http<Lead>('/leads', json('POST', input)),
-  listLeads: (query: { page?: number; limit?: number; search?: string; propertyId?: string; createdFrom?: string; createdTo?: string } = {}) => http<Page<Lead>>(`/admin/leads?${new URLSearchParams(Object.entries(query).filter(([,value])=> value !== undefined && value !== '').map(([key,value])=>[key,String(value)]))}`),
-  deleteLead: (id: string) => http<void>(`/admin/leads/${id}`, json('DELETE')),
-  listAgents: (page = 1, limit = 20) => http<Page<Agent>>(`/agents?page=${page}&limit=${limit}`),
-  saveAgent: (input: AgentInput, id?: string) => http<Agent>(`/agents${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', input)),
-  uploadMedia: (propertyId: string, files: File[]) => {
-    const form = new FormData(); files.forEach(file => form.append('files', file));
-    return http<unknown>(`/properties/${propertyId}/media`, { method: 'POST', body: form });
+import type { AgentInput, CatalogQuery, Lead, LeadInput, Property, PropertyInput, PropertyStatus, Session } from '../types';
+import { http, setAccessToken } from './http';
+import { agentFromWire, classificationId, leadFromWire, pageFromWire, propertyFromWire, wireCatalogQuery, wireQuery, type Classification, type ClassificationKind, type Classifications, type WireAgent, type WireLead, type WirePage, type WireProperty, type WireSession } from './portuguese';
+import { rentalApi } from './rentals';
+const json = (method:string,body?:unknown):RequestInit => ({method,...(body===undefined?{}:{body:JSON.stringify(body)})});
+async function classifications(managed=false):Promise<Classifications> {
+  const load=async(kind:ClassificationKind)=>{const items:Classification[]=[];let pagina=1;let total=1;do{const result=await http<WirePage<Classification>>(`${managed?'/admin':''}/${kind}?pagina=${pagina}&limite=100`,{},managed);items.push(...result.itens);total=result.total_paginas??Math.ceil(result.total/result.limite);pagina++;}while(pagina<=total);return items;};
+  const [types,purposes,features]=await Promise.all([load('tipos-imovel'),load('finalidades-imovel'),load('caracteristicas')]);return {types,purposes,features};
+}
+const sessionFromWire=(s:WireSession):Session=>({accessToken:s.token_acesso,tokenType:s.tipo_token,agent:agentFromWire(s.corretor)});
+export const api = {
+  ...rentalApi,
+  classifications,
+  listClassifications: async(kind:ClassificationKind,page=1)=>pageFromWire(await http<WirePage<Classification>>(`/admin/${kind}?pagina=${page}&limite=20`),v=>v),
+  saveClassification:(kind:ClassificationKind,input:{nome?:string;slug?:string;icone?:string|null;ativo?:boolean},id?:string)=>http<Classification>(`/admin/${kind}${id?`/${id}`:''}`,json(id?'PATCH':'POST',input)),
+  listProperties: async(query:CatalogQuery&{status?:PropertyStatus;search?:string;active?:boolean},managed=false)=>{
+    const encoded=wireCatalogQuery(query,query.type||query.purpose?await classifications(managed):{types:[],purposes:[],features:[]});
+    if(encoded===null)return {items:[],total:0,page:query.page,limit:query.limit,totalPages:0};
+    return pageFromWire(await http<WirePage<WireProperty>>(`${managed?'/admin':''}/imoveis?${encoded}`,{},managed),propertyFromWire);
   },
-  embedMedia: (propertyId: string, url: string) => http<unknown>(`/properties/${propertyId}/media/embed`, json('POST', { url })),
-  reorderMedia: (propertyId: string, mediaIds: string[]) => http<unknown>(`/properties/${propertyId}/media/reorder`, json('PATCH', { mediaIds })),
-  coverMedia: (propertyId: string, mediaId: string) => http<unknown>(`/properties/${propertyId}/media/${mediaId}/cover`, json('PATCH')),
-  deleteMedia: (propertyId: string, mediaId: string) => http<void>(`/properties/${propertyId}/media/${mediaId}`, json('DELETE')),
-  login: async (email: string, password: string) => {
-    const session = await http<Session>('/auth/login', json('POST', { email, password }), false);
-    setAccessToken(session.accessToken); return session;
+  getProperty:async(slug:string)=>propertyFromWire(await http<WireProperty>(`/imoveis/${encodeURIComponent(slug)}`,{},false)),
+  getManagedProperty:async(id:string)=>propertyFromWire(await http<WireProperty>(`/admin/imoveis/${id}`)),
+  saveProperty:async(input:PropertyInput,id?:string,previous?:Property)=>{
+    const lists=await classifications(true);
+    const tipo_id=classificationId(input.type,lists.types),finalidade_id=classificationId(input.purpose,lists.purposes);
+    if(!tipo_id||!finalidade_id)throw new Error('Selecione um tipo e uma finalidade cadastrados.');
+    return propertyFromWire(await http<WireProperty>(`/admin/imoveis${id?`/${id}`:''}`,json(id?'PATCH':'POST',{titulo:input.title,tipo_id:previous?.typeId===tipo_id?undefined:tipo_id,finalidade_id:previous?.purposeId===finalidade_id?undefined:finalidade_id,valor:String(input.price),valor_condominio:input.condoFee===null?null:String(input.condoFee),valor_iptu:input.iptuFee===null?null:String(input.iptuFee),area_util:String(input.usableArea),area_total:String(input.totalArea),cep:input.postalCode||null,complemento:input.addressComplement||null,logradouro:input.addressStreet,numero:input.addressNumber,cidade:input.addressCity,estado:input.addressState,bairro:input.neighborhood,descricao:input.description,status:input.status,corretor_id:previous?.agentId===input.agentId?undefined:input.agentId,ativo:input.active,caracteristicas:input.featureValues??[]})));
   },
-  refresh: async () => {
-    const session = await http<Session>('/auth/refresh', json('POST'), false);
-    setAccessToken(session.accessToken); return session;
-  },
-  logout: async () => { await http<void>('/auth/logout', json('POST'), false); setAccessToken(null); },
-  me: () => http<Agent>('/auth/me'),
-  updateProfile: (input: { name: string; whatsappNumber: string; creci: string | null; avatarUrl: string | null }) => http<Agent>('/auth/me', json('PATCH', input)),
-  changePassword: (input: { currentPassword: string; newPassword: string }) => http<Agent>('/auth/me/password', json('PATCH', input)),
+  deleteProperty:(id:string)=>http<void>(`/admin/imoveis/${id}`,json('DELETE')),
+  setPropertyActive:async(id:string,ativo:boolean)=>propertyFromWire(await http<WireProperty>(`/admin/imoveis/${id}`,json('PATCH',{ativo}))),
+  createLead:(input:LeadInput)=>http<{id:string}>('/clientes',json('POST',{imovel_id:input.propertyId,nome:input.leadName,telefone:input.leadPhone,email:input.leadEmail||undefined,mensagem:input.message||undefined,consentimento:input.consentGiven}),false),
+  listLeads:async(query:{page?:number;limit?:number;search?:string;propertyId?:string;createdFrom?:string;createdTo?:string;active?:boolean}={})=>pageFromWire(await http<WirePage<WireLead>>(`/admin/clientes?${wireQuery({pagina:query.page,limite:query.limit,busca:query.search,imovel_id:query.propertyId,ativo:query.active,criado_desde:query.createdFrom,criado_ate:query.createdTo})}`),leadFromWire),
+  saveLead:async(input:{name:string;phone:string;email?:string;message?:string;propertyId?:string|null;agentId?:string;active?:boolean},id?:string,previous?:Lead)=>leadFromWire(await http<WireLead>(`/admin/clientes${id?`/${id}`:''}`,json(id?'PATCH':'POST',{nome:input.name,telefone:input.phone,email:input.email||null,mensagem:input.message||null,imovel_id:previous&&previous.propertyId===(input.propertyId||null)?undefined:input.propertyId||null,corretor_id:previous?.agentId===input.agentId?undefined:input.agentId||undefined,...(id?{ativo:input.active}:{})}))),
+  deleteLead:(id:string)=>http<void>(`/admin/clientes/${id}`,json('DELETE')),
+  listAgents:async(page=1,limit=20)=>pageFromWire(await http<WirePage<WireAgent>>(`/admin/corretores?pagina=${page}&limite=${limit}`),agentFromWire),
+  saveAgent:async(input:AgentInput,id?:string)=>agentFromWire(await http<WireAgent>(`/admin/corretores${id?`/${id}`:''}`,json(id?'PATCH':'POST',{nome:input.name,email:input.email,cpf:input.cpf,whatsapp:input.whatsappNumber,creci:input.creci,cargo:input.role==='ADMIN'?'ADMIN':'CORRETOR',url_foto:input.avatarUrl,senha:input.password,ativo:input.active}))),
+  uploadMedia:(id:string,files:File[])=>{const body=new FormData();files.forEach(f=>body.append('arquivos',f));return http<unknown>(`/admin/imoveis/${id}/midias`,{method:'POST',body});},
+  embedMedia:(id:string,url:string)=>http<unknown>(`/admin/imoveis/${id}/midias/video-embed`,json('POST',{url})),
+  reorderMedia:(id:string,midias_ids:string[])=>http<unknown>(`/admin/imoveis/${id}/midias/ordem`,json('PATCH',{midias_ids})),
+  coverMedia:(id:string,mediaId:string)=>http<unknown>(`/admin/imoveis/${id}/midias/${mediaId}/capa`,json('PATCH')),
+  deleteMedia:(id:string,mediaId:string)=>http<void>(`/admin/imoveis/${id}/midias/${mediaId}`,json('DELETE')),
+  login:async(email:string,password:string)=>{const session=sessionFromWire(await http<WireSession>('/autenticacao/entrar',json('POST',{email,senha:password}),false));setAccessToken(session.accessToken);return session;},
+  refresh:async()=>{const session=sessionFromWire(await http<WireSession>('/autenticacao/renovar',json('POST'),false));setAccessToken(session.accessToken);return session;},
+  logout:async()=>{await http<void>('/autenticacao/sair',json('POST'),false);setAccessToken(null);},
+  me:async()=>agentFromWire(await http<WireAgent>('/autenticacao/eu')),
+  updateProfile:async(input:{name:string;whatsappNumber:string;creci:string|null;avatarUrl:string|null})=>agentFromWire(await http<WireAgent>('/autenticacao/eu',json('PATCH',{nome:input.name,whatsapp:input.whatsappNumber,creci:input.creci,url_foto:input.avatarUrl}))),
+  changePassword:async(input:{currentPassword:string;newPassword:string})=>agentFromWire(await http<WireAgent>('/autenticacao/eu/senha',json('PATCH',{senha_atual:input.currentPassword,nova_senha:input.newPassword}))),
 };
-export const api = realApi;
