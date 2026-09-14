@@ -228,9 +228,8 @@ Não fazer:
 Decisão: a foto do AdminLayout leva a /admin/perfil (link no desktop, item "Meu perfil" no dropdown do
 mobile, dropdown preservado). A página mostra foto grande (96px, fallback da inicial, troca silenciosa se a
 URL quebrar), dados (e-mail em leitura), métricas do próprio usuário, edição própria e troca de senha.
-Rota registrada em outes.profile e no regex do 
-ormalizedUrl; painel segue 
-oindex e fora do SSR.
+Rota registrada em `routes.profile` e no regex do `normalizedUrl`; painel segue
+`noindex` e fora do SSR.
 
 Motivo: pedido do dono — clicar na foto e ver foto maior + métricas.
 
@@ -287,3 +286,11 @@ Pedido integral de 13/09/2026 e escolha de Drive compartilhado pelo dono substit
 - Comandos de migration agora usam executor com logs sanitizados e MIGRACAO_BACKUP_ARQUIVO para escrita. Não imprimir QueryFailedError, SQL com parâmetros ou detalhes de linhas decifradas.
 - Cookie Secure/Strict/HttpOnly em todos ambientes; desenvolvimento de navegador exige HTTPS. API nova é incompatível com o contrato frontend antigo: adaptar cliente, SSR e painel antes do deploy conjunto. Ajustar health check Render para /api/v1/saude nesse corte.
 - Homologação usa database vazia homologacao_pt na branch Neon br-ancient-sound-a5tsf5rf, PostgreSQL 16.15; testes transacionais são revertidos. Banco/API publicados permanecem intactos. Manter branch de homologação identificada até o dono definir retenção.
+
+
+## 2026-09-14 — Cascata e contraste dos controles
+Estilos legados ficam em @layer components para que utilities explícitas prevaleçam. Container próprio permanece fora da camada para preservar margens frente ao container nativo do Tailwind. Navy permanece cor de superfície; texto adaptável usa brand. Botões primários usam tokens action/on-action: navy/branco no claro, dourado/navy no escuro. Não reutilizar navy fixo como texto em superfícies que escurecem, nem deixar eyebrow escuro sobre fotos/navy.
+
+
+## 2026-09-14 — Tema junto à navegação pública
+PublicLayout agrupa navegação e controles à direita em ordem DOM: links, tema, menu. Distância de 16px após navegação e 8px entre controles. Marca e espaçamento compactados até 900px para caber em tablets; menu preserva breakpoint de 650px. Não duplicar alternador nem alterar persistência do tema.

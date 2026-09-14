@@ -184,3 +184,11 @@ Responsável: Codex. Especificação, plano/contexto e handoff sincronizados com
 Serviços, SSR, catálogo, cadastros, clientes, mídia, contratos, Drive e comissões integrados. Restam somente configuração do Drive, complementos/backup da migração real e publicação coordenada.
 
 Substituir endpoints/payloads em inglês; login token_acesso/cookie corretor_renovacao; seletores dinâmicos de tipos/finalidades/características; clientes manuais; contratos/partes com permissões atualizadas; pastas Drive e estados/retentativa; financeiro exclusivo de comissões, removendo UI antiga de documentos/repasse de aluguel. Manter RHF/zod, cliente API central e SSR. Validar catálogo/detalhe/SEO/login e todo o painel com a API nova antes de publicar. Health da API passa a /api/v1/saude. Referência: docs/handoffs/2026-09-14-backend-portugues.md.
+
+
+## UI-CONTRASTE-001 — Concluída em 14/09/2026 (Codex)
+Corrigir textos invisíveis e botões sem destaque: cascata CSS, tokens claro/escuro, cabeçalho, hero, CTA, login e fallback de fotos. Validações e limites em CHANGELOG_AI.md.
+
+
+## UI-TEMA-002 — Concluída (14/09/2026, Codex)
+Reposicionar alternador após navegação no desktop e junto ao menu mobile; plano aprovado implementado e validado em três larguras e ambos os temas.

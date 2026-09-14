@@ -556,3 +556,17 @@ Backend irmão validado com typecheck/lint/build, 169 testes locais + 4 PostgreS
 - Telefones brasileiros normalizados para WhatsApp; edições preservam vínculos históricos inativos quando não alterados; uploads usam `arquivos`, limites 10/30/60 MiB e bucket público de mídia.
 - Validação: `npm run typecheck`, `npm run lint`, `npm run build`, smoke SSR/Vercel e testes direcionados passaram; 120 testes passaram na suíte completa, com dois erros transitórios de worker/jsdom no Windows na última execução concorrente.
 - Pendente: credenciais e homologação real do Drive compartilhado, complementos/backup para migração de dados e publicação coordenada. Nenhum segredo foi adicionado.
+
+
+## 2026-09-14 — Codex: textos e botões legíveis
+Alterados styles/global.css e tailwind.css; PublicLayout, PropertyCard, Catalog, PropertyDetail e Login. Resolvida prioridade de CSS global sobre utilities, aliases escuros, cores de ação, textos navy, legendas sobre navy/foto e fallback de imagem. Container conserva margens responsivas. Documentação atualizada sem apagar histórico.
+Validação: typecheck/lint aprovados; 27 arquivos e 125 testes aprovados (worker único); build aprovado, avisos conhecidos Zod. Smoke SSR/metadados/paginação/404/robots/sitemap/proxy/Vercel aprovado em portas alternativas 4299/4280 porque 4199 estava ocupada. Cópia temporária do smoke removida. Axe WCAG AA sem violações de contraste em catálogo/login/detalhe nos dois temas; textos sobre imagens exigem análise manual e foram inspecionados por captura. Catálogo mobile 390px: container 354px, sem overflow horizontal. Painel autenticado não exercitado nesta sessão; controles compartilhados corrigidos, sem alegar homologação completa. Sem commit/push/deploy; .vscode preexistente preservada.
+
+
+## 2026-09-14 — Codex: posição do botão de tema
+PublicLayout.tsx: grupo à direita contendo nav e controles, tema após Área do corretor; marca/espaçamento compactos até 900px. Preservadas alterações anteriores de contraste. Atualizados PROJECT_STATUS, TASKS e DECISIONS.
+Validações: typecheck e lint aprovados; 27 arquivos/125 testes aprovados. Navegador em 390, 768 e 1280px, claro/escuro: sem overflow horizontal, tema 44x44px, distância desktop 16px e mobile 8px. Menu abre com foco no primeiro link, Escape devolve foco, Shift+Tab/Enter alterna tema com foco visível. Capturas desktop/tablet conferidas. Sem mudanças de API, commit, push ou deploy; build não repetido nesta alteração restrita ao cabeçalho.
+
+
+## 2026-09-14 — Codex: publicação Git autorizada
+Dono solicitou commit e push das correções de contraste e cabeçalho na main. Revisão preserva texto navy no CTA dourado do detalhe (PropertyDetail sem diff final) e corrige formatação histórica em DECISIONS. .vscode fora do commit. Validação final aprovada: typecheck, lint, 27 arquivos/125 testes e build; diff --check limpo. Commit/push autorizados na main; sem deploy manual.

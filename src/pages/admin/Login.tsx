@@ -43,7 +43,7 @@ export default function Login() {
         <div aria-hidden className="absolute inset-0 z-[1] bg-gradient-to-br from-navy via-navy/80 to-navy/50" />
         <Link to={routes.home} className="relative z-[2] font-display text-[21px] leading-[1.5] text-inherit no-underline">{brand.name}</Link>
         <div className="relative z-[2]">
-          <p className="eyebrow">SEU PRÓXIMO CAPÍTULO</p>
+          <p className="eyebrow text-white">SEU PRÓXIMO CAPÍTULO</p>
           <h1 className="mb-0 max-w-[500px] font-display text-[30px] leading-[1.3] lg:text-[clamp(34px,4vw,58px)]">Boas conexões começam aqui.</h1>
           <p>Seu portfólio, seus contatos e novas oportunidades.</p>
         </div>

@@ -3,6 +3,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-action: #0a2042;
+  --color-action-hover: #071733;
+  --color-on-action: #ffffff;
+  --color-control-line: #7b8799;
   --color-paper: #ffffff;
   --color-ink: #0a2042;
   --color-navy: #0a2042;
@@ -44,6 +48,11 @@
   --muted: var(--color-muted);
   --line: var(--color-line);
   --error: var(--color-error);
+  color-scheme: dark;
+  --color-action: #c99b3f;
+  --color-action-hover: #dfb65f;
+  --color-on-action: #071733;
+  --color-control-line: #71829d;
   --color-paper: #071733;
   --color-ink: #f4e9cf;
   --color-navy: #0a2042;

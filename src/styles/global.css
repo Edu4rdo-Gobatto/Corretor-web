@@ -5,7 +5,8 @@
 @import '@fontsource/source-sans-3/latin-600.css';
 @import '@fontsource/source-sans-3/latin-700.css';
 
-:root { font-family: 'Source Sans 3', sans-serif; color: #0A2042; background: #FFFFFF; font-synthesis: none; --paper: #FFFFFF; --ink: #0A2042; --navy: #0A2042; --navy-deep: #071733; --green: #0A2042; --gold: #C99B3F; --gold-soft: #F4E9CF; --muted: #556074; --line: #E2E6EC; --white: #FFF; --error: #9C302B; --soft: #EEF1F6; --display: 'Libre Baskerville', Georgia, serif; }
+@layer components {
+:root { font-family: 'Source Sans 3', sans-serif; color: var(--color-ink); background: var(--color-paper); font-synthesis: none; --paper: #FFFFFF; --ink: #0A2042; --navy: #0A2042; --navy-deep: #071733; --green: #0A2042; --gold: #C99B3F; --gold-soft: #F4E9CF; --muted: #556074; --line: #E2E6EC; --white: #FFF; --error: #9C302B; --soft: #EEF1F6; --display: 'Libre Baskerville', Georgia, serif; }
 * { box-sizing: border-box; }
 body { margin: 0; font-size: 16px; line-height: 1.55; overflow-x: clip; }
 button, input, select, textarea { font: inherit; }
@@ -29,13 +30,12 @@ input[type=checkbox] { width: 19px; height: 19px; min-height: 19px; accent-color
 textarea { resize: vertical; min-height: 112px; }
 label { display: block; font-size: 15px; font-weight: 600; }
 label input, label select, label textarea { margin-top: 6px; }
-.container { max-width: 1320px; width: calc(100% - 112px); margin-inline: auto; }
 .button,.buttonSecondary,.buttonGhost { display: inline-flex; gap: 10px; align-items: center; justify-content: center; min-height: 46px; padding: 12px 22px; border: 1px solid transparent; border-radius: 4px; font-weight: 600; text-decoration: none; transition: background .18s, color .18s; }
-.button { background: var(--navy); color: white; border-bottom: 2px solid var(--gold); }
-.button:hover { background: var(--navy-deep); }
-.buttonSecondary { border-color: #B9BEB3; background: transparent; color: var(--green); }
+.button { background: var(--color-action); color: var(--color-on-action); border-bottom: 2px solid var(--gold); }
+.button:hover { background: var(--color-action-hover); }
+.buttonSecondary { border-color: var(--color-control-line); background: transparent; color: var(--green); }
 .buttonSecondary:hover { background: var(--soft); }
-.buttonGhost { padding: 10px 12px; background: transparent; }
+.buttonGhost { padding: 10px 12px; background: transparent; border-color: var(--color-control-line); }
 .buttonGhost:hover { background: var(--soft); }
 .field { display: grid; gap: 6px; }
 .error { color: var(--error); font-size: 15px; }
@@ -44,6 +44,11 @@ label input, label select, label textarea { margin-top: 6px; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 .skipLink { position: fixed; top: -100px; left: 20px; z-index: 100; background: white; padding: 12px; }
 .skipLink:focus { top: 12px; }
+@media(prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+
+}
+
+/* Preserve the site grid against Tailwind native container widths. */
+.container { max-width: 1320px; width: calc(100% - 112px); margin-inline: auto; }
 @media(max-width: 900px) { .container { width: calc(100% - 48px); } }
 @media(max-width: 520px) { .container { width: calc(100% - 36px); } }
-@media(prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
