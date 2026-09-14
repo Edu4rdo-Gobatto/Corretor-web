@@ -294,3 +294,22 @@ Estilos legados ficam em @layer components para que utilities explícitas preval
 
 ## 2026-09-14 — Tema junto à navegação pública
 PublicLayout agrupa navegação e controles à direita em ordem DOM: links, tema, menu. Distância de 16px após navegação e 8px entre controles. Marca e espaçamento compactados até 900px para caber em tablets; menu preserva breakpoint de 650px. Não duplicar alternador nem alterar persistência do tema.
+
+## 2026-09-14 — Playwright Test para ponta a ponta, Vitest preservado (Codex)
+
+Decisão: `@playwright/test` **1.60.0 exato** em devDependencies (`tests/e2e/`, `playwright.config.ts`),
+com projetos `chromium-desktop` (1280px) e `chromium-mobile` (390px, Pixel 7).
+Vitest exclui `tests/e2e/**`; relatórios e `test-results/` estão no `.gitignore`.
+
+Motivo: cobrir o que o Vitest não alcança — navegador + SSR + proxy `/api` + sessão
++ persistência juntos. Seletores por papel/nome acessível, esperas automáticas,
+trace/screenshot/vídeo só em falha, dados sintéticos `e2e-*` com limpeza via API.
+
+Não fazer:
+
+- Não permitir `^1.60.0`: versões novas baixam Chromium inexistente nesta máquina
+  (CDN bloqueado); o 1.60.0 reaproveita o Chromium 1223 já instalado.
+- Não enfraquecer o cookie `Secure` nem apontar teste a produção: sem HTTPS local
+  a sessão pós-reload cai para o login — o teste confirma esse comportamento real.
+- Não declarar R2/Drive validados com mocks: falha do Drive é `FALHOU` explícito;
+  homologação no Workspace é etapa externa separada.

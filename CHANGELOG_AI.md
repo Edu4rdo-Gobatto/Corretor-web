@@ -1,5 +1,28 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-14 — Codex: estratégia de testes com Playwright + Vitest
+
+Pedido do dono: testes ponta a ponta com Playwright cobrindo fluxos críticos, sem só planejar.
+
+Alterações (front apenas, sem commit/push/deploy):
+
+- Infra: `playwright.config.ts` (desktop 1280 + mobile 390, trace/screenshot/vídeo em falha, `ignoreHTTPSErrors` p/ cert autoassinado), `tests/e2e/helpers/{env,api}.ts`, `tests/e2e/fixtures.ts` (login via UI, portões com skip motivado), `tests/e2e/README.md`, scripts `test:e2e*` no `package.json`, `@playwright/test` **1.60.0 exato** (justificado em DECISIONS.md: CDN bloqueia o Chromium novo; 1.60 reaproveita o 1223 instalado), Vitest exclui `tests/e2e/**`, artefatos no `.gitignore`, `tsconfig` inclui o E2E no typecheck.
+- 11 specs: `seo-ssr` (robots/sitemap/llms/404/noindex/proxy/h1), `auth-login` (validação, senha errada, login válido), `auth-sessao` (navegação, reload só-HTTPS, logout), `auth-papeis` (proteção, ADMIN x corretor), `catalogo` (busca, vazio, cartão→detalhe, deep-link, URL amigável; desktop+mobile), `lead` (sem consentimento barra, com consentimento persiste), `imovel-crud` (cadastro persiste no reload, edição), `midia` (upload PNG sintético→capa no detalhe, vídeo inválido recusado), `contrato-drive` (FALHOU preserva contrato + retentativa, painel exibe estado), `comissao` (400 sem confirmação/referência, baixa via UI persiste, idempotência), `mobile-acess` (menu/Escape, teclado, tema persistente, toques ≥44px).
+- Vitest: `src/services/portuguese.test.ts` (9 testes: paginação, chaves legadas, query nula em tipo desconhecido, moeda/área, mídias, corretor reserva sem PII, contato, query vazia) e +2 em `http.test.ts` (limpeza/notificação em refresh 401, fallbacks PT por status + mensagem de negócio).
+- Correção encontrada pelo E2E: helpers usavam `/api/v1/...`, mas o proxy remove `/api` e a API completa com `/api/v1` — caminho correto `/api/<rota>` (ex.: `/api/saude`). Expectativa ajustada ao contrato real, não o contrário.
+
+Testes executados (resultado real, API + SSR preview reais no ar, depois parados):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 28 arquivos, 136 testes aprovados (era 27/125).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`).
+- `node scripts/seo-smoke.mjs` em cópia temporária (portas 4299/4281, 4199/4180 ocupadas; cópia removida): aprovado.
+- `npx playwright test` 2x: 19 aprovados, 17 não executados, 0 falhas (estável nas 2 execuções).
+
+Não executado (bloqueio exato): os 17 pulados exigem `E2E_ADMIN_EMAIL/SENHA` (15) e `E2E_CORRETOR_EMAIL/SENHA` (2) de teste, e confirmação de que a API aponta ao banco de teste antes de qualquer escrita; reload com sessão exige HTTPS local (cookie Secure — sem ele o teste confirma a volta ao login, sem relaxar segurança); homologação real do Drive compartilhado é etapa externa. R2/Drive não declarados validados. Nenhum dado real tocado; nenhuma escrita de teste no banco (todos os testes com escrita pularam); servidores da sessão parados.
+
+Risco/pendência: sem commit/push (aguardando dono, direto na `main`); prover credenciais de teste + HTTPS local para os 17; decidir retenção da branch de homologação; futuro: E2E de upload R2 real e pasta Drive real.
+
 ## 2026-09-13 — opencode — Perfil do admin + senha (front)
 
 Pedido do dono: `/admin/perfil` ao clicar na foto, com foto maior e métricas do usuário; troca de senha
@@ -570,3 +593,6 @@ Validações: typecheck e lint aprovados; 27 arquivos/125 testes aprovados. Nave
 
 ## 2026-09-14 — Codex: publicação Git autorizada
 Dono solicitou commit e push das correções de contraste e cabeçalho na main. Revisão preserva texto navy no CTA dourado do detalhe (PropertyDetail sem diff final) e corrige formatação histórica em DECISIONS. .vscode fora do commit. Validação final aprovada: typecheck, lint, 27 arquivos/125 testes e build; diff --check limpo. Commit/push autorizados na main; sem deploy manual.
+
+## 2026-09-14 — Codex: endurecimento dos testes E2E
+Corrigidos os três pontos da revisão: o teste mobile agora percorre os links com Tab e confirma a classe `dark` após recarregar; helpers de escrita bloqueiam alvos fora de localhost sem `E2E_ALLOW_EXTERNAL=true`; README documenta a autorização explícita para homologação remota. A execução autenticada continua condicionada às credenciais e ao backend de teste.

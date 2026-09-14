@@ -26,4 +26,40 @@ describe('HTTP session', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('network')));
     await expect(http('/imoveis')).rejects.toThrow('conectar');
   });
+  it('clears a previously set token and notifies expiry when renewal is rejected', async () => {
+    setAccessToken('stale-token');
+    const expired = vi.fn();
+    window.addEventListener('session-expired', expired);
+    try {
+      const fetcher = vi.fn()
+        .mockResolvedValueOnce(new Response('{}', { status: 401 }))
+        .mockResolvedValueOnce(new Response('{}', { status: 401 }));
+      vi.stubGlobal('fetch', fetcher);
+      expect(fetcher.mock.calls).toHaveLength(0);
+      await expect(http('/autenticacao/eu')).rejects.toThrow('sessão expirou');
+      expect(expired).toHaveBeenCalledTimes(1);
+      // A aplicação apagou o token sozinha: a próxima chamada autenticada
+      // não envia Authorization (sem limpeza manual no teste).
+      const probe = vi.fn().mockResolvedValue(new Response('{"ok":true}'));
+      vi.stubGlobal('fetch', probe);
+      await http('/admin/imoveis', {}, false);
+      expect(probe.mock.calls[0][1].headers.get('Authorization')).toBeNull();
+    } finally {
+      window.removeEventListener('session-expired', expired);
+    }
+  });
+  it('maps API errors to Portuguese fallbacks by status', async () => {
+    const cases: Array<[number, RegExp]> = [
+      [403, /permissão/],
+      [404, /não encontrado/],
+      [429, /tentativas/],
+      [500, /indisponível/],
+    ];
+    for (const [status, message] of cases) {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status })));
+      await expect(http('/admin/imoveis', {}, false)).rejects.toThrow(message);
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{"message":"Regra de negócio."}', { status: 422 })));
+    await expect(http('/admin/imoveis', {}, false)).rejects.toThrow('Regra de negócio.');
+  });
 });
