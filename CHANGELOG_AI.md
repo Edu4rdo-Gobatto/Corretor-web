@@ -780,3 +780,12 @@ Corrigidos dois pontos encontrados na revisão da página `/devs` e do cabeçalh
 Validação: typecheck, lint, suíte completa (29 arquivos, 143 testes), build e
 `git diff --check` aprovados. Avisos do Rollup sobre comentários `@__PURE__` do
 Zod permanecem preexistentes.
+## 2026-09-15 — Correções de documentação, SEO e isolamento local
+
+Atualizados `README.md`, `AGENTS.md`, `TASKS.md`, `PROJECT_STATUS.md`, `DECISIONS.md` e `.env.example` conforme os
+scripts atuais, sem modo demonstração. `/devs` permanece acessível e SSR, mas entrega `noindex,follow` e não aparece
+no sitemap ou no `llms.txt`. Criado `scripts/safe-origin.mjs`; `dev` e `preview` recusam API remota por padrão.
+
+Testes direcionados executados: `scripts/safe-origin.test.ts` aprovado; regressões SEO ajustadas. Validação completa
+fica registrada após executar typecheck, lint, testes, build, smoke e `git diff --check`. UX-001 cold start permanece
+adiada. A remoção de `.buttonGhost` foi mantida fora desta entrega por ainda haver consumidores administrativos.

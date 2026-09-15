@@ -56,7 +56,7 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
   if (status === 404) { title = `Página não encontrada | ${brand.name}`; description = 'Este endereço não está disponível. Consulte o catálogo de imóveis comerciais.'; }
   if (status >= 500) { title = `Serviço temporariamente indisponível | ${brand.name}`; description = 'Tente novamente em alguns instantes.'; }
   const missingData = (!catalog && url.pathname.startsWith('/imoveis/') && !p) || (catalog && !data.catalog);
-  const robots = !config.indexable || admin || status !== 200 || missingData ? 'noindex,nofollow' : filtered ? 'noindex,follow' : 'index,follow';
+  const robots = !config.indexable || admin || url.pathname === '/devs' || status !== 200 || missingData ? (url.pathname === '/devs' && status === 200 ? 'noindex,follow' : 'noindex,nofollow') : filtered ? 'noindex,follow' : 'index,follow';
   return { title, description, canonical, image, robots, jsonLd: { '@context': 'https://schema.org', '@graph': status === 200 && !admin ? graph : [] } };
 }
 

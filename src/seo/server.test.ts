@@ -34,9 +34,9 @@ describe('public SEO responses', () => {
     const property = { ...sampleWireProperty, slug: 'sala-&-loja', alterado_em: '2026-09-11T00:00:00Z' };
     const fetcher = vi.fn().mockImplementation(async (url: string) => new Response(JSON.stringify({ ...wirePage, total_paginas: 2, itens: url.includes('pagina=1') ? [property] : [{ ...property }, { ...property, slug: 'outro' }] })));
     const result = await handleRequest('/sitemap.xml', config, fetcher);
-    expect(result.body.match(/<url>/g)).toHaveLength(5);
+    expect(result.body.match(/<url>/g)).toHaveLength(4);
     expect(result.body).toContain('sala-%26-loja');
-    expect(result.body).toContain('/devs');
+    expect(result.body).not.toContain('/devs');
     expect(fetcher).toHaveBeenCalledTimes(2);
     fetcher.mockRejectedValueOnce(new Error('offline'));
     expect((await handleRequest('/sitemap.xml', config, fetcher)).status).toBe(503);
@@ -95,8 +95,8 @@ describe('public SEO responses', () => {
     expect(result.body).toContain('_riad777');
     expect(result.body).toContain('rel="canonical"');
     expect(result.body).toContain('https://imoveis.example/devs');
-    expect(result.headers['X-Robots-Tag']).toBe('index,follow');
-    expect(buildSeo('/devs', { ...config, indexable: false }).robots).toContain('noindex');
+    expect(result.headers['X-Robots-Tag']).toBe('noindex,follow');
+    expect(buildSeo('/devs', config).robots).toBe('noindex,follow');
   });
   it('preserves dollar replacement sequences in titles and bootstrap data', async () => {
     const property = { ...sampleWireProperty, titulo: 'Sala $& $` exemplo' };
@@ -131,7 +131,7 @@ describe('friendly URL SSR', () => {
     expect(robots.body).toContain('Sitemap: https://imoveis.example/sitemap.xml');
     expect(robots.body).not.toContain('Disallow: /\n');
     expect((await handleRequest('/llms.txt', config)).body).toContain('https://imoveis.example/imoveis/para-alugar');
-    expect((await handleRequest('/llms.txt', config)).body).toContain('https://imoveis.example/devs');
+    expect((await handleRequest('/llms.txt', config)).body).not.toContain('https://imoveis.example/devs');
     expect((await handleRequest('/robots.txt', {...config,indexable:false})).body).toContain('Disallow: /\n');
     expect((await handleRequest('/sitemap.xml', {...config,indexable:false})).body).not.toContain('<url>');
   });

@@ -464,3 +464,12 @@ preferência já resolvida quando o React StrictMode repete o efeito de montagem
 
 Motivo: uma origem rejeitada não significa que a sessão expirou, e o replay do
 StrictMode não deve causar flash de tema claro nem logout visual indevido.
+## 2026-09-15 — SEO comercial e isolamento local
+
+`/devs` continua público para acesso discreto pelo rodapé, mas é sempre `noindex,follow` e não entra em `sitemap.xml`
+nem `llms.txt`, pois créditos técnicos não fazem parte do SEO white-label comercial. Os servidores `dev` e `preview`
+recusam `API_ORIGIN` remoto por padrão e aceitam somente localhost/loopback; isso evita que desenvolvimento altere dados
+de produção. Não criar bypass remoto genérico. O cold start (UX-001) foi adiado pelo proprietário.
+
+Não remover SSR, proxy `/api`, autenticação ou o contrato da API. A limpeza de `.buttonGhost` fica separada porque o
+painel ainda possui consumidores ativos.

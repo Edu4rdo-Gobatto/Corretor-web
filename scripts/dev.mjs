@@ -2,12 +2,14 @@ import { createServer as createHttpServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { createServer, loadEnv } from 'vite';
 import { createHandler } from './runtime.mjs';
+import { assertSafeLocalApiOrigin } from './safe-origin.mjs';
 
 const mode = 'development';
 const vite = await createServer({ mode, server: { middlewareMode: true, proxy: undefined }, appType: 'custom' });
 const environment = { ...loadEnv(mode, process.cwd(), ''), ...process.env };
 const { serverConfig } = await vite.ssrLoadModule('/src/seo/server.tsx');
 const config = serverConfig({ ...environment, API_ORIGIN: environment.API_ORIGIN || environment.API_PROXY_TARGET || 'http://localhost:3000' });
+assertSafeLocalApiOrigin({ mode, apiOrigin: config.apiOrigin });
 const handler = createHandler(async (...args) => {
   const { handleRequest } = await vite.ssrLoadModule('/src/seo/server.tsx');
   return handleRequest(...args);

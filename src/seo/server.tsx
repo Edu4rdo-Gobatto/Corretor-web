@@ -49,7 +49,7 @@ export function sitemapChunks(entries: string[], maxCount = 45000, maxBytes = 45
 async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch) {
   if (!config.siteUrl) throw new PublicError(503);
   const entries = new Map<string, string>();
-  for (const url of ['/', '/privacidade', '/devs']) entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc></url>`);
+  for (const url of ['/', '/privacidade']) entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc></url>`);
   const deadline = AbortSignal.timeout(45000);
   const boundedFetch: typeof fetch = (input, init) => fetcher(input, { ...init, signal: AbortSignal.any([deadline, ...(init?.signal ? [init.signal] : [])]) });
   const collect = (result: Page<Property>) => {
@@ -90,7 +90,7 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
       headers['Content-Type'] = 'text/plain; charset=utf-8';
       const body = url.pathname === '/robots.txt'
         ? `User-agent: *\n${config.indexable ? 'Disallow: /api/\nDisallow: /api\n' : 'Disallow: /\n'}${config.siteUrl ? `Sitemap: ${absolute('/sitemap.xml', config)}\n` : ''}`
-        : `# ${brand.name}\n\n> Catálogo de imóveis comerciais para alugar e comprar em ${brand.region.name}.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Alugar](${absolute('/imoveis/para-alugar', config) || '/imoveis/para-alugar'}): imóveis para locação.\n- [Comprar](${absolute('/imoveis/para-comprar', config) || '/imoveis/para-comprar'}): imóveis à venda.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Desenvolvedores](${absolute('/devs', config) || '/devs'}): quem construiu o site.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
+        : `# ${brand.name}\n\n> Catálogo de imóveis comerciais para alugar e comprar em ${brand.region.name}.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Alugar](${absolute('/imoveis/para-alugar', config) || '/imoveis/para-alugar'}): imóveis para locação.\n- [Comprar](${absolute('/imoveis/para-comprar', config) || '/imoveis/para-comprar'}): imóveis à venda.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
       return { status: 200, headers, body };
     }
     if (url.pathname === '/sitemap.xml' || url.pathname.startsWith('/sitemaps/')) {

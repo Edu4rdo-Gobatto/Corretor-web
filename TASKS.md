@@ -55,7 +55,7 @@ Critérios de conclusão:
 
 ## UX-001 — Cold start visível para o visitante
 
-Status: aberta
+Status: adiada pelo proprietário
 Responsável: —
 
 Objetivo:
@@ -108,15 +108,15 @@ Critérios de conclusão:
 
 ## DOC-002 — Atualizar o README do front
 
-Status: aberta
-Responsável: —
+Status: concluída
+Responsável: Codex — concluída em 15/09/2026
 
 Objetivo:
 
 O `README.md` está desatualizado: pede Node 20+ (o `package.json` exige `>=24 <25`), usa `Copy-Item` do PowerShell,
 diz que a aplicação sobe em `localhost:5173` (o servidor escuta em `127.0.0.1`), descreve o proxy do Vite, que não
 existe mais, e não lista os scripts `test` e `typecheck`, nem as variáveis `API_ORIGIN`, `SITE_URL` e `SEO_INDEXABLE`.
-Desde 12/09 também não existem mais os scripts `dev:demo`, `build:demo` e `preview:demo`, nem a variável `VITE_DEMO_MODE`.
+Desde 12/09 também não existem mais os scripts de demonstração nem a variável de modo fictício.
 
 Critérios de conclusão:
 

@@ -258,3 +258,12 @@ Sintoma do dono: `GET /assets/index-DI-c97Mf.js 404` (+ css) na porta 4173, "dev
 
 ## 2026-09-15 — Muse Spark: hidratação do tema corrigida (sem commit)
 Área assumida: `Hydration failed` + `Expected server HTML to contain a matching <circle> in <svg>` no `dev` (porta 5173). Causa no `useTheme`: o SSR sempre renderiza `light` (sem `window`), mas o primeiro render do cliente lia `localStorage`/`prefers-color-scheme` no `useState` e pintava `Sun` (com `<circle>`) contra a `Moon` do servidor — mesma divergência no `aria-label`. O React descartava o HTML do SSR e caía para renderização só no cliente. Fix: estado inicial sempre `light` (igual ao servidor), preferência salva aplicada em efeito único que não remove a classe `.dark` do script anti-flash no primeiro mount; persistência e `localStorage "theme"` + `.dark` inalterados. Teste de regressão em `useTheme.test.ts` (primeiro render `light` com `dark` salvo). Validado: typecheck, lint, 29 arquivos/143 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador com `theme=dark` salvo: sem erro de hidratação no console, ícone Sol após carregar, alternância e persistência nos dois temas.
+## 2026-09-15 — Documentação, SEO comercial e guarda de ambiente
+
+Implementada a correção documental do README/AGENTS: scripts e variáveis refletem o runtime atual, com endereços
+127.0.0.1 e sem modo demonstração. `/devs` permanece acessível, mas sempre usa `noindex,follow` e foi removido de
+`sitemap.xml` e `llms.txt`. `dev` e `preview` agora recusam `API_ORIGIN` remoto por padrão por meio de
+`scripts/safe-origin.mjs`, sem imprimir credenciais. UX-001 cold start foi marcada como adiada pelo proprietário.
+
+Pendente nesta entrega: a remoção completa de `.buttonGhost` não foi feita porque ainda existem consumidores no
+painel administrativo; a migração deve ser uma tarefa visual isolada para evitar regressões.

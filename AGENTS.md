@@ -18,11 +18,8 @@ dos arquivos de contexto descritos abaixo.
 |---|---|---|
 | Instalar dependências | `npm ci` | não |
 | Desenvolvimento (SSR) | `npm run dev` → `127.0.0.1:5173` | sim |
-| Desenvolvimento com dados fictícios | `npm run dev:demo` | não |
 | Build de produção | `npm run build` → `dist/` e `.vercel/output` | não |
-| Build demonstrativo | `npm run build:demo` | não |
 | Servir o build | `npm run preview` → `127.0.0.1:4173` | sim |
-| Servir o build demonstrativo | `npm run preview:demo` | não |
 | Testes | `npm test` (vitest) | não |
 | Lint | `npm run lint` | não |
 | Tipos | `npm run typecheck` | não |
@@ -36,7 +33,6 @@ dos arquivos de contexto descritos abaixo.
 | `API_PROXY_TARGET` | servidor SSR (desenvolvimento) | alternativa ao `API_ORIGIN` em desenvolvimento |
 | `SITE_URL` | servidor SSR | origem pública do site; **sem ela não há canonical nem JSON-LD** |
 | `SEO_INDEXABLE` | servidor SSR | `true` libera `index,follow`; exige `SITE_URL` e `API_ORIGIN` em HTTPS, `NODE_ENV=production` e fora de preview |
-| `VITE_DEMO_MODE` | navegador e servidor | só `true` ativa os dados fictícios |
 
 Nunca coloque segredo em variável `VITE_*`: tudo que tem esse prefixo vai para o bundle do navegador.
 
@@ -47,7 +43,7 @@ Nunca coloque segredo em variável `VITE_*`: tudo que tem esse prefixo vai para 
 - O access token fica só em memória (`src/services/http.ts`). Não grave token em `localStorage` nem em cookie pelo front.
 - O refresh é feito por cookie `httpOnly` enviado pela API. Não tente ler esse cookie no navegador.
 - Uma renovação de sessão por vez: o cliente já compartilha a promessa de refresh. Não crie outro caminho de renovação.
-- O modo demonstração só liga com `VITE_DEMO_MODE=true`. Falha de rede **nunca** pode cair em dados fictícios.
+- Em desenvolvimento e preview, `API_ORIGIN` deve apontar para localhost ou loopback; origens remotas são bloqueadas.
 
 **SSR**
 - Todo componente usado em rota pública precisa renderizar no servidor: nada de acessar `window`, `document` ou

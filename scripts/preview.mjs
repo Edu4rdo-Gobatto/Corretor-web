@@ -4,9 +4,11 @@ import path from 'node:path';
 import { loadEnv } from 'vite';
 import { handleRequest, serverConfig } from '../dist/server/server.js';
 import { createHandler } from './runtime.mjs';
+import { assertSafeLocalApiOrigin } from './safe-origin.mjs';
 
 const mode = 'production';
 const config = serverConfig({ ...loadEnv(mode, process.cwd(), ''), ...process.env, NODE_ENV: 'production' });
+assertSafeLocalApiOrigin({ mode, apiOrigin: config.apiOrigin });
 const template = await readFile('dist/client/index.html', 'utf8');
 const handler = createHandler(handleRequest, async () => template, config);
 const root = path.resolve('dist/client');
