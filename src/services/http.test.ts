@@ -48,6 +48,21 @@ describe('HTTP session', () => {
       window.removeEventListener('session-expired', expired);
     }
   });
+  it('reports origin rejection truthfully instead of expired session', async () => {
+    setAccessToken('stale-token');
+    const expired = vi.fn();
+    window.addEventListener('session-expired', expired);
+    try {
+      const fetcher = vi.fn()
+        .mockResolvedValueOnce(new Response('{}', { status: 401 }))
+        .mockResolvedValueOnce(new Response('{"message":"Origem não autorizada."}', { status: 403 }));
+      vi.stubGlobal('fetch', fetcher);
+      await expect(http('/autenticacao/eu')).rejects.toThrow('origem não é autorizada');
+      expect(expired).not.toHaveBeenCalled();
+    } finally {
+      window.removeEventListener('session-expired', expired);
+    }
+  });
   it('maps API errors to Portuguese fallbacks by status', async () => {
     const cases: Array<[number, RegExp]> = [
       [403, /permissão/],

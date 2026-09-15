@@ -21,6 +21,9 @@ async function refreshAccess(): Promise<void> {
     const message = typeof body.message === 'string' ? body.message : body.message?.join(' ');
     if (response.status === 401 || response.status === 403) {
       accessToken = null;
+      if (message === 'Origem não autorizada.') {
+        throw new ApiError('Esta origem não é autorizada pelo serviço. Confira o endereço da API e entre novamente.', response.status);
+      }
       window.dispatchEvent(new Event('session-expired'));
       throw new ApiError('Sua sessão expirou. Entre novamente para continuar.', response.status);
     }

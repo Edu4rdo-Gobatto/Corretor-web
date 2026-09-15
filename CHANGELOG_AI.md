@@ -1,5 +1,57 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-15 — Muse Spark: 404 de assets no preview (diagnóstico)
+
+Sintoma do dono: `GET /assets/index-DI-c97Mf.js` e `.css` 404 na porta 4173 com `npm run dev` "não achando nada".
+
+Causa raiz: preview antigo órfão (PID 85268, de sessão anterior de agente) servindo da memória um `index.html` com hashes de build anterior; cada `npm run build` apaga os hashes antigos do `dist`, daí o 404. O `dev` escuta na 5173 — a aba presa na 4173 nunca veria o dev. Nenhum bug de código; nenhuma alteração em fonte.
+
+Ações: processo antigo morto; preview novo na 4173 conferido (`/` 200, js/css atuais 200) e `dev` na 5173 conferido (`/` 200 com `<h1>`); ambos parados, estado de chegada restaurado. Sem commit (só docs). Para o dono: hard refresh (Ctrl+Shift+R) na aba da 4173; dev = 5173, preview = 4173.
+
+## 2026-09-15 — Muse Spark: privacidade + 403 do renovar
+
+Pedidos do dono: arrumar o `/privacidade` (mesmo padrão morto do `/devs`) e o `POST /api/autenticacao/renovar 403` no preview.
+
+Diagnóstico do 403 (causa raiz, comprovada): o `.env` local aponta `API_ORIGIN` à API de produção; o preview em `127.0.0.1` envia `Origin` ao proxy, que repassa intacto, e o `OrigemGuard` da API responde `{"statusCode":403,"message":"Origem não autorizada."}` antes da lógica de sessão (reproduzido via proxy com `curl`, sem escrita — o guard rejeita antes do serviço). O front mapeava tudo para "sessão expirou" e emitia `session-expired`. Não é bug de código do front nem do proxy; remover o `Origin` no repasse contornaria a proteção do guard.
+
+Alterações em código (front apenas, sem commit/push):
+
+- `src/services/http.ts`: `refreshAccess` mantém a limpeza (token + `session-expired`), mas com corpo `Origem não autorizada.` a mensagem passa a ser "Esta origem não é autorizada pelo serviço. Confira o endereço da API e entre novamente."
+- `src/services/http.test.ts`: novo teste — rejeição de origem relata a causa com verdade e mantém o aviso de expiração (6 testes no arquivo).
+- `src/pages/public/PrivacyPolicy.tsx`: `container` no `article` + `div` interno `mx-auto max-w-[800px]` e `h1` com `clamp(32px,8vw,44px)`, mesmo padrão do `/devs`.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 29 arquivos, 142 testes aprovados (era 29/141; ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Preview em `127.0.0.1:4423` com o novo build: `/privacidade` 200 com `div` interno, `h1` com clamp e `article` sem `max-w` morto.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); fluxos de sessão no preview contra a API de produção continuam 403 por desenho (usar a API local para login/refresh); conferir `/privacidade` no navegador 320–390px e desktop nos dois temas.
+
+## 2026-09-15 — Muse Spark: refinamentos do /devs + header (pacote 1–5)
+
+Pedido do dono ("go") sobre a revisão do `/devs` + header fixo.
+
+Alterações em código (front apenas, sem commit/push):
+
+- `public/assets/dev-eduardo.jpg` + `dev-fernando.jpg` (novos, cópias dos avatares GitHub, JPEG válido conferido por magic bytes); `src/config/devs.ts` com `avatarUrl` local e novo `githubUrl` (logins conferidos na API do GitHub).
+- `src/pages/public/Devs.tsx`: links GitHub ao lado do Instagram (ícone `Github` do lucide, `rel="me noopener noreferrer"`, `target=_blank`, `min-h-11`); `h1` com `text-[clamp(32px,8vw,44px)]`; `referrerPolicy` removido (só fazia sentido no hotlink); `container` no `article` + `div` interno `mx-auto max-w-[800px]` (o `max-w` no mesmo elemento do `container` era morto — `.container` sem camada vence a utility).
+- `src/components/PublicLayout.tsx`: logo e controles do header com `relative z-[6]`, acima do backdrop (`z-[4]`) e do sheet (`z-[5]`); com o menu aberto o tema continua clicável.
+- Testes: `Devs.test.tsx` (avatares locais + links GitHub) e `PublicLayout.test.tsx` (novo teste de stacking logo/controles acima do backdrop).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 29 arquivos, 141 testes aprovados (era 29/140; ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Preview em `127.0.0.1:4421` com o novo build: `/devs` 200 com avatares locais, links GitHub, sem hotlink, header `sticky top-0 z-40`, `h1` com clamp e `/assets/dev-eduardo.jpg` 200.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); conferir no navegador `/devs` 320–390px e desktop nos dois temas; `/privacidade` tem o mesmo padrão morto `container max-w-[800px]`, fora deste escopo.
+
 ## 2026-09-15 — Muse Spark: header público fixo + cobertura do rodapé
 
 Pedido do dono: link de desenvolvedores no rodapé e header persistente no topo.
@@ -684,3 +736,47 @@ Dono solicitou commit e push das correções de contraste e cabeçalho na main. 
 
 ## 2026-09-14 — Codex: endurecimento dos testes E2E
 Corrigidos os três pontos da revisão: o teste mobile agora percorre os links com Tab e confirma a classe `dark` após recarregar; helpers de escrita bloqueiam alvos fora de localhost sem `E2E_ALLOW_EXTERNAL=true`; README documenta a autorização explícita para homologação remota. A execução autenticada continua condicionada às credenciais e ao backend de teste.
+
+## 2026-09-15 — Muse Spark: hidratação do tema corrigida (sem commit)
+Sintoma do dono no `dev`: `Warning: Expected server HTML to contain a matching <circle> in <svg>` (lucide `Sun`/`Moon` no header do `PublicLayout`) seguido de `Hydration failed` repetido e `Switched to client rendering`.
+Causa: `useTheme` com `useState(() => initialTheme())` — SSR pinta `light`/`Moon`, cliente com `dark` salvo pintava `Sun`/label "Ativar modo claro" já no primeiro render; React descartava o SSR.
+Alterados `src/hooks/useTheme.ts` (estado inicial fixo `light`, preferência resolvida/aplicada em efeito único sem flash) e `src/hooks/useTheme.test.ts` (regressão: primeiro render `light` com `dark` salvo, converge para `dark`). `PROJECT_STATUS.md` e `DECISIONS.md` atualizados.
+Testes executados (resultado real):
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 29 arquivos/143 testes aprovados.
+- `npm run build`: aprovado (cliente + SSR + Vercel Build Output).
+- `node scripts/seo-smoke.mjs`: aprovado (catálogo, detalhe, `/devs`, 404, `robots.txt`, `llms.txt`, `sitemap.xml`, proxy `/api`, função Vercel standalone).
+Risco/pendência: conferir no navegador com `theme=dark` salvo (console sem erro de hidratação, ícone Sol, alternância/persistência); sem commit/push (aguardando confirmação do dono).
+## 2026-09-15 — Codex: CSS disponível antes do bundle React
+
+Sintoma: após recarregar `/devs`, o SSR aparecia por alguns segundos como HTML
+sem estilos e só depois recebia o layout visual.
+
+Causa raiz: as folhas de estilo eram imports de `src/main.tsx`; no dev, o Vite
+as injetava somente após o carregamento do módulo JavaScript.
+
+Alterações:
+
+- `index.html`: links antecipados para `src/styles/tailwind.css` e `src/styles/global.css`.
+- `src/main.tsx`: removidos imports CSS duplicados.
+
+Validação: `npm run typecheck`, `npm test` (29 arquivos, 143 testes) e `npm run build`
+aprovados. O HTML servido em desenvolvimento contém os stylesheets no `<head>` antes
+do bundle; o build gerou `dist/client/assets/index-*.css` normalmente.
+
+Pendente: conferir visualmente no navegador do dono após reload forçado, especialmente
+em conexão lenta.
+
+## 2026-09-15 — Codex: revisão final e correções preventivas
+
+Corrigidos dois pontos encontrados na revisão da página `/devs` e do cabeçalho:
+
+- `useTheme` agora preserva o tema resolvido quando o React StrictMode repete
+  efeitos de montagem; regressão coberta em StrictMode.
+- `http.ts` não emite `session-expired` para `Origem não autorizada.`; teste
+  confirma a mensagem específica sem logout por evento.
+
+Validação: typecheck, lint, suíte completa (29 arquivos, 143 testes), build e
+`git diff --check` aprovados. Avisos do Rollup sobre comentários `@__PURE__` do
+Zod permanecem preexistentes.

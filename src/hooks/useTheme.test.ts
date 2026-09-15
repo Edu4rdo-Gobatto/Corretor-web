@@ -1,4 +1,5 @@
-import { act, renderHook } from '@testing-library/react';
+import { createElement, StrictMode } from 'react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { themeStorageKey, useTheme } from './useTheme';
 
@@ -25,5 +26,22 @@ describe('useTheme', () => {
     window.localStorage.setItem(themeStorageKey, 'dark');
     const { result } = renderHook(() => useTheme());
     expect(result.current.theme).toBe('dark');
+  });
+
+  it('primeiro render é claro como no SSR, mesmo com tema salvo (hidratação)', async () => {
+    window.localStorage.setItem(themeStorageKey, 'dark');
+    const seen: string[] = [];
+    function Probe() {
+      const { theme } = useTheme();
+      seen.push(theme);
+      return null;
+    }
+    render(createElement(StrictMode, null, createElement(Probe)));
+    // O servidor sempre renderiza 'light'; o cliente precisa pintar o mesmo
+    // no primeiro render, senão o React descarta o HTML do SSR
+    // ("Expected server HTML to contain a matching <circle> in <svg>").
+    expect(seen[0]).toBe('light');
+    await waitFor(() => expect(seen.at(-1)).toBe('dark'));
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 });

@@ -368,3 +368,99 @@ Não fazer:
 
 - Não usar `fixed` (tira o header do fluxo e exige compensar altura no `main`).
 - Não controlar visibilidade com scroll em JS nesta etapa: o pedido é "nunca sumir".
+
+## 2026-09-15 — Refinos do /devs e do header mobile (Muse Spark)
+
+- Avatares do `/devs` vendored em `public/assets/dev-*.jpg` (cópia dos avatares
+  GitHub informados pelo dono), referenciados como `/assets/...` em `devs.ts`.
+  Motivo: hotlink quebra sem aviso, vaza `Referer` e depende de terceiro; local
+  sai no bundle do build e responde 200 pelo próprio domínio.
+- Links GitHub (`githubUrl` em `devs.ts`) ao lado do Instagram em cada card, com
+  `rel="me noopener noreferrer"` e `target=_blank`. Logins conferidos na API do
+  GitHub: `Edu4rdo-Gobatto` e `SHURIKA6`.
+- `h1` do `/devs` com `text-[clamp(32px,8vw,44px)]`: 44px no desktop, 32px em
+  320px. O `44px` fixo anterior estourava a largura mínima.
+- Backdrop do menu mobile (`z-[4]`) não cobre mais logo e controles do header:
+  ambos com `relative z-[6]`, acima do backdrop e do sheet (`z-[5]`). Antes, com
+  o menu aberto o alternador de tema era bloqueado (o clique caía no backdrop e
+  só fechava o menu).
+- `.container` é estilo sem camada (`global.css`); utility `max-w-[800px]` em
+  camada perde para ele, então `container max-w-[800px]` nunca limitou a 800px.
+  No `/devs`, `container` fica no `article` e a medida vai num `div` interno
+  (`mx-auto max-w-[800px]`). O `/privacidade` tem o mesmo padrão morto e fica
+  como pendência, fora deste escopo.
+
+Não fazer:
+
+- Não voltar a hotlink externo em página pública sem motivo e sem fallback.
+- Não combinar `container` com `max-w-*` no mesmo elemento esperando limite.
+
+## 2026-09-15 — Erro de sessão com mensagem conforme a causa (Muse Spark)
+Causa raiz do `POST /api/autenticacao/renovar 403` no preview: o `.env` local
+aponta `API_ORIGIN` à API de produção, cujo `ALLOWED_ORIGINS` não lista a
+origem do preview — a API responde `{"message":"Origem não autorizada."}` via
+`OrigemGuard` (comprovado por reprodução via proxy), antes de qualquer lógica
+de sessão. O front tratava todo 401/403 do renovar como "sessão expirou", o
+que era falso neste caso e derrubava o usuário ao login sem explicação.
+
+Decisão: `refreshAccess` (`http.ts`) mantém a limpeza (token + `session-expired`),
+mas quando o corpo é `Origem não autorizada.` a mensagem passa a ser "Esta origem
+não é autorizada pelo serviço. Confira o endereço da API e entre novamente."
+O 403 em si é comportamento correto da API e não há o que "corrigir" no proxy:
+remover o `Origin` no repasse contornaria a proteção CSRF do guard.
+
+Não fazer:
+
+- Não remover nem reescrever `Origin`/`Sec-Fetch-Site` no proxy `/api`.
+- Não adicionar origem `localhost`/`127.0.0.1` ao `ALLOWED_ORIGINS` de produção
+  para "fazer o preview funcionar": sessão de produção a partir de máquina local.
+- Não comparar a mensagem do guard por substring genérica: igualdade exata com
+  o contrato atual da API irmã.
+
+## 2026-09-15 — Tema com primeiro render igual ao SSR (Muse Spark)
+
+Causa raiz do `Hydration failed` (`Expected server HTML to contain a matching
+<circle> in <svg>` no `PublicLayout`): o SSR renderiza o tema `light` (ícone
+`Moon`, sem `<circle>`), mas o `useState(() => initialTheme())` lia
+`localStorage`/`prefers-color-scheme` já no primeiro render do cliente e
+pintava `Sun` (com `<circle>`) quando o usuário tinha `dark` salvo — o
+`aria-label` do botão divergia junto. O React descartava todo o HTML do SSR.
+
+Decisão: o estado inicial do `useTheme` é sempre `light`, idêntico ao servidor;
+a preferência salva é resolvida e aplicada num único efeito de mount, que nunca
+remove a classe `.dark` que o script anti-flash do `index.html` já aplicou.
+Leitura de `localStorage`/`matchMedia` e toque no DOM só em efeito, como já
+exigia a decisão de SSR próprio. Persistência (`localStorage "theme"` + `.dark`)
+e script anti-flash inalterados.
+
+Não fazer:
+
+- Não ler `localStorage`, `matchMedia` ou qualquer estado do navegador no
+  `useState` inicial (ou no corpo do render) de componente de rota pública.
+- Não "corrigir" com `suppressHydrationWarning` no botão de tema: mascara a
+  divergência e mantém o descarte do SSR.
+- Não separar em dois efeitos (sincroniza + aplica por `[theme]`): o aplica do
+  mount rodaria com `light` e apagaria o `.dark` do script anti-flash,
+  causando flash claro.
+## 2026-09-15 — Folhas de estilo declaradas no HTML
+
+Decisão: carregar `src/styles/tailwind.css` e `src/styles/global.css` por links
+no `index.html`, removendo os imports equivalentes de `src/main.tsx`.
+
+Motivo: o SSR entregava o conteúdo correto, mas o navegador pintava o HTML sem
+estilos até baixar e executar o bundle React que injetava o CSS. O Vite processa
+os links no desenvolvimento e os transforma em assets versionados no build.
+
+Não fazer:
+
+- Não voltar a carregar o CSS exclusivamente por imports JavaScript no entrypoint.
+
+## 2026-09-15 — Sessão e tema durante efeitos duplicados
+
+Decisão: uma resposta exata `Origem não autorizada.` limpa o token e retorna a
+mensagem específica, mas não emite o evento `session-expired`; esse evento fica
+reservado para expiração/rejeição real da sessão. O hook de tema preserva a
+preferência já resolvida quando o React StrictMode repete o efeito de montagem.
+
+Motivo: uma origem rejeitada não significa que a sessão expirou, e o replay do
+StrictMode não deve causar flash de tema claro nem logout visual indevido.

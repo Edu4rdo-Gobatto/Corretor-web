@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram } from 'lucide-react';
+import { Github, Instagram } from 'lucide-react';
 import { Seo } from '../../seo/context';
 import { devs, type Dev } from '../../config/devs';
 
@@ -24,7 +24,6 @@ function DevAvatar({ dev }: { dev: Dev }) {
       height={112}
       loading="lazy"
       decoding="async"
-      referrerPolicy="no-referrer"
       onError={() => setFailed(true)}
       className="mx-auto h-28 w-28 rounded-full border-2 border-gold object-cover"
     />
@@ -33,7 +32,8 @@ function DevAvatar({ dev }: { dev: Dev }) {
 
 export default function Devs() {
   return (
-    <article className="container max-w-[800px] pt-9 [&_h1]:text-[44px] [&_.eyebrow]:mt-[45px]">
+    <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_.eyebrow]:mt-[45px]">
+      <div className="mx-auto max-w-[800px]">
       <Seo />
       <Link to="/">← Voltar ao catálogo</Link>
       <p className="eyebrow">Quem fez</p>
@@ -48,18 +48,30 @@ export default function Devs() {
             <DevAvatar dev={dev} />
             <h2 className="mt-4 font-display text-xl text-brand">{dev.nome}</h2>
             <p className="mt-1 text-sm text-muted">{dev.papel}</p>
-            <a
-              href={dev.perfilUrl}
-              target="_blank"
-              rel="me noopener noreferrer"
-              aria-label={`Instagram de ${dev.nome}`}
-              className="mt-3 inline-flex min-h-11 items-center gap-2 text-brand underline underline-offset-4 hover:text-gold"
-            >
-              <Instagram size={18} aria-hidden="true" />@{dev.usuario}
-            </a>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+              <a
+                href={dev.perfilUrl}
+                target="_blank"
+                rel="me noopener noreferrer"
+                aria-label={`Instagram de ${dev.nome}`}
+                className="inline-flex min-h-11 items-center gap-2 text-brand underline underline-offset-4 hover:text-gold"
+              >
+                <Instagram size={18} aria-hidden="true" />@{dev.usuario}
+              </a>
+              <a
+                href={dev.githubUrl}
+                target="_blank"
+                rel="me noopener noreferrer"
+                aria-label={`GitHub de ${dev.nome}`}
+                className="inline-flex min-h-11 items-center gap-2 text-brand underline underline-offset-4 hover:text-gold"
+              >
+                <Github size={18} aria-hidden="true" />GitHub
+              </a>
+            </div>
           </li>
         ))}
       </ul>
+      </div>
     </article>
   );
 }

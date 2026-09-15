@@ -1,5 +1,17 @@
 # Estado atual — corretor-web
 
+## 2026-09-15 — CSS inicial antes da hidratação
+
+Corrigido o flash de HTML sem estilos no reload das páginas SSR, observado no `/devs`.
+O problema era que Tailwind e `global.css` só eram carregados como imports de
+`src/main.tsx`, depois que o bundle React começava a executar. Os stylesheets agora
+são declarados no `<head>` do `index.html`; o build de produção continua emitindo
+um CSS versionado pelo Vite.
+
+Correções finais da revisão: o tema foi protegido contra o replay de efeitos do
+React StrictMode e a rejeição de origem não dispara mais `session-expired`.
+Validação completa aprovada; publicação Git autorizada pelo dono.
+
 > Backend integral de 14/09/2026: ver registro ao final e `docs/handoffs/2026-09-14-backend-portugues.md`. A UI atual ainda depende do contrato anterior; não publicar a API nova isoladamente.
 
 Atualizado em: 2026-09-13
@@ -231,3 +243,18 @@ Implementado e validado: typecheck, lint, 29 arquivos/139 testes, build e seo-sm
 
 ## 2026-09-15 — Muse Spark: header público fixo concluído (sem commit)
 Link "Desenvolvedores" já existia no rodapé (confirmado no HTML servido); adicionada cobertura de teste para ele. Header do site público agora `sticky top-0 z-40`, sempre visível, só CSS, sem JS; painel admin inalterado. Validado: typecheck, lint, 29 arquivos/140 testes, build; preview em `127.0.0.1:4173` servindo o HTML com o header fixo. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador com rolagem: menu mobile, CTA do detalhe e ambos os temas.
+
+## 2026-09-15 — Muse Spark: commit e push `14aa53a` (página /devs + header fixo)
+Commit e push direto na `main` a pedido do dono: 15 arquivos (`/devs` completa + header sticky + cobertura + `seo-smoke` + contexto). Push `15b6071..14aa53a main -> main`, `.vscode/` fora do commit. Pendente conferir no navegador com rolagem: `/devs`, menu mobile, CTA do detalhe, ambos os temas.
+
+## 2026-09-15 — Muse Spark: refinamentos do /devs + header concluídos (sem commit)
+Pacote 1–5 aplicado e validado: avatares locais em `public/assets`, links GitHub nos cards, `h1` com `clamp(32px,8vw,44px)`, logo/controles com `z-[6]` acima do backdrop e `container` + `div` interno `max-w-[800px]`. Typecheck, lint, 29 arquivos/141 testes, build e seo-smoke aprovados; `/devs` 200 conferido no HTML servido (avatares locais, GitHub, sem hotlink, sticky, clamp, imagem 200). Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador `/devs` 320–390px e desktop nos dois temas.
+
+## 2026-09-15 — Muse Spark: privacidade + 403 do renovar concluídos (sem commit)
+`/privacidade` com `container` + `div` interno `max-w-[800px]` e `h1` com clamp (mesmo padrão do `/devs`, pendência anterior eliminada). 403 do renovar diagnosticado: preview contra a API de produção + origem fora do `ALLOWED_ORIGINS` (`OrigemGuard`, comprovado via proxy); front agora relata a causa com verdade em vez de "sessão expirou" (limpeza mantida). Typecheck, lint, 29 arquivos/142 testes, build e seo-smoke aprovados; `/privacidade` 200 conferido no HTML servido. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador `/privacidade` 320–390px e desktop nos dois temas; sessão no preview contra produção segue 403 por desenho.
+
+## 2026-09-15 — Muse Spark: 404 de assets no preview diagnosticado e resolvido
+Sintoma do dono: `GET /assets/index-DI-c97Mf.js 404` (+ css) na porta 4173, "dev não acha nada". Causa: preview antigo órfão (PID 85268, de sessão anterior de agente) servindo `index.html` antigo da memória com hashes de build anterior; cada `npm run build` apaga os hashes antigos do `dist`, daí o 404. O `dev` escuta na 5173 — aba presa na 4173 nunca veria o dev. Correção: processo antigo morto; preview novo na 4173 (`/` 200, js/css atuais 200) e `dev` na 5173 (`/` 200 com `<h1>`) conferidos e parados. Ação do dono: hard refresh (Ctrl+Shift+R) na aba da 4173 e usar a porta certa (dev 5173, preview 4173).
+
+## 2026-09-15 — Muse Spark: hidratação do tema corrigida (sem commit)
+Área assumida: `Hydration failed` + `Expected server HTML to contain a matching <circle> in <svg>` no `dev` (porta 5173). Causa no `useTheme`: o SSR sempre renderiza `light` (sem `window`), mas o primeiro render do cliente lia `localStorage`/`prefers-color-scheme` no `useState` e pintava `Sun` (com `<circle>`) contra a `Moon` do servidor — mesma divergência no `aria-label`. O React descartava o HTML do SSR e caía para renderização só no cliente. Fix: estado inicial sempre `light` (igual ao servidor), preferência salva aplicada em efeito único que não remove a classe `.dark` do script anti-flash no primeiro mount; persistência e `localStorage "theme"` + `.dark` inalterados. Teste de regressão em `useTheme.test.ts` (primeiro render `light` com `dark` salvo). Validado: typecheck, lint, 29 arquivos/143 testes, build e seo-smoke aprovados. Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador com `theme=dark` salvo: sem erro de hidratação no console, ícone Sol após carregar, alternância e persistência nos dois temas.

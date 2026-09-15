@@ -47,5 +47,16 @@ describe('menu móvel público', () => {
     const devs = screen.getByRole('link', { name: 'Desenvolvedores' });
     expect(devs).toHaveAttribute('href', '/devs');
   });
+
+  it('mantém logo e controles acima do backdrop do menu mobile', () => {
+    render(<MemoryRouter><PublicLayout /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    const backdrop = screen.getAllByRole('button', { name: 'Fechar menu' }).find((b) => b.className.includes('fixed'))!;
+    expect(backdrop.className).toContain('z-[4]');
+    const logo = screen.getByRole('link', { name: /— início$/ });
+    expect(logo.className).toContain('z-[6]');
+    const themeToggle = screen.getByRole('button', { name: 'Ativar modo escuro' });
+    expect(themeToggle.parentElement!.className).toContain('z-[6]');
+  });
 });
 

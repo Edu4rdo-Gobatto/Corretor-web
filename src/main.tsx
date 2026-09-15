@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import AppErrorBoundary from './components/AppErrorBoundary';
-import './styles/tailwind.css';
-import './styles/global.css';
 import { BootstrapContext } from './seo/context';
 import { defaultConfig, type Bootstrap } from './seo/metadata';
 const element = document.getElementById('seo-bootstrap');
