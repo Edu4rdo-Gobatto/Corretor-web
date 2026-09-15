@@ -34,20 +34,24 @@ test('navegação do cartão leva ao detalhe e deep-link abre direto', async ({
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Sala E2E catálogo');
-  const property = await createProperty(session.token, titulo);
+  let propertyId: string | null = null;
+  let slug = '';
   try {
+    const property = await createProperty(session.token, titulo);
+    propertyId = property.id;
+    slug = property.slug;
     await page.goto('/');
     const card = page.getByRole('link', { name: new RegExp(titulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) }).first();
     await expect(card).toBeVisible({ timeout: 20000 });
     await card.click();
-    await expect(page).toHaveURL(new RegExp(`/imoveis/${property.slug}`));
+    await expect(page).toHaveURL(new RegExp(`/imoveis/${slug}`));
     await expect(page.locator('h1').first()).toContainText(titulo);
 
     // Acesso direto à URL (SSR + hidratação).
-    await page.goto(`/imoveis/${property.slug}`);
+    await page.goto(`/imoveis/${slug}`);
     await expect(page.locator('h1').first()).toContainText(titulo);
   } finally {
-    await deleteProperty(session.token, property.id);
+    if (propertyId) await deleteProperty(session.token, propertyId);
   }
 });
 

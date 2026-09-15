@@ -5,6 +5,8 @@ import {
   createCommission,
   createManualClient,
   createProperty,
+  deactivateCommission,
+  deleteLead,
   deleteProperty,
   get,
   login,
@@ -18,24 +20,30 @@ test('baixa exige confirmação e referência do comprovante', async ({ page, ba
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed não executado');
   const session = await login(credentials!);
   const marca = e2eName('COM-E2E');
-  const property = await createProperty(session.token, e2eName('Casa E2E comissão'));
+  let propertyId: string | null = null;
+  let clientId: string | null = null;
+  let commissionId: string | null = null;
+  let parcelaId = '';
   try {
-    const client = await createManualClient(session.token, e2eName('Cliente Comissão'));
+    propertyId = (await createProperty(session.token, e2eName('Casa E2E comissão'))).id;
+    clientId = (await createManualClient(session.token, e2eName('Cliente Comissão'))).id;
     const commission = await createCommission(session.token, {
-      imovelId: property.id,
-      clienteId: client.id,
+      imovelId: propertyId,
+      clienteId: clientId,
       observacoes: marca,
     });
+    commissionId = commission.id;
+    parcelaId = commission.parcelaId;
 
     // API exige os dois campos: sem confirmação ou referência curta → 400.
     const semConfirmacao = await patch(
-      `/admin/comissoes/parcelas/${commission.parcelaId}/pagamento`,
+      `/admin/comissoes/parcelas/${parcelaId}/pagamento`,
       session.token,
       { confirmar_pagamento: false, observacao_pagamento: 'PIX comprovante E2E 123' },
     );
     expect(semConfirmacao.status).toBe(400);
     const refCurta = await patch(
-      `/admin/comissoes/parcelas/${commission.parcelaId}/pagamento`,
+      `/admin/comissoes/parcelas/${parcelaId}/pagamento`,
       session.token,
       { confirmar_pagamento: true, observacao_pagamento: 'abc' },
     );
@@ -66,14 +74,17 @@ test('baixa exige confirmação e referência do comprovante', async ({ page, ba
 
     // Repetir a mesma baixa é idempotente (200, sem duplicar).
     const repetida = await patch(
-      `/admin/comissoes/parcelas/${commission.parcelaId}/pagamento`,
+      `/admin/comissoes/parcelas/${parcelaId}/pagamento`,
       session.token,
       { confirmar_pagamento: true, observacao_pagamento: 'PIX comprovante E2E 123' },
     );
     expect(repetida.status).toBe(200);
-    const { data } = await get(`/admin/comissoes/${commission.id}`, session.token);
+    const { data } = await get(`/admin/comissoes/${commissionId}`, session.token);
     expect((data as { parcelas: { status: string }[] }).parcelas.filter((p) => p.status === 'PAGO')).toHaveLength(1);
   } finally {
-    await deleteProperty(session.token, property.id);
+    // Limpeza completa (soft-delete, FK-safe): comissão → imóvel → cliente.
+    if (commissionId) await deactivateCommission(session.token, commissionId);
+    if (propertyId) await deleteProperty(session.token, propertyId);
+    if (clientId) await deleteLead(session.token, clientId);
   }
 });

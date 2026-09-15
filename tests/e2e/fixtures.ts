@@ -6,8 +6,10 @@
 import { test as base, expect, type Page } from '@playwright/test';
 import {
   adminCredentials,
+  assertSafeTarget,
   backendReachable,
   corretorCredentials,
+  isTestStack,
   type TestCredentials,
 } from './helpers/env';
 
@@ -16,6 +18,8 @@ export { expect };
 export const test = base.extend<{ backend: boolean }>({
   // eslint-disable-next-line no-empty-pattern
   backend: async ({}, use) => {
+    // Trava fora do try: alvo não-local falha alto, nunca vira skip silencioso.
+    assertSafeTarget();
     await use(await backendReachable());
   },
 });
@@ -23,7 +27,11 @@ export const test = base.extend<{ backend: boolean }>({
 export function requireBackend(backend: boolean) {
   test.skip(
     !backend,
-    'backend inacessível em /api/saude — suba API + SSR (ver tests/e2e/README.md)',
+    'backend inacessível em /api/saude — suba API + SSR de teste (ver tests/e2e/README.md)',
+  );
+  test.skip(
+    !isTestStack(),
+    'stack de teste não declarado — aponte API+SSR ao banco de teste e defina E2E_STACK=teste (nunca produção)',
   );
 }
 

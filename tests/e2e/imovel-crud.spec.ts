@@ -27,25 +27,30 @@ test('cadastra imóvel e persiste após recarregar', async ({ page, backend }) =
   requireBackend(backend);
   const credentials = requireAdminCredentials();
   const titulo = e2eName('Sala E2E CRUD');
-  await loginViaUi(page, credentials.email, credentials.senha);
-
-  await page.goto('/admin/imoveis/novo');
-  await page.getByLabel('Título do anúncio *').fill(titulo);
-  await fillRequiredFields(page);
-  await page.getByRole('button', { name: 'Salvar imóvel' }).click();
-  await expect(page.getByRole('status')).toBeVisible({ timeout: 30000 });
-
-  await page.goto('/admin/imoveis');
-  await expect(page.getByText(titulo).first()).toBeVisible({ timeout: 20000 });
-
-  // Recarrega: o registro precisa continuar lá (persistência real).
-  await page.reload();
-  await expect(page.getByText(titulo).first()).toBeVisible({ timeout: 20000 });
-
   const session = await login(credentials);
-  const found = await findPropertyByTitle(session.token, titulo);
-  expect(found).not.toBeNull();
-  await deleteProperty(session.token, found!.id);
+  let propertyId: string | null = null;
+  try {
+    await loginViaUi(page, credentials.email, credentials.senha);
+
+    await page.goto('/admin/imoveis/novo');
+    await page.getByLabel('Título do anúncio *').fill(titulo);
+    await fillRequiredFields(page);
+    await page.getByRole('button', { name: 'Salvar imóvel' }).click();
+    await expect(page.getByRole('status')).toBeVisible({ timeout: 30000 });
+
+    const created = await findPropertyByTitle(session.token, titulo);
+    expect(created).not.toBeNull();
+    propertyId = created!.id;
+
+    await page.goto('/admin/imoveis');
+    await expect(page.getByText(titulo).first()).toBeVisible({ timeout: 20000 });
+
+    // Recarrega: o registro precisa continuar lá (persistência real).
+    await page.reload();
+    await expect(page.getByText(titulo).first()).toBeVisible({ timeout: 20000 });
+  } finally {
+    if (propertyId) await deleteProperty(session.token, propertyId);
+  }
 });
 
 test('edição altera o título com sucesso', async ({ page, backend }) => {
@@ -54,20 +59,18 @@ test('edição altera o título com sucesso', async ({ page, backend }) => {
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Loja E2E editar');
-  const created = await createProperty(session.token, titulo);
   const novoTitulo = e2eName('Loja E2E editada');
+  let propertyId: string | null = null;
   try {
+    propertyId = (await createProperty(session.token, titulo)).id;
     await loginViaUi(page, credentials!.email, credentials!.senha);
-    await page.goto(`/admin/imoveis/${created.id}/editar`);
+    await page.goto(`/admin/imoveis/${propertyId}/editar`);
     await page.getByLabel('Título do anúncio *').fill(novoTitulo);
     await page.getByRole('button', { name: 'Salvar imóvel' }).click();
     await expect(page.getByRole('status')).toBeVisible({ timeout: 30000 });
     const found = await findPropertyByTitle(session.token, novoTitulo);
     expect(found).not.toBeNull();
   } finally {
-    const current =
-      (await findPropertyByTitle(session.token, novoTitulo)) ??
-      (await findPropertyByTitle(session.token, titulo));
-    if (current) await deleteProperty(session.token, current.id);
+    if (propertyId) await deleteProperty(session.token, propertyId);
   }
 });

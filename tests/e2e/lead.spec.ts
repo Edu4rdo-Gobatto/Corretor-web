@@ -17,9 +17,13 @@ test('sem consentimento o envio é barrado com erro visível', async ({ page, ba
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Loja E2E lead');
-  const property = await createProperty(session.token, titulo);
+  let propertyId: string | null = null;
+  let slug = '';
   try {
-    await page.goto(`/imoveis/${property.slug}`);
+    const property = await createProperty(session.token, titulo);
+    propertyId = property.id;
+    slug = property.slug;
+    await page.goto(`/imoveis/${slug}`);
     await page.getByRole('button', { name: 'Falar com corretor' }).first().click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
@@ -28,7 +32,7 @@ test('sem consentimento o envio é barrado com erro visível', async ({ page, ba
     await dialog.getByRole('button', { name: 'Falar com corretor' }).click();
     await expect(dialog.getByText('Autorize o contato para continuar.')).toBeVisible();
   } finally {
-    await deleteProperty(session.token, property.id);
+    if (propertyId) await deleteProperty(session.token, propertyId);
   }
 });
 
@@ -39,9 +43,13 @@ test('com consentimento registra e persiste o contato', async ({ page, backend }
   const session = await login(credentials!);
   const titulo = e2eName('Galpão E2E lead');
   const nomeLead = e2eName('Visitante Lead');
-  const property = await createProperty(session.token, titulo);
+  let propertyId: string | null = null;
+  let slug = '';
   try {
-    await page.goto(`/imoveis/${property.slug}`);
+    const property = await createProperty(session.token, titulo);
+    propertyId = property.id;
+    slug = property.slug;
+    await page.goto(`/imoveis/${slug}`);
     // Evita abrir aba externa no teste; o registro via API segue real.
     await page.evaluate(() => {
       window.open = () => null;
@@ -54,11 +62,11 @@ test('com consentimento registra e persiste o contato', async ({ page, backend }
     await dialog.getByRole('button', { name: 'Falar com corretor' }).click();
     await expect(dialog.getByText('Obrigado pelo seu interesse.')).toBeVisible({ timeout: 20000 });
 
-    // Persistência confirmada no backend real.
+    // Persistência confirmada no backend real (lead removido em seguida).
     const lead = await findLeadByName(session.token, nomeLead);
     expect(lead).not.toBeNull();
     await deleteLead(session.token, lead!.id);
   } finally {
-    await deleteProperty(session.token, property.id);
+    if (propertyId) await deleteProperty(session.token, propertyId);
   }
 });

@@ -5,9 +5,11 @@
 // declara integração validada).
 import { test, expect, loginViaUi, requireBackend } from './fixtures';
 import {
+  archiveContrato,
   createContrato,
   createParte,
   createProperty,
+  deleteParte,
   deleteProperty,
   getContrato,
   login,
@@ -20,16 +22,22 @@ test('falha do Drive preserva o contrato com estado explícito', async ({ backen
   const credentials = adminCredentials();
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed não executado');
   const session = await login(credentials!);
-  const property = await createProperty(session.token, e2eName('Sala E2E contrato'));
+  // IDs opcionais: se o seed falhar no meio, o finally limpa o parcial.
+  let propertyId: string | null = null;
+  let locadorId: string | null = null;
+  let locatarioId: string | null = null;
+  let contratoId: string | null = null;
   try {
-    const locador = await createParte(session.token, 'LOCADOR', e2eName('Locador E2E'));
-    const locatario = await createParte(session.token, 'LOCATARIO', e2eName('Locatário E2E'));
+    propertyId = (await createProperty(session.token, e2eName('Sala E2E contrato'))).id;
+    locadorId = (await createParte(session.token, 'LOCADOR', e2eName('Locador E2E'))).id;
+    locatarioId = (await createParte(session.token, 'LOCATARIO', e2eName('Locatário E2E'))).id;
     const contrato = await createContrato(session.token, {
       numero: e2eName('CTR-E2E'),
-      imovelId: property.id,
-      locadorId: locador.id,
-      locatarioId: locatario.id,
+      imovelId: propertyId,
+      locadorId,
+      locatarioId,
     });
+    contratoId = contrato.id;
     // Sem Drive configurado, a integração falha sem derrubar o contrato.
     expect(contrato.status_pasta_drive).toBe('FALHOU');
     const lido = await getContrato(session.token, contrato.id);
@@ -39,7 +47,11 @@ test('falha do Drive preserva o contrato com estado explícito', async ({ backen
     const retentativa = await retryContratoDrive(session.token, contrato.id);
     expect(retentativa.status_pasta_drive).toBe('FALHOU');
   } finally {
-    await deleteProperty(session.token, property.id);
+    // Limpeza completa (soft-delete, FK-safe): contrato → imóvel → partes.
+    if (contratoId) await archiveContrato(session.token, contratoId);
+    if (propertyId) await deleteProperty(session.token, propertyId);
+    if (locadorId) await deleteParte(session.token, locadorId);
+    if (locatarioId) await deleteParte(session.token, locatarioId);
   }
 });
 
@@ -48,18 +60,24 @@ test('painel exibe o estado da pasta e oferece nova tentativa', async ({ page, b
   const credentials = adminCredentials();
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed não executado');
   const session = await login(credentials!);
-  const property = await createProperty(session.token, e2eName('Loja E2E contrato UI'));
+  let propertyId: string | null = null;
+  let locadorId: string | null = null;
+  let locatarioId: string | null = null;
+  let contratoId: string | null = null;
   try {
-    const locador = await createParte(session.token, 'LOCADOR', e2eName('Locador UI'));
-    const locatario = await createParte(session.token, 'LOCATARIO', e2eName('Locatário UI'));
-    const contrato = await createContrato(session.token, {
-      numero: e2eName('CTR-UI'),
-      imovelId: property.id,
-      locadorId: locador.id,
-      locatarioId: locatario.id,
-    });
+    propertyId = (await createProperty(session.token, e2eName('Loja E2E contrato UI'))).id;
+    locadorId = (await createParte(session.token, 'LOCADOR', e2eName('Locador UI'))).id;
+    locatarioId = (await createParte(session.token, 'LOCATARIO', e2eName('Locatário UI'))).id;
+    contratoId = (
+      await createContrato(session.token, {
+        numero: e2eName('CTR-UI'),
+        imovelId: propertyId,
+        locadorId,
+        locatarioId,
+      })
+    ).id;
     await loginViaUi(page, credentials!.email, credentials!.senha);
-    await page.goto(`/admin/contratos/${contrato.id}`);
+    await page.goto(`/admin/contratos/${contratoId}`);
     await expect(
       page.getByText('O contrato foi salvo. A criação ou atualização da pasta não foi concluída.'),
     ).toBeVisible({ timeout: 20000 });
@@ -67,6 +85,9 @@ test('painel exibe o estado da pasta e oferece nova tentativa', async ({ page, b
       page.getByRole('button', { name: 'Tentar preparar pasta novamente' }),
     ).toBeVisible();
   } finally {
-    await deleteProperty(session.token, property.id);
+    if (contratoId) await archiveContrato(session.token, contratoId);
+    if (propertyId) await deleteProperty(session.token, propertyId);
+    if (locadorId) await deleteParte(session.token, locadorId);
+    if (locatarioId) await deleteParte(session.token, locatarioId);
   }
 });

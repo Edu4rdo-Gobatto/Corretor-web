@@ -1,8 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
+import { assertSafeTarget } from './tests/e2e/helpers/env';
 
 // Servidor SSR real (dev ou preview) com proxy /api. Suba com `npm run preview`
 // em outro terminal, ou defina E2E_WEB_SERVER=1 para subir automaticamente.
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4173';
+
+// Trava no carregamento: vale para todos os testes, inclusive os que não usam
+// a fixture `backend`. Alvo fora de localhost/allowlist aborta a suíte inteira.
+assertSafeTarget();
 
 export default defineConfig({
   testDir: './tests/e2e',

@@ -1,6 +1,6 @@
 // Chamadas diretas à API (pelo proxy /api do SSR) para seed, assertions de
 // persistência e limpeza. Usam backend e banco reais de teste — sem mocks.
-import { apiUrl, assertSafeE2ETarget, type TestCredentials } from './env';
+import { apiUrl, assertSafeTarget, type TestCredentials } from './env';
 
 const origin = () =>
   process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4173';
@@ -11,7 +11,7 @@ async function call(
   method: string,
   body?: unknown,
 ): Promise<{ status: number; data: unknown; setCookie: string }> {
-  if (method !== 'GET') assertSafeE2ETarget();
+  if (method !== 'GET') assertSafeTarget();
   const response = await fetch(apiUrl(path), {
     method,
     headers: {
@@ -104,8 +104,15 @@ export async function createProperty(token: string, titulo: string): Promise<See
   return { id: property.id, slug: property.slug, titulo: property.titulo };
 }
 
+function assertOk(action: string, status: number, data: unknown) {
+  if (status < 200 || status >= 300) {
+    throw new Error(`${action} falhou: status ${status} ${JSON.stringify(data)}`);
+  }
+}
+
 export async function deleteProperty(token: string, id: string): Promise<void> {
-  await del(`/admin/imoveis/${id}`, token);
+  const { status, data } = await del(`/admin/imoveis/${id}`, token);
+  assertOk('exclusão do imóvel', status, data);
 }
 
 export async function findPropertyByTitle(
@@ -127,7 +134,23 @@ export async function findLeadByName(
 }
 
 export async function deleteLead(token: string, id: string): Promise<void> {
-  await del(`/admin/clientes/${id}`, token);
+  const { status, data } = await del(`/admin/clientes/${id}`, token);
+  assertOk('exclusão do cliente', status, data);
+}
+
+export async function deleteParte(token: string, id: string): Promise<void> {
+  const { status, data } = await del(`/admin/partes-locacao/${id}`, token);
+  assertOk('exclusão da parte', status, data);
+}
+
+export async function archiveContrato(token: string, id: string): Promise<void> {
+  const { status, data } = await del(`/admin/contratos/${id}`, token);
+  assertOk('arquivamento do contrato', status, data);
+}
+
+export async function deactivateCommission(token: string, id: string): Promise<void> {
+  const { status, data } = await del(`/admin/comissoes/${id}`, token);
+  assertOk('desativação da comissão', status, data);
 }
 
 export async function createManualClient(token: string, nome: string): Promise<{ id: string }> {

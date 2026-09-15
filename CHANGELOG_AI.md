@@ -1,5 +1,52 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-15 — Codex: rigor do E2E (revisão do dono)
+
+Seis correções pedidas, todas aplicadas no front, sem commit/push/deploy:
+
+- `src/services/http.test.ts`: teste de expiração agora parte de token preenchido
+  (`stale-token`) e cobra a limpeza da aplicação — sem `setAccessToken(null)` manual.
+- `tests/e2e/seo-ssr.spec.ts`: catálogo comprovado no HTML bruto (`<h1>` + marcador
+  `<!--app-html-->` substituído) e em contexto com JavaScript desabilitado.
+- `tests/e2e/midia.spec.ts`: `naturalWidth > 0` na ficha e no detalhe público,
+  mais persistência via API (1 mídia, `capa: true`, URL pública).
+- `tests/e2e/mobile-acess.spec.ts`: tema compara valor salvo x classe `.dark` após
+  reload; teclado usa só Tab/Enter (foco inicial + ordem do menu).
+- `tests/e2e/helpers/env.ts`: `NODE_TLS_REJECT_UNAUTHORIZED=0` só no processo de
+  teste para o cert autoassinado (nunca no app).
+- Trava anti-produção (config + fixture) e `E2E_STACK=teste`: base não-local aborta
+  a suíte no carregamento (comprovado contra URL remota); teste com backend sem
+  stack declarado pula. Limpeza completa com status verificado (contrato → comissão
+  → imóvel → partes → cliente). README com provisionamento sem editar `.env`.
+
+Achado de ambiente (importante): o `.env` deste checkout aponta `API_ORIGIN` à API
+de produção e o banco local é o principal (`corretor-db`). Leituras do E2E/SSR
+atingiram produção (catálogo, saúde, 1 login inválido); nenhuma escrita ocorreu
+(todos os testes com escrita pularam por falta de cred/stack). Servidores da sessão
+parados. Regra registrada em DECISIONS.md.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 28 arquivos, 136 testes aprovados.
+- `npx playwright test`: 37 testes em 11 arquivos — 15 aprovados, 22 não executados
+  (stack de teste + `E2E_ADMIN_*`/`E2E_CORRETOR_*` pendentes), 0 falhas.
+
+Pendente do dono: banco de teste provisionado (`E2E_STACK=teste`), credenciais de
+teste, HTTPS local e homologação real do Drive para os 22.
+
+## 2026-09-15 — Codex: limpeza parcial no seed + allowlist de domínio
+
+- Seed dentro do `try` com IDs opcionais em comissão, contrato (2 testes), lead
+  (2), mídia (2), CRUD (2) e catálogo: falha entre criações limpa o que já foi
+  criado; `finally` com guardas `if (id)` em ordem FK-safe.
+- `E2E_ALLOW_REMOTE`/`E2E_ALLOW_EXTERNAL` e `assertSafeE2ETarget` removidos e
+  unificados em `alvoE2ELiberado`/`assertSafeTarget` com `E2E_DOMINIOS_PERMITIDOS`;
+  `playwright.config.ts` importa a trava (sem lógica duplicada). Comprovado:
+  domínio remoto não listado aborta no carregamento; listado, carrega (37 testes).
+- Validação: typecheck, lint, Vitest 28/136, Playwright 37 testes — 15 aprovados,
+  22 não executados (stack + credenciais), 0 falhas. Preview parado. Sem commit.
+
 ## 2026-09-14 — Codex: estratégia de testes com Playwright + Vitest
 
 Pedido do dono: testes ponta a ponta com Playwright cobrindo fluxos críticos, sem só planejar.

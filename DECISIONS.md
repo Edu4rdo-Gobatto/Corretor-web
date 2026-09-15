@@ -313,3 +313,26 @@ Não fazer:
   a sessão pós-reload cai para o login — o teste confirma esse comportamento real.
 - Não declarar R2/Drive validados com mocks: falha do Drive é `FALHOU` explícito;
   homologação no Workspace é etapa externa separada.
+
+## 2026-09-15 — Trava anti-produção e stack de teste declarado (Codex)
+
+Revisão do dono mostrou que o `.env` local aponta `API_ORIGIN` à API de produção
+e o banco local é o principal: leituras do E2E caíram em produção. Regra nova:
+
+- `E2E_BASE_URL` fora de localhost aborta a suíte no carregamento do config (vale
+  para todos os testes); remoto só com o domínio em `E2E_DOMINIOS_PERMITIDOS`.
+  Bypass genérico (`E2E_ALLOW_REMOTE`/`E2E_ALLOW_EXTERNAL`) foi removido: alguém
+  poderia liberar produção manualmente.
+- Teste com backend exige `E2E_STACK=teste`, declarado só após subir API local
+  com o banco de teste (via `DATABASE_URL` de homologação, sem editar `.env`)
+  e SSR com `API_ORIGIN=http://localhost:3000`. Sem isso, pula — nunca executa.
+- Limpeza completa via API com status verificado (contrato → comissão → imóvel →
+  partes → cliente, soft-delete FK-safe); falha na limpeza falha o teste.
+- `NODE_TLS_REJECT_UNAUTHORIZED=0` só no processo de teste (cert autoassinado);
+  nunca no app.
+
+Não fazer:
+
+- Não rodar E2E com backend sem `E2E_STACK=teste`, mesmo para "só leitura".
+- Não imprimir `DATABASE_URL` em log/comando: host e banco se conferem sem a
+  credencial (verificação com URL mascarada).

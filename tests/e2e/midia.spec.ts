@@ -32,10 +32,14 @@ test('upload de imagem persiste, carrega e vira capa pública', async ({ page, b
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Terreno E2E mídia');
-  const property = await createProperty(session.token, titulo);
+  let propertyId: string | null = null;
+  let slug = '';
   try {
+    const property = await createProperty(session.token, titulo);
+    propertyId = property.id;
+    slug = property.slug;
     await loginViaUi(page, credentials!.email, credentials!.senha);
-    await page.goto(`/admin/imoveis/${property.id}/editar`);
+    await page.goto(`/admin/imoveis/${propertyId}/editar`);
     const midias = page.getByRole('heading', { name: '05. Fotos e vídeos' }).locator('..');
     await expect(midias).toBeVisible();
     await page.getByLabel(/Adicionar fotos ou vídeos/).setInputFiles({
@@ -47,18 +51,18 @@ test('upload de imagem persiste, carrega e vira capa pública', async ({ page, b
     await expect(midias.getByText('Capa').first()).toBeVisible();
 
     // Persistência confirmada no backend real: 1 mídia, marcada como capa.
-    const { data } = await get(`/admin/imoveis/${property.id}`, session.token);
+    const { data } = await get(`/admin/imoveis/${propertyId}`, session.token);
     const persisted = (data as { midias: { id: string; capa: boolean; url: string }[] }).midias;
     expect(persisted).toHaveLength(1);
     expect(persisted[0].capa).toBe(true);
     expect(persisted[0].url).toMatch(/^https?:\/\//);
 
     // Apresentação pública: detalhe com título e capa carregada.
-    await page.goto(`/imoveis/${property.slug}`);
+    await page.goto(`/imoveis/${slug}`);
     await expect(page.locator('h1').first()).toContainText(titulo);
     await assertImageLoaded(page.getByRole('img').first());
   } finally {
-    await deleteProperty(session.token, property.id);
+    if (propertyId) await deleteProperty(session.token, propertyId);
   }
 });
 
@@ -68,16 +72,17 @@ test('embed de vídeo inválido é recusado com alerta', async ({ page, backend 
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Prédio E2E vídeo');
-  const property = await createProperty(session.token, titulo);
+  let propertyId: string | null = null;
   try {
+    propertyId = (await createProperty(session.token, titulo)).id;
     await loginViaUi(page, credentials!.email, credentials!.senha);
-    await page.goto(`/admin/imoveis/${property.id}/editar`);
+    await page.goto(`/admin/imoveis/${propertyId}/editar`);
     await page.getByLabel('Link do YouTube ou Vimeo').fill('https://example.test/video');
     await page.getByRole('button', { name: 'Adicionar vídeo' }).click();
     await expect(page.getByRole('alert')).toBeVisible({ timeout: 20000 });
-    const { data } = await get(`/admin/imoveis/${property.id}`, session.token);
+    const { data } = await get(`/admin/imoveis/${propertyId}`, session.token);
     expect((data as { midias: unknown[] }).midias).toHaveLength(0);
   } finally {
-    await deleteProperty(session.token, property.id);
+    if (propertyId) await deleteProperty(session.token, propertyId);
   }
 });

@@ -19,7 +19,7 @@ test('menu mobile abre, navega e fecha com Escape', async ({ page }) => {
   await expect(nav.getByRole('link', { name: 'Alugar' })).toBeHidden();
 });
 
-test('menu mobile permite navegar só com o teclado', async ({ page }) => {
+test('menu mobile permite navegar só com Tab e Enter', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Abrir menu' }).click();
   const nav = page.getByRole('navigation', { name: 'Principal' });
@@ -32,7 +32,7 @@ test('menu mobile permite navegar só com o teclado', async ({ page }) => {
   await expect(page).toHaveURL(/\/imoveis\/para-comprar/);
 });
 
-test('alternância de tema por teclado persiste a escolha', async ({ page }) => {
+test('alternância de tema persiste escolha após recarregar', async ({ page }) => {
   await page.goto('/');
   const toggle = page.getByRole('button', { name: /Ativar modo (claro|escuro)/ });
   await expect(toggle).toBeVisible();
@@ -42,7 +42,15 @@ test('alternância de tema por teclado persiste a escolha', async ({ page }) => 
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('theme')), { timeout: 10000 })
     .not.toBe(before);
+  const saved = await page.evaluate(() => localStorage.getItem('theme'));
+  expect(['light', 'dark']).toContain(saved);
   await page.reload();
-  await expect(page.getByRole('button', { name: /Ativar modo (claro|escuro)/ })).toBeVisible();
-  await expect(page.locator('html')).toHaveClass(/dark/);
+  // Escolha preservada: mesmo valor no storage e classe aplicada no documento.
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('theme')), { timeout: 10000 })
+    .toBe(saved);
+  const darkApplied = await page.evaluate(() =>
+    document.documentElement.classList.contains('dark'),
+  );
+  expect(darkApplied).toBe(saved === 'dark');
 });
