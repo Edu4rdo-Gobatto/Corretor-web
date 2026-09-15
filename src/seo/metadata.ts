@@ -38,6 +38,7 @@ export function buildSeo(path: string, config: SeoConfig, data: PublicData = {},
   if (catalog && query.page > 1) title = `${title} — Página ${query.page}`;
   if (catalog && data.catalog && config.siteUrl) graph.push({ '@type': 'ItemList', itemListElement: data.catalog.items.map((p, index) => ({ '@type': 'ListItem', position: (query.page - 1) * query.limit + index + 1, name: p.title, url: absolute(propertyUrl(p.slug), config) })) });
   if (url.pathname === '/privacidade') { title = `Política de privacidade | ${brand.name}`; description = `Saiba como ${brand.privacy.controller || brand.name} utiliza os dados fornecidos para atendimento sobre imóveis comerciais.`; }
+  if (url.pathname === '/devs') { title = `Desenvolvedores | ${brand.name}`; description = 'Conheça Eduardo Gobatto (@e.gobatto) e Fernando Riad (@_riad777), responsáveis pelo front-end e back-end deste site.'; }
   const p = data.property;
   if (p) {
     const purpose = p.purpose === 'LOCACAO' ? 'para alugar' : p.purpose === 'VENDA' ? 'à venda' : p.purposeName || '';

@@ -1,5 +1,46 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-15 — Muse Spark: header público fixo + cobertura do rodapé
+
+Pedido do dono: link de desenvolvedores no rodapé e header persistente no topo.
+
+Alterações em código (front apenas, sem commit/push):
+
+- `src/components/PublicLayout.tsx`: header público com `sticky top-0 z-40` (sempre visível, só CSS, sem JS; menu mobile, backdrop e filete gold preservados; painel admin inalterado). O link "Desenvolvedores" no rodapé já existia da entrega `/devs` — confirmado no HTML servido, sem mudança visual.
+- `src/components/PublicLayout.test.tsx`: novo teste — header contém `sticky` + `top-0` e link "Desenvolvedores" aponta para `/devs`.
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 29 arquivos, 140 testes aprovados (era 29/139; ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- Preview em `127.0.0.1:4173` reiniciado com o novo build: `/devs` 200 com `<header class="sticky top-0 z-40 ...">` e `<h1>Desenvolvedores</h1>` conferidos no HTML servido.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); conferir no navegador com rolagem real (catálogo, detalhe, `/devs`, 390px + desktop, claro/escuro): header sempre visível, menu mobile abrindo abaixo dele, CTA sticky do detalhe passando por baixo sem cobrir nada.
+
+## 2026-09-15 — Muse Spark: página /devs com fotos, nomes e @s
+
+Pedido do dono: caminho `/devs` com as duas fotos (avatares GitHub), nomes e @s do Instagram.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novos `src/config/devs.ts` (Eduardo Gobatto @e.gobatto + Fernando Riad @_riad777, papel "Front-end e back-end" para os dois) e `src/pages/public/Devs.tsx` (cards com foto 112px, fallback para inicial, links Instagram em nova aba) + `Devs.test.tsx` (1 teste).
+- `src/services/urls.ts`: `routes.devs`, `/devs` em `normalizedUrl`; `src/App.tsx`: rota `devs` no `PublicLayout`; `src/components/PublicLayout.tsx`: link "Desenvolvedores" só no rodapé.
+- `src/seo/server.tsx`: `/devs` estática sem fetch, no `sitemap.xml` e no `llms.txt`; `src/seo/metadata.ts`: título `Desenvolvedores | Lucas Gobatto` + descrição com os dois @s, canonical `/devs`, `index,follow` pela regra geral.
+- Testes: `server.test.ts` (sitemap 4→5 URLs, novo teste `/devs` 200 sem fetch + canonical + robots, `llms.txt` com `/devs`), `urls.test.ts` (`/devs` conhecida), `scripts/seo-smoke.mjs` (assert `/devs` com `<h1>`).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado.
+- `npm test`: 29 arquivos, 139 testes aprovados (era 28/136; ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado (inclui `/devs` 200 com `<h1>Desenvolvedores</h1>`).
+- Conferência do bundle SSR (`dist/server/server.js`): contém `routes.devs`, título, descrição, sitemap e `llms.txt` com `/devs`.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); conferir no navegador `/devs` 320–390px e desktop nos dois temas, com clique nos dois Instagrams; fotos dependem do GitHub (fallback de inicial se quebrar).
+
 ## 2026-09-15 — Codex: rigor do E2E (revisão do dono)
 
 Seis correções pedidas, todas aplicadas no front, sem commit/push/deploy:

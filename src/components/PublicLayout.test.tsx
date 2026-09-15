@@ -38,5 +38,14 @@ describe('menu móvel público', () => {
     expect(window.localStorage.getItem(themeStorageKey)).toBe('dark');
     expect(screen.getByRole('button', { name: 'Ativar modo claro' })).toBeInTheDocument();
   });
+
+  it('mantém o header fixo no topo e o link de desenvolvedores no rodapé', () => {
+    render(<MemoryRouter><PublicLayout /></MemoryRouter>);
+    const header = screen.getByRole('banner');
+    expect(header.className).toContain('sticky');
+    expect(header.className).toContain('top-0');
+    const devs = screen.getByRole('link', { name: 'Desenvolvedores' });
+    expect(devs).toHaveAttribute('href', '/devs');
+  });
 });
 

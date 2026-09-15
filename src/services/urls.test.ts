@@ -31,4 +31,8 @@ describe('public URLs', () => {
     expect(normalizedUrl('/admin/contratos/id/')).toBe('/admin/contratos/id');
     expect(normalizedUrl('/admin/perfil/')).toBe('/admin/perfil');
   });
+  it('keeps the developers page as a known static route', () => {
+    expect(normalizedUrl('/devs')).toBe('/devs');
+    expect(normalizedUrl('/devs/')).toBe('/devs');
+  });
 });

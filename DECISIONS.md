@@ -336,3 +336,35 @@ Não fazer:
 - Não rodar E2E com backend sem `E2E_STACK=teste`, mesmo para "só leitura".
 - Não imprimir `DATABASE_URL` em log/comando: host e banco se conferem sem a
   credencial (verificação com URL mascarada).
+
+## 2026-09-15 — Página pública /devs (Muse Spark)
+
+Decisão: `/devs` é página pública estática (como `/privacidade`): sem fetch de API,
+sem `window`/`document` no render, com título/descrição/canonical próprios,
+`index,follow` quando `SEO_INDEXABLE=true` e entrada em `sitemap.xml` + `llms.txt`.
+Dados em `src/config/devs.ts` (nome, usuário, perfil e avatar). Fotos via hotlink
+dos avatares do GitHub informados pelo dono, com fallback para a inicial se a URL
+quebrar. Links do Instagram abrem em nova aba (`target=_blank`, `rel="me noopener
+noreferrer"`). Link público só no rodapé, fora do menu principal.
+
+Motivo: pedido do dono com as duas fotos, nomes e @s (Eduardo Gobatto @e.gobatto,
+Fernando Riad @_riad777, ambos "Front-end e back-end").
+
+Não fazer:
+
+- Não buscar `/devs` na API nem colocar a página no catálogo.
+- Não exibir mensagem de erro por avatar quebrado: cair para a inicial.
+- Não indexar fora da regra geral nem listar no sitemap quando `SEO_INDEXABLE=false`.
+
+## 2026-09-15 — Header público fixo com CSS (Muse Spark)
+
+Decisão: header do site público (`PublicLayout`) com `sticky top-0 z-40`, sempre
+visível, só com classes Tailwind, sem JS e sem `window` no render (SSR preservado).
+`bg-paper` opaco mantém o conteúdo passando por baixo sem vazar. Menu mobile
+(`absolute top-[84px]`, backdrop `z-[4]`, sheet `z-[5]`) e CTA sticky do detalhe
+(`z-[5]`) passam sob o header. Painel admin inalterado, por escolha do dono.
+
+Não fazer:
+
+- Não usar `fixed` (tira o header do fluxo e exige compensar altura no `main`).
+- Não controlar visibilidade com scroll em JS nesta etapa: o pedido é "nunca sumir".

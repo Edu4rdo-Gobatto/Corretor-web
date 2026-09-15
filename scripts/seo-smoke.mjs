@@ -37,6 +37,8 @@ try {
   assert.equal((await fetch('http://127.0.0.1:4180/imoveis/para-comprar/galpoes')).status, 200);
   const property = await fetch(`http://127.0.0.1:4180/imoveis/${properties[0].slug}`);
   assert.equal(property.status, 200); assert.match(await property.text(), /BreadcrumbList/);
+  const devs = await fetch('http://127.0.0.1:4180/devs');
+  assert.equal(devs.status, 200); assert.match(await devs.text(), /<h1[^>]*>Desenvolvedores<\/h1>/);
   assert.equal((await fetch('http://127.0.0.1:4180/imoveis/missing')).status, 404);
   assert.equal((await fetch('http://127.0.0.1:4180/missing')).status, 404);
   const proxy = await fetch('http://127.0.0.1:4180/api/proxy-check', { method: 'POST', headers: { Cookie: 'test=value' }, body: 'test body' });
