@@ -33,7 +33,7 @@ export default function LayoutPublico() {
     <header className="sticky top-0 z-40 border-b border-line bg-paper shadow-[inset_0_-2px_0_var(--color-gold)]">
       <div className="container flex min-h-[104px] items-center justify-between gap-8 max-[900px]:gap-4 max-[800px]:relative max-[800px]:min-h-[84px]">
         <Link to={rotas.inicio} className="relative z-[6] flex min-w-0 items-center gap-3 max-[900px]:gap-2 text-brand no-underline" aria-label={`${brand.name} — início`}>
-          <img src={brand.logo.asset} alt={`${brand.logo.first} — ${brand.logo.second}`} className="h-[48px] w-auto max-w-[230px] object-contain object-left mix-blend-multiply dark:mix-blend-screen max-[900px]:h-10 max-[900px]:max-w-[175px]" />
+          <img src={brand.logo.asset} alt={`${brand.logo.first} — ${brand.logo.second}`} className="h-[48px] w-auto max-w-[230px] object-contain object-left max-[900px]:h-10 max-[900px]:max-w-[175px]" />
         </Link>
         {menuAberto && <button type="button" aria-label="Fechar menu" onClick={() => fecharMenu()} className="fixed inset-0 z-[4] hidden cursor-default border-0 bg-navy/60 p-0 max-[650px]:block" />}
         <div className="ml-auto flex shrink-0 items-center gap-4">

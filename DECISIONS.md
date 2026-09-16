@@ -537,7 +537,7 @@ O CSV é exportado com os registros carregados e os filtros aplicados. Nenhuma d
 - Mapa externo carrega mediante clique; OG só anuncia dimensões do asset local conhecido. Não inferir medidas das fotos R2.
 - Duplicação não copia mídia, identidade nem histórico; dono/ADMIN revisa e cria pelo POST existente. Rascunho novo só é sobrescrito após confirmação.
 - Adotar data router no navegador para useBlocker (inclui Voltar/Avançar); instância lazy única evita listeners duplicados em StrictMode. SSR continua usando AppRoutes/StaticRouter.
-- Informações públicas de identidade, privacidade e contato permanecem centralizadas em `src/config/brand.ts`; dados recebidos do proprietário foram aplicados sem variáveis secretas. Logo oficial fica em `public/assets/brand-logo.jpg`.
+- Informações públicas de identidade, privacidade e contato permanecem centralizadas em `src/config/brand.ts`; dados recebidos do proprietário foram aplicados sem variáveis secretas. Logo oficial recortado fica em `public/assets/brand-logo.png`.
 - Não usar Render/env para esses campos nesta etapa: são conteúdo público versionado, e mover para runtime exigiria expor configuração também ao cliente/SSR.
 Nenhuma dependência nova.
 

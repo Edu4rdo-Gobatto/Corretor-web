@@ -5,7 +5,7 @@ export const brand = {
   credential: 'Corretor de imóveis — CRECI 15776',
   creci: '15776',
   // Partes do logotipo no cabeçalho; a segunda é destacada visualmente.
-  logo: { first: 'LUCAS GOBATTO', second: 'CORRETOR DE IMÓVEIS — CRECI 15776', asset: '/assets/brand-logo.jpg' },
+  logo: { first: 'LUCAS GOBATTO', second: 'CORRETOR DE IMÓVEIS — CRECI 15776', asset: '/assets/brand-logo.png' },
   tagline: 'Imóveis comerciais em Juara e região.',
   closing: 'Juara, Mato Grosso — atendimento com corretor responsável.',
   // Região de atuação: aparece em títulos, descrições e no JSON-LD.

@@ -963,3 +963,8 @@ Sem dependências novas, escrita em dados reais, commit, push ou deploy. Process
 - Incorporado o logo oficial enviado em `public/assets/brand-logo.jpg` e usado no cabeçalho público.
 - Rodapé passou a exibir o CRECI quando informado; política de privacidade deixa o modo preparatório ao receber os dados completos.
 - Validação focalizada: `npm run typecheck` aprovado; testes de `PublicLayout` e `format` aprovados (2 arquivos/20 testes); `git diff --check` aprovado. Sem commit, push ou deploy.
+
+## 2026-09-16 — Correção do ativo do logo
+
+- Substituído o JPG vertical com espaço vazio por recorte horizontal em PNG, preservando o lockup enviado.
+- Removido o `mix-blend` do cabeçalho para não alterar as cores do logo entre temas.
