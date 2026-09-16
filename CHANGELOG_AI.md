@@ -1,5 +1,21 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-16 — Diagnóstico de produto com olhar de corretor (Claude)
+
+Pedido: analisar o sistema como sênior e como corretor, apontar pontos críticos, melhorias e novas
+funcionalidades, mantendo o produto simples e o código limpo.
+
+Alterações: apenas `docs/plans/2026-09-16-diagnostico-produto.md` (novo), este registro e
+`PROJECT_STATUS.md`. Nenhum código, dado ou banco alterado. API lida por agente de mapeamento
+(somente leitura em `../Corretor-API/src`).
+
+Testes executados para conhecer o estado da base: `npm run typecheck` sem erro; `npm run lint` sem
+erro; `npm test` com 31 arquivos e 153 testes aprovados. Não foram executados build, seo-smoke nem
+E2E (não houve mudança de código).
+
+Pendências: dono decidir a ordem dos blocos P1/P2/P3 e a unificação do cadastro de pessoas
+(muda a especificação de 13/09); cada item escolhido vira tarefa em `TASKS.md`.
+
 ## 2026-09-16 — URL de imóvel malformada não deve virar 503
 
 Pedido: investigar o `503` ao abrir `/imoveis/lojasOR%201=1--]'AND%20released=1` no preview.

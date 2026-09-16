@@ -1,5 +1,14 @@
 # Estado atual — corretor-web
 
+## 2026-09-16 — Claude: diagnóstico de produto (somente leitura)
+
+Área assumida: varredura completa do front e da API com olhar de corretor, sem alteração de código,
+dados ou banco. Resultado em `docs/plans/2026-09-16-diagnostico-produto.md`: 7 pontos críticos
+(rascunho/publicação, aviso de contato, funil, pessoas em três cadastros, ficha do imóvel, busca,
+textos de privacidade), melhorias por área, funcionalidades em P1/P2/P3 e dívidas de manutenção
+(Prettier, dois vocabulários, duplicação no painel). Aguarda o dono escolher a ordem para virar
+tarefas em `TASKS.md`. Sem commit/push.
+
 ## 2026-09-16 — Slugs públicos inválidos retornando 503
 
 Área assumida: correção do 503 causado por URL de imóvel malformada, sem alteração de dados,
