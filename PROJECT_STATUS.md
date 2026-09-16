@@ -1,5 +1,13 @@
 # Estado atual — corretor-web
 
+## 2026-09-16 — Claude: contrato v2 (ids inteiros, pessoas, ficha do imóvel, front em português)
+
+Área assumida: implementação das decisões do dono de 16/09 nos dois repositórios, conforme
+`docs/specs/2026-09-16-ids-inteiros-pessoas.md`. Front: tipos e serviços em português sem tradutor,
+mídia enviada na criação do imóvel, contatos em três colunas, cadastro único de pessoas, filtros e
+ordenação no catálogo, componentes compartilhados do painel. Fora desta rodada: aviso de novo
+contato, regras de locação/comissão (tarefas abertas). Em andamento; sem commit/push.
+
 ## 2026-09-16 — Claude: diagnóstico de produto (somente leitura)
 
 Área assumida: varredura completa do front e da API com olhar de corretor, sem alteração de código,
