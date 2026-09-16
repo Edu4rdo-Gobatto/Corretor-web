@@ -321,3 +321,28 @@ Implementada a correção documental do README/AGENTS: scripts e variáveis refl
 
 Pendente nesta entrega: a remoção completa de `.buttonGhost` não foi feita porque ainda existem consumidores no
 painel administrativo; a migração deve ser uma tarefa visual isolada para evitar regressões.
+## 2026-09-16 — Codex: retomada do pacote completo
+
+Área assumida nesta retomada: Codex integra catálogo/rodapé/SEO e documentação; agentes independentes
+atuam em Dashboard, contatos/CSV, detalhe/lead e duplicação/guarda de navegação. Estado inicial: alterações
+parciais da execução anterior preservadas; main. Sem escrita em banco nem publicação. Validação final em andamento.
+
+## 2026-09-16 — Codex: pacote de melhorias públicas e painel em execução
+
+Implementadas melhorias de formatação de preço, total mensal de locação, preço/m², selos de status,
+relacionados por finalidade/cidade com fallback, mapa embed lazy, máscara/honeypot de leads, OG dimensions,
+filtros de período/ imóvel e CSV de contatos, KPIs administrativos baseados nos endpoints existentes e
+dirty guard do formulário de imóvel. Ordenação de catálogo, logo oficial, dados reais de privacidade, datalist
+e duplicação completa ainda dependem de ajustes/insumos pendentes.
+
+Validação desta etapa: typecheck aprovado; lint aprovado após correção; Vitest 31 arquivos/155 testes aprovado;
+build aprovado; seo-smoke aprovado. Ainda pendente conferência manual e validação E2E autenticada com stack/credenciais.
+
+
+## 2026-09-16 — Codex: pacote público/painel concluído em código
+
+Concluídos os pendentes da execução anterior: datalist, rodapé configurável, duplicação/preview, guarda SPA/histórico,
+mensagem expansível e 404. Corrigidos KPIs paginados, CSV seguro, datas inclusivas, dimensões OG de imagens desconhecidas,
+telefone internacional e detalhes visuais nos dois temas. Plano/checklist: docs/plans/2026-09-16-melhorias-publico-painel.md.
+Dados reais de marca/privacidade e contato recebidos do proprietário e registrados em `src/config/brand.ts`; logo oficial copiado para `public/assets/brand-logo.jpg`.
+Homologação autenticada real aguarda stack/credenciais de teste. Nenhuma alteração de backend ou de dados reais.

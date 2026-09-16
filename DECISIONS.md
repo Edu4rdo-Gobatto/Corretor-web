@@ -521,3 +521,22 @@ local transforma esse caso em 404 e evita tráfego desnecessário, sem alterar s
 
 Não fazer: aceitar caracteres arbitrários no slug, encaminhar payloads de teste à API ou
 alterar a validação/contrato de dados no backend.
+## 2026-09-16 — Melhorias incrementais sem endpoint de estatísticas
+
+KPIs do Dashboard reutilizam listagens existentes de imóveis, clientes, contratos e comissões; nenhum `/stats`
+foi criado. A ordenação pública foi adiada para preservar o contrato atual e evitar ordenar somente a página.
+O CSV é exportado com os registros carregados e os filtros aplicados. Nenhuma dependência nova foi adicionada.
+
+
+## 2026-09-16 — Fechamento das decisões do pacote público/painel
+
+- Somar comissões em centavos com BigInt, percorrendo todas as páginas autorizadas; métricas falham e repetem independentemente.
+- CSV exporta somente a página aplicada, identificado no botão, com neutralização de fórmulas/controles e URL liberada após o download.
+- Datas de contatos incluem o dia final no fuso America/Cuiaba. Origem é informativa: o DTO de consulta não a aceita.
+- O IPTU não tem periodicidade no contrato atual; mostrar soma dos valores informados e condição parcial, sem anunciar mensalidade fechada.
+- Mapa externo carrega mediante clique; OG só anuncia dimensões do asset local conhecido. Não inferir medidas das fotos R2.
+- Duplicação não copia mídia, identidade nem histórico; dono/ADMIN revisa e cria pelo POST existente. Rascunho novo só é sobrescrito após confirmação.
+- Adotar data router no navegador para useBlocker (inclui Voltar/Avançar); instância lazy única evita listeners duplicados em StrictMode. SSR continua usando AppRoutes/StaticRouter.
+- Informações públicas de identidade, privacidade e contato permanecem centralizadas em `src/config/brand.ts`; dados recebidos do proprietário foram aplicados sem variáveis secretas. Logo oficial fica em `public/assets/brand-logo.jpg`.
+- Não usar Render/env para esses campos nesta etapa: são conteúdo público versionado, e mover para runtime exigiria expor configuração também ao cliente/SSR.
+Nenhuma dependência nova.

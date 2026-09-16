@@ -192,3 +192,11 @@ Corrigir textos invisíveis e botões sem destaque: cascata CSS, tokens claro/es
 
 ## UI-TEMA-002 — Concluída (14/09/2026, Codex)
 Reposicionar alternador após navegação no desktop e junto ao menu mobile; plano aprovado implementado e validado em três larguras e ambos os temas.
+
+
+## UX-005 — Pacote público e administração — concluído em código
+
+Responsável: Codex — 16/09/2026. Checklist: docs/plans/2026-09-16-melhorias-publico-painel.md.
+Catálogo/detalhe/lead/rodapé/SEO/404, Dashboard, contatos/CSV, duplicação/preview e guardas implementados.
+Pendências externas separadas: dados de privacidade, contato comercial e logo; homologação autenticada em stack de teste.
+Ordenação e filtro por origem exigem contrato adicional e permanecem adiados. Commit/push/deploy não executados.

@@ -7,7 +7,9 @@ const properties = Array.from({ length: 11 }, (_, i) => ({ ...sampleProperty, id
 const api = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   res.setHeader('Content-Type', 'application/json');
-  if (['/tipos-imovel','/finalidades-imovel','/caracteristicas'].includes(url.pathname)) {
+  if (url.pathname === '/saude') {
+    res.end(JSON.stringify({ status: 'ok' }));
+  } else if (['/tipos-imovel','/finalidades-imovel','/caracteristicas'].includes(url.pathname)) {
     const itens=url.pathname==='/tipos-imovel'?sampleClassifications.types:url.pathname==='/finalidades-imovel'?sampleClassifications.purposes:[];res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
   } else if (url.pathname === '/imoveis') {
     const page = Number(url.searchParams.get('pagina') || 1); const limit = Number(url.searchParams.get('limite') || 9);
