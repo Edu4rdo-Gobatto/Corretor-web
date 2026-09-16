@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import PublicLayout from './PublicLayout';
 import { themeStorageKey } from '../hooks/useTheme';
+import { brand } from '../config/brand';
 
 afterEach(() => {
   document.documentElement.classList.remove('dark');
@@ -10,6 +11,25 @@ afterEach(() => {
 });
 
 describe('menu móvel público', () => {
+  it('mostra links de compra e locação e os contatos configurados no rodapé', () => {
+    render(<MemoryRouter><PublicLayout/></MemoryRouter>);
+    const footer = within(screen.getByRole('contentinfo'));
+    expect(footer.getByRole('link', {name:'Alugar'})).toHaveAttribute('href','/imoveis/para-alugar');
+    expect(footer.getByRole('link', {name:'Comprar'})).toHaveAttribute('href','/imoveis/para-comprar');
+    expect(footer.getByRole('link', {name:/WhatsApp:/})).toHaveAttribute('href','https://wa.me/5566984346427');
+    expect(footer.getByRole('link', {name:'Lucas.gobatto@outlook.com'})).toHaveAttribute('href','mailto:Lucas.gobatto@outlook.com');
+  });
+  it('renderiza atendimento quando os dados comerciais estão configurados', () => {
+    const previous = {...brand.contact};
+    try {
+      Object.assign(brand.contact, {whatsapp:'(65) 99999-0000',email:'contato@example.test',hours:'Segunda a sexta, 9h–18h',address:'Endereço de teste'});
+      render(<MemoryRouter><PublicLayout/></MemoryRouter>);
+      const footer = within(screen.getByRole('contentinfo'));
+      expect(footer.getByRole('link', {name:/WhatsApp:/})).toHaveAttribute('href','https://wa.me/5565999990000');
+      expect(footer.getByRole('link', {name:'contato@example.test'})).toHaveAttribute('href','mailto:contato@example.test');
+      expect(footer.getByText(/Segunda a sexta/)).toBeInTheDocument();
+    } finally { Object.assign(brand.contact, previous); }
+  });
   it('move foco ao abrir e retorna ao botão ao fechar com Escape', async () => {
     render(<MemoryRouter><PublicLayout /></MemoryRouter>);
     const toggle = screen.getByRole('button', { name: 'Abrir menu' });
@@ -59,4 +79,3 @@ describe('menu móvel público', () => {
     expect(themeToggle.parentElement!.className).toContain('z-[6]');
   });
 });
-

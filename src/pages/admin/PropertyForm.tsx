@@ -1,4 +1,5 @@
 import PropertyReadOnly from './PropertyReadOnly';
+import { UnsavedFormGuard, useUnsavedFormGuard } from '../../hooks/useUnsavedFormGuard';
 import { propertyUrl } from '../../services/urls';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -16,11 +17,19 @@ import { clearPropertyDraft, propertyDraftKey, readPropertyDraft, writePropertyD
 
 const formField = '[&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold [&_input]:w-full [&_select]:w-full [&_textarea]:w-full [&_textarea]:min-h-[130px]';
 const errorText = 'm-0 text-[13px] text-error';
+const emptyProperty: PropertyValues = { title: '', type: '', purpose: '', postalCode:'', addressComplement:'', featureValues:[], status: 'DISPONIVEL', price: 0, condoFee: null, iptuFee: null, usableArea: 0, totalArea: 0, addressStreet: '', addressNumber: '', addressCity: '', addressState: 'MT', neighborhood: '', description: '', agentId: '' };
 
 
 export default function PropertyForm() {
   const { id } = useParams();
+  const { agent } = useAuth();
+  return <PropertyFormInstance key={`${agent?.id ?? 'anonymous'}:${id ?? 'new'}`}/>;
+}
+
+function PropertyFormInstance() {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [duplicating, setDuplicating] = useState(false);
   const { agent } = useAuth();
   const draftKey = propertyDraftKey(agent?.id ?? 'anonymous', id);
   const draftEnabled = useRef(false);
@@ -33,12 +42,15 @@ export default function PropertyForm() {
   const [loadError, setLoadError] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const { register, control, handleSubmit, reset, getValues, watch, formState: { errors, isSubmitting } } = useForm<PropertyValues>({
+  const { register, control, handleSubmit, reset, getValues, watch, formState: { errors, isSubmitting, isDirty } } = useForm<PropertyValues>({
     resolver: zodResolver(propertySchema),
-    defaultValues: { title: '', type: '', purpose: '', postalCode:'', addressComplement:'', featureValues:[], status: 'DISPONIVEL', price: 0, condoFee: null, iptuFee: null, usableArea: 0, totalArea: 0, addressStreet: '', addressNumber: '', addressCity: '', addressState: 'MT', neighborhood: '', description: '', agentId: '' },
+    defaultValues: emptyProperty,
   });
 
   const {fields:featureFields,append:appendFeature,remove:removeFeature}=useFieldArray({control,name:'featureValues'});
+  const canEdit = !property || agent?.role === 'ADMIN' || agent?.id === property.agentId;
+  const dirty = canEdit && (isDirty || draftRestored);
+  const navigationAllowed = useUnsavedFormGuard(dirty);
   const load = useCallback(async () => {
     draftEnabled.current = false;
     setLoadError('');
@@ -48,7 +60,7 @@ export default function PropertyForm() {
     try { setClassifications(await api.classifications(true)); } catch(cause) { setLoadError(errorMessage(cause)); setLoading(false); return; }
     if (!id) {
       setProperty(undefined);
-      if (draft) reset({ ...getValues(), ...draft });
+      reset({ ...emptyProperty, ...draft });
       setLoading(false);
       draftEnabled.current = true;
       return;
@@ -65,7 +77,7 @@ export default function PropertyForm() {
     } finally {
       setLoading(false);
     }
-  }, [id, reset, getValues, draftKey]);
+  }, [id, reset, draftKey]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -79,6 +91,27 @@ export default function PropertyForm() {
     });
     return () => subscription.unsubscribe();
   }, [watch, draftKey, getValues]);
+
+  function duplicate() {
+    if (!property || !canEdit) return;
+    if (!classifications.types.some(v => v.ativo && v.id === (property.typeId ?? property.type)) ||
+        !classifications.purposes.some(v => v.ativo && v.id === (property.purposeId ?? property.purpose)) ||
+        property.featureValues?.some(value => !classifications.features.some(v => v.ativo && v.id === value.caracteristica_id))) {
+      setError('Não é possível duplicar um imóvel com classificações inativas ou indisponíveis. Atualize o imóvel antes de duplicar.');
+      return;
+    }
+    if (dirty && !window.confirm('Usar os dados salvos e sair desta edição?')) return;
+    const key = propertyDraftKey(agent?.id ?? 'anonymous');
+    if (readPropertyDraft(sessionStorage, key) && !window.confirm('Substituir o rascunho de novo imóvel desta aba?')) return;
+    const parsed = propertySchema.safeParse({ ...property, type: property.typeId ?? property.type, purpose: property.purposeId ?? property.purpose, title: `${property.title.slice(0, 190)} — Cópia`, status: 'DISPONIVEL', agentId: agent?.id });
+    if (!parsed.success) { setError('Revise os dados do imóvel antes de duplicar.'); return; }
+    const values = parsed.data;
+    const result = writePropertyDraft(sessionStorage, key, values);
+    if (result !== 'saved') { setError('Não foi possível preparar a cópia nesta aba. Verifique o armazenamento do navegador.'); return; }
+    setDuplicating(true);
+    navigationAllowed.current = true;
+    navigate('/admin/imoveis/novo');
+  }
 
   useEffect(() => {
     if (agent?.role !== 'ADMIN') return;
@@ -112,6 +145,10 @@ export default function PropertyForm() {
   async function save(values: PropertyValues) {
     setError('');
     setSuccess('');
+    if (!id && (!classifications.types.some(v => v.ativo && v.id === values.type) || !classifications.purposes.some(v => v.ativo && v.id === values.purpose) || values.featureValues?.some(value => !classifications.features.some(v => v.ativo && v.id === value.caracteristica_id)))) {
+      setError('Selecione classificações ativas antes de salvar o novo imóvel.');
+      return;
+    }
     const { agentId, ...fields } = values;
     try {
       const saved = await api.saveProperty({ ...fields, features: {}, ...(agent?.role === 'ADMIN' ? { agentId: agentId || agent.id } : {}) }, id, property);
@@ -123,20 +160,24 @@ export default function PropertyForm() {
       draftEnabled.current = true;
       setProperty(saved);
       setSuccess('Imóvel salvo. Você pode gerenciar as fotos e os vídeos abaixo.');
-      if (!id) navigate(`/admin/imoveis/${saved.id}/editar`, { replace: true });
+      if (!id) {
+        navigationAllowed.current = true;
+        navigate(`/admin/imoveis/${saved.id}/editar`, { replace: true });
+      }
     } catch (cause) {
       setError(errorMessage(cause));
     }
   }
 
   return <>
+    <UnsavedFormGuard dirty={dirty} allowed={navigationAllowed}/>
     <header className="mb-8 flex flex-wrap items-center justify-between gap-5 max-[560px]:flex-col max-[560px]:items-stretch max-[560px]:[&_.button]:w-full">
       <div>
         <Link to="/admin/imoveis" className="inline-flex min-h-11 items-center">← Imóveis</Link>
         <h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">{id ? 'Editar imóvel' : 'Um novo espaço.'}</h1>
         <p className="muted">Conte o que torna este imóvel uma boa oportunidade.</p>
       </div>
-      {property && <Link to={propertyUrl(property.slug)} className="buttonSecondary">Ver no site ↗</Link>}
+      {property && <div className="flex flex-wrap gap-3"><Link to={propertyUrl(property.slug)} target="_blank" rel="noopener noreferrer" className="buttonSecondary">Pré-visualizar público ↗</Link>{canEdit && <button type="button" className="buttonSecondary" disabled={duplicating || isSubmitting} onClick={duplicate}>Duplicar</button>}</div>}
     </header>
     <AsyncState loading={loading} error={loadError} retry={() => void load()} />
     {property && agent?.role !== 'ADMIN' && agent?.id !== property.agentId ? <PropertyReadOnly property={property}/> : !loading && !loadError && <>

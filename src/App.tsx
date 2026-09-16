@@ -1,6 +1,6 @@
 import { catalogPaths, normalizedUrl } from './services/urls';
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import PublicLayout from './components/PublicLayout';
 import Catalog from './pages/public/Catalog';
 import AsyncState from './components/AsyncState';
@@ -39,11 +39,23 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
+let browserRouter: ReturnType<typeof createBrowserRouter> | undefined;
 export default function App() {
-  return <BrowserRouter><AppRoutes/></BrowserRouter>;
+  // Lazy creation keeps SSR imports safe and avoids duplicate history listeners in StrictMode.
+  browserRouter ??= createBrowserRouter([{ path: '*', element: <AppRoutes/> }]);
+  return <RouterProvider router={browserRouter}/>;
 }
 export function ErrorPage({ status = 404 }: { status?: number }) {
-  return <div className="container" style={{paddingBlock:80}}><Seo status={status}/><h1>{status === 404 ? 'Página não encontrada.' : 'Serviço temporariamente indisponível.'}</h1>{status !== 404 && <p>Tente novamente em alguns instantes.</p>}<Link to="/" className="button">Voltar ao catálogo</Link>{status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}</div>;
+  return <div className="container py-20"><Seo status={status}/>
+    <h1 className="mb-6">{status === 404 ? 'Página não encontrada.' : 'Serviço temporariamente indisponível.'}</h1>
+    {status !== 404 && <p>Tente novamente em alguns instantes.</p>}
+    <div className="flex flex-wrap gap-3">
+      <Link to="/" className="button">Voltar ao catálogo</Link>
+      <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
+      <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+      {status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}
+    </div>
+  </div>;
 }
 export function AppRoutes() {
   const bootstrap = useContext(BootstrapContext);

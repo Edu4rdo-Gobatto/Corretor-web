@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, MapPin, Maximize2, Building2, ShieldCheck, Share2, MapPinned } from 'lucide-react';
 import { api } from '../../services/api';
 import { useResource } from '../../hooks/useResource';
-import { area, featureLabel, featureValue, money, propertyType } from '../../services/format';
+import { area, featureLabel, featureValue, money, monthlyRentTotal, pricePerSquareMeter, propertyType } from '../../services/format';
 import type { Property } from '../../types';
 import AsyncState from '../../components/AsyncState';
 import MediaGallery from '../../components/MediaGallery';
@@ -15,11 +15,14 @@ function RelatedProperties({ current }: { current: Property }) {
   const [items, setItems] = useState<Property[]>([]);
   useEffect(() => {
     let cancelled = false;
-    api.listProperties({ page: 1, limit: 4, type: current.type }).then(page => {
-      if (!cancelled) setItems(page.items.filter(item => item.id !== current.id).slice(0, 3));
+    api.listProperties({ page: 1, limit: 4, purpose: current.purpose, city: current.addressCity }).then(page => {
+      if (cancelled) return;
+      const matching = page.items.filter(item => item.id !== current.id);
+      if (matching.length >= 3) { setItems(matching.slice(0, 3)); return; }
+      api.listProperties({ page: 1, limit: 4, type: current.type }).then(fallback => { if (!cancelled) setItems([...matching, ...fallback.items.filter(item => item.id !== current.id && !matching.some(existing => existing.id === item.id))].slice(0, 3)); }).catch(() => { if (!cancelled) setItems(matching.slice(0, 3)); });
     }).catch(() => undefined);
     return () => { cancelled = true; };
-  }, [current.id, current.type]);
+  }, [current.id, current.type, current.purpose, current.addressCity]);
   if (!items.length) return null;
   return (
     <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]" aria-labelledby="similares">
@@ -38,6 +41,7 @@ export default function PropertyDetail() {
   const { value: property, loading, error, errorStatus, retry } = useResource(load, initial?.data.property);
   const [contactOpen, setContactOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [loadedMap, setLoadedMap] = useState('');
 
   async function share() {
     if (!property) return;
@@ -60,6 +64,8 @@ export default function PropertyDetail() {
   }
 
   const mapQuery = property ? encodeURIComponent(`${property.addressStreet}, ${property.addressNumber} — ${property.neighborhood}, ${property.addressCity}/${property.addressState}`) : '';
+  const hasMapAddress = property && [property.addressStreet, property.addressNumber, property.addressCity, property.addressState].every(value => String(value ?? '').trim().length > 0);
+  const unitPrice = property ? pricePerSquareMeter(property.price, property.usableArea) : null;
 
   return (
     <div className="container pb-6 pt-[30px]">
@@ -94,7 +100,7 @@ export default function PropertyDetail() {
               </div>
               <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]">
                 <h2>Um espaço, muitas possibilidades.</h2>
-                <p className="whitespace-pre-wrap leading-[1.8] text-[#54594F]">{property.description}</p>
+                <p className="whitespace-pre-wrap leading-[1.8] text-muted">{property.description}</p>
               </section>
               {Object.keys(property.features).length > 0 && (
                 <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]">
@@ -107,15 +113,18 @@ export default function PropertyDetail() {
               <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]">
                 <h2>Localização</h2>
                 <p>{property.addressStreet}, {property.addressNumber}<br />{property.neighborhood} · {property.addressCity}/{property.addressState}</p>
+                {hasMapAddress && (loadedMap === mapQuery ? <iframe className="mt-4 min-h-[260px] w-full rounded border-0" loading="lazy" title={`Mapa de ${property.title}`} referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${mapQuery}&output=embed`} /> : <button type="button" className="buttonSecondary" onClick={() => setLoadedMap(mapQuery)}>Carregar mapa</button>)}
               </section>
-              <RelatedProperties current={property} />
+              <RelatedProperties key={`related-${property.id}`} current={property} />
             </div>
-            <aside className="min-w-0">
-              <div className="sticky top-6 rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-[0_18px_38px_rgb(10_32_66/0.10)] max-[1000px]:p-[22px] max-[760px]:static max-[480px]:px-5 max-[480px]:py-6">
+            <aside className="sticky top-32 min-w-0 max-[760px]:static">
+              <div className="rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-[0_18px_38px_rgb(10_32_66/0.10)] max-[1000px]:p-[22px] max-[480px]:px-5 max-[480px]:py-6">
                 <p className="eyebrow">{property.purpose === 'LOCACAO' ? 'Valor de locação' : property.purpose === 'VENDA' ? 'Valor de venda' : 'Valor anunciado'}</p>
                 <p className="mb-[22px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">
                   {money(property.price)}{property.purpose === 'LOCACAO' && <span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span>}
                 </p>
+                {unitPrice !== null && <p className="mb-3 text-sm text-muted">{money(unitPrice)} / m²</p>}
+                {property.purpose === 'LOCACAO' && <><p className="mb-3 text-sm font-semibold text-ink">Soma dos valores informados{property.condoFee == null || property.iptuFee == null ? ' (parcial)' : ''}: {money(monthlyRentTotal(property.price, property.condoFee, property.iptuFee))}</p><p className="text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
                 <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-[15px] [&_div]:py-[5px] [&_dt]:text-muted">
                   {property.condoFee !== null && <div><dt>Condomínio</dt><dd>{money(property.condoFee)}</dd></div>}
                   {property.iptuFee !== null && <div><dt>IPTU informado</dt><dd>{money(property.iptuFee)}</dd></div>}

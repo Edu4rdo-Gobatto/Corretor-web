@@ -4,6 +4,11 @@ export const propertyType: Record<PropertyType, string> = { GALPAO: 'Galpão', S
 export const propertyStatuses: Record<PropertyStatus, string> = { DISPONIVEL: 'Disponível', RESERVADO: 'Reservado', CONCLUIDO: 'Concluído' };
 export const money = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value);
 export const area = (value: number) => `${new Intl.NumberFormat('pt-BR').format(value)} m²`;
+export const pricePerSquareMeter = (price: number, usableArea: number) => {
+  const result = price / usableArea;
+  return Number.isFinite(price) && Number.isFinite(usableArea) && usableArea > 0 && Number.isFinite(result) ? result : null;
+};
+export const monthlyRentTotal = (price: number, condoFee: number | null, iptuFee: number | null) => price + (condoFee ?? 0) + (iptuFee ?? 0);
 export const date = (value: string) => new Date(value).toLocaleDateString('pt-BR');
 export const errorMessage = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível concluir. Tente novamente.';
 export function featureLabel(key: string): string {

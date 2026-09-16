@@ -872,3 +872,54 @@ a mesma política; `API_ORIGIN` HTTP é rejeitado em produção. O token de sess
 memória; não houve mudança em dados, banco, uploads ou CORS. Validação real aprovada: `npm run
 typecheck`, `npm run lint`, `npm test` (31 arquivos/150 testes), `npm run build`, `git diff --check`
 e `node scripts/seo-smoke.mjs`.
+## 2026-09-16 — Codex — melhorias públicas e painel administrativo
+
+Alterados formatadores, cartão/detalhe público, formulário de lead, metadados SEO, Dashboard, lista de contatos,
+formulário de imóvel e testes correspondentes. Incluídos preço/m², total mensal, status visível, relacionados,
+mapa lazy, máscara de telefone, honeypot, OG dimensions, KPIs, filtros/CSV e `beforeunload` para alterações não salvas.
+
+Validação real: `npm run typecheck` aprovado; `npm run lint` aprovado; `npm test -- --maxWorkers=1 --reporter=dot`
+aprovado (31 arquivos/155 testes); `npm run build` aprovado; `node scripts/seo-smoke.mjs` aprovado.
+
+Pendências: datalist de cidades, duplicação completa, links adicionais do rodapé, dados reais de privacidade/logo
+oficial e conferência manual autenticada. Ordenação de catálogo permaneceu fora do corte. E2E autenticado não foi
+executado sem stack/banco/credenciais de teste.
+
+
+## 2026-09-16 — Codex: conclusão do pacote público e administrativo
+
+Este registro complementa e substitui o estado parcial anterior sem apagar o histórico.
+
+- Catálogo: datalist deduplicado de cidades da página; filtros e URLs preservados. Cards com rótulos reservado/concluído.
+- Detalhe/lead: preço por área válida, soma parcial de encargos com aviso sobre periodicidade do IPTU, relacionados com fallback,
+  mapa sob demanda, máscara nacional preservando internacionais, honeypot antes do popup e payload sem campo extra.
+- Rodapé configurável, Alugar/Comprar, 404 com atalhos/espaçamento; OG alt e dimensões só do asset conhecido.
+- Dashboard com métricas/erros independentes, todas as páginas financeiras e soma exata de parcelas ativas em centavos.
+- Contatos: imóvel pesquisável, período inclusivo Cuiabá, filtros aplicados no envio, origem informativa, mensagem expansível,
+  exportação apenas da página aplicada com BOM/escaping e proteção contra fórmulas; dados antigos/carga/erro impedem download.
+- Imóveis: duplicação com novo título/POST/slug da API e sem mídias; rascunho protegido; preview nova aba; proteção de saída/reload,
+  navegação SPA e histórico. Data router criado uma única vez no navegador; SSR preservado.
+- Conferência visual corrigiu descrição escura e cartão de contato/cabeçalho fixo. Plano e documentos de contexto dos dois repositórios atualizados.
+
+Validação real:
+- Typecheck e lint aprovados.
+- Vitest: 38 arquivos / 211 testes aprovados (worker único). Mensagens render failed são do teste intencional de ErrorBoundary.
+- Build cliente/SSR/Vercel aprovado; avisos de anotação PURE do Zod preexistentes.
+- Smoke SSR/proxy/cookies/robots/sitemap/llms/404/função Vercel aprovado usando fixture local.
+- Playwright em 127.0.0.1:4180: 15 aprovados, 22 não executados, zero falhas na execução final. Primeira execução teve 1 falha porque
+  a fixture não implementava /saude; adicionada resposta sintética ao smoke e suíte repetida sem enfraquecer a asserção.
+- Navegador Chromium: catálogo/detalhe/rodapé/404 em 390px e desktop, temas claro/escuro, máscara e modal, mapa carregado por clique,
+  navegação da 404 para Alugar; sem erro de hidratação observado. Verificação de largura sem overflow horizontal.
+- Revisão independente somente leitura: nenhum achado de alta prioridade.
+
+Limites: painel autenticado/banco/Drive/R2 reais não homologados nesta entrega por ausência de E2E_STACK=teste e credenciais;
+componentes administrativos exercitados com APIs simuladas nos testes. Dados reais de privacidade, logo e contato comercial
+aguardam o proprietário. Origem não é filtro global porque a API atual não o aceita; ordenação adiada conforme plano.
+Sem dependências novas, escrita em dados reais, commit, push ou deploy. Processo de QA local encerrado ao finalizar.
+
+## 2026-09-16 — Dados reais de marca e logo
+
+- Aplicados controlador, e-mail, endereço, WhatsApp, horário e CRECI informados pelo proprietário em `src/config/brand.ts`.
+- Incorporado o logo oficial enviado em `public/assets/brand-logo.jpg` e usado no cabeçalho público.
+- Rodapé passou a exibir o CRECI quando informado; política de privacidade deixa o modo preparatório ao receber os dados completos.
+- Validação focalizada: `npm run typecheck` aprovado; testes de `PublicLayout` e `format` aprovados (2 arquivos/20 testes); `git diff --check` aprovado. Sem commit, push ou deploy.
