@@ -1,5 +1,18 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-16 — URL de imóvel malformada não deve virar 503
+
+Pedido: investigar o `503` ao abrir `/imoveis/lojasOR%201=1--]'AND%20released=1` no preview.
+Diagnóstico confirmado no preview: o caminho era interpretado como detalhe de imóvel, a API
+respondia erro de validação para o slug e o SSR mascarava qualquer resposta não-404 como 503.
+
+Alterações: `src/services/urls.ts` ganhou `isValidPropertySlug`; `src/seo/server.tsx` retorna
+404 antes da API para slug inválido; `src/services/api.ts` aplica a mesma proteção no SPA.
+Foram adicionadas regressões em `src/seo/server.test.ts`, `src/services/api.test.ts` e
+`src/services/urls.test.ts`. Testes direcionados: 3 arquivos, 50 testes aprovados.
+
+Pendente: executar validação completa e aguardar autorização explícita para commit/push.
+
 ## 2026-09-16 — Muse Spark: chip "Todos os imóveis" legível + filtros sem scroll ao topo
 
 Pedidos do dono (com prints): botão "Todos os imóveis" com texto invisível e qualquer filtro

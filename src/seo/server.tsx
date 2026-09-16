@@ -1,5 +1,4 @@
-import { propertyUrl } from '../services/urls';
-import { normalizedUrl, readCatalogUrl } from '../services/urls';
+import { isValidPropertySlug, normalizedUrl, propertyUrl, readCatalogUrl } from '../services/urls';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import { AppRoutes } from '../App';
@@ -119,6 +118,7 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
         if (query.page > Math.max(1, boot.data.catalog.totalPages)) boot.status = 404;
       } else if (/^\/imoveis\/[^/]+$/.test(url.pathname)) {
         const slug = decodeURIComponent(url.pathname.slice('/imoveis/'.length));
+        if (!isValidPropertySlug(slug)) throw new PublicError(404);
         boot.data.property = propertyFromWire(await publicGet<WireProperty>(`/imoveis/${encodeURIComponent(slug)}`, config, fetcher, true));
       } else if (url.pathname !== '/privacidade' && url.pathname !== '/devs') boot.status = 404;
     }

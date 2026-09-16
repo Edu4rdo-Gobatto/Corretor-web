@@ -1,7 +1,8 @@
 import type { AgentInput, CatalogQuery, Lead, LeadInput, Property, PropertyInput, PropertyStatus, Session } from '../types';
-import { http, setAccessToken } from './http';
+import { ApiError, http, setAccessToken } from './http';
 import { agentFromWire, classificationId, leadFromWire, pageFromWire, propertyFromWire, wireCatalogQuery, wireQuery, type Classification, type ClassificationKind, type Classifications, type WireAgent, type WireLead, type WirePage, type WireProperty, type WireSession } from './portuguese';
 import { rentalApi } from './rentals';
+import { isValidPropertySlug } from './urls';
 const json = (method:string,body?:unknown):RequestInit => ({method,...(body===undefined?{}:{body:JSON.stringify(body)})});
 async function classifications(managed=false):Promise<Classifications> {
   const load=async(kind:ClassificationKind)=>{const items:Classification[]=[];let pagina=1;let total=1;do{const result=await http<WirePage<Classification>>(`${managed?'/admin':''}/${kind}?pagina=${pagina}&limite=100`,{},managed);items.push(...result.itens);total=result.total_paginas??Math.ceil(result.total/result.limite);pagina++;}while(pagina<=total);return items;};
@@ -18,7 +19,7 @@ export const api = {
     if(encoded===null)return {items:[],total:0,page:query.page,limit:query.limit,totalPages:0};
     return pageFromWire(await http<WirePage<WireProperty>>(`${managed?'/admin':''}/imoveis?${encoded}`,{},managed),propertyFromWire);
   },
-  getProperty:async(slug:string)=>propertyFromWire(await http<WireProperty>(`/imoveis/${encodeURIComponent(slug)}`,{},false)),
+  getProperty:async(slug:string)=>{if(!isValidPropertySlug(slug))throw new ApiError('Registro não encontrado.',404);return propertyFromWire(await http<WireProperty>(`/imoveis/${encodeURIComponent(slug)}`,{},false));},
   getManagedProperty:async(id:string)=>propertyFromWire(await http<WireProperty>(`/admin/imoveis/${id}`)),
   saveProperty:async(input:PropertyInput,id?:string,previous?:Property)=>{
     const lists=await classifications(true);

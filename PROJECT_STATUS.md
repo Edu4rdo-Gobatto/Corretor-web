@@ -1,5 +1,14 @@
 # Estado atual — corretor-web
 
+## 2026-09-16 — Slugs públicos inválidos retornando 503
+
+Área assumida: correção do 503 causado por URL de imóvel malformada, sem alteração de dados,
+API ou banco. O SSR agora valida o slug no formato aceito pela API antes de fazer a consulta;
+o cliente também rejeita slugs inválidos como 404. A URL de teste com `OR`, aspas e `released`
+passa a ser 404 sem alcançar a API; slugs válidos permanecem inalterados.
+Validação inicial: testes direcionados (3 arquivos/50 testes) aprovados. Ainda pendentes as
+validações completas e commit/push.
+
 ## 2026-09-16 — Correção de achados do relatório de segurança web
 
 Área assumida: hardening do front/SSR, sem alteração de dados, banco, uploads ou CORS.

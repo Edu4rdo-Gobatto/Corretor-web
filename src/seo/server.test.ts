@@ -31,6 +31,12 @@ describe('public SEO responses', () => {
     expect(failed.status).toBe(503);
     expect(failed.headers['Cache-Control']).toBe('no-store');
   });
+  it('returns 404 for malformed property slugs without contacting the API', async () => {
+    const fetcher = vi.fn();
+    const response = await handleRequest("/imoveis/lojasOR%201=1--]'AND%20released=1", config, fetcher);
+    expect(response.status).toBe(404);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
   it('does not index administration, previews, or filtered catalogs', async () => {
     const admin = await handleRequest('/admin/login', config);
     expect(admin.headers['X-Robots-Tag']).toContain('noindex');

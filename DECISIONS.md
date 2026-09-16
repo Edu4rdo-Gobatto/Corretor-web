@@ -511,3 +511,13 @@ HTTP continua válido apenas para desenvolvimento/local.
 
 Não fazer: apagar dados de teste a partir de relatório externo, alterar CORS da API ou
 tratar achados exclusivos do backend como correção do front.
+
+## 2026-09-16 — Validar slug antes da consulta pública
+
+Escolha: reutilizar no front a regra de slug público da API (`[a-z0-9-]{1,240}`) no SSR e
+na chamada SPA. URLs de imóvel são reconhecidas estruturalmente pelo roteador, então um
+segmento malformado chegava à API, recebia 400 e era convertido em 503 pelo SSR. A validação
+local transforma esse caso em 404 e evita tráfego desnecessário, sem alterar slugs válidos.
+
+Não fazer: aceitar caracteres arbitrários no slug, encaminhar payloads de teste à API ou
+alterar a validação/contrato de dados no backend.

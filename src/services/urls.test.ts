@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { catalogPaths, catalogUrl, normalizedUrl, readCatalogUrl, typeSegments, purposeSegments } from './urls';
+import { catalogPaths, catalogUrl, isValidPropertySlug, normalizedUrl, readCatalogUrl, typeSegments, purposeSegments } from './urls';
 import type { PropertyType, PropertyPurpose } from '../types';
 
 describe('public URLs', () => {
@@ -24,6 +24,11 @@ describe('public URLs', () => {
     expect(readCatalogUrl('/imoveis/sala-uuid')).toBeNull();
     expect(normalizedUrl('/imoveis/sala-uuid/')).toBe('/imoveis/sala-uuid');
     expect(normalizedUrl('/unknown/')).toBe('/unknown/');
+  });
+  it('accepts only API-compatible property slugs', () => {
+    expect(isValidPropertySlug('loja-centro-123')).toBe(true);
+    expect(isValidPropertySlug('lojasOR 1=1--]')).toBe(false);
+    expect(isValidPropertySlug('a'.repeat(241))).toBe(false);
   });
   it('redirects admin aliases and preserves record identifiers', () => {
     expect(normalizedUrl('/admin/login/')).toBe('/admin/entrar');

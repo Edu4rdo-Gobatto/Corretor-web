@@ -5,6 +5,7 @@ export const typeSegments: Record<PropertyType, string> = { SALA: 'salas', LOJA:
 export const purposeSegments: Record<PropertyPurpose, string> = { LOCACAO: 'para-alugar', VENDA: 'para-comprar' };
 export const routes = { home: '/', privacy: '/privacidade', devs: '/devs', admin: '/admin', login: '/admin/entrar', contacts: '/admin/contatos', profile: '/admin/perfil' };
 export const propertyUrl = (slug: string) => `/imoveis/${encodeURIComponent(slug)}`;
+export const isValidPropertySlug = (slug: string) => /^[a-z0-9-]{1,240}$/.test(slug);
 export const catalogPaths = [ '/', ...Object.values(typeSegments).map(t => `/imoveis/${t}`), ...Object.values(purposeSegments).flatMap(p => [`/imoveis/${p}`, ...Object.values(typeSegments).map(t => `/imoveis/${p}/${t}`)]) ];
 const fields = { type: 'tipo', purpose: 'finalidade', city: 'cidade', minPrice: 'preco-minimo', maxPrice: 'preco-maximo', page: 'pagina' } as const;
 const internalKeys = new Set(['type', 'purpose', 'limit', ...Object.keys(fields), ...Object.values(fields)]);
