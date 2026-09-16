@@ -473,3 +473,41 @@ de produção. Não criar bypass remoto genérico. O cold start (UX-001) foi adi
 
 Não remover SSR, proxy `/api`, autenticação ou o contrato da API. A limpeza de `.buttonGhost` fica separada porque o
 painel ainda possui consumidores ativos.
+## 2026-09-16 — Chips com estados mutuamente exclusivos + ScrollToTop fora do catálogo (Muse Spark)
+
+- Nunca empilhar utilities conflitantes de cor no mesmo elemento (`bg-transparent` com
+  `bg-navy`, `text-muted` com `text-white`, `border-line` com `border-navy`): no Tailwind
+  vence a ordem do CSS gerado, não a do atributo `class`, e o chip selecionado saiu
+  branco sobre branco (texto invisível). Base de layout (`chipBase`) sem cor; `chipIdle`
+  e `chipSelected` como alternativas exclusivas — mesmo padrão dos fixes do menu mobile
+  e do hambúrguer.
+- `ScrollToTop` (`App.tsx`) pula o `scrollTo(0,0)` quando origem e destino são ambos
+  rotas do catálogo (`catalogPaths`): filtro de tipo/finalidade troca o pathname e não
+  deve jogar ao topo; o usuário fica onde está, a pedido do dono. Saídas do catálogo
+  (detalhe, privacidade, admin) mantêm o reset ao topo. Paginação do catálogo rola até
+  `#catalogo` (respeita `prefers-reduced-motion`), nunca ao topo da página.
+
+Não fazer:
+
+- Não concatenar `${chipBase} ${selected ? chipSelected : ''}` deixando cor base + cor
+  de estado ativas juntas.
+- Não voltar o `ScrollToTop` a observar só `pathname` sem exceção do catálogo.
+- Não usar `window`/`document` fora de efeito ou handler em rota pública (SSR).
+
+## 2026-09-15 — Headers defensivos sem alteração de dados
+
+O SSR e o proxy devem enviar headers básicos de hardening em todas as respostas.
+Escolha: `nosniff`, `DENY`, `strict-origin-when-cross-origin` e bloqueio de
+periféricos via `Permissions-Policy`, sem CSP nesta etapa para não quebrar os
+scripts inline existentes. Não alterar CORS ou dados do catálogo neste corte.
+
+## 2026-09-16 — Fechamento dos achados de proxy web
+
+Headers de segurança são aplicados depois dos headers recebidos da API no proxy Node,
+para impedir que o upstream enfraqueça `X-Frame-Options`, `Referrer-Policy` ou
+`Permissions-Policy`. A mesma política foi adicionada aos rewrites externos da Vercel
+e às respostas de erro do proxy. Em produção, `API_ORIGIN` configurado exige HTTPS;
+HTTP continua válido apenas para desenvolvimento/local.
+
+Não fazer: apagar dados de teste a partir de relatório externo, alterar CORS da API ou
+tratar achados exclusivos do backend como correção do front.

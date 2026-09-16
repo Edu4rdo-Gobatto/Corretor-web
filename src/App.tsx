@@ -1,5 +1,5 @@
 import { catalogPaths, normalizedUrl } from './services/urls';
-import { lazy, Suspense, useContext, useEffect, useState } from 'react';
+import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import PublicLayout from './components/PublicLayout';
 import Catalog from './pages/public/Catalog';
@@ -24,7 +24,21 @@ const Parties = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.P
 const PartyDetail = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.PartyDetail})));
 const LeaseList = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.LeaseList})));
 const LeaseDetail = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.LeaseDetail})));
-function ScrollToTop() { const { pathname } = useLocation(); useEffect(() => { window.scrollTo(0,0); }, [pathname]); return null; }
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  const previous = useRef(pathname);
+  useEffect(() => {
+    const from = previous.current.replace(/\/+$/, '') || '/';
+    const to = pathname.replace(/\/+$/, '') || '/';
+    previous.current = pathname;
+    if (from === to) return;
+    // Troca de filtro dentro do catálogo muda o pathname (/ -> /imoveis/salas):
+    // não joga ao topo, o usuário fica onde está, na seção de resultados.
+    if (catalogPaths.includes(from) && catalogPaths.includes(to)) return;
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 export default function App() {
   return <BrowserRouter><AppRoutes/></BrowserRouter>;
 }

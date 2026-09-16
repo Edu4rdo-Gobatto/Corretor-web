@@ -1,5 +1,43 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-16 — Muse Spark: chip "Todos os imóveis" legível + filtros sem scroll ao topo
+
+Pedidos do dono (com prints): botão "Todos os imóveis" com texto invisível e qualquer filtro
+rolando a página totalmente para cima. Back autorizado se preciso; não foi preciso (tipos
+carregam normalmente, só front).
+
+Causas raiz (comprovadas no código):
+- Chip: `chipBase` trazia `border-line bg-transparent text-muted` e o `chipSelected`
+  adicionava `border-navy bg-navy text-white` no mesmo elemento. No Tailwind vence a ordem
+  do CSS gerado, não a do atributo — resultado branco sobre branco, com o filete dourado
+  visível (o `shadow` não tinha conflito). Mesmo padrão dos bugs do menu/hambúrguer.
+- Scroll: `ScrollToTop` (`App.tsx`) fazia `window.scrollTo(0,0)` em toda troca de `pathname`,
+  e filtro de tipo/finalidade troca o pathname (`/` → `/imoveis/salas`) via `catalogUrl()`.
+
+Alterações em código (front apenas, sem commit/push):
+- `src/pages/public/Catalog.tsx`: `chipBase` só com layout; novo `chipIdle`
+  (`border-line bg-transparent text-muted hover:border-navy dark:hover:border-gold`);
+  uso `${chipBase} ${selected ? chipSelected : chipIdle}` nos dois botões.
+- `src/App.tsx`: `ScrollToTop` guarda o pathname anterior e pula o reset quando origem e
+  destino são ambos `catalogPaths`; saídas do catálogo mantêm o scroll ao topo.
+- `src/components/Pagination.tsx`: links de página (só usados no catálogo) ganham `onClick`
+  rolando até `#catalogo`, respeitando `prefers-reduced-motion`. Admin inalterado.
+- `src/seo/navigation.test.tsx`: regressão — selecionado tem `bg-navy`/`text-white` sem
+  `bg-transparent`/`text-muted`/`border-line`; clique no chip não chama `scrollTo`;
+  paginação chama `scrollIntoView` sem `scrollTo`; ir a `/privacidade` chama `scrollTo(0,0)`.
+
+Testes executados (resultado real):
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 30 arquivos, 148 testes aprovados (inclui a regressão nova).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`).
+- `node scripts/seo-smoke.mjs`: aprovado (SSR, metadados, paginação, 404, discovery, proxy).
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando
+liberado); conferir no navegador claro/escuro + mobile: chip legível nos dois estados,
+chips sem mover a página, Buscar levando aos resultados, paginação no `#catalogo`.
+Modificações locais preexistentes (`scripts/runtime.mjs`, `src/seo/server.*`, docs) não
+foram tocadas por esta entrega e seguem fora do escopo do commit.
+
 ## 2026-09-15 — Muse Spark: 404 de assets no preview (diagnóstico)
 
 Sintoma do dono: `GET /assets/index-DI-c97Mf.js` e `.css` 404 na porta 4173 com `npm run dev` "não achando nada".
@@ -789,3 +827,19 @@ no sitemap ou no `llms.txt`. Criado `scripts/safe-origin.mjs`; `dev` e `preview`
 Testes direcionados executados: `scripts/safe-origin.test.ts` aprovado; regressões SEO ajustadas. Validação completa
 fica registrada após executar typecheck, lint, testes, build, smoke e `git diff --check`. UX-001 cold start permanece
 adiada. A remoção de `.buttonGhost` foi mantida fora desta entrega por ainda haver consumidores administrativos.
+## 2026-09-15 — Hardening observado em teste externo
+
+- Alterados `src/seo/server.tsx`, `scripts/runtime.mjs` e `src/seo/server.test.ts`.
+- Headers adicionados: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` e `Permissions-Policy`.
+- Nenhum dado, registro, imóvel ou banco foi alterado; CORS da API não foi modificado.
+- Validação pendente nesta etapa: typecheck, lint, testes e build.
+
+## 2026-09-16 — Correção dos achados de segurança do proxy web
+
+Alterados `scripts/runtime.mjs`, `src/seo/deployment.ts`, `src/seo/server.tsx` e testes
+correspondentes. O proxy agora preserva headers defensivos contra valores conflitantes do
+upstream e os envia também em falhas de conexão/configuração; os rewrites da Vercel recebem
+a mesma política; `API_ORIGIN` HTTP é rejeitado em produção. O token de sessão já estava em
+memória; não houve mudança em dados, banco, uploads ou CORS. Validação real aprovada: `npm run
+typecheck`, `npm run lint`, `npm test` (31 arquivos/150 testes), `npm run build`, `git diff --check`
+e `node scripts/seo-smoke.mjs`.

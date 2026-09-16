@@ -9,6 +9,13 @@ const wirePage = {itens:[],total:0,pagina:1,limite:9,total_paginas:0};
 const catalogFetcher = () => vi.fn<typeof fetch>(async (input,options)=>{void options;const path=String(input);const items=path.includes('/tipos-imovel')?sampleClassifications.types:path.includes('/finalidades-imovel')?sampleClassifications.purposes:[];return new Response(JSON.stringify({...wirePage,itens:items,total:items.length}));});
 const page = { items: [], total: 0, page: 1, limit: 9, totalPages: 0 };
 describe('public SEO responses', () => {
+  it('adds defensive browser security headers to public responses', async () => {
+    const response = await handleRequest('/', config, catalogFetcher());
+    expect(response.headers['X-Content-Type-Options']).toBe('nosniff');
+    expect(response.headers['X-Frame-Options']).toBe('DENY');
+    expect(response.headers['Referrer-Policy']).toBe('strict-origin-when-cross-origin');
+    expect(response.headers['Permissions-Policy']).toContain('camera=()');
+  });
   it('renders the catalog without JavaScript and ignores visitor cookies', async () => {
     const fetcher = catalogFetcher();
     const response = await handleRequest('/', config, fetcher);
@@ -80,6 +87,9 @@ describe('public SEO responses', () => {
     const env = { SITE_URL: config.siteUrl, API_ORIGIN: config.apiOrigin, SEO_INDEXABLE: 'true', NODE_ENV: 'production' };
     expect(serverConfig(env).indexable).toBe(true);
     expect(serverConfig({ ...env, VERCEL_ENV: 'preview' }).indexable).toBe(false);
+    expect(() => serverConfig({ API_ORIGIN: 'http://api.example', NODE_ENV: 'production' })).toThrow(/API_ORIGIN requires HTTPS/);
+    expect(serverConfig({ API_ORIGIN: 'http://127.0.0.1:3000', NODE_ENV: 'production' }).apiOrigin).toBe('http://127.0.0.1:3000');
+    expect(serverConfig({ API_ORIGIN: 'http://localhost:3000', NODE_ENV: 'development' }).apiOrigin).toBe('http://localhost:3000');
   });
   it('returns real 404 for unknown routes and out of range pagination', async () => {
     expect((await handleRequest('/does-not-exist', config)).status).toBe(404);

@@ -46,4 +46,33 @@ describe('catalog URL navigation', () => {
     fireEvent.click(screen.getByRole('button', {name:'Avançar histórico'}));
     await waitFor(() => expect(screen.getByTestId('url').textContent).toBe('/?utm_source=test'));
   });
+  it('keeps the selected chip readable and preserves scroll on catalog filter changes', async () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    Element.prototype.scrollIntoView = vi.fn();
+    vi.spyOn(api,'classifications').mockResolvedValue(sampleClassifications);
+    vi.spyOn(api, 'listProperties').mockResolvedValue({items:[],total:0,totalPages:2,page:1,limit:9});
+    render(<MemoryRouter initialEntries={['/']}><AppRoutes/></MemoryRouter>);
+    const all = await screen.findByRole('button', {name:'Todos os imóveis'});
+    const sheds = await screen.findByRole('button', {name:'Galpões'});
+    // Selecionado nunca mistura utilities conflitantes (branco sobre branco = texto invisível).
+    for (const cls of [' bg-navy ', ' text-white ']) expect(all.className).toContain(cls);
+    for (const cls of ['bg-transparent', 'text-muted', 'border-line']) expect(all.className).not.toContain(cls);
+    expect(sheds.className).toContain('bg-transparent');
+    expect(sheds.className).not.toContain(' bg-navy ');
+    expect(sheds.className).not.toContain(' text-white ');
+    // Filtro por tipo troca o pathname mas não joga a página ao topo.
+    scrollTo.mockClear();
+    fireEvent.click(sheds);
+    await waitFor(() => expect(screen.getByRole('button', {name:'Galpões'}).getAttribute('aria-pressed')).toBe('true'));
+    expect(screen.getByRole('button', {name:'Galpões'}).className).toContain(' bg-navy ');
+    expect(screen.getByRole('button', {name:'Todos os imóveis'}).className).toContain('bg-transparent');
+    expect(scrollTo).not.toHaveBeenCalled();
+    // Paginação rola até os resultados, sem ir ao topo da página.
+    fireEvent.click(screen.getByRole('link', {name:'Próxima página'}));
+    await waitFor(() => expect(Element.prototype.scrollIntoView).toHaveBeenCalled());
+    expect(scrollTo).not.toHaveBeenCalled();
+    // Sair do catálogo continua rolando ao topo.
+    fireEvent.click(screen.getByRole('link', {name:'Política de privacidade'}));
+    await waitFor(() => expect(scrollTo).toHaveBeenCalledWith(0, 0));
+  });
 });

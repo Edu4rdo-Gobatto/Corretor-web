@@ -1,5 +1,33 @@
 # Estado atual — corretor-web
 
+## 2026-09-16 — Correção de achados do relatório de segurança web
+
+Área assumida: hardening do front/SSR, sem alteração de dados, banco, uploads ou CORS.
+Corrigidos: headers do proxy que podiam ser sobrescritos pelo upstream; respostas de erro
+do proxy sem headers; rewrites externos da Vercel sem headers; e `API_ORIGIN` HTTP aceito
+em produção. O token de acesso já estava somente em memória e os achados de dados públicos,
+brute force, upload e R2 pertencem à API/infraestrutura, não foram alterados nesta tarefa.
+Validação: typecheck, lint, 31 arquivos/150 testes, build, `git diff --check` e `node scripts/seo-smoke.mjs`
+aprovados. Sem commit/push; alterações locais anteriores foram preservadas.
+
+
+## 2026-09-16 — Muse Spark: chip "Todos os imóveis" + scroll dos filtros concluídos (sem commit)
+
+Corrigidos os dois sintomas do dono, só no front (back autorizado, mas não foi preciso):
+chip "Todos os imóveis" com texto invisível e filtros rolando a página ao topo.
+Causa do chip: `chipBase` + `chipSelected` empilhavam `bg-transparent` vs `bg-navy` e
+`text-muted` vs `text-white` no mesmo elemento — no Tailwind vence a ordem do CSS gerado,
+não a do atributo, e o resultado era branco sobre branco. Causa do scroll: `ScrollToTop`
+fazia `scrollTo(0,0)` em toda troca de pathname, e filtro de tipo troca o pathname.
+Validação: typecheck, lint, 30 arquivos/148 testes, build e seo-smoke aprovados.
+Sem commit/push (aguardando confirmação do dono). Pendente conferir no navegador.
+
+## 2026-09-15 — Headers defensivos no SSR
+
+Aplicados headers de segurança no SSR e no proxy `/api`: `X-Content-Type-Options`,
+`X-Frame-Options`, `Referrer-Policy` e `Permissions-Policy`. Nenhum registro,
+imóvel ou dado de banco foi alterado. CORS do backend permaneceu intacto.
+
 ## 2026-09-15 — CSS inicial antes da hidratação
 
 Corrigido o flash de HTML sem estilos no reload das páginas SSR, observado no `/devs`.

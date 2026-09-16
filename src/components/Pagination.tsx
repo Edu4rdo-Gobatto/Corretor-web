@@ -1,7 +1,13 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+function scrollToCatalog() {
+  const target = document.getElementById('catalogo');
+  if (!target) return;
+  const reduce = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView(reduce ? undefined : { behavior: 'smooth' });
+}
 export default function Pagination({ page, totalPages, onChange, href }: { page: number; totalPages: number; onChange: (page: number) => void; href?: (page: number) => string }) {
   if (totalPages <= 1 && page <= 1) return null;
-  if (href) return <nav className="mt-[38px] flex items-center justify-center gap-6" aria-label="Paginação">{page > 1 ? <Link className="buttonSecondary" to={href(page - 1)} aria-label="Página anterior"><ArrowLeft size={17}/></Link> : <span/>}<span>Página {page} de {Math.max(1, totalPages)}</span>{page < totalPages ? <Link className="buttonSecondary" to={href(page + 1)} aria-label="Próxima página"><ArrowRight size={17}/></Link> : <span/>}</nav>;
+  if (href) return <nav className="mt-[38px] flex items-center justify-center gap-6" aria-label="Paginação">{page > 1 ? <Link className="buttonSecondary" to={href(page - 1)} aria-label="Página anterior" onClick={scrollToCatalog}><ArrowLeft size={17}/></Link> : <span/>}<span>Página {page} de {Math.max(1, totalPages)}</span>{page < totalPages ? <Link className="buttonSecondary" to={href(page + 1)} aria-label="Próxima página" onClick={scrollToCatalog}><ArrowRight size={17}/></Link> : <span/>}</nav>;
   return <nav className="mt-[38px] flex items-center justify-center gap-6" aria-label="Paginação"><button type="button" className="buttonSecondary" disabled={page <= 1} onClick={() => onChange(page - 1)} aria-label="Página anterior"><ArrowLeft size={17}/></button><span aria-live="polite">Página {page} de {Math.max(1,totalPages)}</span><button type="button" className="buttonSecondary" disabled={page >= totalPages} onClick={() => onChange(page + 1)} aria-label="Próxima página"><ArrowRight size={17}/></button></nav>;
 }

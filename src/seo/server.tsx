@@ -10,6 +10,15 @@ import type { Page, Property } from '../types';
 import { brand } from '../config/brand';
 
 export interface ServerConfig extends SeoConfig { apiOrigin: string }
+const securityHeaders: Record<string, string> = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), geolocation=(), microphone=()'
+};
+function withSecurityHeaders(headers: Record<string, string>): Record<string, string> {
+  return { ...securityHeaders, ...headers };
+}
 export function serverConfig(env: Record<string, string | undefined>): ServerConfig {
   let siteUrl = '';
   let apiOrigin = '';
@@ -20,6 +29,9 @@ export function serverConfig(env: Record<string, string | undefined>): ServerCon
     if (key === 'site') siteUrl = parsed.origin; else apiOrigin = parsed.origin;
   }
   const requested = env.SEO_INDEXABLE === 'true' && env.VERCEL_ENV !== 'preview' && env.NODE_ENV === 'production';
+  const apiHost = apiOrigin ? new URL(apiOrigin).hostname : '';
+  const localApi = ['localhost', '127.0.0.1', '::1', '[::1]'].includes(apiHost);
+  if (env.NODE_ENV === 'production' && apiOrigin && !apiOrigin.startsWith('https://') && !localApi) throw new Error('Production API_ORIGIN requires HTTPS');
   if (requested && (!siteUrl.startsWith('https://') || !apiOrigin.startsWith('https://'))) throw new Error('Indexing requires HTTPS SITE_URL and API_ORIGIN');
   return { siteUrl, apiOrigin, indexable: requested };
 }
@@ -80,10 +92,10 @@ async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch
 export async function handleRequest(path: string, config: ServerConfig, fetcher: typeof fetch = fetch, template = '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"/><!--seo-head--></head><body><div id="root"><!--app-html--></div><!--bootstrap--></body></html>') {
   const url = new URL(path, 'http://local');
   const normalized = normalizedUrl(path);
-  if (normalized !== url.pathname + url.search) return { status: 301, headers: { Location: normalized, 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex,nofollow' }, body: '' };
+  if (normalized !== url.pathname + url.search) return { status: 301, headers: withSecurityHeaders({ Location: normalized, 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex,nofollow' }), body: '' };
   const catalog = readCatalogUrl(path);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
-  const headers: Record<string, string> = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=300', 'X-Robots-Tag': 'noindex,nofollow' };
+  const headers: Record<string, string> = withSecurityHeaders({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=300', 'X-Robots-Tag': 'noindex,nofollow' });
   const boot: Bootstrap = { url: url.pathname + url.search, config: { siteUrl: config.siteUrl, indexable: config.indexable }, data: {}, status: 200 };
   try {
     if (url.pathname === '/robots.txt' || url.pathname === '/llms.txt') {
