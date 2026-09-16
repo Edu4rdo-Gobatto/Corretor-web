@@ -1,11 +1,11 @@
-import { isValidPropertySlug, normalizedUrl, propertyUrl, readCatalogUrl } from '../services/urls';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import { AppRoutes } from '../App';
-import { BootstrapContext } from './context';
+import { ContextoBootstrap } from './context';
 import { absolute, buildSeo, escapeHtml, renderHead, serialize, type Bootstrap, type SeoConfig } from './metadata';
-import { pageFromWire, propertyFromWire, wireCatalogQuery, type Classification, type Classifications, type WirePage, type WireProperty } from '../services/portuguese';
-import type { Page, Property } from '../types';
+import { lerUrlCatalogo, slugImovelValido, urlImovel, urlNormalizada } from '../servicos/urls';
+import { consultaParaApi } from '../servicos/catalogo';
+import type { Classificacao, Classificacoes, Imovel, Pagina } from '../tipos';
 import { brand } from '../config/brand';
 
 export interface ServerConfig extends SeoConfig { apiOrigin: string }
@@ -13,11 +13,10 @@ const securityHeaders: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), geolocation=(), microphone=()'
+  'Permissions-Policy': 'camera=(), geolocation=(), microphone=()',
 };
-function withSecurityHeaders(headers: Record<string, string>): Record<string, string> {
-  return { ...securityHeaders, ...headers };
-}
+const withSecurityHeaders = (headers: Record<string, string>): Record<string, string> => ({ ...securityHeaders, ...headers });
+
 export function serverConfig(env: Record<string, string | undefined>): ServerConfig {
   let siteUrl = '';
   let apiOrigin = '';
@@ -34,18 +33,35 @@ export function serverConfig(env: Record<string, string | undefined>): ServerCon
   if (requested && (!siteUrl.startsWith('https://') || !apiOrigin.startsWith('https://'))) throw new Error('Indexing requires HTTPS SITE_URL and API_ORIGIN');
   return { siteUrl, apiOrigin, indexable: requested };
 }
+
 class PublicError extends Error { constructor(public status: number) { super('Public request failed'); } }
+
 async function publicGet<T>(path: string, config: ServerConfig, fetcher: typeof fetch, allowNotFound = false): Promise<T> {
   if (!config.apiOrigin) throw new PublicError(503);
   const result = await fetcher(`${config.apiOrigin}${path}`, { headers: { Accept: 'application/json' }, credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(10000) });
   if (!result.ok) throw new PublicError(result.status === 404 && allowNotFound ? 404 : 503);
   return result.json();
 }
-async function publicClassifications(config:ServerConfig,fetcher:typeof fetch):Promise<Classifications> {
-  const load=async(kind:string)=>{const items:Classification[]=[];let pagina=1;let total=1;do{const result=await publicGet<WirePage<Classification>>(`/${kind}?pagina=${pagina}&limite=100`,config,fetcher);items.push(...result.itens);total=result.total_paginas??Math.ceil(result.total/result.limite);pagina++;}while(pagina<=total);return items;};
-  const [types,purposes,features]=await Promise.all([load('tipos-imovel'),load('finalidades-imovel'),load('caracteristicas')]);return {types,purposes,features};
+
+async function classificacoesPublicas(config: ServerConfig, fetcher: typeof fetch): Promise<Classificacoes> {
+  const carregar = async (categoria: string) => {
+    const itens: Classificacao[] = [];
+    let pagina = 1;
+    let totalPaginas = 1;
+    do {
+      const resultado = await publicGet<Pagina<Classificacao>>(`/${categoria}?pagina=${pagina}&limite=100`, config, fetcher);
+      itens.push(...resultado.itens);
+      totalPaginas = resultado.total_paginas ?? Math.ceil(resultado.total / resultado.limite);
+      pagina++;
+    } while (pagina <= totalPaginas);
+    return itens;
+  };
+  const [tipos, finalidades, caracteristicas] = await Promise.all([carregar('tipos-imovel'), carregar('finalidades-imovel'), carregar('caracteristicas')]);
+  return { tipos, finalidades, caracteristicas };
 }
+
 const xml = (body: string, type: 'urlset' | 'sitemapindex' = 'urlset') => `<?xml version="1.0" encoding="UTF-8"?><${type} xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</${type}>`;
+
 export function sitemapChunks(entries: string[], maxCount = 45000, maxBytes = 45000000) {
   const chunks: string[][] = [[]];
   let bytes = 0;
@@ -55,31 +71,32 @@ export function sitemapChunks(entries: string[], maxCount = 45000, maxBytes = 45
     if (chunks.at(-1)!.length >= maxCount || bytes + size > maxBytes) { chunks.push([]); bytes = 0; }
     chunks.at(-1)!.push(entry); bytes += size;
   }
-  return chunks.map(chunk => xml(chunk.join('')));
+  return chunks.map((chunk) => xml(chunk.join('')));
 }
+
 async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch) {
   if (!config.siteUrl) throw new PublicError(503);
   const entries = new Map<string, string>();
   for (const url of ['/', '/privacidade']) entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc></url>`);
   const deadline = AbortSignal.timeout(45000);
   const boundedFetch: typeof fetch = (input, init) => fetcher(input, { ...init, signal: AbortSignal.any([deadline, ...(init?.signal ? [init.signal] : [])]) });
-  const collect = (result: Page<Property>) => {
-    if (!Array.isArray(result.items) || !Number.isInteger(result.totalPages) || result.totalPages < 0) throw new PublicError(503);
-    for (const property of result.items) {
-      if (!property.slug || typeof property.slug !== 'string') throw new PublicError(503);
-      const url = propertyUrl(property.slug);
-      const date = new Date(property.updatedAt);
+  const collect = (result: Pagina<Imovel>) => {
+    if (!Array.isArray(result.itens) || !Number.isInteger(result.total_paginas) || result.total_paginas < 0) throw new PublicError(503);
+    for (const imovel of result.itens) {
+      if (!imovel.slug || typeof imovel.slug !== 'string') throw new PublicError(503);
+      const url = urlImovel(imovel.slug);
+      const date = new Date(imovel.alterado_em);
       entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc>${Number.isNaN(date.valueOf()) ? '' : `<lastmod>${date.toISOString()}</lastmod>`}</url>`);
     }
   };
-  const first = pageFromWire(await publicGet<WirePage<WireProperty>>('/imoveis?pagina=1&limite=100', config, boundedFetch), propertyFromWire);
+  const first = await publicGet<Pagina<Imovel>>('/imoveis?pagina=1&limite=100', config, boundedFetch);
   collect(first);
   let nextPage = 2;
-  await Promise.all(Array.from({ length: Math.min(6, Math.max(0, first.totalPages - 1)) }, async () => {
-    while (nextPage <= first.totalPages) {
+  await Promise.all(Array.from({ length: Math.min(6, Math.max(0, first.total_paginas - 1)) }, async () => {
+    while (nextPage <= first.total_paginas) {
       const current = nextPage++;
       deadline.throwIfAborted();
-      collect(pageFromWire(await publicGet<WirePage<WireProperty>>(`/imoveis?pagina=${current}&limite=100`, config, boundedFetch), propertyFromWire));
+      collect(await publicGet<Pagina<Imovel>>(`/imoveis?pagina=${current}&limite=100`, config, boundedFetch));
     }
   }));
   const chunks = sitemapChunks([...entries].sort(([a], [b]) => a.localeCompare(b)).map(([, entry]) => entry));
@@ -88,11 +105,14 @@ async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch
   if (!chunks[index]) throw new PublicError(404);
   return chunks[index];
 }
+
+const redirect = (location: string) => ({ status: 301, headers: withSecurityHeaders({ Location: location, 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex,nofollow' }), body: '' });
+
 export async function handleRequest(path: string, config: ServerConfig, fetcher: typeof fetch = fetch, template = '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"/><!--seo-head--></head><body><div id="root"><!--app-html--></div><!--bootstrap--></body></html>') {
   const url = new URL(path, 'http://local');
-  const normalized = normalizedUrl(path);
-  if (normalized !== url.pathname + url.search) return { status: 301, headers: withSecurityHeaders({ Location: normalized, 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex,nofollow' }), body: '' };
-  const catalog = readCatalogUrl(path);
+  const normalizada = urlNormalizada(path);
+  if (normalizada !== url.pathname + url.search) return redirect(normalizada);
+  const catalogo = lerUrlCatalogo(path);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
   const headers: Record<string, string> = withSecurityHeaders({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=300', 'X-Robots-Tag': 'noindex,nofollow' });
   const boot: Bootstrap = { url: url.pathname + url.search, config: { siteUrl: config.siteUrl, indexable: config.indexable }, data: {}, status: 200 };
@@ -110,23 +130,25 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
       return { status: 200, headers, body };
     }
     if (!admin) {
-      if (catalog) {
-        boot.data.classifications = await publicClassifications(config, fetcher);
-        const encoded = wireCatalogQuery(catalog, boot.data.classifications);
-        boot.data.catalog = encoded === null ? {items:[],total:0,page:catalog.page,limit:catalog.limit,totalPages:0} : pageFromWire(await publicGet<WirePage<WireProperty>>(`/imoveis?${encoded}`, config, fetcher), propertyFromWire);
-        const query = catalog;
-        if (query.page > Math.max(1, boot.data.catalog.totalPages)) boot.status = 404;
+      if (catalogo) {
+        boot.data.classificacoes = await classificacoesPublicas(config, fetcher);
+        const codificada = consultaParaApi(catalogo, boot.data.classificacoes);
+        boot.data.catalogo = codificada === null ? { itens: [], total: 0, pagina: catalogo.pagina, limite: catalogo.limite, total_paginas: 0 } : await publicGet<Pagina<Imovel>>(`/imoveis?${codificada}`, config, fetcher);
+        if (catalogo.pagina > Math.max(1, boot.data.catalogo.total_paginas)) boot.status = 404;
       } else if (/^\/imoveis\/[^/]+$/.test(url.pathname)) {
         const slug = decodeURIComponent(url.pathname.slice('/imoveis/'.length));
-        if (!isValidPropertySlug(slug)) throw new PublicError(404);
-        boot.data.property = propertyFromWire(await publicGet<WireProperty>(`/imoveis/${encodeURIComponent(slug)}`, config, fetcher, true));
+        if (!slugImovelValido(slug)) throw new PublicError(404);
+        const imovel = await publicGet<Imovel>(`/imoveis/${encodeURIComponent(slug)}`, config, fetcher, true);
+        // O slug muda com o título; o id no final garante que o link antigo leve ao endereço atual.
+        if (imovel.slug !== slug) return redirect(urlImovel(imovel.slug) + url.search);
+        boot.data.imovel = imovel;
       } else if (url.pathname !== '/privacidade' && url.pathname !== '/devs') boot.status = 404;
     }
   } catch (error) { boot.status = error instanceof PublicError ? error.status : error instanceof URIError ? 404 : 503; boot.data = {}; }
   if (boot.status !== 200) headers['Cache-Control'] = 'no-store';
   const seo = buildSeo(boot.url, config, boot.data, boot.status);
   headers['X-Robots-Tag'] = seo.robots;
-  const content = admin ? '' : renderToString(<BootstrapContext.Provider value={boot}><StaticRouter location={boot.url}><AppRoutes/></StaticRouter></BootstrapContext.Provider>);
+  const content = admin ? '' : renderToString(<ContextoBootstrap.Provider value={boot}><StaticRouter location={boot.url}><AppRoutes /></StaticRouter></ContextoBootstrap.Provider>);
   const body = template.replace('<!--seo-head-->', () => renderHead(seo)).replace('<!--app-html-->', () => content).replace('<!--bootstrap-->', () => `<script id="seo-bootstrap" type="application/json">${serialize(boot)}</script>`);
   return { status: boot.status, headers, body };
 }

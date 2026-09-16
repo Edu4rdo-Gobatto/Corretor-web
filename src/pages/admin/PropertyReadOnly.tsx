@@ -1,6 +1,0 @@
-import type { Property } from '../../types';
-import MediaGallery from '../../components/MediaGallery';
-import { area, featureValue, money, propertyStatuses } from '../../services/format';
-export default function PropertyReadOnly({property:p}:{property:Property}) {
- return <section className="grid gap-6 rounded border border-line bg-paper p-5 lg:p-7"><div><h2>{p.title}</h2><p>{p.typeName} · {p.purposeName} · {propertyStatuses[p.status]}{p.active===false?' · Inativo':''}</p><p className="muted">Responsável: {p.agent.name}. A edição está disponível para o responsável e administradores.</p></div><MediaGallery media={p.media} title={p.title}/><dl className="grid gap-3 [&_dd]:m-0 [&_dt]:font-semibold"><div><dt>Valor anunciado</dt><dd>{money(p.price)}</dd></div><div><dt>Condomínio / IPTU</dt><dd>{p.condoFee===null?'Não informado':money(p.condoFee)} / {p.iptuFee===null?'Não informado':money(p.iptuFee)}</dd></div><div><dt>Área útil / total</dt><dd>{area(p.usableArea)} / {area(p.totalArea)}</dd></div><div><dt>Endereço</dt><dd>{p.addressStreet}, {p.addressNumber} {p.addressComplement} · {p.neighborhood}, {p.addressCity}/{p.addressState} · {p.postalCode}</dd></div></dl><p className="whitespace-pre-wrap">{p.description}</p><ul>{Object.entries(p.features).map(([name,value])=><li key={name}>{name}: {featureValue(value)}</li>)}</ul></section>;
-}

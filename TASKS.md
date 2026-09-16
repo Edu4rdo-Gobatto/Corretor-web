@@ -6,6 +6,113 @@ Tarefas da API ficam em `../Corretor-API/TASKS.md`.
 
 ---
 
+## FRONT-V2-001 — Contrato v2: ids inteiros, pessoas, ficha do imóvel e vocabulário em português
+
+Status: em revisão
+Responsável: Claude — implementado em 16/09/2026
+Revisor: —
+
+Objetivo: aplicar as decisões do dono de 16/09 (`docs/specs/2026-09-16-ids-inteiros-pessoas.md`).
+
+Critérios de conclusão:
+
+- Tipos, serviços, páginas e componentes em português sem tradutor de contrato. Feito.
+- Mídia enviada junto com a criação do imóvel. Feito (`SelecaoMidia` + envio após o POST).
+- Contatos em três colunas (pendentes, respondidos, finalizados). Feito.
+- Cadastro único de pessoas com ficha e vínculos. Feito.
+- Campos novos da ficha do imóvel, filtros e ordenação do catálogo. Feito.
+- Componentes compartilhados do painel. Feito.
+- Typecheck, lint, testes, build e smoke aprovados. Ver `CHANGELOG_AI.md`.
+- Conferência manual no navegador com a API v2 local e E2E autenticado. Pendente (exige stack de teste e migration aplicada).
+
+---
+
+## NOTIFY-001 — Avisar o corretor de novo contato
+
+Status: aberta (dono pediu para debater antes)
+Responsável: —
+
+Objetivo: decidir o canal (e-mail transacional, WhatsApp ou outro) e o provedor para avisar o corretor responsável quando
+um contato chega pelo site; depende de `NOTIFY-001` na API.
+
+---
+
+## RENTAL-004 — Regras de locação e comissões
+
+Status: aberta (dono pediu conversa dedicada)
+Responsável: —
+
+Objetivo: definir com o dono papéis, fluxo e relatórios de contratos e comissões antes de mudar telas ou regras.
+Nada mudou nas regras em 16/09 além de apontar para `pessoas` e usar o seletor com busca.
+
+---
+
+## RASCUNHO-001 — Rascunho e publicação do anúncio
+
+Status: aberta (a decidir com o dono)
+Responsável: —
+
+Objetivo: hoje o imóvel vai ao ar ao salvar (com as fotos, desde 16/09). Decidir se haverá um estado de rascunho ou
+botão "Publicar no site" separado da situação do anúncio.
+
+---
+
+## AGENDA-001 — Agenda de visitas
+
+Status: aberta (P2)
+Responsável: —
+
+Objetivo: registrar visitas (imóvel, pessoa, data/hora, resultado) ligadas ao funil de contatos.
+
+---
+
+## FICHA-001 — Ficha imprimível, mapa embutido e CEP automático
+
+Status: aberta (P2)
+Responsável: —
+
+Objetivo: CSS de impressão do detalhe, mapa embutido sem clique e preenchimento de endereço por CEP (serviço externo
+precisa de justificativa em `DECISIONS.md`).
+
+---
+
+## RELATORIO-001 — Relatório de comissões por mês e exportação de pessoas
+
+Status: aberta (P2)
+Responsável: —
+
+Objetivo: a receber, recebido e atrasado por mês; exportação CSV de pessoas com filtros.
+
+---
+
+## PORTAIS-001 — Feed XML para portais
+
+Status: aberta (P3, só se cliente pedir)
+Responsável: —
+
+Objetivo: "cadastra uma vez, publica em todos": feed no formato dos portais (ZAP/VivaReal/OLX).
+
+---
+
+## SENHA-001 — Esqueci minha senha
+
+Status: aberta (P3)
+Responsável: —
+
+Objetivo: redefinição por e-mail; depende do provedor escolhido em NOTIFY-001.
+
+---
+
+## FORMATO-001 — Prettier e largura de linha
+
+Status: aberta (a decidir com o dono)
+Responsável: —
+
+Objetivo: adotar Prettier (largura 120) e regra de lint para acabar com linhas de milhares de caracteres nos arquivos
+antigos. Exige registrar a dependência de desenvolvimento em `DECISIONS.md`.
+
+---
+
 ## DEPLOY-002 — Publicar o front
 
 Status: bloqueada

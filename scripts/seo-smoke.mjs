@@ -1,24 +1,27 @@
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { sampleWireProperty as sampleProperty, sampleClassifications } from '../src/seo/fixture.ts';
+import { imovelExemplo, classificacoesExemplo } from '../src/seo/fixture.ts';
 
-const properties = Array.from({ length: 11 }, (_, i) => ({ ...sampleProperty, id: `test-${i}`, slug: `${sampleProperty.slug}-${i}`, titulo: `${sampleProperty.titulo} ${i + 1}` }));
+const properties = Array.from({ length: 11 }, (_, i) => ({ ...imovelExemplo, id: 100 + i, slug: `sala-comercial-no-centro-${100 + i}`, titulo: `${imovelExemplo.titulo} ${i + 1}` }));
 const api = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   res.setHeader('Content-Type', 'application/json');
   if (url.pathname === '/saude') {
     res.end(JSON.stringify({ status: 'ok' }));
   } else if (['/tipos-imovel','/finalidades-imovel','/caracteristicas'].includes(url.pathname)) {
-    const itens=url.pathname==='/tipos-imovel'?sampleClassifications.types:url.pathname==='/finalidades-imovel'?sampleClassifications.purposes:[];res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
+    const itens=url.pathname==='/tipos-imovel'?classificacoesExemplo.tipos:url.pathname==='/finalidades-imovel'?classificacoesExemplo.finalidades:classificacoesExemplo.caracteristicas;res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
   } else if (url.pathname === '/imoveis') {
     const page = Number(url.searchParams.get('pagina') || 1); const limit = Number(url.searchParams.get('limite') || 9);
     res.end(JSON.stringify({ itens: properties.slice((page - 1) * limit, page * limit), total: properties.length, pagina:page, limite:limit, total_paginas: Math.ceil(properties.length / limit) }));
   } else if (url.pathname.startsWith('/imoveis/')) {
-    const property = properties.find(item => item.slug === decodeURIComponent(url.pathname.slice(9)));
+    // Como a API: localiza pelo id no fim do slug e devolve o registro com o slug atual.
+    const slug = decodeURIComponent(url.pathname.slice(9));
+    const id = Number(slug.match(/(?:^|-)(\d+)$/)?.[1]);
+    const property = properties.find(item => item.id === id);
     res.writeHead(property ? 200 : 404); res.end(JSON.stringify(property || { message: 'Não encontrado' }));
-  } else if (url.pathname === '/clientes' && req.method === 'POST') {
-    res.writeHead(201); res.end(JSON.stringify({ id: 'test-lead' }));
+  } else if (url.pathname === '/pessoas' && req.method === 'POST') {
+    res.writeHead(201); res.end(JSON.stringify({ id: 7 }));
   } else if (url.pathname === '/proxy-check') {
     let body = ''; for await (const part of req) body += part;
     res.setHeader('Set-Cookie', ['first=test; HttpOnly; Path=/', 'second=test; Path=/']);
@@ -41,7 +44,9 @@ try {
   assert.equal(property.status, 200); assert.match(await property.text(), /BreadcrumbList/);
   const devs = await fetch('http://127.0.0.1:4180/devs');
   assert.equal(devs.status, 200); assert.match(await devs.text(), /<h1[^>]*>Desenvolvedores<\/h1>/);
-  assert.equal((await fetch('http://127.0.0.1:4180/imoveis/missing')).status, 404);
+  assert.equal((await fetch('http://127.0.0.1:4180/imoveis/missing-999')).status, 404);
+  const renamed = await fetch('http://127.0.0.1:4180/imoveis/titulo-antigo-100', { redirect: 'manual' });
+  assert.equal(renamed.status, 301); assert.equal(renamed.headers.get('location'), '/imoveis/sala-comercial-no-centro-100');
   assert.equal((await fetch('http://127.0.0.1:4180/missing')).status, 404);
   const proxy = await fetch('http://127.0.0.1:4180/api/proxy-check', { method: 'POST', headers: { Cookie: 'test=value' }, body: 'test body' });
   assert.deepEqual(await proxy.json(), { method: 'POST', cookie: 'test=value', body: 'test body' });

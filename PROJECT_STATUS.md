@@ -1,5 +1,12 @@
 # Estado atual — corretor-web
 
+## 2026-09-16 — Claude: contrato v2 concluído no front (ids inteiros, pessoas, ficha do imóvel, português)
+
+Implementado e validado: typecheck, lint, 37 arquivos/177 testes, build e `seo-smoke` aprovados no front;
+na API, typecheck, lint, build, 175 testes e a integração da migration em PostgreSQL 16 aprovados.
+Falta conferência no navegador com a API v2 local e E2E autenticado; publicação exige corte coordenado
+(front e API juntos) e migração do banco com backup. Sem commit/push.
+
 ## 2026-09-16 — Claude: contrato v2 (ids inteiros, pessoas, ficha do imóvel, front em português)
 
 Área assumida: implementação das decisões do dono de 16/09 nos dois repositórios, conforme

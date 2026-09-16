@@ -32,7 +32,7 @@ test('upload de imagem persiste, carrega e vira capa pública', async ({ page, b
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Terreno E2E mídia');
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   let slug = '';
   try {
     const property = await createProperty(session.token, titulo);
@@ -52,7 +52,7 @@ test('upload de imagem persiste, carrega e vira capa pública', async ({ page, b
 
     // Persistência confirmada no backend real: 1 mídia, marcada como capa.
     const { data } = await get(`/admin/imoveis/${propertyId}`, session.token);
-    const persisted = (data as { midias: { id: string; capa: boolean; url: string }[] }).midias;
+    const persisted = (data as { midias: { id: number; capa: boolean; url: string }[] }).midias;
     expect(persisted).toHaveLength(1);
     expect(persisted[0].capa).toBe(true);
     expect(persisted[0].url).toMatch(/^https?:\/\//);
@@ -72,7 +72,7 @@ test('embed de vídeo inválido é recusado com alerta', async ({ page, backend 
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Prédio E2E vídeo');
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   try {
     propertyId = (await createProperty(session.token, titulo)).id;
     await loginViaUi(page, credentials!.email, credentials!.senha);

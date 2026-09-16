@@ -34,7 +34,7 @@ test('navegação do cartão leva ao detalhe e deep-link abre direto', async ({
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Sala E2E catálogo');
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   let slug = '';
   try {
     const property = await createProperty(session.token, titulo);

@@ -39,8 +39,8 @@ Nunca coloque segredo em variável `VITE_*`: tudo que tem esse prefixo vai para 
 ## Regras
 
 **Dados e integração**
-- Todas as chamadas à API passam por `src/services/api.ts`. Não use `fetch` direto em componente.
-- O access token fica só em memória (`src/services/http.ts`). Não grave token em `localStorage` nem em cookie pelo front.
+- Todas as chamadas à API passam por `src/servicos/api.ts` (e `locacoes.ts`). Não use `fetch` direto em componente.
+- O access token fica só em memória (`src/servicos/http.ts`). Não grave token em `localStorage` nem em cookie pelo front.
 - O refresh é feito por cookie `httpOnly` enviado pela API. Não tente ler esse cookie no navegador.
 - Uma renovação de sessão por vez: o cliente já compartilha a promessa de refresh. Não crie outro caminho de renovação.
 - Em desenvolvimento e preview, `API_ORIGIN` deve apontar para localhost ou loopback; origens remotas são bloqueadas.
@@ -49,6 +49,7 @@ Nunca coloque segredo em variável `VITE_*`: tudo que tem esse prefixo vai para 
 - Todo componente usado em rota pública precisa renderizar no servidor: nada de acessar `window`, `document` ou
   `sessionStorage` durante a renderização. Use efeito ou verificação de ambiente.
 - Dados de página pública vêm do bootstrap do SSR; mantenha o contrato de `src/seo/context.tsx` e `src/seo/metadata.ts`.
+- Ids são inteiros; o slug público termina no id e o SSR redireciona (301) quando o título mudou.
 - Ao criar rota pública nova, trate também: metadados, canonical, entrada no `sitemap.xml` e comportamento em 404.
 - O painel (`/admin/*`) não é renderizado no servidor e permanece `noindex`.
 
@@ -104,13 +105,17 @@ scripts/dev.mjs       # servidor SSR de desenvolvimento sobre o Vite em modo mid
 scripts/build.mjs     # build do cliente e do SSR, e geração de .vercel/output (Build Output API v3)
 scripts/preview.mjs   # serve o build com o mesmo runtime
 scripts/runtime.mjs   # proxy /api → API_ORIGIN (remove o prefixo /api) e renderização das páginas
-src/seo/              # server.tsx (rotas SSR, robots, sitemap, llms), metadata.ts (títulos, OG, JSON-LD), context.tsx
-src/services/         # http.ts (token em memória, refresh único), api.ts (chamadas), demo.ts, catalog.ts, lead.ts, embedUrl.ts, format.ts
-src/pages/public/     # Catalog, PropertyDetail, PrivacyPolicy
-src/pages/admin/      # Login, AdminLayout, Dashboard, PropertyList, PropertyForm, LeadsList, AgentsList
-src/components/       # PublicLayout, PropertyCard, MediaGallery, LeadFormModal, MediaManager, Dialog, Pagination, AsyncState, AppErrorBoundary
-src/hooks/            # useAuth (sessão), useResource (carregamento)
+src/seo/              # server.tsx (rotas SSR, robots, sitemap, llms), metadata.ts (títulos, OG, JSON-LD), context.tsx, fixture.ts
+src/tipos/            # domínio em português, igual ao contrato HTTP (Imovel, FichaImovel, Pessoa, Corretor, Pagina)
+src/servicos/         # http.ts (token em memória, renovação única), api.ts, locacoes.ts, catalogo.ts, urls.ts, contato.ts, formato.ts, validacao.ts
+src/paginas/publico/  # Catalogo, DetalheImovel, Privacidade, Devs
+src/paginas/painel/   # LayoutPainel, Entrar, VisaoGeral, Imoveis, FormularioImovel, Contatos, Pessoas, FichaPessoa, Corretores, Cadastros, Contratos, DetalheContrato, Comissoes, Perfil
+src/componentes/      # LayoutPublico, CartaoImovel, GaleriaMidia, FormularioContato, GerenciadorMidia, SelecaoMidia, SeletorRegistro, CabecalhoPagina, Tabela, Etiqueta, Dialogo, Paginacao, EstadoCarregamento, LimiteErro
+src/hooks/            # useSessao, useRecurso, useDadosPainel, useTema, useGuardaFormulario
 ```
+
+Vocabulário: código, tipos, nomes de arquivo e rótulos em português, com os mesmos nomes de campo do contrato da API
+(`snake_case`). Não reintroduza tradutores de contrato nem nomes em inglês para o domínio.
 
 ## Serviços externos
 

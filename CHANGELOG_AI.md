@@ -1,5 +1,45 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-16 — Contrato v2 no front: ids inteiros, pessoas, ficha do imóvel e português (Claude)
+
+Pedido do dono em 16/09: upload de imagens junto com a criação do imóvel; contatos em três listas
+(pendentes, respondidos, finalizados); cadastro único de pessoas (o lead é só o primeiro contato);
+campos novos no imóvel e no catálogo; tudo em português; componentes compartilhados no painel; e
+ids inteiros com autoincremento no lugar de UUID. Contrato: `docs/specs/2026-09-16-ids-inteiros-pessoas.md`.
+
+Alterações no front (renomeações com `git mv`, histórico preservado):
+
+- `src/tipos/index.ts` reescrito com o domínio em português igual ao contrato HTTP; `src/services/portuguese.ts`
+  (tradutor) e os tipos ingleses removidos. Pastas `src/servicos`, `src/componentes`, `src/paginas/{publico,painel}`.
+- `src/servicos/`: `http.ts` (renovação única), `api.ts` (catálogo, fichas, pessoas, mídia, sessão),
+  `locacoes.ts` (contratos e comissões), `catalogo.ts`, `urls.ts`, `contato.ts`, `formato.ts`, `validacao.ts`,
+  `exportacaoContatos.ts`, `videoEmbed.ts`.
+- Imóvel novo: `SelecaoMidia` guarda fotos e vídeos antes de salvar; o formulário faz POST e envia as mídias em
+  seguida, avisando na edição se alguma falhar. Ficha interna com proprietário (busca), exclusividade, captação,
+  chaves, matrícula, inscrição, observações internas e motivo da baixa; dois valores (venda e locação).
+- Contatos (`/admin/contatos`) em três colunas por `status_contato`, cada uma com paginação, CSV e ações de avanço.
+  Pessoas (`/admin/pessoas`) com lista, editor único e ficha com imóveis, contratos e comissões.
+- Catálogo público: filtros de bairro e área, ordenação, datalist de cidades; slug termina no id e o SSR responde
+  301 quando o título mudou (na SPA, `Navigate`). Cartão mostra "Sob consulta" sem valores e etiqueta de destaque.
+- Componentes compartilhados: `CabecalhoPagina`, `Tabela`, `Etiqueta`, `estilosPainel`, `SeletorRegistro`
+  (combobox com busca, no lugar dos seletores paginados), `EstadoCarregamento`, `Dialogo`, `Paginacao`, `LimiteErro`.
+- Hooks: `useSessao`, `useRecurso`, `useDadosPainel`, `useTema`, `useGuardaFormulario`.
+- `scripts/seo-smoke.mjs` e `tests/e2e/**` adaptados ao contrato v2 (ids inteiros, `/pessoas`, dois valores).
+
+Testes executados (resultado real):
+
+- Front: `npx tsc --noEmit` sem erros; `npm run lint` sem erros; `npx vitest run` com 37 arquivos e 177 testes
+  aprovados; `npm run build` (cliente, SSR e `.vercel/output`) aprovado; `node scripts/seo-smoke.mjs` aprovado,
+  incluindo o 301 do slug renomeado.
+- API (repositório irmão): typecheck, lint, build e 26 suítes/175 testes aprovados; integração da migration em
+  PostgreSQL 16 (Docker) com 4 testes aprovados.
+- Não executado: E2E autenticado (exige stack de teste com a API v2 publicada, credenciais e `E2E_STACK=teste`) e
+  conferência no navegador com dados reais.
+
+Pendências e riscos: publicar front e API juntos (o contrato antigo deixa de funcionar); migração do banco só com
+backup e corte coordenado; aviso de novo contato (NOTIFY-001), regras de locação (RENTAL-004), rascunho de anúncio
+(RASCUNHO-001) e Prettier (FORMATO-001) ficaram para conversa com o dono. Sem commit/push.
+
 ## 2026-09-16 — Diagnóstico de produto com olhar de corretor (Claude)
 
 Pedido: analisar o sistema como sênior e como corretor, apontar pontos críticos, melhorias e novas

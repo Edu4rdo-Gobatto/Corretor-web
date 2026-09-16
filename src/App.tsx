@@ -1,76 +1,113 @@
-import { catalogPaths, normalizedUrl } from './services/urls';
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { createBrowserRouter, RouterProvider, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import PublicLayout from './components/PublicLayout';
-import Catalog from './pages/public/Catalog';
-import AsyncState from './components/AsyncState';
-import { AuthProvider } from './hooks/useAuth';
-import PropertyDetail from './pages/public/PropertyDetail';
-import PrivacyPolicy from './pages/public/PrivacyPolicy';
-import Devs from './pages/public/Devs';
-import { BootstrapContext, Seo, useInitialData } from './seo/context';
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const Login = lazy(() => import('./pages/admin/Login'));
-const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
-const PropertyList = lazy(() => import('./pages/admin/PropertyList'));
-const PropertyForm = lazy(() => import('./pages/admin/PropertyForm'));
-const LeadsList = lazy(() => import('./pages/admin/LeadsList'));
-const AgentsList = lazy(() => import('./pages/admin/AgentsList'));
-const Classifications = lazy(() => import('./pages/admin/Classifications'));
-const Commissions = lazy(() => import('./pages/admin/Commissions'));
-const Profile = lazy(() => import('./pages/admin/Profile'));
-const RentalGuard = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.RentalGuard})));
-const Parties = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.Parties})));
-const PartyDetail = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.PartyDetail})));
-const LeaseList = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.LeaseList})));
-const LeaseDetail = lazy(() => import('./pages/admin/Rentals').then(m=>({default:m.LeaseDetail})));
-function ScrollToTop() {
+import { caminhosCatalogo, urlNormalizada } from './servicos/urls';
+import LayoutPublico from './componentes/LayoutPublico';
+import EstadoCarregamento from './componentes/EstadoCarregamento';
+import Catalogo from './paginas/publico/Catalogo';
+import DetalheImovel from './paginas/publico/DetalheImovel';
+import Privacidade from './paginas/publico/Privacidade';
+import Devs from './paginas/publico/Devs';
+import { ProvedorSessao } from './hooks/useSessao';
+import { ContextoBootstrap, Seo, useDadosIniciais } from './seo/context';
+
+const LayoutPainel = lazy(() => import('./paginas/painel/LayoutPainel'));
+const Entrar = lazy(() => import('./paginas/painel/Entrar'));
+const VisaoGeral = lazy(() => import('./paginas/painel/VisaoGeral'));
+const Imoveis = lazy(() => import('./paginas/painel/Imoveis'));
+const FormularioImovel = lazy(() => import('./paginas/painel/FormularioImovel'));
+const Contatos = lazy(() => import('./paginas/painel/Contatos'));
+const Pessoas = lazy(() => import('./paginas/painel/Pessoas'));
+const FichaPessoa = lazy(() => import('./paginas/painel/FichaPessoa'));
+const Corretores = lazy(() => import('./paginas/painel/Corretores'));
+const Cadastros = lazy(() => import('./paginas/painel/Cadastros'));
+const Comissoes = lazy(() => import('./paginas/painel/Comissoes'));
+const Contratos = lazy(() => import('./paginas/painel/Contratos'));
+const DetalheContrato = lazy(() => import('./paginas/painel/DetalheContrato'));
+const Perfil = lazy(() => import('./paginas/painel/Perfil'));
+
+function RolarAoTopo() {
   const { pathname } = useLocation();
-  const previous = useRef(pathname);
+  const anterior = useRef(pathname);
   useEffect(() => {
-    const from = previous.current.replace(/\/+$/, '') || '/';
-    const to = pathname.replace(/\/+$/, '') || '/';
-    previous.current = pathname;
-    if (from === to) return;
-    // Troca de filtro dentro do catálogo muda o pathname (/ -> /imoveis/salas):
-    // não joga ao topo, o usuário fica onde está, na seção de resultados.
-    if (catalogPaths.includes(from) && catalogPaths.includes(to)) return;
+    const de = anterior.current.replace(/\/+$/, '') || '/';
+    const para = pathname.replace(/\/+$/, '') || '/';
+    anterior.current = pathname;
+    if (de === para) return;
+    // Troca de filtro dentro do catálogo muda o pathname; o visitante fica onde está.
+    if (caminhosCatalogo.includes(de) && caminhosCatalogo.includes(para)) return;
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
 }
-let browserRouter: ReturnType<typeof createBrowserRouter> | undefined;
+
+let roteador: ReturnType<typeof createBrowserRouter> | undefined;
 export default function App() {
-  // Lazy creation keeps SSR imports safe and avoids duplicate history listeners in StrictMode.
-  browserRouter ??= createBrowserRouter([{ path: '*', element: <AppRoutes/> }]);
-  return <RouterProvider router={browserRouter}/>;
+  // Criado uma única vez: o SSR não importa isto e o StrictMode não duplica ouvintes do histórico.
+  roteador ??= createBrowserRouter([{ path: '*', element: <AppRoutes /> }]);
+  return <RouterProvider router={roteador} />;
 }
-export function ErrorPage({ status = 404 }: { status?: number }) {
-  return <div className="container py-20"><Seo status={status}/>
-    <h1 className="mb-6">{status === 404 ? 'Página não encontrada.' : 'Serviço temporariamente indisponível.'}</h1>
-    {status !== 404 && <p>Tente novamente em alguns instantes.</p>}
-    <div className="flex flex-wrap gap-3">
-      <Link to="/" className="button">Voltar ao catálogo</Link>
-      <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
-      <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
-      {status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}
+
+export function PaginaErro({ status = 404 }: { status?: number }) {
+  return (
+    <div className="container py-20">
+      <Seo status={status} />
+      <h1 className="mb-6">{status === 404 ? 'Página não encontrada.' : 'Serviço temporariamente indisponível.'}</h1>
+      {status !== 404 && <p>Tente novamente em alguns instantes.</p>}
+      <div className="flex flex-wrap gap-3">
+        <Link to="/" className="button">Voltar ao catálogo</Link>
+        <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
+        <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+        {status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}
+      </div>
     </div>
-  </div>;
+  );
 }
+
 export function AppRoutes() {
-  const bootstrap = useContext(BootstrapContext);
-  const matchingInitial = useInitialData();
-  const [navigated, setNavigated] = useState(false);
-  const initial = navigated ? undefined : matchingInitial;
+  const bootstrap = useContext(ContextoBootstrap);
+  const iniciaisDaUrl = useDadosIniciais();
+  const [navegou, setNavegou] = useState(false);
+  const iniciais = navegou ? undefined : iniciaisDaUrl;
   const location = useLocation();
-  useEffect(() => { if (bootstrap.url !== location.pathname + location.search) setNavigated(true); }, [bootstrap.url, location.pathname, location.search]);
-  const admin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
-  const error = initial && initial.status !== 200;
-  const normalized = normalizedUrl(location.pathname + location.search + location.hash);
-  if (normalized !== location.pathname + location.search + location.hash) return <Navigate to={normalized} state={location.state} replace/>;
-  return <BootstrapContext.Provider value={navigated ? { ...bootstrap, url: '', data: {}, status: 200 } : bootstrap}><ScrollToTop/>{admin && <Seo/>}<Suspense fallback={<AsyncState loading/>}><Routes>
-    <Route element={<PublicLayout/>}><Route index element={error ? <ErrorPage status={initial.status}/> : <Catalog key={location.pathname + location.search}/>}/>{catalogPaths.filter(path => path !== '/').map(path => <Route key={path} path={path} element={error ? <ErrorPage status={initial.status}/> : <Catalog key={location.pathname + location.search}/>}/>)}<Route path="imoveis/:slug" element={error ? <ErrorPage status={initial.status}/> : <PropertyDetail key={location.pathname}/>}/><Route path="privacidade" element={error ? <ErrorPage status={initial.status}/> : <PrivacyPolicy/>}/><Route path="devs" element={error ? <ErrorPage status={initial.status}/> : <Devs/>}/><Route path="*" element={<ErrorPage status={error ? initial.status : 404}/>}/></Route>
-    <Route path="admin" element={<AuthProvider><AdminLayout/></AuthProvider>}><Route index element={<Dashboard/>}/><Route path="imoveis" element={<PropertyList/>}/><Route path="imoveis/novo" element={<PropertyForm/>}/><Route path="imoveis/:id/editar" element={<PropertyForm/>}/><Route path="contatos" element={<LeadsList/>}/><Route path="corretores" element={<AgentsList/>}/><Route path="cadastros" element={<Classifications/>}/><Route path="comissoes" element={<Commissions/>}/><Route path="perfil" element={<Profile/>}/><Route path="proprietarios" element={<RentalGuard><Parties key="OWNER" kind="OWNER"/></RentalGuard>}/><Route path="inquilinos" element={<RentalGuard><Parties key="TENANT" kind="TENANT"/></RentalGuard>}/><Route path="proprietarios/:id" element={<RentalGuard><PartyDetail key={location.pathname}/></RentalGuard>}/><Route path="inquilinos/:id" element={<RentalGuard><PartyDetail key={location.pathname}/></RentalGuard>}/><Route path="contratos" element={<RentalGuard><LeaseList/></RentalGuard>}/><Route path="contratos/:id" element={<RentalGuard><LeaseDetail key={location.pathname}/></RentalGuard>}/></Route>
-    <Route path="admin/entrar" element={<AuthProvider><Login/></AuthProvider>}/>
-  </Routes></Suspense></BootstrapContext.Provider>;
+  useEffect(() => { if (bootstrap.url !== location.pathname + location.search) setNavegou(true); }, [bootstrap.url, location.pathname, location.search]);
+  const painel = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  const erro = iniciais && iniciais.status !== 200;
+  const atual = location.pathname + location.search + location.hash;
+  const normalizada = urlNormalizada(atual);
+  if (normalizada !== atual) return <Navigate to={normalizada} state={location.state} replace />;
+  const publica = (pagina: JSX.Element) => (erro ? <PaginaErro status={iniciais.status} /> : pagina);
+  return (
+    <ContextoBootstrap.Provider value={navegou ? { ...bootstrap, url: '', data: {}, status: 200 } : bootstrap}>
+      <RolarAoTopo />
+      {painel && <Seo />}
+      <Suspense fallback={<EstadoCarregamento carregando />}>
+        <Routes>
+          <Route element={<LayoutPublico />}>
+            <Route index element={publica(<Catalogo key={location.pathname + location.search} />)} />
+            {caminhosCatalogo.filter((caminho) => caminho !== '/').map((caminho) => <Route key={caminho} path={caminho} element={publica(<Catalogo key={location.pathname + location.search} />)} />)}
+            <Route path="imoveis/:slug" element={publica(<DetalheImovel key={location.pathname} />)} />
+            <Route path="privacidade" element={publica(<Privacidade />)} />
+            <Route path="devs" element={publica(<Devs />)} />
+            <Route path="*" element={<PaginaErro status={erro ? iniciais.status : 404} />} />
+          </Route>
+          <Route path="admin" element={<ProvedorSessao><LayoutPainel /></ProvedorSessao>}>
+            <Route index element={<VisaoGeral />} />
+            <Route path="imoveis" element={<Imoveis />} />
+            <Route path="imoveis/novo" element={<FormularioImovel />} />
+            <Route path="imoveis/:id/editar" element={<FormularioImovel />} />
+            <Route path="contatos" element={<Contatos />} />
+            <Route path="pessoas" element={<Pessoas />} />
+            <Route path="pessoas/:id" element={<FichaPessoa key={location.pathname} />} />
+            <Route path="corretores" element={<Corretores />} />
+            <Route path="cadastros" element={<Cadastros />} />
+            <Route path="comissoes" element={<Comissoes />} />
+            <Route path="contratos" element={<Contratos />} />
+            <Route path="contratos/:id" element={<DetalheContrato key={location.pathname} />} />
+            <Route path="perfil" element={<Perfil />} />
+          </Route>
+          <Route path="admin/entrar" element={<ProvedorSessao><Entrar /></ProvedorSessao>} />
+        </Routes>
+      </Suspense>
+    </ContextoBootstrap.Provider>
+  );
 }

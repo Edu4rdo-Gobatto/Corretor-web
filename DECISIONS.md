@@ -540,3 +540,30 @@ O CSV é exportado com os registros carregados e os filtros aplicados. Nenhuma d
 - Informações públicas de identidade, privacidade e contato permanecem centralizadas em `src/config/brand.ts`; dados recebidos do proprietário foram aplicados sem variáveis secretas. Logo oficial fica em `public/assets/brand-logo.jpg`.
 - Não usar Render/env para esses campos nesta etapa: são conteúdo público versionado, e mover para runtime exigiria expor configuração também ao cliente/SSR.
 Nenhuma dependência nova.
+
+## 2026-09-16 — Contrato v2 no front: ids inteiros, pessoas, ficha do imóvel e vocabulário em português (Claude)
+
+Decisões do dono em 16/09 (`docs/specs/2026-09-16-ids-inteiros-pessoas.md`), aplicadas no front:
+
+- **Domínio em português, sem tradutor.** `src/tipos` reproduz o contrato HTTP (`titulo`, `valor_venda`, `status_contato`...);
+  `portuguese.ts` e os tipos ingleses foram removidos. Pastas, arquivos, componentes e hooks em português. Ids são `number`.
+- **Mídia junto com a criação.** O formulário de imóvel novo guarda arquivos e links de vídeo (`SelecaoMidia`); ao salvar,
+  faz o POST do imóvel e em seguida envia as mídias. Falha de mídia não perde o imóvel: a edição abre com o aviso.
+- **Contatos em três colunas** (Pendentes, Respondidos, Finalizados) sobre `status_contato` de `pessoas`; cada coluna tem
+  paginação e CSV próprios. Filtros só se aplicam ao enviar; datas cobrem o dia inteiro em `America/Cuiaba`.
+- **Cadastro único de pessoas** (`/admin/pessoas` e ficha com imóveis, contratos e comissões). As páginas de proprietários e
+  inquilinos deixaram de existir; contratos e comissões escolhem pessoas pelo `SeletorRegistro` (busca com sugestões), que
+  substitui os seletores paginados em todo o painel.
+- **Ficha do imóvel**: dois valores (`valor_venda`, `valor_locacao`; nenhum = "Sob consulta" no site), `destaque`, proprietário,
+  exclusividade e validade, captação, chaves, matrícula, inscrição, observações internas e motivo da baixa (só para
+  vendido, alugado ou retirado). Situações `VENDIDO | ALUGADO | RETIRADO` no lugar de `CONCLUIDO`.
+- **Catálogo**: bairro, área mínima/máxima e ordenação (`?bairro=`, `?area-minima=`, `?area-maxima=`, `?ordenar=`), além dos
+  filtros existentes. URLs antigas em inglês continuam redirecionando. Slug público termina no id: link antigo abre pelo
+  id e o SSR responde 301 para o slug atual; na SPA, `Navigate` faz a troca.
+- **Componentes compartilhados do painel**: `CabecalhoPagina`, `Tabela`, `Etiqueta` e `estilosPainel` substituem as classes
+  repetidas em cinco páginas.
+- **Rotas do painel**: `/admin/pessoas`, `/admin/pessoas/:id`; `/admin/clientes`, `/admin/proprietarios` e `/admin/inquilinos`
+  redirecionam para `/admin/pessoas`.
+
+Não fazer: criar um segundo vocabulário (inglês) para o domínio; voltar aos seletores paginados; enviar UUID ou tratar id
+como texto; expor no site os campos internos da ficha; salvar imóvel novo sem enviar as mídias escolhidas.

@@ -7,9 +7,9 @@ import { test, expect, loginViaUi, requireBackend } from './fixtures';
 import {
   archiveContrato,
   createContrato,
-  createParte,
+  createPessoa,
   createProperty,
-  deleteParte,
+  deletePessoa,
   deleteProperty,
   getContrato,
   login,
@@ -23,14 +23,14 @@ test('falha do Drive preserva o contrato com estado explícito', async ({ backen
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed não executado');
   const session = await login(credentials!);
   // IDs opcionais: se o seed falhar no meio, o finally limpa o parcial.
-  let propertyId: string | null = null;
-  let locadorId: string | null = null;
-  let locatarioId: string | null = null;
-  let contratoId: string | null = null;
+  let propertyId: number | null = null;
+  let locadorId: number | null = null;
+  let locatarioId: number | null = null;
+  let contratoId: number | null = null;
   try {
     propertyId = (await createProperty(session.token, e2eName('Sala E2E contrato'))).id;
-    locadorId = (await createParte(session.token, 'LOCADOR', e2eName('Locador E2E'))).id;
-    locatarioId = (await createParte(session.token, 'LOCATARIO', e2eName('Locatário E2E'))).id;
+    locadorId = (await createPessoa(session.token, e2eName('Locador E2E'), true)).id;
+    locatarioId = (await createPessoa(session.token, e2eName('Locatário E2E'))).id;
     const contrato = await createContrato(session.token, {
       numero: e2eName('CTR-E2E'),
       imovelId: propertyId,
@@ -50,8 +50,8 @@ test('falha do Drive preserva o contrato com estado explícito', async ({ backen
     // Limpeza completa (soft-delete, FK-safe): contrato → imóvel → partes.
     if (contratoId) await archiveContrato(session.token, contratoId);
     if (propertyId) await deleteProperty(session.token, propertyId);
-    if (locadorId) await deleteParte(session.token, locadorId);
-    if (locatarioId) await deleteParte(session.token, locatarioId);
+    if (locadorId) await deletePessoa(session.token, locadorId);
+    if (locatarioId) await deletePessoa(session.token, locatarioId);
   }
 });
 
@@ -60,14 +60,14 @@ test('painel exibe o estado da pasta e oferece nova tentativa', async ({ page, b
   const credentials = adminCredentials();
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed não executado');
   const session = await login(credentials!);
-  let propertyId: string | null = null;
-  let locadorId: string | null = null;
-  let locatarioId: string | null = null;
-  let contratoId: string | null = null;
+  let propertyId: number | null = null;
+  let locadorId: number | null = null;
+  let locatarioId: number | null = null;
+  let contratoId: number | null = null;
   try {
     propertyId = (await createProperty(session.token, e2eName('Loja E2E contrato UI'))).id;
-    locadorId = (await createParte(session.token, 'LOCADOR', e2eName('Locador UI'))).id;
-    locatarioId = (await createParte(session.token, 'LOCATARIO', e2eName('Locatário UI'))).id;
+    locadorId = (await createPessoa(session.token, e2eName('Locador UI'), true)).id;
+    locatarioId = (await createPessoa(session.token, e2eName('Locatário UI'))).id;
     contratoId = (
       await createContrato(session.token, {
         numero: e2eName('CTR-UI'),
@@ -87,7 +87,7 @@ test('painel exibe o estado da pasta e oferece nova tentativa', async ({ page, b
   } finally {
     if (contratoId) await archiveContrato(session.token, contratoId);
     if (propertyId) await deleteProperty(session.token, propertyId);
-    if (locadorId) await deleteParte(session.token, locadorId);
-    if (locatarioId) await deleteParte(session.token, locatarioId);
+    if (locadorId) await deletePessoa(session.token, locadorId);
+    if (locatarioId) await deletePessoa(session.token, locatarioId);
   }
 });

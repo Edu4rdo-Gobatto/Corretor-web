@@ -3,10 +3,10 @@
 import { test, expect, loginViaUi, requireBackend } from './fixtures';
 import {
   createCommission,
-  createManualClient,
+  createPessoa,
   createProperty,
   deactivateCommission,
-  deleteLead,
+  deletePessoa,
   deleteProperty,
   get,
   login,
@@ -20,16 +20,16 @@ test('baixa exige confirmação e referência do comprovante', async ({ page, ba
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed não executado');
   const session = await login(credentials!);
   const marca = e2eName('COM-E2E');
-  let propertyId: string | null = null;
-  let clientId: string | null = null;
-  let commissionId: string | null = null;
-  let parcelaId = '';
+  let propertyId: number | null = null;
+  let clientId: number | null = null;
+  let commissionId: number | null = null;
+  let parcelaId = 0;
   try {
     propertyId = (await createProperty(session.token, e2eName('Casa E2E comissão'))).id;
-    clientId = (await createManualClient(session.token, e2eName('Cliente Comissão'))).id;
+    clientId = (await createPessoa(session.token, e2eName('Cliente Comissão'))).id;
     const commission = await createCommission(session.token, {
       imovelId: propertyId,
-      clienteId: clientId,
+      pessoaId: clientId,
       observacoes: marca,
     });
     commissionId = commission.id;
@@ -82,9 +82,9 @@ test('baixa exige confirmação e referência do comprovante', async ({ page, ba
     const { data } = await get(`/admin/comissoes/${commissionId}`, session.token);
     expect((data as { parcelas: { status: string }[] }).parcelas.filter((p) => p.status === 'PAGO')).toHaveLength(1);
   } finally {
-    // Limpeza completa (soft-delete, FK-safe): comissão → imóvel → cliente.
+    // Limpeza completa (soft-delete, FK-safe): comissão → imóvel → pessoa.
     if (commissionId) await deactivateCommission(session.token, commissionId);
     if (propertyId) await deleteProperty(session.token, propertyId);
-    if (clientId) await deleteLead(session.token, clientId);
+    if (clientId) await deletePessoa(session.token, clientId);
   }
 });

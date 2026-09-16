@@ -14,7 +14,7 @@ async function fillRequiredFields(page: Page) {
   await page.getByLabel('Tipo de imóvel *').selectOption({ index: 1 });
   await page.getByLabel('Finalidade *').selectOption({ index: 1 });
   await page.getByLabel('Descrição *').fill('Imóvel sintético de teste ponta a ponta, sem dados reais.');
-  await page.getByLabel('Preço de venda ou aluguel mensal (R$) *').fill('180000');
+  await page.getByLabel('Valor de venda (R$)').fill('180000');
   await page.getByLabel('Área útil (m²) *').fill('60');
   await page.getByLabel('Área total (m²) *').fill('70');
   await page.getByLabel('Rua / avenida *').fill('Rua de teste E2E');
@@ -28,7 +28,7 @@ test('cadastra imóvel e persiste após recarregar', async ({ page, backend }) =
   const credentials = requireAdminCredentials();
   const titulo = e2eName('Sala E2E CRUD');
   const session = await login(credentials);
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   try {
     await loginViaUi(page, credentials.email, credentials.senha);
 
@@ -60,7 +60,7 @@ test('edição altera o título com sucesso', async ({ page, backend }) => {
   const session = await login(credentials!);
   const titulo = e2eName('Loja E2E editar');
   const novoTitulo = e2eName('Loja E2E editada');
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   try {
     propertyId = (await createProperty(session.token, titulo)).id;
     await loginViaUi(page, credentials!.email, credentials!.senha);

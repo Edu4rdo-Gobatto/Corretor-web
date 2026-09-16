@@ -4,9 +4,9 @@
 import { test, expect, requireBackend } from './fixtures';
 import {
   createProperty,
-  deleteLead,
+  deletePessoa,
   deleteProperty,
-  findLeadByName,
+  findPessoaByNome,
   login,
 } from './helpers/api';
 import { adminCredentials, e2eName } from './helpers/env';
@@ -17,7 +17,7 @@ test('sem consentimento o envio é barrado com erro visível', async ({ page, ba
   test.skip(!credentials, 'sem E2E_ADMIN_* — seed do imóvel não executado');
   const session = await login(credentials!);
   const titulo = e2eName('Loja E2E lead');
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   let slug = '';
   try {
     const property = await createProperty(session.token, titulo);
@@ -43,7 +43,7 @@ test('com consentimento registra e persiste o contato', async ({ page, backend }
   const session = await login(credentials!);
   const titulo = e2eName('Galpão E2E lead');
   const nomeLead = e2eName('Visitante Lead');
-  let propertyId: string | null = null;
+  let propertyId: number | null = null;
   let slug = '';
   try {
     const property = await createProperty(session.token, titulo);
@@ -63,9 +63,9 @@ test('com consentimento registra e persiste o contato', async ({ page, backend }
     await expect(dialog.getByText('Obrigado pelo seu interesse.')).toBeVisible({ timeout: 20000 });
 
     // Persistência confirmada no backend real (lead removido em seguida).
-    const lead = await findLeadByName(session.token, nomeLead);
-    expect(lead).not.toBeNull();
-    await deleteLead(session.token, lead!.id);
+    const pessoa = await findPessoaByNome(session.token, nomeLead);
+    expect(pessoa).not.toBeNull();
+    await deletePessoa(session.token, pessoa!.id);
   } finally {
     if (propertyId) await deleteProperty(session.token, propertyId);
   }

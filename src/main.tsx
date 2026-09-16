@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import AppErrorBoundary from './components/AppErrorBoundary';
-import { BootstrapContext } from './seo/context';
+import LimiteErro from './componentes/LimiteErro';
+import { ContextoBootstrap } from './seo/context';
 import { defaultConfig, type Bootstrap } from './seo/metadata';
-const element = document.getElementById('seo-bootstrap');
-const boot: Bootstrap = element ? JSON.parse(element.textContent!) : { url: '', config: defaultConfig, data: {}, status: 200 };
-const app = <React.StrictMode><BootstrapContext.Provider value={boot}><AppErrorBoundary><App/></AppErrorBoundary></BootstrapContext.Provider></React.StrictMode>;
-const root = document.getElementById('root')!;
-if (element && root.children.length) ReactDOM.hydrateRoot(root, app);
-else ReactDOM.createRoot(root).render(app);
+
+const elemento = document.getElementById('seo-bootstrap');
+const boot: Bootstrap = elemento ? JSON.parse(elemento.textContent!) : { url: '', config: defaultConfig, data: {}, status: 200 };
+const app = <React.StrictMode><ContextoBootstrap.Provider value={boot}><LimiteErro><App /></LimiteErro></ContextoBootstrap.Provider></React.StrictMode>;
+const raiz = document.getElementById('root')!;
+if (elemento && raiz.children.length) ReactDOM.hydrateRoot(raiz, app);
+else ReactDOM.createRoot(raiz).render(app);
