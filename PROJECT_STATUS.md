@@ -353,3 +353,8 @@ mensagem expansível e 404. Corrigidos KPIs paginados, CSV seguro, datas inclusi
 telefone internacional e detalhes visuais nos dois temas. Plano/checklist: docs/plans/2026-09-16-melhorias-publico-painel.md.
 Dados reais de marca/privacidade e contato recebidos do proprietário e registrados em `src/config/brand.ts`; logo oficial copiado para `public/assets/brand-logo.jpg`.
 Homologação autenticada real aguarda stack/credenciais de teste. Nenhuma alteração de backend ou de dados reais.
+## 2026-09-17 — Regressão de XSS no JSON-LD coberta
+
+Confirmada a proteção existente em `src/seo/metadata.ts`: `serialize()` escapa caracteres de controle do contexto HTML antes de renderizar o JSON-LD. Adicionado teste com `<svg/onload>`, `<script>` e `</script><script>` verificando parse válido, preservação do texto e impossibilidade de fechar a tag SSR. Meta tags continuam cobertas por `escapeHtml()`.
+
+Validação desta tarefa: teste direcionado aprovado; validação completa registrada no `CHANGELOG_AI.md`. Sem alteração de dados, API, banco, migrations, uploads ou rate limiting.

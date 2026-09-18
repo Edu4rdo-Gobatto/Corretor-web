@@ -968,3 +968,10 @@ Sem dependências novas, escrita em dados reais, commit, push ou deploy. Process
 
 - Substituído o JPG vertical com espaço vazio por recorte horizontal em PNG, preservando o lockup enviado.
 - Removido o `mix-blend` do cabeçalho para não alterar as cores do logo entre temas.
+## 2026-09-17 — Regressão de segurança do JSON-LD
+
+Adicionado teste em `src/seo/metadata.test.ts` para payloads armazenados em título e descrição de imóvel. O teste extrai o JSON-LD SSR, executa `JSON.parse()`, confirma a preservação textual e garante que `</script>` não aparece literalmente no conteúdo serializado; também verifica o escape HTML de título e descrição nas meta tags.
+
+Decisão registrada em `DECISIONS.md`: manter escape contextual Unicode em `serialize()`, sem regex de remoção de tags, DOMPurify ou `JSON.stringify()` direto no HTML. Nenhum dado, banco, API ou configuração de rate limit foi alterado.
+
+Validação real: teste direcionado aprovado (1 arquivo/4 testes), `npm run typecheck` aprovado, `npm run lint` aprovado, suíte completa aprovada (37 arquivos/178 testes), `npm run build` aprovado e `git diff --check` aprovado. `node scripts/seo-smoke.mjs` permanece bloqueado por asserção preexistente que usa query parameters legados (`purpose/type`) e espera redirect 301, incompatível com as rotas/parâmetros atuais em português; o smoke não foi alterado nesta tarefa.

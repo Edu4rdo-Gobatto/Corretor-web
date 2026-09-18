@@ -26,4 +26,20 @@ describe('metadados', () => {
     expect(seo.robots).toBe('noindex,follow');
     expect(buildSeo('/?ordenar=valor_asc', config, { catalogo: { itens: [], total: 0, pagina: 1, limite: 9, total_paginas: 0 } }).robots).toBe('noindex,follow');
   });
+  it('preserva texto hostil no JSON-LD sem permitir quebrar a tag script', () => {
+    const titulo = '<svg/onload=alert(document.cookie)>';
+    const descricao = '</script><script>window.location="https://evil.test"</script>';
+    const imovel = { ...imovelExemplo, titulo, descricao };
+    const head = renderHead(buildSeo('/imoveis/sala-42', config, { imovel }));
+    const match = head.match(/<script data-seo type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    expect(match).not.toBeNull();
+    const jsonLd = JSON.parse(match![1]);
+    const listing = jsonLd['@graph'].find((item: { '@type'?: string }) => item['@type'] === 'RealEstateListing');
+    expect(listing.name).toBe(titulo);
+    expect(listing.description).toBe(descricao);
+    expect(match![1]).not.toContain('</script>');
+    expect(match![1]).toContain('\\u003c/script\\u003e');
+    expect(head).toContain('content="&lt;svg/onload=alert(document.cookie)&gt; | Cuiabá/MT | Lucas Gobatto"');
+    expect(head).toContain('content="Salas comerciais para alugar em Centro, Cuiabá/MT, com 60 m². &lt;/script&gt;');
+  });
 });

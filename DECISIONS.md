@@ -567,3 +567,8 @@ Decisões do dono em 16/09 (`docs/specs/2026-09-16-ids-inteiros-pessoas.md`), ap
 
 Não fazer: criar um segundo vocabulário (inglês) para o domínio; voltar aos seletores paginados; enviar UUID ou tratar id
 como texto; expor no site os campos internos da ficha; salvar imóvel novo sem enviar as mídias escolhidas.
+## 2026-09-17 — Escape contextual obrigatório no JSON-LD SSR
+
+O JSON-LD renderizado pelo SSR deve ser produzido exclusivamente por `serialize()` antes de ser inserido em uma tag `<script>`. A serialização substitui `<`, `>`, `&`, U+2028 e U+2029 por escapes Unicode, preservando o texto original após `JSON.parse()` e impedindo que dados de imóveis encerrem prematuramente a tag.
+
+Não usar `JSON.stringify()` diretamente no HTML, remoção de tags por regex ou sanitização destrutiva de títulos e descrições. Esses campos são texto; consumidores que os exibirem na interface devem usar `textContent`, ou uma biblioteca de sanitização somente se HTML for um requisito explícito.
