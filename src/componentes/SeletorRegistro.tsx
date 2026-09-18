@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { Referencia } from '../tipos';
 import { mensagemErro } from '../servicos/formato';
@@ -22,7 +22,21 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
   const [ativa, setAtiva] = useState(-1);
   const [carregando, setCarregando] = useState(false);
   const [erroBusca, setErroBusca] = useState('');
+  const [paraCima, setParaCima] = useState(false);
+  const [alturaMaxima, setAlturaMaxima] = useState(256);
   const raiz = useRef<HTMLDivElement>(null);
+
+  // Dentro de um Dialogo a lista não pode ser cortada pela área rolável: sem espaço abaixo, abre para cima.
+  useLayoutEffect(() => {
+    if (!aberto || !raiz.current) return;
+    const caixa = raiz.current.getBoundingClientRect();
+    const limites = raiz.current.closest('[data-rolagem]')?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight };
+    const abaixo = limites.bottom - caixa.bottom;
+    const acima = caixa.top - limites.top;
+    const subir = abaixo < 280 && acima > abaixo;
+    setParaCima(subir);
+    setAlturaMaxima(Math.max(120, Math.min(256, (subir ? acima : abaixo) - 12)));
+  }, [aberto]);
 
   useEffect(() => {
     if (!aberto) return;
@@ -73,7 +87,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
         </div>
       </label>
       {aberto && (
-        <ul id={idLista} role="listbox" className="absolute top-full z-20 m-0 mt-1 max-h-64 w-full list-none overflow-auto rounded border border-line bg-paper p-1 shadow-lg">
+        <ul id={idLista} role="listbox" data-direcao={paraCima ? 'acima' : 'abaixo'} style={{ maxHeight: alturaMaxima }} className={`absolute z-20 m-0 w-full list-none overflow-auto rounded border border-line bg-paper p-1 shadow-lg ${paraCima ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
           {carregando && <li className="px-3 py-2 text-sm text-muted">Buscando…</li>}
           {erroBusca && <li className="px-3 py-2 text-sm text-error" role="alert">{erroBusca}</li>}
           {!carregando && !erroBusca && !opcoes.length && <li className="px-3 py-2 text-sm text-muted">Nenhum registro encontrado.</li>}

@@ -1,6 +1,7 @@
 import { LoaderCircle, CircleAlert } from 'lucide-react';
 
-const brilho = 'block rounded-lg bg-[linear-gradient(100deg,var(--color-soft)_40%,#E4E8EF_50%,var(--color-soft)_60%)] bg-[length:200%_100%] animate-shimmer motion-reduce:animate-none';
+// O brilho usa tokens do tema: um cinza fixo virava uma faixa clara demais no tema escuro.
+const brilho = 'block rounded-lg bg-[linear-gradient(100deg,var(--color-soft)_40%,var(--color-line)_50%,var(--color-soft)_60%)] bg-[length:200%_100%] animate-shimmer motion-reduce:animate-none';
 
 /** Carregamento (com esqueleto opcional) e erro com nova tentativa. */
 export default function EstadoCarregamento({ carregando, erro, tentarNovamente, esqueleto }: { carregando: boolean; erro?: string; tentarNovamente?: () => void; esqueleto?: 'cartoes' | 'detalhe' }) {
@@ -19,7 +20,7 @@ export default function EstadoCarregamento({ carregando, erro, tentarNovamente, 
         </div>
       );
     }
-    return <div className="px-6 py-16 text-center text-muted [&_svg]:mx-auto [&_svg]:mb-3" role="status"><LoaderCircle aria-hidden="true" /><p>Carregando…</p></div>;
+    return <div className="px-6 py-16 text-center text-muted [&_svg]:mx-auto [&_svg]:mb-3" role="status"><LoaderCircle aria-hidden="true" className="animate-spin motion-reduce:animate-none" /><p>Carregando…</p></div>;
   }
   if (erro) {
     return (

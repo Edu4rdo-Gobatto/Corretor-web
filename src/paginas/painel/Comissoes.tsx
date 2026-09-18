@@ -5,7 +5,7 @@ import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import type { Comissao, Contrato, ParcelaComissao, TipoOperacao } from '../../servicos/locacoes';
 import type { Referencia } from '../../tipos';
-import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
+import { dataCivil, dinheiroExato, mensagemErro, plural } from '../../servicos/formato';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import Dialogo from '../../componentes/Dialogo';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
@@ -45,7 +45,7 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
     catch (falha) { setErro(mensagemErro(falha)); }
   }
   return (
-    <Dialogo titulo="Registrar comissão" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo="Registrar comissão" tamanho="largo" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
         <fieldset disabled={isSubmitting} className="m-0 grid gap-4 border-0 p-0">
           <p className="m-0">Informe a receita devida pela intermediação do negócio.</p>
@@ -55,7 +55,7 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
               : <SeletorRegistro rotulo="Imóvel" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => { setImovel(valor); setValue('imovel_id', valor?.id ?? 0, { shouldValidate: true }); }} erro={errors.imovel_id?.message} />}
           <SeletorRegistro rotulo="Pessoa (cliente do negócio)" valor={pessoa} buscar={buscarPessoas} aoEscolher={(valor) => { setPessoa(valor); setValue('pessoa_id', valor?.id ?? 0, { shouldValidate: true }); }} erro={errors.pessoa_id?.message} dica="A pessoa precisa estar ativa e sob o mesmo responsável pelo imóvel." />
           <div className={estilos.grade}>
-            <label>Receita total (R$)<input inputMode="decimal" placeholder="Ex.: 1.500,00" {...register('valor_total')} aria-invalid={!!errors.valor_total} /><span className={estilos.erro}>{errors.valor_total?.message}</span></label>
+            <label className="col-span-full">Receita total (R$)<input inputMode="decimal" placeholder="Ex.: 1.500,00" {...register('valor_total')} aria-invalid={!!errors.valor_total} /><span className={estilos.erro}>{errors.valor_total?.message}</span></label>
             <label>Quantidade de parcelas<input type="number" min={1} max={600} {...register('quantidade_parcelas', { valueAsNumber: true })} aria-invalid={!!errors.quantidade_parcelas} /><span className={estilos.erro}>{errors.quantidade_parcelas?.message}</span></label>
             <label>Primeiro vencimento<input type="date" {...register('primeiro_vencimento')} aria-invalid={!!errors.primeiro_vencimento} /><span className={estilos.erro}>{errors.primeiro_vencimento?.message}</span></label>
             <label className="col-span-full">Observações<textarea {...register('observacoes')} /><span className={estilos.erro}>{errors.observacoes?.message}</span></label>
@@ -63,7 +63,7 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
           {previa.length > 0 && <section className="rounded border border-line p-4" aria-label="Prévia das parcelas"><h3 className="mt-0">Prévia do parcelamento</h3><ul>{previa.slice(0, 4).map((item, indice) => <li key={indice}>Parcela {indice + 1}: {dinheiroExato(item.valor)} em {dataCivil(item.data)}</li>)}</ul>{previa.length > 4 && <p>Mais {previa.length - 4} parcelas. Último vencimento: {dataCivil(previa.at(-1)!.data)}.</p>}<p className={estilos.dica}>Os centavos são distribuídos entre as parcelas. Dias 29–31 são ajustados ao fim do mês.</p></section>}
         </fieldset>
         {erro && <p role="alert" className="error">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Registrando…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Registrando…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -87,7 +87,7 @@ function DialogoPagamento({ parcela, aoFechar, aoSalvar }: { parcela: ParcelaCom
           <p className={estilos.erro}>{errors.confirmar_pagamento?.message}</p>
         </fieldset>
         {erro && <p role="alert" className="error">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Confirmando…' : 'Confirmar recebimento'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Confirmando…' : 'Confirmar recebimento'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -110,7 +110,7 @@ function EdicaoComissao({ comissao, aoFechar, aoSalvar }: { comissao: Comissao; 
           <label className="mt-4 flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Comissão ativa</label>
         </fieldset>
         {erro && <p role="alert" className="error">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar alterações'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar alterações'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -170,7 +170,7 @@ export default function Comissoes({ contrato }: { contrato?: Contrato }) {
           { titulo: 'Receita total', celula: (comissao) => dinheiroExato(comissao.valor_total) },
           { titulo: 'Recebido', celula: (comissao) => dinheiroExato(comissao.valor_pago ?? '0.00') },
           { titulo: 'Saldo', celula: (comissao) => dinheiroExato(comissao.saldo_pendente ?? comissao.valor_total) },
-          { titulo: 'Parcelas', celula: (comissao) => <button className="buttonGhost" aria-expanded={aberta === comissao.id} onClick={() => setAberta(aberta === comissao.id ? 0 : comissao.id)}>{aberta === comissao.id ? 'Ocultar' : `Ver ${comissao.quantidade_parcelas} parcela(s)`}</button> },
+          { titulo: 'Parcelas', celula: (comissao) => <button className="buttonGhost" aria-expanded={aberta === comissao.id} onClick={() => setAberta(aberta === comissao.id ? 0 : comissao.id)}>{aberta === comissao.id ? 'Ocultar' : `Ver ${plural(comissao.quantidade_parcelas, 'parcela', 'parcelas')}`}</button> },
         ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={(valor) => { setPagina(valor); setAberta(0); }} />
       </section>

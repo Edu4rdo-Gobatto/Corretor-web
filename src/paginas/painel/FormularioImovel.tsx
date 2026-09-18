@@ -16,7 +16,7 @@ import SeletorRegistro from '../../componentes/SeletorRegistro';
 import { estilos } from '../../componentes/estilosPainel';
 import { prepararEnvio } from '../../componentes/prepararMidia';
 import FichaImovel from './FichaImovel';
-import { dadosParaApi, esquemaImovel, estados, imovelVazio, valoresDaFicha, type ValoresImovel } from './esquemaImovel';
+import { comClassificacoesDaFicha, dadosParaApi, esquemaImovel, estados, imovelVazio, valoresDaFicha, type ValoresImovel } from './esquemaImovel';
 import { chaveRascunho, gravarRascunho, lerRascunho, limparRascunho } from './rascunhoImovel';
 
 const AVISOS_RASCUNHO = {
@@ -67,19 +67,13 @@ function InstanciaFormulario() {
     const rascunho = lerRascunho(sessionStorage, chave);
     setRascunhoRestaurado(!!rascunho);
     setAvisoRascunho('');
-    try { setClassificacoes(await api.classificacoes(true)); } catch (causa) { setErroCarga(mensagemErro(causa)); setCarregando(false); return; }
-    if (!id) {
-      setImovel(undefined);
-      reset({ ...imovelVazio, ...rascunho });
-      setCarregando(false);
-      rascunhoAtivo.current = true;
-      return;
-    }
     setCarregando(true);
     try {
-      const ficha = await api.obterFicha(Number(id));
+      // Classificações públicas (qualquer cargo) e ficha em paralelo; ver comClassificacoesDaFicha.
+      const [lista, ficha] = await Promise.all([api.classificacoes(), id ? api.obterFicha(Number(id)) : Promise.resolve(undefined)]);
+      setClassificacoes(ficha ? comClassificacoesDaFicha(lista, ficha) : lista);
       setImovel(ficha);
-      reset({ ...valoresDaFicha(ficha), ...rascunho });
+      reset({ ...(ficha ? valoresDaFicha(ficha) : imovelVazio), ...rascunho });
       rascunhoAtivo.current = true;
     } catch (causa) {
       setErroCarga(mensagemErro(causa));
@@ -239,8 +233,8 @@ function InstanciaFormulario() {
         </div>)}
         {secao('04', 'Características', <>
           {caracteristicas.map((campo, indice) => (
-            <div key={campo.id} className="my-3 grid gap-3 md:grid-cols-3">
-              <label>Característica<select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></label>
+            <div key={campo.id} className="my-3 grid gap-3 @min-[38rem]:grid-cols-3">
+              <label>Característica<select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></label>
               <label>Valor<input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></label>
               <button type="button" className="buttonGhost" onClick={() => removerCaracteristica(indice)}>Remover característica</button>
             </div>
@@ -248,8 +242,10 @@ function InstanciaFormulario() {
           {errors.caracteristicas && <p className="error">Revise as características: selecione cada uma apenas uma vez e use até 500 caracteres no valor.</p>}
           <button type="button" className="buttonSecondary" disabled={caracteristicas.length >= 100} onClick={() => adicionarCaracteristica({ caracteristica_id: '', valor: '' })}>Adicionar característica</button>
         </>, 'Selecione as características cadastradas e informe seus valores.')}
-        {imovel ? null : <SelecaoMidia arquivos={arquivosPendentes} videos={videosPendentes} desabilitado={isSubmitting} aoAlterar={(arquivos, videos) => { setArquivosPendentes(arquivos); setVideosPendentes(videos); }} />}
-        {secao(imovel ? '06' : '06', 'Ficha interna', <div className={estilos.grade}>
+        {imovel
+          ? <GerenciadorMidia imovel={imovel} aoAlterar={async () => { setImovel(await api.obterFicha(imovel.id)); }} />
+          : <SelecaoMidia arquivos={arquivosPendentes} videos={videosPendentes} desabilitado={isSubmitting} aoAlterar={(arquivos, videos) => { setArquivosPendentes(arquivos); setVideosPendentes(videos); }} />}
+        {secao('06', 'Ficha interna', <div className={estilos.grade}>
           <div className="col-span-full"><SeletorRegistro rotulo="Proprietário" valor={proprietario} buscar={buscarPessoas} aoEscolher={(valor) => setValue('proprietario', valor, { shouldDirty: true })} dica="Pessoa cadastrada em Pessoas. Fica só no painel." /></div>
           <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('exclusividade')} />Exclusividade de venda ou locação</label>
           {campoData('exclusividade_ate', 'Exclusividade válida até')}
@@ -268,7 +264,6 @@ function InstanciaFormulario() {
           <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link>
         </div>
       </form>
-      {imovel && <GerenciadorMidia imovel={imovel} aoAlterar={async () => { setImovel(await api.obterFicha(imovel.id)); }} />}
     </>}
   </>;
 }

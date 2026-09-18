@@ -6,6 +6,34 @@ Tarefas da API ficam em `../Corretor-API/TASKS.md`.
 
 ---
 
+## Plano de UI/UX e velocidade (aprovado em 17/09/2026)
+
+Plano completo: `C:\Users\eduar\.claude\plans\como-eu-posso-melhorar-starry-heron.md`. Escopo só front; itens de API e
+infraestrutura abaixo aguardam autorização. A coluna "Depois" do orçamento vira limite em `tests/visual/orcamento.ts`.
+
+| ID | Tarefa | Status |
+|---|---|---|
+| FERR-001 | Subagentes `revisor-design`/`auditor-desempenho`, comandos `/revisar-design` e `/medir`, suíte `npm run visual` e orçamento de requisições | concluída em código (18/09, Claude); commit com o dono |
+| UX-006 | Telas divididas: modal centralizado, grades por container, barra do painel, 3 colunas, ordem da seção de mídias | concluída em código (18/09, Claude); commit com o dono |
+| FIX-001 | CORRETOR sem 403 no formulário de imóvel (lookups públicos) e Cadastros só para ADMIN | concluída em código (18/09, Claude); commit com o dono |
+| FIX-002 | Restauração de sessão obsoleta (paliativo; a PERF-003 substitui) | concluída em código (18/09, Claude); commit com o dono |
+| TEMA-001 | Fundo azul-claro no tema claro, escuro mais leve e logo legível nos dois temas (pedido do dono em 18/09) | concluída em código (18/09, Claude); commit com o dono |
+| PERF-001 | Fase 2 — público: cache de dados em memória, SSR com cache de lookups e SWR, `/estaticos` imutável, bundle sem zod/RHF, fontes | aberta |
+| PERF-002 | Fase 3 — painel: `useDadosPainel` sobre o cache, respostas de mutação aplicadas sem refetch, seletor com cancelamento | aberta |
+| PERF-003 | Fase 4 — sessão: unificar `api.renovar()` com a promessa do `http.ts`, renovação antecipada e carga do painel em paralelo | aberta (fazer `/security-review`) |
+| UI-BASE-001 | Fase 5 — campos 16px, foco com contraste, tokens de estado, `Aviso`, `ConfirmarAcao`, `Campo`, tabelas em cartões | aberta |
+| UX-007 | Fase 6 — navegação do painel: filtros na URL, título por página, skip link | aberta |
+| UX-008 | Fase 7 — conversão do site: hero menor, filtros e ordenação, galeria; botão direto de WhatsApp depende do dono | aberta |
+| API-PERF-001 | `GET /admin/resumo` (dashboard 9+N → 1, perfil 8 → 1); revisa a decisão "sem /stats" | aguarda autorização |
+| API-PERF-002 | Leituras sem escrita, pool com keep-alive, menos idas ao banco, `Server-Timing` | aguarda autorização |
+| API-PERF-003 | `Cache-Control` público no catálogo e respostas mais leves | aguarda autorização |
+| API-MIDIA-001 | `CacheControl` imutável no R2 e miniaturas das fotos | aguarda autorização |
+| INFRA-001 | API na mesma região do banco (Neon São Paulo): maior ganho de latência | decisão do dono (DEPLOY-002) |
+| INFRA-002 | Domínio próprio no R2 (sair do `r2.dev`) | decisão do dono (DEPLOY-002) |
+| INFRA-003 | Região da função SSR igual à da API | decisão do dono (DEPLOY-002) |
+
+---
+
 ## FRONT-V2-001 — Contrato v2: ids inteiros, pessoas, ficha do imóvel e vocabulário em português
 
 Status: em revisão

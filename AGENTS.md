@@ -23,6 +23,8 @@ dos arquivos de contexto descritos abaixo.
 | Testes | `npm test` (vitest) | não |
 | Lint | `npm run lint` | não |
 | Tipos | `npm run typecheck` | não |
+| Suíte visual (prints + layout + orçamento de requisições) | `npm run visual` (ou `visual:sem-build`) | não (API simulada) |
+| Revisão visual / medição com subagente | `/revisar-design <tela>` e `/medir <tela>` (em `.claude/`) | não |
 
 ## Variáveis de ambiente
 
@@ -56,7 +58,9 @@ Nunca coloque segredo em variável `VITE_*`: tudo que tem esse prefixo vai para 
 **Código**
 - TypeScript estrito, sem `any` e sem `@ts-ignore`.
 - Validação de formulário só com react-hook-form + zod. Não introduza outra biblioteca de validação.
-- Estilos em CSS Modules, seguindo os tokens já usados nas páginas existentes.
+- Estilos em Tailwind v4 com os tokens do `@theme` (`src/styles/tailwind.css`); não há CSS Modules. Sem cores
+  literais nos componentes. Grades internas do painel e dos modais usam container query (`@container`), não
+  breakpoints da janela. Todo modal usa o componente `Dialogo`.
 - Não adicione dependência sem justificar em `DECISIONS.md`.
 - Imagens enviadas pelo painel são comprimidas no navegador antes do upload; mantenha os limites atuais.
 

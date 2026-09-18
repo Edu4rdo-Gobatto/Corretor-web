@@ -32,9 +32,9 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
     <section className="mb-6 rounded border border-line bg-paper p-5 lg:p-7">
       <h2 className="mb-2 mt-0 text-[22px] text-ink">05. Fotos e vídeos</h2>
       <p className="muted">Escolha agora; tudo é enviado junto ao salvar o imóvel. A primeira foto vira a capa.</p>
-      <label className="mb-6 block border border-dashed border-[#899e88] bg-[#f3f5ef] p-7 dark:border-line dark:bg-soft dark:text-ink">
+      <label className="mb-6 block border border-dashed border-control-line bg-soft p-7 text-ink">
         Adicionar fotos ou vídeos
-        <span className="text-[13px] text-[#687166] dark:text-muted"> · Até {LIMITE_ARQUIVOS} arquivos, 30 MB por vídeo e 60 MB no total. Imagens são otimizadas em WebP.</span>
+        <span className="text-[13px] font-normal text-muted"> · Até {LIMITE_ARQUIVOS} arquivos, 30 MB por vídeo e 60 MB no total. Imagens são otimizadas em WebP.</span>
         <input type="file" multiple accept={TIPOS_ACEITOS.join(',')} disabled={desabilitado} className="mt-[14px] block max-w-full"
           onChange={(evento) => { adicionarArquivos(Array.from(evento.target.files ?? [])); evento.target.value = ''; }} />
       </label>
@@ -46,7 +46,7 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
       {(previas.length > 0 || videos.length > 0) && (
         <ul className="grid list-none grid-cols-3 gap-[18px] p-0 max-[800px]:grid-cols-2 max-[500px]:grid-cols-1">
           {previas.map((previa, indice) => (
-            <li key={`${previa.arquivo.name}-${indice}`} className="border border-line bg-white dark:bg-paper">
+            <li key={`${previa.arquivo.name}-${indice}`} className="border border-line bg-paper">
               {previa.url ? <img className="h-[150px] w-full object-cover" src={previa.url} alt={`Prévia ${indice + 1}: ${previa.arquivo.name}`} /> : <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm">{previa.arquivo.name}</div>}
               <div className="flex items-center justify-between gap-2 p-3 text-[13px]">
                 <span className="truncate">{indice === 0 && previa.url ? 'Capa · ' : ''}{previa.arquivo.name}</span>
@@ -55,8 +55,8 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
             </li>
           ))}
           {videos.map((video, indice) => (
-            <li key={`${video}-${indice}`} className="border border-line bg-white dark:bg-paper">
-              <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm break-anywhere">Vídeo: {video}</div>
+            <li key={`${video}-${indice}`} className="border border-line bg-paper">
+              <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm wrap-anywhere">Vídeo: {video}</div>
               <div className="flex justify-end p-3"><button type="button" className="buttonGhost min-h-11" disabled={desabilitado} onClick={() => aoAlterar(arquivos, videos.filter((_, posicao) => posicao !== indice))}>Remover</button></div>
             </li>
           ))}

@@ -1,6 +1,10 @@
 import type { Imovel, StatusContato, StatusImovel } from '../tipos';
 
 export const rotulosStatusImovel: Record<StatusImovel, string> = { DISPONIVEL: 'Disponível', RESERVADO: 'Reservado', VENDIDO: 'Vendido', ALUGADO: 'Alugado', RETIRADO: 'Retirado' };
+/** Plural explícito: "Disponível" + "s" não é português. */
+export const rotulosStatusImovelPlural: Record<StatusImovel, string> = { DISPONIVEL: 'Disponíveis', RESERVADO: 'Reservados', VENDIDO: 'Vendidos', ALUGADO: 'Alugados', RETIRADO: 'Retirados' };
+/** "1 imóvel encontrado", "2 imóveis encontrados". */
+export const plural = (quantidade: number, singular: string, formaPlural: string) => `${quantidade} ${quantidade === 1 ? singular : formaPlural}`;
 export const rotulosStatusContato: Record<StatusContato, string> = { PENDENTE: 'Pendente', RESPONDIDO: 'Respondido', FINALIZADO: 'Finalizado' };
 export const rotulosOrdenacao = { recentes: 'Mais recentes', valor_asc: 'Menor valor', valor_desc: 'Maior valor', area_asc: 'Menor área', area_desc: 'Maior área' } as const;
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { dadosParaApi, esquemaImovel, imovelVazio } from './esquemaImovel';
+import { comClassificacoesDaFicha, dadosParaApi, esquemaImovel, imovelVazio } from './esquemaImovel';
+import { classificacoesExemplo, imovelExemplo } from '../../seo/fixture';
 
 const valido = { ...imovelVazio, titulo: 'Sala comercial', tipo_id: '1', finalidade_id: '3', valor_locacao: 2000, area_util: 40, area_total: 50, logradouro: 'Rua Central', numero: '100', cidade: 'Cuiabá', bairro: 'Centro', descricao: 'Sala com iluminação natural.' };
 describe('validação do cadastro de imóveis', () => {
@@ -15,5 +16,15 @@ describe('validação do cadastro de imóveis', () => {
     expect(dados).toMatchObject({ tipo_id: 1, finalidade_id: 3, valor_venda: null, valor_locacao: '2000.00', area_util: '40.00', area_total: '50.00', cep: null, complemento: null, corretor_id: 1, proprietario_id: 3, exclusividade_ate: null, chaves: null });
     expect(dados.caracteristicas).toEqual([{ caracteristica_id: 5, valor: '4 vagas' }, { caracteristica_id: 6, valor: null }]);
     expect(dadosParaApi(valido)).not.toHaveProperty('corretor_id');
+  });
+});
+
+describe('classificações do formulário', () => {
+  it('mantém a lista pública e inclui como inativos os valores atuais que não vieram nela', () => {
+    const publica = { ...classificacoesExemplo, tipos: classificacoesExemplo.tipos.filter((item) => item.id !== 1), caracteristicas: [] };
+    const resultado = comClassificacoesDaFicha(publica, imovelExemplo);
+    expect(resultado.tipos).toContainEqual({ id: 1, nome: 'Salas comerciais', ativo: false });
+    expect(resultado.finalidades).toBe(publica.finalidades);
+    expect(resultado.caracteristicas).toEqual([{ id: 5, nome: 'Acessibilidade', ativo: false }]);
   });
 });

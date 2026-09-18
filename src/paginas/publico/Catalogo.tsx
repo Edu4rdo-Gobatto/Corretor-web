@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUpRight, Building2, Layers, Search, SlidersHorizontal, 
 import { api } from '../../servicos/api';
 import { lerConsultaCatalogo } from '../../servicos/catalogo';
 import { lerUrlCatalogo, urlCatalogo } from '../../servicos/urls';
-import { rotulosOrdenacao } from '../../servicos/formato';
+import { plural, rotulosOrdenacao } from '../../servicos/formato';
 import { useRecurso } from '../../hooks/useRecurso';
 import CartaoImovel from '../../componentes/CartaoImovel';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
@@ -105,7 +105,7 @@ export default function Catalogo() {
     <section id="catalogo" className="container scroll-mt-[25px] pt-[82px] max-[560px]:pt-[45px]" aria-labelledby="catalogo-titulo">
       <div className="flex items-end justify-between gap-6 max-[800px]:flex-col max-[800px]:items-start max-[800px]:gap-[10px]">
         <div><p className="eyebrow mb-3">Encontre seu espaço</p><h2 id="catalogo-titulo" className="mb-0 text-[clamp(26px,2.5vw,35px)]">Novas possibilidades, <em className="text-brand not-italic">bons endereços.</em></h2></div>
-        <p className="muted mb-1 text-[13px] whitespace-nowrap max-[560px]:whitespace-normal" aria-live="polite">{!carregando && !erro && `${imoveis?.total || 0} imóveis encontrados`}</p>
+        <p className="muted mb-1 text-[13px] whitespace-nowrap max-[560px]:whitespace-normal" aria-live="polite">{!carregando && !erro && plural(imoveis?.total || 0, 'imóvel encontrado', 'imóveis encontrados')}</p>
       </div>
       <div className="my-[30px] flex flex-wrap gap-[10px] max-[560px]:gap-2" role="group" aria-label="Filtrar por tipo">
         <button className={`${chipBase} ${!consulta.tipo ? chipSelecionado : chipInativo}`} onClick={() => escolherTipo('')} aria-pressed={!consulta.tipo}>Todos os imóveis</button>

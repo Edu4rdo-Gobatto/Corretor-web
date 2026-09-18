@@ -60,7 +60,7 @@ export default function DetalheContrato() {
       </section>
       <Comissoes contrato={dados} />
       {editando && <EditorContrato contrato={dados} aoFechar={() => setEditando(false)} aoSalvar={recarregar} />}
-      {arquivando && <Dialogo titulo="Arquivar contrato" aoFechar={() => { if (!ocupado) setArquivando(false); }}>
+      {arquivando && <Dialogo titulo="Arquivar contrato" tamanho="estreito" aoFechar={() => { if (!ocupado) setArquivando(false); }}>
         <p>Arquivar {dados.numero_contrato}? O contrato será encerrado e o histórico permanecerá disponível.</p>
         <button className="button" disabled={ocupado} onClick={() => void executar('arquivar')}>{ocupado ? 'Arquivando…' : 'Arquivar contrato'}</button>
         {erroAcao && <p role="alert" className="error">{erroAcao}</p>}

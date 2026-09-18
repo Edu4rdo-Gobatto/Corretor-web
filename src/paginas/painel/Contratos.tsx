@@ -46,7 +46,7 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   }
   const campos: [keyof ValoresContrato, string, string][] = [['numero_contrato', 'Número do contrato', 'text'], ['data_inicio', 'Início', 'date'], ['data_fim', 'Fim', 'date'], ['valor_aluguel', 'Aluguel (R$)', 'text'], ['taxa_administracao', 'Taxa de administração (%)', 'text'], ['garantia_locaticia', 'Garantia locatícia', 'text'], ['indice_reajuste', 'Índice de reajuste', 'text'], ['cobranca_iptu_condominio', 'Pagamento de IPTU e condomínio', 'text']];
   return (
-    <Dialogo titulo={contrato ? 'Editar contrato' : 'Novo contrato'} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo={contrato ? 'Editar contrato' : 'Novo contrato'} tamanho="largo" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
         <fieldset disabled={isSubmitting} className="m-0 grid gap-4 border-0 p-0">
           <SeletorRegistro rotulo="Imóvel" valor={imovel} buscar={buscarImoveis} aoEscolher={escolher('imovel_id', setImovel)} erro={errors.imovel_id?.message} />
@@ -58,12 +58,12 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
             <label>Dia de vencimento<input type="number" min={1} max={31} {...register('dia_vencimento', { valueAsNumber: true })} /><span className={estilos.erro}>{errors.dia_vencimento?.message}</span></label>
             <label>Situação<select {...register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Encerrado</option></select></label>
             <label className="col-span-full">Observações<textarea {...register('observacoes')} /><span className={estilos.erro}>{errors.observacoes?.message}</span></label>
-            {contrato && <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Manter no cadastro de contratos</label>}
+            {contrato && <label className="col-span-full flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Manter no cadastro de contratos</label>}
           </div>
         </fieldset>
         <p className={estilos.dica}>A receita de intermediação é registrada separadamente em Comissões. O contrato vencido é encerrado automaticamente.</p>
         {erro && <p role="alert" className="error">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar contrato'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar contrato'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );

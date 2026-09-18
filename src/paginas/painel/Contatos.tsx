@@ -61,7 +61,7 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
           {dados.itens.map((pessoa) => (
             <li key={pessoa.id} className="rounded border border-line bg-paper p-4">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0"><strong className="block">{pessoa.nome}</strong><small className="block text-muted">{pessoa.telefone}{pessoa.email ? ` · ${pessoa.email}` : ''}</small></div>
+                <div className="min-w-0"><strong className="block">{pessoa.nome}</strong><small className="block wrap-anywhere text-muted">{pessoa.telefone}{pessoa.email ? ` · ${pessoa.email}` : ''}</small></div>
                 <Etiqueta tom={pessoa.origem === 'SITE' ? 'atencao' : 'neutro'}>{pessoa.origem === 'SITE' ? 'Site' : 'Manual'}</Etiqueta>
               </div>
               <small className="mt-2 block text-muted">{data(pessoa.criado_em)}{pessoa.imovel_id ? <> · <Link to={`/admin/imoveis/${pessoa.imovel_id}/editar`}>imóvel #{pessoa.imovel_id}</Link></> : ' · sem imóvel vinculado'}</small>
@@ -107,7 +107,7 @@ export default function Contatos() {
       <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setErroFiltro(''); }}>Limpar</button>
     </form>
     {erroFiltro && <p className="error" role="alert">{erroFiltro}</p>}
-    <div className="grid gap-4 lg:grid-cols-3">
+    <div className="grid items-start gap-4 @4xl/principal:grid-cols-3">
       {COLUNAS.map((coluna) => <ColunaContatos key={coluna.status} {...coluna} filtros={filtros} versao={versao} aoMudar={recarregarTudo} aoEditar={setEditando} />)}
     </div>
     {editando !== undefined && <EditorPessoa pessoa={editando} aoFechar={() => setEditando(undefined)} aoSalvar={recarregarTudo} />}

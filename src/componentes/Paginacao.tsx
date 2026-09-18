@@ -11,7 +11,7 @@ function rolarAoCatalogo() {
 /** Com `href` vira links (catálogo público, rastreável); sem ele, botões (painel). */
 export default function Paginacao({ pagina, totalPaginas, aoMudar, href }: { pagina: number; totalPaginas: number; aoMudar: (pagina: number) => void; href?: (pagina: number) => string }) {
   if (totalPaginas <= 1 && pagina <= 1) return null;
-  const classe = 'mt-[38px] flex items-center justify-center gap-6';
+  const classe = 'mt-[38px] flex flex-wrap items-center justify-center gap-x-6 gap-y-3';
   if (href) {
     return (
       <nav className={classe} aria-label="Paginação">

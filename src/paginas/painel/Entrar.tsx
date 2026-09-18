@@ -28,7 +28,7 @@ export default function Entrar() {
   }
   if (corretor) return <Navigate to={rotas.painel} replace />;
   return (
-    <div className="grid min-h-screen grid-cols-1 bg-soft lg:grid-cols-2">
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-background lg:grid-cols-2 lg:grid-rows-1">
       <section className="relative flex min-h-[220px] flex-col justify-between overflow-hidden bg-navy p-7 text-white lg:p-[70px]">
         <img className="absolute inset-0 z-0 h-full w-full object-cover" src="/assets/commercial-space-source.jpg" srcSet="/assets/commercial-space-640.webp 640w, /assets/commercial-space-960.webp 960w, /assets/commercial-space-1400.webp 1400w" sizes="(max-width: 700px) 100vw, 50vw" width="1400" height="1050" alt="" {...{ fetchpriority: 'high' }} />
         <div aria-hidden className="absolute inset-0 z-[1] bg-gradient-to-br from-navy via-navy/80 to-navy/50" />

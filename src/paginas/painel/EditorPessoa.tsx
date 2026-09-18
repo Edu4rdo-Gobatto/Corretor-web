@@ -83,7 +83,7 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
   );
 
   return (
-    <Dialogo titulo={pessoa ? `Editar ${pessoa.nome}` : 'Nova pessoa'} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo={pessoa ? `Editar ${pessoa.nome}` : 'Nova pessoa'} tamanho="largo" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form noValidate onSubmit={handleSubmit(salvar)} className={estilos.formulario}>
         <fieldset disabled={isSubmitting} className="m-0 border-0 p-0">
           <div className={estilos.grade}>
@@ -91,11 +91,12 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
             {campo('telefone', 'Telefone com DDD *', 'tel')}
             {campo('email', 'E-mail', 'email')}
             <label>Tipo de pessoa<select {...register('tipo_pessoa')}><option value="">Não informado</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option></select></label>
-            {campo('cpf_cnpj', 'CPF / CNPJ')}
+            {/* Sem data de nascimento (PJ), o documento ocupa a linha inteira para não deixar célula vazia. */}
+            <div className={tipoPessoa === 'PJ' ? 'col-span-full' : ''}>{campo('cpf_cnpj', 'CPF / CNPJ')}</div>
             {tipoPessoa !== 'PJ' && campo('data_nascimento', 'Data de nascimento', 'date')}
             <div className="col-span-full">{campo('endereco', 'Endereço completo')}</div>
             <div className="col-span-full"><SeletorRegistro rotulo="Imóvel de interesse" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => setValue('imovel', valor, { shouldDirty: true })} dica="Opcional. Vincula a pessoa ao imóvel que ela procura." /></div>
-            <label>Situação do contato<select {...register('status_contato')}>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
+            <label className={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'}>Situação do contato<select {...register('status_contato')}>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
             {corretor?.cargo === 'ADMIN' && <label>Corretor responsável<select {...register('corretor_id')}><option value="">Minha conta</option>{(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></label>}
           </div>
           <details className="mt-5">
@@ -105,12 +106,12 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
           <div className={`${estilos.grade} mt-5`}>
             <label className="col-span-full">Mensagem do primeiro contato<textarea rows={2} {...register('mensagem')} /></label>
             <label className="col-span-full">Observações<textarea rows={3} {...register('observacoes')} placeholder="Anotações do atendimento, preferências, próximos passos." /></label>
-            {pessoa && <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Cadastro ativo</label>}
+            {pessoa && <label className="col-span-full flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Cadastro ativo</label>}
           </div>
         </fieldset>
         <p className={estilos.dica}>O cadastro manual não registra consentimento do site.</p>
         {erro && <p role="alert" className="error">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );

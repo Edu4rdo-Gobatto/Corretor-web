@@ -24,6 +24,13 @@ describe('permissões de navegação do painel', () => {
     expect(screen.getByRole('link', { name: 'Contatos' })).toHaveAttribute('href', '/admin/contatos');
   });
   it('exibe a gestão de corretores para ADMIN', () => { mostrar(corretorTeste); expect(screen.getByRole('link', { name: 'Corretores' })).toBeInTheDocument(); });
+  it('mostra Cadastros só para ADMIN, porque as rotas de cadastro são exclusivas dele', () => {
+    mostrar({ ...corretorTeste, cargo: 'CORRETOR' });
+    expect(screen.queryByRole('link', { name: 'Cadastros' })).not.toBeInTheDocument();
+    cleanup();
+    mostrar(corretorTeste);
+    expect(screen.getByRole('link', { name: 'Cadastros' })).toHaveAttribute('href', '/admin/cadastros');
+  });
 });
 describe('conta do usuário', () => {
   it('abre o menu da foto com Sair da conta e encerra a sessão', async () => {

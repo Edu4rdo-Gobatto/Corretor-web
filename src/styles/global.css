@@ -6,8 +6,10 @@
 @import '@fontsource/source-sans-3/latin-700.css';
 
 @layer components {
-:root { font-family: 'Source Sans 3', sans-serif; color: var(--color-ink); background: var(--color-paper); font-synthesis: none; --paper: #FFFFFF; --ink: #0A2042; --navy: #0A2042; --navy-deep: #071733; --green: #0A2042; --gold: #C99B3F; --gold-soft: #F4E9CF; --muted: #556074; --line: #E2E6EC; --white: #FFF; --error: #9C302B; --soft: #EEF1F6; --display: 'Libre Baskerville', Georgia, serif; }
+:root { font-family: 'Source Sans 3', sans-serif; color: var(--color-ink); background: var(--color-background); font-synthesis: none; --paper: #F8FAFD; --ink: #0A2042; --navy: #0A2042; --navy-deep: #071733; --green: #0A2042; --gold: #C99B3F; --gold-soft: #F4E9CF; --muted: #556074; --line: #D3DDEA; --white: #FFF; --error: #9C302B; --soft: #E2EAF5; --display: 'Libre Baskerville', Georgia, serif; }
 * { box-sizing: border-box; }
+/* O fallback cobre navegadores em que ::backdrop não herda as variáveis do documento. */
+dialog::backdrop { background-color: var(--color-sobreposicao, rgb(4 15 36 / 0.62)); }
 body { margin: 0; font-size: 16px; line-height: 1.55; overflow-x: clip; }
 button, input, select, textarea { font: inherit; }
 button, a { touch-action: manipulation; }
@@ -25,7 +27,7 @@ h2 { font-size: clamp(26px, 3vw, 38px); }
 h3 { font-size: 20px; font-weight: 600; line-height: 1.35; }
 button:disabled { cursor: not-allowed; opacity: .55; }
 :focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-input,select,textarea { min-width: 0; width: 100%; background: var(--white); color: var(--ink); border: 1px solid #B7BCB1; border-radius: 4px; min-height: 46px; padding: 10px 12px; }
+input,select,textarea { min-width: 0; width: 100%; background: var(--white); color: var(--ink); border: 1px solid var(--color-control-line); border-radius: 4px; min-height: 46px; padding: 10px 12px; }
 input[type=checkbox] { width: 19px; height: 19px; min-height: 19px; accent-color: var(--green); flex-shrink: 0; }
 textarea { resize: vertical; min-height: 112px; }
 label { display: block; font-size: 15px; font-weight: 600; }
@@ -42,7 +44,7 @@ label input, label select, label textarea { margin-top: 6px; }
 .muted { color: var(--muted); }
 .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; color: var(--green); }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
-.skipLink { position: fixed; top: -100px; left: 20px; z-index: 100; background: white; padding: 12px; }
+.skipLink { position: fixed; top: -100px; left: 20px; z-index: 100; background: var(--color-paper); color: var(--color-ink); padding: 12px; }
 .skipLink:focus { top: 12px; }
 @media(prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
 

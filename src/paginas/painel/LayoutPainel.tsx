@@ -40,8 +40,8 @@ export default function LayoutPainel() {
   const rotuloTema = escuro ? 'Ativar modo claro' : 'Ativar modo escuro';
   const foto = (classe: string) => mostrarFoto ? <img src={corretor.url_foto ?? ''} alt="" onError={() => setFotoQuebrada(true)} className={classe} /> : inicial;
   return (
-    <div className="grid min-h-screen grid-cols-1 bg-soft lg:grid-cols-[240px_1fr]">
-      <aside className="flex flex-col gap-2 border-b-2 border-gold bg-navy px-4 py-2.5 text-white lg:gap-8 lg:border-b-0 lg:border-r-2 lg:px-6 lg:py-9">
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-background lg:grid-cols-[240px_minmax(0,1fr)] lg:grid-rows-1">
+      <aside className="flex flex-col gap-2 border-b-2 border-gold bg-navy px-4 py-2.5 text-white lg:sticky lg:top-0 lg:h-dvh lg:gap-8 lg:overflow-y-auto lg:border-b-0 lg:border-r-2 lg:px-6 lg:py-9">
         <div className="flex items-center justify-between gap-2 lg:block">
           <Link to={rotas.inicio} className="font-display text-[16px] leading-tight text-inherit no-underline lg:text-[21px] lg:leading-[1.5]">{brand.name}<br /><small style={{ fontFamily: 'Source Sans 3', fontSize: 11, letterSpacing: 3 }}>ÁREA DO CORRETOR</small></Link>
           <div ref={menu} className="relative flex items-center gap-1 lg:hidden">
@@ -66,7 +66,7 @@ export default function LayoutPainel() {
           <NavLink to={rotas.pessoas} className={linkNavegacao}>Pessoas</NavLink>
           <NavLink to="/admin/contratos" className={linkNavegacao}>Contratos</NavLink>
           <NavLink to="/admin/comissoes" className={linkNavegacao}>Comissões</NavLink>
-          <NavLink to="/admin/cadastros" className={linkNavegacao}>Cadastros</NavLink>
+          {corretor.cargo === 'ADMIN' && <NavLink to="/admin/cadastros" className={linkNavegacao}>Cadastros</NavLink>}
           {corretor.cargo === 'ADMIN' && <NavLink to="/admin/corretores" className={linkNavegacao}>Corretores</NavLink>}
           <Link to={rotas.inicio} className={linkNavegacao}>Ver site ↗</Link>
         </nav>
@@ -82,7 +82,7 @@ export default function LayoutPainel() {
           </div>
         </div>
       </aside>
-      <main className="w-full min-w-0 max-w-[1500px] px-[18px] py-7 lg:p-12"><Outlet /></main>
+      <main className="@container/principal mx-auto w-full min-w-0 max-w-[1500px] px-[18px] py-7 lg:p-12"><Outlet /></main>
     </div>
   );
 }

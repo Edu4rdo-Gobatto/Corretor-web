@@ -572,3 +572,47 @@ como texto; expor no site os campos internos da ficha; salvar imóvel novo sem e
 O JSON-LD renderizado pelo SSR deve ser produzido exclusivamente por `serialize()` antes de ser inserido em uma tag `<script>`. A serialização substitui `<`, `>`, `&`, U+2028 e U+2029 por escapes Unicode, preservando o texto original após `JSON.parse()` e impedindo que dados de imóveis encerrem prematuramente a tag.
 
 Não usar `JSON.stringify()` diretamente no HTML, remoção de tags por regex ou sanitização destrutiva de títulos e descrições. Esses campos são texto; consumidores que os exibirem na interface devem usar `textContent`, ou uma biblioteca de sanitização somente se HTML for um requisito explícito.
+
+## 2026-09-18 — UI, velocidade e telas divididas: Etapa 0 e Fase 1 (Claude)
+
+Plano aprovado pelo dono em 17/09 (resumo em `TASKS.md`). Escopo só front; API e infraestrutura viraram tarefas.
+
+- **Build sempre em produção.** `scripts/build.mjs` fixa `process.env.NODE_ENV = 'production'`. Com `NODE_ENV=development`
+  no `.env` local, o Vite adotava o valor do arquivo e o bundle saía com o React de desenvolvimento (700 kB em vez de
+  447 kB), distorcendo preview, smoke e medições. O build remoto da Vercel não lia o `.env` e não foi afetado.
+  Não fazer: depender do `NODE_ENV` do ambiente ou do `.env` para decidir o modo do build.
+- **Modal sempre com `m-auto`.** O reset do Tailwind v4 zera a margem que o navegador usa para centralizar `<dialog>`;
+  sem ela todo modal colava no canto superior esquerdo (a "tela dividida" relatada pelo dono). `Dialogo` ganhou
+  `tamanho` (480/640/880px), corpo rolável que é container das grades, fundo navy (`--color-sobreposicao`) e rodapé de
+  ações fixo (`estilos.rodapeDialogo`). A trava de rolagem compensa a largura da barra com `padding-right` no `body`.
+  Não fazer: `<dialog>` sem o componente `Dialogo`; `scrollbar-gutter: stable` (deixava uma tira clara ao lado do
+  fundo escuro do modal); grade de formulário por breakpoint da janela dentro de modal.
+- **Grades do painel por container query.** `estilos.painel`/`estilos.formulario` são `@container` e `estilos.grade` só
+  vira 2 colunas com 38rem de container; o `main` do painel é `@container/principal` e as grades de 3 colunas
+  (Contatos, ficha de pessoa, indicadores) seguem a largura dele. O shell usa `grid-rows-[auto_1fr]` abaixo de 1024px.
+  Não fazer: `md:`/`lg:grid-cols-*` ou `md:col-span-*` em grade interna do painel; campo sozinho sem `col-span-full`.
+- **Paleta mais confortável (pedido do dono em 18/09).** Claro: fundo `#ebf1f9` (azul bem claro), superfícies `#f8fafd`,
+  linhas `#d3ddea`, fundo suave `#e2eaf5`. Escuro: fundo `#182d50` e superfícies `#1f3761` (antes `#071733`), texto
+  secundário `#b3bdd0`, erro `#f0a09b`, borda de campo `#8a9bb7`. Contraste medido: texto 9,8–15:1, secundário
+  5,2–7,3:1, borda de campo ≥3:1. Bordas de campo usam `--color-control-line` (a cor fixa antiga tinha 1,9:1). Revisa o
+  "branco" da paleta de 13/09 como cor de fundo. Não fazer: voltar ao branco puro como fundo de página; cor literal fora
+  do `@theme`.
+- **Logo por tema.** A arte oficial (`brand-logo.png`, 697 KB) tem texto branco e sumia no cabeçalho claro. O cabeçalho usa
+  variantes WebP de 7–35 KB geradas por `node scripts/gerar-logo.mjs` (Chrome do sistema, sem dependência nova): texto
+  navy no tema claro e cores originais no escuro, trocadas só por CSS (SSR igual nos dois temas). Não fazer: exibir o
+  PNG original; `mix-blend` para "consertar" contraste do logo.
+- **Formulário de imóvel usa lookups públicos.** As rotas `/admin/tipos-imovel|finalidades-imovel|caracteristicas` são
+  exclusivas do ADMIN e davam 403 ao CORRETOR. O formulário carrega `api.classificacoes()` (público, só ativos) junto
+  com a ficha e inclui como "(inativo)" os valores atuais da ficha (`comClassificacoesDaFicha`). "Cadastros" só aparece
+  e só carrega para ADMIN. Não fazer: pedir lookups `/admin/...` fora da tela Cadastros.
+- **Sessão (paliativo até a Fase 4).** A restauração guarda `Promise<Corretor>`; falha, expiração e saída zeram, e
+  entrar/atualizar gravam o corretor válido. Voltar do site ao painel não pede login outra vez. Registrado para a Fase 4:
+  `api.renovar()` ainda é um caminho de renovação separado da promessa compartilhada do `http.ts`; unificar antes de
+  paralelizar a carga do painel. Não fazer: paralelizar a restauração com outras chamadas antes dessa unificação.
+- **Suíte visual com API simulada só em teste.** `tests/visual/` + `playwright.visual.config.ts` (`npm run visual`): build
+  de produção servido pelo `seo-smoke --serve`, API do painel simulada no navegador (`page.route`, rota não prevista
+  falha), Chrome do sistema (`channel: 'chrome'`, os navegadores do Playwright não estão instalados e o download é
+  bloqueado). Verifica modal centralizado, rolagem horizontal, barra do painel e o orçamento de requisições de
+  `tests/visual/orcamento.ts`, que começa na linha de base de 18/09 e só desce. Subagentes `revisor-design` e
+  `auditor-desempenho` em `.claude/agents/` usam essa suíte. Não fazer: fixture de dados no código do produto; apontar a
+  suíte para API real; subir limite do orçamento sem justificativa no `CHANGELOG_AI.md`.

@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
+import { useSessao } from '../../hooks/useSessao';
 import type { CategoriaClassificacao, Classificacao } from '../../tipos';
 import { mensagemErro } from '../../servicos/formato';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
@@ -33,12 +35,12 @@ function Editor({ categoria, item, aoFechar, aoSalvar }: { categoria: CategoriaC
     } catch (causa) { setErro(mensagemErro(causa)); }
   }
   return (
-    <Dialogo titulo={item ? 'Editar cadastro' : 'Novo cadastro'} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo={item ? 'Editar cadastro' : 'Novo cadastro'} tamanho="estreito" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form onSubmit={handleSubmit(salvar)} noValidate className={`${estilos.formulario} grid gap-4`}>
         <label>Nome<input {...register('nome')} />{errors.nome && <span className={estilos.erro}>{errors.nome.message}</span>}</label>
         {categoria === 'caracteristicas' ? <label>Ícone (opcional)<input {...register('icone')} /></label> : <label>Identificador no endereço (opcional)<input {...register('slug')} />{errors.slug && <span className={estilos.erro}>{errors.slug.message}</span>}</label>}
         {erro && <p role="alert" className="error">{erro}</p>}
-        <button className="button" disabled={isSubmitting}>Salvar</button>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -50,7 +52,9 @@ export default function Cadastros() {
   const [editando, setEditando] = useState<Classificacao | null | undefined>();
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(false);
-  const { dados, carregando, erro: erroCarga, recarregar } = useDadosPainel(useCallback(() => api.listarClassificacoes(categoria, pagina), [categoria, pagina]));
+  // As rotas /admin/tipos-imovel etc. são exclusivas do ADMIN: sem o cargo, nem busca (evita o 403) e sai da página.
+  const admin = useSessao().corretor?.cargo === 'ADMIN';
+  const { dados, carregando, erro: erroCarga, recarregar } = useDadosPainel(useCallback(() => admin ? api.listarClassificacoes(categoria, pagina) : Promise.resolve(null), [admin, categoria, pagina]));
   async function alternar(item: Classificacao) {
     setOcupado(true);
     setErro('');
@@ -58,6 +62,7 @@ export default function Cadastros() {
     catch (causa) { setErro(mensagemErro(causa)); }
     finally { setOcupado(false); }
   }
+  if (!admin) return <Navigate to="/admin" replace />;
   return <>
     <CabecalhoPagina titulo="Cadastros de imóveis" descricao="Tipos, finalidades e características usados nos anúncios." acoes={<button className="button" onClick={() => setEditando(null)}>Novo cadastro</button>} />
     <label className="mb-6 grid max-w-xs gap-1.5">Categoria<select value={categoria} onChange={(evento) => { setCategoria(evento.target.value as CategoriaClassificacao); setPagina(1); }}>{Object.entries(CATEGORIAS).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>

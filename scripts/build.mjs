@@ -4,6 +4,9 @@ import path from 'node:path';
 import { deploymentRoutes } from '../src/seo/deployment.ts';
 
 const mode = 'production';
+// Vite adota o NODE_ENV do .env quando o processo não define um; com NODE_ENV=development no .env local,
+// o bundle saía com o React de desenvolvimento (~700 kB). O build é sempre de produção.
+process.env.NODE_ENV = 'production';
 await build({ mode, build: { outDir: 'dist/client' } });
 await build({ mode, build: { outDir: 'dist/server', ssr: 'src/seo/server.tsx' }, ssr: { noExternal: true } });
 const { serverConfig } = await import('../dist/server/server.js');

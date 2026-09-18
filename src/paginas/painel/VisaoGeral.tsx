@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
-import { data, rotulosStatusImovel } from '../../servicos/formato';
+import { data, rotulosStatusImovelPlural } from '../../servicos/formato';
 import { rotas } from '../../servicos/urls';
 import type { StatusImovel } from '../../tipos';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
@@ -66,11 +66,11 @@ export default function VisaoGeral() {
   const pendentes = useDadosPainel(carregadores.pendentes);
   return <>
     <CabecalhoPagina rotulo="VISÃO GERAL" titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." acoes={<Link className="button" to="/admin/imoveis/novo">+ Novo imóvel</Link>} />
-    <section className="mb-8 grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-5">
+    <section className="mb-8 grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3 lg:gap-5">
       <Indicador rotulo="Contatos pendentes" carregar={carregadores.pendentes}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.contatos}>Responder contatos →</Link></>}</Indicador>
       <Indicador rotulo="Contatos recebidos nos últimos 30 dias" carregar={carregadores.recentes}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.pessoas}>Ver pessoas →</Link></>}</Indicador>
       <Indicador rotulo="Imóveis no portfólio" carregar={carregadores.imoveis}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.imoveis}>Gerenciar imóveis →</Link></>}</Indicador>
-      {STATUS.map((status) => <Indicador key={status} rotulo={rotulosStatusImovel[status] + 's'} carregar={carregadores.porStatus[status]}>{(dados) => numeroGrande(dados.total)}</Indicador>)}
+      {STATUS.map((status) => <Indicador key={status} rotulo={rotulosStatusImovelPlural[status]} carregar={carregadores.porStatus[status]}>{(dados) => numeroGrande(dados.total)}</Indicador>)}
       <Indicador rotulo="Contratos ativos" carregar={carregadores.contratos}>{(dados) => <>{numeroGrande(dados.total)}<Link to="/admin/contratos">Ver contratos →</Link></>}</Indicador>
       <Indicador rotulo="Comissões" carregar={carregarComissoes}>{(dados) => <><p>Valor pendente: {moeda(dados.pendente)}</p><p>Valor recebido: {moeda(dados.recebido)}</p><Link to="/admin/comissoes">Ver financeiro →</Link></>}</Indicador>
     </section>

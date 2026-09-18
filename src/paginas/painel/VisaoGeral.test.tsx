@@ -36,6 +36,12 @@ describe('visão geral', () => {
     const consulta = vi.mocked(api.listarPessoas).mock.calls.find(([filtros]) => filtros?.criado_desde)![0]!;
     expect(Date.parse(consulta.criado_desde!)).toBeGreaterThanOrEqual(antes - 30 * 86400000);
   });
+  it('rotula as situações no plural correto', async () => {
+    montar();
+    expect(await regiao('Disponíveis').findByText('123')).toBeInTheDocument();
+    for (const rotulo of ['Reservados', 'Vendidos', 'Alugados']) expect(screen.getByRole('region', { name: rotulo })).toBeInTheDocument();
+    expect(screen.queryByText(/Disponívels/)).toBeNull();
+  });
   it('soma todas as páginas de comissões em centavos, ignorando inativas', async () => {
     vi.mocked(api.listarComissoes).mockImplementation(async ({ pagina: numero } = {}) => ({
       ...paginaVazia, pagina: numero ?? 1, total: 201, total_paginas: 3,

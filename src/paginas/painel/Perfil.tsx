@@ -77,14 +77,14 @@ export default function Perfil() {
     </header>
     <section className={estilos.painel} aria-label="Dados da conta">
       <h2 className={estilos.tituloPainel}>Dados da conta</h2>
-      <dl className="m-0 grid grid-cols-1 gap-3 md:grid-cols-2">
+      <dl className="m-0 grid grid-cols-1 gap-3 @min-[38rem]:grid-cols-2">
         <div><dt className="text-[13px] uppercase tracking-[0.08em] text-muted">E-mail</dt><dd className="m-0 mt-1">{corretor.email} <small className="text-muted">(só o admin altera)</small></dd></div>
         <div><dt className="text-[13px] uppercase tracking-[0.08em] text-muted">WhatsApp</dt><dd className="m-0 mt-1">{corretor.whatsapp}</dd></div>
       </dl>
     </section>
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && (
-      <section className="mb-6 grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-5" aria-label="Métricas">
+      <section className="mb-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3 lg:gap-5" aria-label="Métricas">
         {cartao('Imóveis', dados.imoveis.total, `${dados.disponiveis.total} disponíveis · ${dados.reservados.total} reservados · ${dados.vendidos.total} vendidos · ${dados.alugados.total} alugados`)}
         {cartao('Pessoas', dados.pessoas.total, `${dados.ultimoMes.total} nos últimos 30 dias`)}
         <div className="rounded border border-line bg-paper p-[18px] lg:p-7"><span>Contatos pendentes</span><strong className="m-0 my-[18px] mb-2 block font-display text-[28px] text-ink lg:text-[38px]">{dados.pendentes.total}</strong><Link to={rotas.contatos}>Responder →</Link></div>
@@ -92,23 +92,23 @@ export default function Perfil() {
     )}
     <section className={estilos.painel} aria-label="Editar perfil">
       <h2 className={estilos.tituloPainel}>Editar perfil</h2>
-      <form className="grid grid-cols-1 gap-[22px] md:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate>
+      <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate>
         <label className={rotulo}>Nome<input type="text" {...formularioPerfil.register('nome')} aria-invalid={!!errosPerfil.nome} />{errosPerfil.nome && <span className={estilos.erro}>{errosPerfil.nome.message}</span>}</label>
         <label className={rotulo}>WhatsApp com DDI e DDD<input type="tel" {...formularioPerfil.register('whatsapp')} aria-invalid={!!errosPerfil.whatsapp} />{errosPerfil.whatsapp && <span className={estilos.erro}>{errosPerfil.whatsapp.message}</span>}</label>
         <label className={rotulo}>CRECI<input type="text" {...formularioPerfil.register('creci')} />{errosPerfil.creci && <span className={estilos.erro}>{errosPerfil.creci.message}</span>}</label>
         <label className={rotulo}>URL da foto (HTTPS)<input type="url" {...formularioPerfil.register('url_foto')} aria-invalid={!!errosPerfil.url_foto} />{errosPerfil.url_foto && <span className={estilos.erro}>{errosPerfil.url_foto.message}</span>}</label>
-        <div className="flex flex-wrap items-center gap-3.5 md:col-span-2 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioPerfil.formState.isSubmitting}>{formularioPerfil.formState.isSubmitting ? 'Salvando…' : 'Salvar perfil'}</button></div>
+        <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioPerfil.formState.isSubmitting}>{formularioPerfil.formState.isSubmitting ? 'Salvando…' : 'Salvar perfil'}</button></div>
       </form>
       {erroPerfil && <p className="error" role="alert">{erroPerfil}</p>}
       {perfilSalvo && <p role="status">Perfil atualizado.</p>}
     </section>
     <section className={estilos.painel} aria-label="Trocar senha">
       <h2 className={estilos.tituloPainel}>Trocar senha</h2>
-      <form className="grid grid-cols-1 gap-[22px] md:grid-cols-2" onSubmit={formularioSenha.handleSubmit(salvarSenha)} noValidate>
-        <label className={rotulo}>Senha atual<input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} aria-invalid={!!errosSenha.senha_atual} />{errosSenha.senha_atual && <span className={estilos.erro}>{errosSenha.senha_atual.message}</span>}</label>
+      <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioSenha.handleSubmit(salvarSenha)} noValidate>
+        <label className={`${rotulo} col-span-full`}>Senha atual<input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} aria-invalid={!!errosSenha.senha_atual} />{errosSenha.senha_atual && <span className={estilos.erro}>{errosSenha.senha_atual.message}</span>}</label>
         <label className={rotulo}>Nova senha<input type="password" autoComplete="new-password" aria-label="Nova senha" {...formularioSenha.register('nova_senha')} aria-invalid={!!errosSenha.nova_senha} /><span className={estilos.dica}>Mínimo de 12 caracteres.</span>{errosSenha.nova_senha && <span className={estilos.erro}>{errosSenha.nova_senha.message}</span>}</label>
         <label className={rotulo}>Confirmar nova senha<input type="password" autoComplete="new-password" aria-label="Confirmar nova senha" {...formularioSenha.register('confirmacao')} aria-invalid={!!errosSenha.confirmacao} />{errosSenha.confirmacao && <span className={estilos.erro}>{errosSenha.confirmacao.message}</span>}</label>
-        <div className="flex flex-wrap items-center gap-3.5 md:col-span-2 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioSenha.formState.isSubmitting}>{formularioSenha.formState.isSubmitting ? 'Salvando…' : 'Trocar senha'}</button></div>
+        <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioSenha.formState.isSubmitting}>{formularioSenha.formState.isSubmitting ? 'Salvando…' : 'Trocar senha'}</button></div>
       </form>
       {erroSenha && <p className="error" role="alert">{erroSenha}</p>}
       {senhaSalva && <p role="status">Senha atualizada.</p>}

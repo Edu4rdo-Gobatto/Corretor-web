@@ -49,17 +49,20 @@ function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Corretor |
       aoFechar();
     } catch (causa) { setErro(mensagemErro(causa)); }
   }
-  const campos: [keyof Valores, string, string][] = [['nome', 'Nome', 'text'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsapp', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text'], ['url_foto', 'URL da foto (HTTPS)', 'url']];
+  // Ordem pensada para a grade de 2 colunas não deixar célula vazia: Nome / CPF+E-mail / WhatsApp+CRECI / Permissão+Foto / Senha.
+  const campos: [keyof Valores, string, string, string?][] = [['nome', 'Nome', 'text', 'col-span-full'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsapp', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text']];
+  const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <label key={nome} className={classe}>{rotulo}<input type={tipo} {...register(nome)} aria-invalid={!!errors[nome]} />{errors[nome] && <span className={estilos.erro}>{errors[nome]?.message}</span>}</label>;
   return (
-    <Dialogo titulo={corretor ? 'Editar corretor' : 'Novo corretor'} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo={corretor ? 'Editar corretor' : 'Novo corretor'} tamanho="largo" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
         <div className={estilos.grade}>
-          {campos.map(([nome, rotulo, tipo]) => <label key={nome}>{rotulo}<input type={tipo} {...register(nome)} aria-invalid={!!errors[nome]} />{errors[nome] && <span className={estilos.erro}>{errors[nome]?.message}</span>}</label>)}
+          {campos.map((item) => campo(item))}
           <label>Permissão<select {...register('cargo')}><option value="CORRETOR">Corretor</option><option value="ADMIN">Administrador</option></select></label>
+          {campo(['url_foto', 'URL da foto (HTTPS)', 'url'])}
           <label className="col-span-full">{corretor ? 'Nova senha (opcional)' : 'Senha *'}<input type="password" autoComplete="new-password" {...register('senha')} /><span className={estilos.dica}>{corretor ? 'Deixe em branco para manter a senha atual. ' : ''}Mínimo de 12 caracteres.</span>{errors.senha && <span className={estilos.erro}>{errors.senha.message}</span>}</label>
         </div>
         {erro && <p className="error" role="alert">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar corretor'}</button><button className="buttonGhost" type="button" onClick={aoFechar} disabled={isSubmitting}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar corretor'}</button><button className="buttonGhost" type="button" onClick={aoFechar} disabled={isSubmitting}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -74,13 +77,13 @@ function DialogoSenha({ corretor, aoFechar, aoSalvar }: { corretor: Corretor; ao
     catch (causa) { setErro(mensagemErro(causa)); }
   }
   return (
-    <Dialogo titulo={`Redefinir senha de ${corretor.nome}`} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo={`Redefinir senha de ${corretor.nome}`} tamanho="estreito" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <p className="muted">Escolha a nova senha na hora e avise a pessoa: as sessões abertas dela são encerradas.</p>
       <form className="grid grid-cols-1 gap-[22px]" onSubmit={handleSubmit(redefinir)} noValidate>
         <label className="grid gap-[7px] font-semibold">Nova senha<input type="password" autoComplete="new-password" aria-label="Nova senha" {...register('nova_senha')} aria-invalid={!!errors.nova_senha} /><span className={estilos.dica}>Mínimo de 12 caracteres.</span>{errors.nova_senha && <span className={estilos.erro}>{errors.nova_senha.message}</span>}</label>
         <label className="grid gap-[7px] font-semibold">Confirmar nova senha<input type="password" autoComplete="new-password" aria-label="Confirmar nova senha" {...register('confirmacao')} aria-invalid={!!errors.confirmacao} />{errors.confirmacao && <span className={estilos.erro}>{errors.confirmacao.message}</span>}</label>
         {erro && <p className="error" role="alert">{erro}</p>}
-        <div className={estilos.rodape}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Definir nova senha'}</button><button className="buttonGhost" type="button" onClick={aoFechar} disabled={isSubmitting}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Definir nova senha'}</button><button className="buttonGhost" type="button" onClick={aoFechar} disabled={isSubmitting}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -111,7 +114,7 @@ export default function Corretores() {
     {dados && !erro && (
       <section className={estilos.painel}>
         <Tabela<Corretor> itens={dados.itens} chave={(corretor) => corretor.id} vazio="Nenhum corretor cadastrado." rotulo="Corretores" colunas={[
-          { titulo: 'Corretor', celula: (corretor) => <><strong>{corretor.nome}</strong><small className="mt-1 block text-muted">{corretor.email}</small><small className="mt-1 block text-muted">{corretor.creci ? `CRECI ${corretor.creci}` : corretor.whatsapp}</small></> },
+          { titulo: 'Corretor', celula: (corretor) => <><strong>{corretor.nome}</strong><small className="mt-1 block wrap-anywhere text-muted">{corretor.email}</small><small className="mt-1 block text-muted">{corretor.creci ? `CRECI ${corretor.creci}` : corretor.whatsapp}</small></> },
           { titulo: 'Permissão', celula: (corretor) => corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor' },
           { titulo: 'Situação', celula: (corretor) => <Etiqueta tom={corretor.ativo ? 'neutro' : 'alerta'}>{corretor.ativo ? 'Ativo' : 'Inativo'}</Etiqueta> },
           { titulo: 'Ações', celula: (corretor) => <div className={`${estilos.acoes} max-lg:justify-end`}><button className="buttonGhost" onClick={() => setEditando(corretor)}>Editar</button><button className="buttonGhost" onClick={() => setRedefinindo(corretor)}>Redefinir senha</button><button className="buttonGhost" disabled={!!ocupado} onClick={() => void alternar(corretor)}>{ocupado === corretor.id ? 'Atualizando…' : corretor.ativo ? 'Desativar' : 'Reativar'}</button></div> },

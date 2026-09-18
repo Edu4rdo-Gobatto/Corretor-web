@@ -44,4 +44,15 @@ describe('layout público', () => {
     expect(screen.getByRole('link', { name: /— início$/ }).className).toContain('z-[6]');
     expect(screen.getByRole('link', { name: 'Desenvolvedores' })).toHaveAttribute('href', '/devs');
   });
+  it('usa uma variante leve do logo por tema, sem o PNG original de 697 KB', () => {
+    const { container } = render(<MemoryRouter><LayoutPublico /></MemoryRouter>);
+    const logos = Array.from(container.querySelectorAll('header img'));
+    expect(logos.map((logo) => logo.getAttribute('src'))).toEqual(['/assets/logo-tema-claro-48.webp', '/assets/logo-tema-escuro-48.webp']);
+    // O texto branco da arte oficial some no fundo claro: a variante clara (texto navy) só aparece fora do tema escuro.
+    expect(logos[0]).toHaveClass('dark:hidden');
+    expect(logos[1]).toHaveClass('hidden', 'dark:block');
+    expect(logos[0]).toHaveAttribute('srcset', expect.stringContaining('logo-tema-claro-144.webp 3x'));
+    expect(logos[0]).toHaveAttribute('width', String(Math.round(48 * brand.logo.proporcao)));
+    expect(container.innerHTML).not.toContain('brand-logo.png');
+  });
 });

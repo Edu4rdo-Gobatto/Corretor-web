@@ -47,7 +47,7 @@ export default function Pessoas() {
       <section className={estilos.painel}>
         <Tabela<Pessoa> itens={dados.itens} chave={(pessoa) => pessoa.id} vazio="Nenhuma pessoa encontrada." rotulo="Pessoas" colunas={[
           { titulo: 'Pessoa', celula: (pessoa) => <><Link to={`/admin/pessoas/${pessoa.id}`}><strong>{pessoa.nome}</strong></Link><small className="mt-1 block text-muted">#{pessoa.id}{pessoa.tipo_pessoa ? ` · ${pessoa.tipo_pessoa}` : ''}{pessoa.cpf_cnpj ? ` · ${formatarDocumento(pessoa.cpf_cnpj)}` : ''}</small></> },
-          { titulo: 'Contato', celula: (pessoa) => <>{pessoa.telefone || '—'}{pessoa.email && <small className="mt-1 block text-muted">{pessoa.email}</small>}</> },
+          { titulo: 'Contato', celula: (pessoa) => <>{pessoa.telefone || '—'}{pessoa.email && <small className="mt-1 block wrap-anywhere text-muted">{pessoa.email}</small>}</> },
           { titulo: 'Situação', celula: (pessoa) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={pessoa.status_contato === 'PENDENTE' ? 'atencao' : 'neutro'}>{rotulosStatusContato[pessoa.status_contato]}</Etiqueta>{!pessoa.ativo && <Etiqueta tom="alerta">Inativa</Etiqueta>}</div> },
           { titulo: 'Cadastro', celula: (pessoa) => <>{data(pessoa.criado_em)}<small className="mt-1 block text-muted">{pessoa.origem === 'SITE' ? 'Pelo site' : 'Manual'}{pessoa.consentimento ? ' · consentimento registrado' : ''}</small></> },
           { titulo: 'Ações', celula: (pessoa) => <div className={`${estilos.acoes} max-lg:justify-end`}><Link to={`/admin/pessoas/${pessoa.id}`}>Ficha</Link><button className="buttonGhost" onClick={() => setEditando(pessoa)}>Editar</button></div> },

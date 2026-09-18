@@ -1,5 +1,57 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-09-18 — Etapa 0 e Fase 1 do plano de UI/velocidade + paleta pedida pelo dono (Claude)
+
+Pedido do dono (17/09): melhorar UI/UX, menos requisições e menor tempo de resposta, corrigir telas "divididas" (ex.: novo
+corretor) e indicar agentes para usar com o Claude. Plano aprovado; escopo só front. Em 18/09 o dono pediu fundo
+azul-claro no tema claro e um escuro mais leve.
+
+**Diagnóstico confirmado no navegador (linha de base, antes das mudanças):** 143 testes visuais, 97 aprovados e 46 falhas:
+todo modal descentralizado em todas as larguras (esquerda 0px, direita até 800px) — a "tela dividida"; barra do painel
+com 289–347px em 768px e 171–174px em 390px; rolagem horizontal de 100px em Contatos a 1024px; CORRETOR com 403 no
+formulário de imóvel. Requisições `/api` do navegador: visão geral 11, perfil 9, formulário de edição 6, filtro do
+catálogo 7, detalhe 4. Bundle: 447,9 kB / 145 kB gzip (o primeiro build local deu 700 kB por causa do
+`NODE_ENV=development` do `.env`).
+
+**Alterações:**
+- Build: `scripts/build.mjs` fixa `NODE_ENV=production`.
+- Modais: `Dialogo` com `m-auto`, `tamanho`, corpo rolável `@container`, fundo navy e trava de rolagem com compensação
+  da barra; todos os modais com tamanho e `estilos.rodapeDialogo`; campos reordenados sem célula vazia (Corretores,
+  EditorPessoa, Contratos, Comissões, Perfil); Cadastros ganhou "Cancelar" e "Salvando…".
+- Painel: `estilosPainel` com container query; `LayoutPainel` com `grid-rows-[auto_1fr]`, lateral fixa no desktop,
+  `@container/principal` e "Cadastros" só para ADMIN; `Entrar` sem esticar; grades de 3 colunas por container;
+  `Paginacao` com quebra de linha; e-mails longos quebram; `SeletorRegistro` abre para cima quando falta espaço.
+- Imóvel: lookups públicos em paralelo com a ficha (`comClassificacoesDaFicha`), seção 05 (mídias) antes da 06 dentro do
+  formulário, `GerenciadorMidia` sem `<form>` aninhado e sem cores antigas; `SelecaoMidia` com tokens.
+- Sessão: `useSessao` guarda `Promise<Corretor>`, zera em falha/expiração/saída; `Cadastros` com guarda de ADMIN.
+- Textos: "Disponíveis" (`rotulosStatusImovelPlural`), `plural()` em "imóvel encontrado" e "parcela(s)"; ícone de
+  carregamento gira; brilho do esqueleto por token.
+- Tema: tokens novos no `@theme`/`.dark`, variáveis legadas alinhadas, borda de campo por `--color-control-line`, skip
+  link legível no escuro. Logo: `scripts/gerar-logo.mjs` gera variantes WebP (7–35 KB) por tema; o cabeçalho troca por CSS.
+- Ferramentas: `tests/visual/` (api-simulada, ajudantes, orçamento, specs), `playwright.visual.config.ts`, scripts
+  `visual`/`visual:sem-build`, `.claude/agents/revisor-design.md`, `.claude/agents/auditor-desempenho.md`,
+  `.claude/commands/revisar-design.md`, `.claude/commands/medir.md`; `AGENTS.md` (Tailwind, não CSS Modules), `tsconfig`,
+  `vite.config` (exclui `tests/visual`), `.gitignore` (`.claude/settings.local.json`).
+- Testes novos/ajustados: `Dialogo` (centralização, tamanho, trava de rolagem), `SeletorRegistro` (abre para cima),
+  `LayoutPainel` (Cadastros só ADMIN), `FormularioImovel` (lookups públicos para CORRETOR, "(inativo)", ordem 05→06),
+  `useSessao.test` (novo), `VisaoGeral` (plurais), `esquemaImovel` (`comClassificacoesDaFicha`), `formato` (`plural`),
+  `LayoutPublico` (logo por tema, sem o PNG original).
+
+**Testes executados (resultado real, estado final):** `npm run typecheck` aprovado; `npm run lint` aprovado (falhou uma
+vez por globais de navegador em `gerar-logo.mjs`, corrigido com `/* global */`); `npx vitest run` 38 arquivos/190 testes
+aprovados (as mensagens "render failed" são do teste proposital do `LimiteErro`); `npm run build` aprovado (`index` 448,1 kB /
+145,4 kB gzip; CSS 60,1 kB / 12,3 kB); `node scripts/seo-smoke.mjs` aprovado — a falha registrada em 17/09 não se reproduziu
+com o build de produção; suíte visual 143/143 aprovada em 7 projetos (claro 1440/1024/768/390/320, escuro 1440/390).
+Durante a rodada a suíte acusou e levou a corrigir: diferença de 15px na centralização causada por `scrollbar-gutter`
+(trocado por compensação de `padding-right`), rodapé do modal 32px acima da borda (sticky respeita o padding) e o logo
+invisível no tema claro (texto branco da arte oficial).
+
+**Não executado / pendências:** conferência com a API real e login de verdade (sem `E2E_STACK=teste`); E2E autenticado
+continua pendente. Os navegadores do Playwright não estão instalados nesta máquina: a suíte visual usa o Chrome do
+sistema; a suíte `tests/e2e` com a config antiga também precisaria de `channel: 'chrome'` para rodar aqui (não alterada).
+Requisições ficaram iguais à linha de base (redução é das Fases 2–4). A 404 curta deixa o rodapé no meio da tela
+(anterior a esta rodada). Sem commit/push/deploy: o dono fará o commit. Artefatos da suíte (`test-results/`, 73 MB) apagados a pedido do dono; o código dos testes foi mantido.
+
 ## 2026-09-16 — Contrato v2 no front: ids inteiros, pessoas, ficha do imóvel e português (Claude)
 
 Pedido do dono em 16/09: upload de imagens junto com a criação do imóvel; contatos em três listas

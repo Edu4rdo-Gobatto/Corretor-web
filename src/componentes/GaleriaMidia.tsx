@@ -43,7 +43,7 @@ export default function GaleriaMidia({ midias, titulo }: { midias: Midia[]; titu
           ))}
         </div>
       )}
-      {ampliada && atual.tipo === 'IMAGEM' && <Dialogo titulo={titulo} aoFechar={() => setAmpliada(false)}><img className="w-full" src={atual.url} alt={titulo} /></Dialogo>}
+      {ampliada && atual.tipo === 'IMAGEM' && <Dialogo titulo={titulo} tamanho="largo" aoFechar={() => setAmpliada(false)}><img className="w-full" src={atual.url} alt={titulo} /></Dialogo>}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import FormularioImovel from './FormularioImovel';
 import { api } from '../../servicos/api';
 import { classificacoesExemplo, imovelExemplo } from '../../seo/fixture';
 import { chaveRascunho, gravarRascunho, lerRascunho } from './rascunhoImovel';
-import { simularSessao } from './sessaoTeste';
+import { corretorTeste, simularSessao } from './sessaoTeste';
 import { prepararEnvio } from '../../componentes/prepararMidia';
 import type { FichaImovel } from '../../tipos';
 
@@ -124,4 +124,18 @@ it('mostra a ficha interna com proprietário e motivo da baixa só para status f
   expect(screen.queryByLabelText('Motivo da baixa')).toBeNull();
   fireEvent.change(screen.getByLabelText('Situação *'), { target: { value: 'VENDIDO' } });
   expect(await screen.findByLabelText('Motivo da baixa')).toBeInTheDocument();
+});
+
+it('usa as classificações públicas para o CORRETOR, mantém o tipo inativo da ficha e põe as mídias antes da ficha interna', async () => {
+  simularSessao({ ...corretorTeste, cargo: 'CORRETOR', id: ficha.corretor_id });
+  // A lista pública só traz itens ativos: o tipo atual da ficha não vem nela.
+  vi.mocked(api.classificacoes).mockResolvedValue({ ...classificacoesExemplo, tipos: classificacoesExemplo.tipos.filter((item) => item.id !== ficha.tipo_id) });
+  mostrar();
+  await screen.findByDisplayValue(ficha.titulo);
+  expect(api.classificacoes).toHaveBeenCalledWith();
+  expect(screen.getByRole('option', { name: `${ficha.tipo?.nome} (inativo)` })).toBeInTheDocument();
+  expect(screen.getByLabelText('Tipo de imóvel *')).toHaveValue(String(ficha.tipo_id));
+  const midias = screen.getByText('Editor de mídia');
+  expect(midias.closest('form')).not.toBeNull();
+  expect(midias.compareDocumentPosition(screen.getByRole('heading', { name: '06. Ficha interna' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });

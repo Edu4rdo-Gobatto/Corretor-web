@@ -1,6 +1,21 @@
 import { z } from 'zod';
 import type { DadosImovel } from '../../servicos/api';
-import type { FichaImovel } from '../../tipos';
+import type { Classificacao, Classificacoes, FichaImovel } from '../../tipos';
+
+/**
+ * O formulário usa as classificações públicas (só itens ativos), que qualquer cargo pode ler; as rotas /admin/... são
+ * exclusivas do ADMIN. O tipo, a finalidade e as características atuais da ficha que não vierem na lista entram como
+ * inativos, para o formulário continuar exibindo o valor salvo.
+ */
+export function comClassificacoesDaFicha(lista: Classificacoes, ficha: Pick<FichaImovel, 'tipo_id' | 'tipo' | 'finalidade_id' | 'finalidade' | 'caracteristicas'>): Classificacoes {
+  const incluir = (itens: Classificacao[], id: number, nome: string | undefined): Classificacao[] =>
+    itens.some((item) => item.id === id) ? itens : [...itens, { id, nome: nome ?? `#${id}`, ativo: false }];
+  return {
+    tipos: incluir(lista.tipos, ficha.tipo_id, ficha.tipo?.nome),
+    finalidades: incluir(lista.finalidades, ficha.finalidade_id, ficha.finalidade?.nome),
+    caracteristicas: ficha.caracteristicas.reduce((itens, item) => incluir(itens, item.caracteristica_id, item.nome), lista.caracteristicas),
+  };
+}
 
 export const estados = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'] as const;
 const duasCasas = (valor: number) => Math.abs(valor * 100 - Math.round(valor * 100)) < 0.001;

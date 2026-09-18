@@ -7,7 +7,8 @@
   --color-action-hover: #071733;
   --color-on-action: #ffffff;
   --color-control-line: #7b8799;
-  --color-paper: #ffffff;
+  /* Claro: fundo azul bem claro e superfícies quase brancas, para reduzir o brilho (pedido do dono, 18/09). */
+  --color-paper: #f8fafd;
   --color-ink: #0a2042;
   --color-navy: #0a2042;
   --color-navy-deep: #071733;
@@ -15,11 +16,12 @@
   --color-gold: #c99b3f;
   --color-gold-soft: #f4e9cf;
   --color-muted: #556074;
-  --color-line: #e2e6ec;
-  --color-soft: #eef1f6;
+  --color-line: #d3ddea;
+  --color-soft: #e2eaf5;
   --color-error: #9c302b;
-  --color-background: #ffffff;
+  --color-background: #ebf1f9;
   --color-foreground: #0a2042;
+  --color-sobreposicao: rgb(4 15 36 / 0.62);
 
   --font-sans: "Source Sans 3", system-ui, sans-serif;
   --font-display: "Libre Baskerville", Georgia, serif;
@@ -52,19 +54,20 @@
   --color-action: #c99b3f;
   --color-action-hover: #dfb65f;
   --color-on-action: #071733;
-  --color-control-line: #71829d;
-  --color-paper: #071733;
+  /* Escuro: navy mais leve que o anterior (#071733), com cartões um tom acima do fundo. */
+  --color-control-line: #8a9bb7;
+  --color-paper: #1f3761;
   --color-ink: #f4e9cf;
   --color-navy: #0a2042;
   --color-navy-deep: #040f24;
   --color-brand: #f4e9cf;
   --color-gold: #c99b3f;
   --color-gold-soft: #3a2f18;
-  --color-muted: #a3adc0;
-  --color-line: #24365c;
-  --color-soft: #101f3d;
-  --color-error: #e08a85;
-  --color-background: #071733;
+  --color-muted: #b3bdd0;
+  --color-line: #38557f;
+  --color-soft: #28416d;
+  --color-error: #f0a09b;
+  --color-background: #182d50;
   --color-foreground: #f4e9cf;
 }
 

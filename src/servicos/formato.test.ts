@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { area, dinheiro, normalizarDecimal, precoPorMetro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal } from './formato';
+import { area, dinheiro, normalizarDecimal, plural, precoPorMetro, rotuloCaracteristica, rotulosStatusImovelPlural, somaMensal, valorCaracteristica, valorPrincipal } from './formato';
 
 describe('formatadores', () => {
   it('escolhe venda antes de locação e reconhece sob consulta', () => {
@@ -23,5 +23,14 @@ describe('formatadores', () => {
     expect(rotuloCaracteristica('pe_direito')).toBe('Pe direito');
     expect(valorCaracteristica(null)).toBe('Sim');
     expect(valorCaracteristica('4 vagas')).toBe('4 vagas');
+  });
+});
+
+describe('plurais', () => {
+  it('concorda com a quantidade e não monta plural com + "s"', () => {
+    expect(plural(1, 'imóvel encontrado', 'imóveis encontrados')).toBe('1 imóvel encontrado');
+    expect(plural(0, 'imóvel encontrado', 'imóveis encontrados')).toBe('0 imóveis encontrados');
+    expect(plural(3, 'parcela', 'parcelas')).toBe('3 parcelas');
+    expect(rotulosStatusImovelPlural.DISPONIVEL).toBe('Disponíveis');
   });
 });

@@ -4,8 +4,10 @@ export const brand = {
   name: 'Lucas Gobatto',
   credential: 'Corretor de imóveis — CRECI 15776',
   creci: '15776',
-  // Partes do logotipo no cabeçalho; a segunda é destacada visualmente.
-  logo: { first: 'LUCAS GOBATTO', second: 'CORRETOR DE IMÓVEIS — CRECI 15776', asset: '/assets/brand-logo.png' },
+  // Partes do logotipo (texto alternativo). `asset` é a arte oficial (texto branco, para fundo escuro); as variantes
+  // exibidas são geradas por `node scripts/gerar-logo.mjs` em WebP de 48/96/144px de altura: `temaClaro` tem o texto
+  // em navy, `temaEscuro` mantém as cores originais. `proporcao` = largura/altura das variantes recortadas.
+  logo: { first: 'LUCAS GOBATTO', second: 'CORRETOR DE IMÓVEIS — CRECI 15776', asset: '/assets/brand-logo.png', temaClaro: '/assets/logo-tema-claro', temaEscuro: '/assets/logo-tema-escuro', proporcao: 3.6813 },
   tagline: 'Imóveis comerciais em Juara e região.',
   closing: 'Juara, Mato Grosso — atendimento com corretor responsável.',
   // Região de atuação: aparece em títulos, descrições e no JSON-LD.
