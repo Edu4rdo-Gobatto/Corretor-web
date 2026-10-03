@@ -102,6 +102,14 @@ describe('respostas públicas do SSR', () => {
     expect((await handleRequest('/does-not-exist', config)).status).toBe(404);
     expect((await handleRequest('/?pagina=2', config, fetcherCatalogo())).status).toBe(404);
   });
+  it('renderiza a casa quebrada no HTML estático da 404', async () => {
+    const resultado = await handleRequest('/does-not-exist', config);
+    expect(resultado.status).toBe(404);
+    expect(resultado.body).toMatch(/<h1[^>]*>Página não encontrada\.<\/h1>/);
+    expect(resultado.body).toContain('Casa quebrada');
+    expect(resultado.body).toContain('Voltando ao catálogo em');
+    expect(resultado.headers['X-Robots-Tag']).toBe('noindex,nofollow');
+  });
   it('renderiza a página de desenvolvedores sem consultar a API', async () => {
     const fetcher = vi.fn();
     const resultado = await handleRequest('/devs', config, fetcher);

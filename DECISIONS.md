@@ -3,6 +3,114 @@
 Cada decisão registra a data, o motivo e o que **não** fazer. Antes de contrariar uma decisão, revise-a aqui
 e registre a mudança com a nova data.
 
+## 2026-10-02 — Tentativa automática de som em toda abertura do /devs (Codex)
+
+Novo pedido do dono: a intro tenta `ligarObra()` em efeito de montagem, inclusive
+em URL direta, sem exigir o sinal de entrada pelo rodapé. Substitui a restrição
+anterior de começar sempre mudo em acesso direto. O SSR continua mudo e sem áudio.
+O navegador pode recusar autoplay audível; rejeição mantém o botão Com som para
+repetir após gesto. A interface só indica som ligado depois do resultado de play.
+Mute manual não dispara nova tentativa automática durante a mesma intro.
+
+Não contornar as políticas do navegador, adicionar listeners que liguem som em
+qualquer clique, alterar os 5s ou deixar áudio depois de fechar. A flag de permissão
+usada na prova de autoplay é exclusiva do navegador do teste, nunca do produto.
+
+## 2026-10-02 — Cartoon, diálogo nativo e cancelamento da reprodução da obra (Codex)
+
+Plano aprovado: mesma família de ilustração SVG nas duas cenas, com perspectiva,
+tokens e fontes existentes. A obra prepara o alicerce em 0–1s, revela paredes em
+1–2,6s, assenta o telhado em 2,6–3,5s e entrega a placa em 3,5–5s; saída de 350ms.
+A ruína permanece distinta e o feno começa em 1s, cruza até 6s e repete a cada 7s.
+As legendas das placas usam `--color-cena-legenda`, constante nos dois temas:
+`--color-on-action` escurece no tema escuro e não serve para texto sobre placas navy.
+
+O overlay agora usa `Dialogo`/`showModal`, com `fecharAoClicarFora` opcional (padrão false)
+e `classe` opcional (padrão vazio). Modais existentes conservam o comportamento.
+O diálogo fechado do SSR não obstrui os créditos sem JS; foco retorna ao título
+do `/devs` após desmontar a intro. Redução de movimento mostra a casa pronta e
+remove a legenda temporal, mantendo os tempos e controles confirmados.
+
+`obra.ts` compartilha o play pendente e identifica gerações de reprodução.
+Desligar invalida a geração e libera as instâncias; play antigo que resolve tarde
+pausa apenas os seus áudios. O overlay ignora respostas antigas, cancela timers
+e preserva a origem pelo rodapé durante a repetição de efeitos do StrictMode.
+
+Não fazer: adicionar biblioteca/áudio novo; reutilizar a cena de construção como
+ruína; deixar áudio após a saída; fechar outros modais ao clicar fora por padrão;
+remover Pular/Ficar aqui; alterar HTTP 404/SEO, o 503 ou dados dos desenvolvedores.
+
+## 2026-10-03 — 404 com casa quebrada, feno e volta automática (Muse Spark)
+
+Decisão: a 404 usa `CasaQuebrada` própria em SVG puro (ruína divertida, distinta da
+`CenaObra` de construção), só com tokens do `@theme` e duas animações novas
+(`feno-atravessar` 7s linear + `feno-girar` 1.4s linear, desligadas pelo
+`prefers-reduced-motion` global). A volta ao catálogo (8s, `TEMPO_VOLTA_404_MS`)
+é só navegação cliente declarativa (`<Navigate replace>` após timeout em efeito,
+com countdown `aria-live` e botão `Ficar aqui` que cancela); o SSR segue
+respondendo HTTP 404 estático com `noindex,nofollow`, sem redirect nem fetch.
+O 503 mantém o visual anterior, sem casa e sem timer.
+
+Motivo: pedido do dono (casa quebrada + feno + redirecionar à principal),
+sem sequestrar a navegação de quem quer copiar a URL ou ler com calma.
+
+Não fazer:
+
+- Não reutilizar a `CenaObra` de obra na 404 nem voltar a imagem externa/hotlink.
+- Não redirecionar no SSR (301/302) nem indexar a 404: status continua 404.
+- Não aplicar a volta automática ao 503 nem remover o `Ficar aqui`.
+
+## 2026-10-03 — Easter egg da obra no /devs com Web Audio nativo (Muse Spark)
+
+Decisão: o canteiro do `/devs` (`CasaEmObra` + `src/servicos/obra.ts`) usa só SVG + CSS para o visual e só
+Web Audio nativo (`Oscillator`/`BiquadFilter`/`Gain`, sem arquivos de áudio e sem dependência nova). O som só
+começa após gesto do usuário: o clique no link "Desenvolvedores" do rodapé tenta destravar o `AudioContext`
+(`sinalizarIdaAosDevs`); se o navegador bloquear, ou no acesso direto por URL, vale o botão "Ligar a obra".
+O primeiro render é sempre parado (igual no SSR); áudio e timers só em efeito/handler, com desligamento total
+ao desmontar. O `/devs` segue estático, sem fetch, `noindex,follow`, fora de sitemap/`llms.txt`.
+
+Motivo: pedido do dono (casa construindo com furadeira/martelo); autoplay com som é bloqueado pelos
+navegadores, e a regra do projeto proíbe dependência nova sem justificativa.
+
+Não fazer:
+
+- Não adicionar Howler/Tone.js nem `.mp3` para este easter egg sem revisar esta decisão.
+- Não tentar autoplay sem gesto nem mascarar o bloqueio: acesso direto por URL mostra o botão, por desenho.
+- Não tocar em `window`/`AudioContext` durante o render de rota pública nem buscar o `/devs` na API.
+
+## 2026-10-03 — Intro em overlay com glassmorphism no /devs (Muse Spark)
+
+Extensão do easter egg acima, a pedido do dono: `ObraOverlay` (`fixed inset-0 z-50`, acima do header
+`z-40`) com fundo `bg-navy/60 backdrop-blur-md` e cartão `bg-paper/80 backdrop-blur-xl`. Abre em toda
+visita, sai sozinho em ~5s (transição de 350ms) ou antes via Pular/Escape/clique fora; o overlay é
+puramente visual e nunca toca em áudio — o som continua só na seção fixa. Primeiro render sempre aberto,
+igual no SSR; timers, foco e teclado só em efeito. Cena SVG compartilhada via `CenaObra.tsx`, sem duplicação.
+(Atualização no mesmo dia, ver decisão seguinte: a seção fixa foi removida e o overlay virou o dono único
+do som, agora com áudios reais.)
+
+Não fazer (então; revisto abaixo):
+
+- Não colocar lógica de som no overlay: um único dono de áudio (`CasaEmObra`) evita dois loops simultâneos.
+- Não usar `window`/`document` fora de efeito ou handler em rota pública (SSR). (Segue valendo.)
+
+## 2026-10-03 — Áudios reais CC0 no overlay do /devs (Muse Spark)
+
+Supersede parcial da decisão do synth, a pedido do dono ("áudios são a parte legal do easter egg"): o som
+saiu do Web Audio sintetizado e passou a três MP3 reais em `public/assets` — `obra-furadeira.mp3` (#0184,
+loop 10s), `obra-martelo.mp3` (#0005, 11s) e `obra-ambiente.mp3` (#0631, loop 30s) — todos CC0 (domínio
+público) do BigSoundBank, sem atribuição obrigatória. Arquivos vendored no repo (sha conferido por tamanho
+e magic bytes `ID3`; os longos aparados com ffmpeg local, sem dependência nova): nada de hotlink nem
+streaming de terceiro. Formato MP3 de propósito (Safari não toca OGG). Custo só para quem visita o `/devs`
+(`preload: 'none'` + `load()` no gesto do rodapé); resto do site e orçamento visual (`tests/visual`,
+sem cobertura do `/devs`) inalterados. A seção fixa saiu (`CasaEmObra` removida); o overlay é o dono único
+do som e para tudo ao desmontar.
+
+Não fazer:
+
+- Não voltar a hotlink externo de áudio sem motivo (quebra sem aviso, vaza `Referer`, depende de terceiro).
+- Não subir OGG como único formato (Safari/iOS mudo) nem WAV/AIFF sem aparar (megabytes à toa).
+- Não tocar áudio fora de gesto: acesso direto por URL começa mudo, com botão "Ativar som", por desenho.
+
 ## 2026-09-11 — Front com SSR próprio, em vez de SPA pura
 
 Decisão (implementada em `d4f6b2f`): as páginas públicas passam a ser renderizadas no servidor por um runtime

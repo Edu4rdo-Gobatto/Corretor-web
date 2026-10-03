@@ -45,6 +45,235 @@ Testes executados (resultado real):
 - `Corretor-API`: `npm run typecheck` (0 erros), `npm test` (26 suítes / 176 testes aprovados).
 - Sem deploy manual nem commit sem confirmação do dono.
 
+## 2026-10-02 — Codex: revisão e preparação do commit/push dos easter eggs
+
+Dono solicitou explicitamente commit e push. Diff revisado; `git fetch origin`
+confirmou main sincronizada (0/0) antes do commit. Arquivos limitados ao pacote
+de cartoon, autoplay, testes e documentação; `.codex-remote-attachments/` permanece
+fora do stage, assim como build, envs e prints. Nenhum segredo/dependência nova.
+Typecheck/lint, build, smoke e cenários Chrome têm os resultados reais dos registros
+acima; suíte completa repetida antes de commitar: 42 arquivos/216 testes aprovados.
+`git diff --cached --check` aprovado. Sem deploy manual.
+
+## 2026-10-02 — Codex: som automático da intro /devs (sem commit)
+
+Pedido: deixar o som automático. `ObraOverlay.tsx` tenta play em toda montagem,
+inclusive URL direta, mantendo confirmação pelo resultado, Mudo, fallback e
+cancelamento no fechamento. Sem áudio no SSR ou nas demais rotas.
+Atualizados `ObraOverlay.test.tsx`, mocks/cleanup em `Devs.test.tsx`, comentário
+em `obra.ts`, dois cenários em `tests/visual/easter-eggs.spec.ts` e os quatro
+arquivos de contexto. Nenhuma dependência/deploy/commit/push.
+
+Validação real: typecheck e lint aprovados; suíte completa 42 arquivos/216 testes;
+teste dirigido de 3 arquivos/18 testes aprovado, seguido de 2 testes de Devs
+aprovados após ajustar a ordem de cleanup dos mocks de mídia. A primeira execução
+com autoplay tinha ruído do HTMLMediaElement não implementado no jsdom, corrigido
+nos mocks. Build e `node scripts/seo-smoke.mjs --serve` aprovados.
+
+`npx playwright test -c playwright.visual.config.ts tests/visual/easter-eggs.spec.ts --project=claro-1440 --workers=2 --grep 'autoplay|áudio|MP3|teclado'`:
+5 cenários aprovados: teclado/fechamento; áudio bloqueado pelo rodapé; três MP3
+reais e parada ao sair; bloqueio na URL direta seguido de reprodução pelo botão;
+autoplay permitido na URL direta, Mudo respeitado, religação e parada ao pular.
+O teste de permissão cria seu próprio Chrome com política permissiva, só para
+comprovar o caminho permitido. Bloqueio testado separadamente; nenhuma política
+do browser do usuário ou do app foi alterada.
+
+Limite: não se garante som sem gesto quando o navegador o proíbe. Safari/iOS e
+dispositivos físicos não executados. Preview local 4180 atualizado com API fixture.
+
+## 2026-10-02 — Codex: easter eggs cartoon do /devs e 404 (sem commit)
+
+Implementado o plano aprovado: obra com operário, perspectiva, sombras e montagem
+em etapas, placa Pronto e intro de 5s; ruína com telhado rompido, entulho, porta/placa
+balançando e feno atravessando em 1–6s. 404 em duas colunas no desktop e empilhada
+no celular, com a frase “Este endereço virou terreno baldio.”. Retorno de 8s,
+cancelamento, links e comportamento do 503 preservados.
+
+Arquivos alterados: `src/componentes/CenaObra.tsx`, `CasaQuebrada.tsx`,
+`ObraOverlay.tsx`, `Dialogo.tsx`, `src/paginas/publico/Devs.tsx`, `src/App.tsx`,
+`src/servicos/obra.ts`, `src/styles/tailwind.css`; testes de `ObraOverlay`,
+`Dialogo`, `Devs` e `obra`; novo `tests/visual/easter-eggs.spec.ts`.
+Documentação atualizada em PROJECT_STATUS/TASKS/DECISIONS/CHANGELOG_AI, sem apagar histórico.
+
+Overlay migrou para o diálogo nativo compartilhado: teclado, clique fora opcional,
+backdrop desfocado e foco no h1 após fechar. Sem JS, o modal fica fechado e os
+créditos/links continuam disponíveis. Redução de movimento mostra ilustrações
+completas e estáticas. Áudio pendente compartilhado/cancelável, sem reativação
+após fechar, sem atingir instâncias de uma nova visita; timers limpos na saída.
+
+Validação executada:
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado na conferência final. Uma rodada intermediária encontrou
+  globals em dois scripts temporários de inspeção em test-results; scripts removidos
+  e lint repetido com sucesso. Nenhuma regra de lint relaxada.
+- `npm test -- --maxWorkers=1 --reporter=dot`: 42 arquivos/216 testes aprovados.
+  O erro render failed impresso pelo teste de LimiteErro é proposital.
+- `npm run build`: aprovado, cliente/SSR/Vercel; avisos conhecidos de anotações do Zod.
+- `node scripts/seo-smoke.mjs --serve`: aprovado, incluindo função Vercel gerada,
+  SSR, metadados, discovery e proxy com cookies; API fixture local, sem banco real.
+- `npx playwright test -c playwright.visual.config.ts tests/visual/easter-eggs.spec.ts tests/visual/publico.spec.ts --project=claro-1440 --workers=2`:
+  20 cenários aprovados, incluindo matriz própria de 320/390/768/1440px nos dois
+  temas, teclado/foco, Escape/Pular/clique fora, animação em tempo real, áudio
+  bloqueado, três MP3 reais tocando/parando ao sair, retorno/cancelamento/histórico,
+  redução de movimento, sem JS, catálogo, filtro, detalhe e modal de contato.
+- `npx playwright test -c playwright.visual.config.ts tests/visual/publico.spec.ts --project=claro-390 --workers=2`:
+  5 cenários públicos mobile aprovados.
+- Revisão dos prints das duas cenas nas oito combinações; corrigido contraste das
+  placas no escuro. Conferência de catálogo/detalhe/404 e visita no Chrome a
+  robots.txt e sitemap.xml (200, fixture sem indexação). `/devs` segue fora do sitemap.
+- `git diff --check`: aprovado.
+
+Uma primeira asserção de teclado esperava ciclo direto entre os botões: Chrome
+também passa pela barra do navegador, mantendo o conteúdo atrás inerte. O teste
+foi ajustado ao comportamento nativo; nenhum trap manual foi adicionado.
+Prints locais ignorados em `test-results/easter-eggs/` e `test-results/visual/prints/`.
+
+Limites: Chrome desktop com viewports simuladas; Safari/iOS, aparelhos físicos,
+avaliação auditiva da mixagem e E2E autenticado com API real não executados.
+Frontend apenas; nenhuma dependência, dado comercial, backend, migration ou deploy
+alterado. Main continua sem commit/push; `.codex-remote-attachments/` preexistente preservada.
+
+## 2026-10-03 — Muse Spark: 404 com casa quebrada, feno e volta automática (commit `92d9e99`)
+
+Pedido do dono: página 404 personalizada com casa quebrada; escolhas confirmadas:
+ruína divertida em SVG, feno de velho oeste passando na frente e volta automática
+à principal após exibir o 404.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Nova `src/componentes/CasaQuebrada.tsx`: ruína em SVG puro (parede com buraco e
+  tijolos à mostra, telhado caído de um lado, porta torta, janela quebrada, telha
+  e placa 404 caídas, poeira) + bola de feno em dois grupos (atravessa + gira);
+  presentacional, SSR-safe, `animada` liga/desliga como na `CenaObra`.
+- `src/styles/tailwind.css`: `--animate-feno` (`feno-atravessar` 7s linear,
+  -340px→340px) + `--animate-feno-girar` (360° em 1.4s); `prefers-reduced-motion`
+  global já desliga.
+- `src/App.tsx`: `PaginaErro` do 404 com `404` gigante, casa, frase de corretor,
+  countdown de 8s (`TEMPO_VOLTA_404_MS`, `aria-live`) e `<Navigate replace>`
+  após timeout em efeito + botão `Ficar aqui` que cancela. 503 inalterado
+  (sem casa, sem timer). Inicial igual no SSR/cliente, sem divergência.
+- Testes: `CasaQuebrada.test.tsx` (3), `App.test.tsx` (4: visual, volta, cancela,
+  503 sem volta) e +1 em `server.test.ts` (HTML estático da 404 com casa,
+  countdown e `noindex,nofollow`).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 42 arquivos, 210 testes aprovados (ruído `render failed` do teste
+  de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza
+  do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do build: `feno-atravessar`/`feno-girar` no CSS e `Casa quebrada`
+  no `dist/server/server.js`; SSR da 404 com casa e countdown conferido em teste.
+
+Risco/pendência: commit `92d9e99` na `main` + push `1c81e63..92d9e99` a pedido
+do dono; conferir no navegador a 404 nos dois temas, 320–390px
+sem scroll-X, reduced-motion (casa parada, timer segue), countdown, volta em 8s
+e `Ficar aqui`.
+
+## 2026-10-03 — Muse Spark: áudios reais de obra no overlay do /devs (commit `a086849`)
+
+Pedido do dono ("áudios, áudios, áudios"): tirar o card da casa (a seção fixa) e colocar áudios de
+construção de verdade no lugar do som sintetizado. Escolha confirmada: saiu só a seção fixa; o overlay
+fullscreen virou o easter egg único, com som.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novos `public/assets/obra-furadeira.mp3` (161KB, loop 10s), `obra-martelo.mp3` (128KB, 11s) e
+  `obra-ambiente.mp3` (361KB, loop 30s): sons CC0 (domínio público) do BigSoundBank — furadeira #0184,
+  martelo com prego #0005 e canteiro #0631 (os dois longos aparados com ffmpeg, sem dependência nova).
+  Vendored local (sem hotlink/streaming de terceiro) e lazy (`preload: 'none'`, só baixam no /devs).
+- `src/servicos/obra.ts` reescrito: motor em HTMLAudioElement (3 faixas em loop com volumes próprios),
+  mesma API de gesto (`sinalizarIdaAosDevs` agora pré-carrega no clique do rodapé); `ligarObra()` virou
+  `Promise<boolean>` (false quando o navegador bloqueia); `desligarObra()` pausa e zera para replay.
+- `src/componentes/ObraOverlay.tsx`: dono único do som — tenta ligar sozinho p/ quem veio do rodapé,
+  botão “Com som/Mudo” (`aria-pressed`) p/ acesso direto, para tudo ao desmontar.
+- Removidos `src/componentes/CasaEmObra.tsx` + teste (a seção fixa); `Devs.tsx` só com cards + overlay;
+  `CenaObra.tsx` segue no overlay. `Devs.test.tsx` sem o teste da seção; `obra.test.ts` reescrito p/
+  Audio mockado (4 testes); `ObraOverlay.test.tsx` com autoplay, toggle, parada ao sair (7 testes) e
+  mock silencioso de `Audio` (jsdom não implementa play/pause/load e poluía o stderr).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 40 arquivos, 202 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do SSR: `/devs` 200 com overlay (“Levantando esta página”, “Ativar som da obra”) e sem a
+  seção fixa, `X-Robots-Tag: noindex,follow`, sem nenhuma chamada à API; MP3s presentes no `dist/client`.
+
+Risco/pendência: commit `a086849` na `main` + push `38b21fb..a086849` a pedido do dono;
+ouvir de verdade no navegador (timbre/volume das 3 faixas, clique no rodapé x URL direta, temas, 320–390px,
+Safari/iOS que só toca MP3 — por isso nada de OGG).
+
+## 2026-10-03 — Muse Spark: overlay de abertura da obra no /devs (sem commit)
+
+Pedido do dono sobre o easter egg: em vez da seção fixa, uma animação que se sobrepõe aos cards com
+glassmorphism de fundo e depois sai. Escolhas confirmadas: saída automática (~5s) + manual, toda visita,
+fullscreen, com som se liberado.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novo `src/componentes/CenaObra.tsx`: cena SVG extraída de `CasaEmObra.tsx` (props `animada`/`rotulo`),
+  sem lógica de som; `CasaEmObra.tsx` virou a seção fixa dona do áudio sobre a cena compartilhada.
+- Novo `src/componentes/ObraOverlay.tsx` (+ `ObraOverlay.test.tsx`, 5 testes): `fixed inset-0 z-50`
+  com `bg-navy/60 backdrop-blur-md` e cartão `bg-paper/80 backdrop-blur-xl`; auto-dismiss em 5s com
+  transição de saída de 350ms; fecha em Pular, Escape e clique fora (clique na casa não fecha); foco no
+  Pular na abertura; puramente visual, sem tocar em `AudioContext`.
+- `src/paginas/publico/Devs.tsx`: overlay aberto no primeiro render (igual no SSR, sem divergência de
+  hidratação) + `aria-live` anunciando “Página pronta.” na saída.
+- `src/styles/tailwind.css`: keyframe/utility `obra-chegar` para a entrada do cartão.
+- `Devs.test.tsx`: +1 teste (abre em overlay, dispensa sozinha, anuncia a página).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 41 arquivos, 205 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do SSR: `/devs` 200 com overlay estático (“Levantando esta página”, blur, Pular),
+  `X-Robots-Tag: noindex,follow`, sem nenhuma chamada à API.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado);
+conferir no navegador a entrada/saída do overlay nos dois temas, 320–390px, reduced-motion e Safari/iOS.
+
+## 2026-10-03 — Muse Spark: easter egg da casa em obra no /devs (sem commit)
+
+Pedido do dono: ao entrar no `/devs`, mostrar uma casa em construção com som de furadeira, martelo e afins.
+Escolhas confirmadas antes de implementar: som liberado pelo clique que leva ao `/devs` (gesto exigido pelo
+navegador), som 100% sintetizado via Web Audio (sem arquivos nem dependência nova), visual em SVG + CSS animado,
+canteiro sempre visível na página.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novo `src/servicos/obra.ts`: motor de som da obra (furadeira em rajadas, marteladas periódicas, fundo de
+  canteiro) só com Web Audio nativo; `sinalizarIdaAosDevs()` tenta destravar o `AudioContext` dentro do gesto do
+  clique; tudo guarda SSR (`window` só dentro das funções).
+- Novo `src/componentes/CasaEmObra.tsx`: seção “Em obras” em SVG puro (paredes pela metade, vigas, andaime,
+  martelo, furadeira com faíscas, poeira, placa EM OBRAS) + botão “Ligar/desligar a obra” (`aria-pressed`,
+  ≥44px); primeiro render sempre parado (igual ao SSR); desliga o som ao sair da rota.
+- `src/paginas/publico/Devs.tsx`: seção do canteiro acima dos cards; `src/componentes/LayoutPublico.tsx`:
+  clique em “Desenvolvedores” chama `sinalizarIdaAosDevs()`.
+- `src/styles/tailwind.css`: keyframes `martelo`, `furadeira`, `poeira` e `faisca` (herdam o
+  `prefers-reduced-motion` global).
+- Testes: `obra.test.ts` (3), `CasaEmObra.test.tsx` (5), +1 em `Devs.test.tsx` (seção do canteiro).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 40 arquivos, 199 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do SSR: `/devs` 200 com a seção estática (“Em obras”, botão, SVG), `X-Robots-Tag: noindex,follow`,
+  sem nenhuma chamada à API (fetcher que lança erro nunca foi acionado).
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); conferir no
+navegador com som ligado: clique no rodapé ligando sozinho, acesso direto por URL mostrando “Ligar a obra”,
+claro/escuro, 320–390px e Safari/iOS (pode exigir um segundo toque mesmo com o desbloqueio no link).
+>>>>>>> 04d93d9740780040dfc9dc83cc37754f5ad5fbd0
+
 ## 2026-10-02 — Relatório da auditoria técnica full stack
 
 Pedido do dono: registrar a auditoria concluída do frontend e da API num Markdown e deixar tarefas marcáveis para as correções.

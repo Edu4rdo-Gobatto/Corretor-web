@@ -27,6 +27,18 @@ it('usa a largura média quando o tamanho não é informado', () => {
   render(<Dialogo titulo="Contato" aoFechar={vi.fn()}><p>Conteúdo</p></Dialogo>);
   expect(screen.getByRole('dialog').className).toContain('w-[min(640px,calc(100vw-32px))]');
 });
+it('fecha no fundo apenas quando solicitado e não fecha ao clicar no conteúdo', () => {
+  const aoFechar = vi.fn();
+  const tela = render(<Dialogo titulo="Obra" fecharAoClicarFora aoFechar={aoFechar}><p>Conteúdo</p></Dialogo>);
+  fireEvent.click(screen.getByText('Conteúdo'));
+  expect(aoFechar).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('dialog'), { clientX: -1, clientY: -1 });
+  expect(aoFechar).toHaveBeenCalledOnce();
+  tela.unmount();
+  render(<Dialogo titulo="Formulário" aoFechar={aoFechar}><p>Conteúdo</p></Dialogo>);
+  fireEvent.click(screen.getByRole('dialog'), { clientX: -1, clientY: -1 });
+  expect(aoFechar).toHaveBeenCalledOnce();
+});
 it('trava a rolagem compensando a barra e restaura o body ao fechar', () => {
   const larguraUtil = vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1009);
   const { unmount } = render(<Dialogo titulo="Contato" aoFechar={vi.fn()}><p>Conteúdo</p></Dialogo>);

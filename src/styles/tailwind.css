@@ -6,6 +6,7 @@
   --color-action: #0a2042;
   --color-action-hover: #071733;
   --color-on-action: #ffffff;
+  --color-cena-legenda: #f8fafd;
   --color-control-line: #7b8799;
   /* Claro: fundo azul bem claro e superfícies quase brancas, para reduzir o brilho (pedido do dono, 18/09). */
   --color-paper: #f8fafd;
@@ -33,10 +34,58 @@
 
   --animate-shimmer: shimmer 1.4s ease infinite;
 
+  --animate-martelo: martelo 1.8s ease-in-out infinite;
+  --animate-furadeira: furadeira 0.18s linear infinite;
+  --animate-poeira: poeira 2.6s ease-out infinite;
+  --animate-faisca: faisca 0.7s ease-in-out infinite;
+  --animate-obra-chegar: obra-chegar 0.35s ease-out;
+  --animate-feno: feno-atravessar 7s 1s linear infinite both;
+  --animate-feno-girar: feno-girar 1.4s linear infinite;
+
   @keyframes shimmer {
     to {
       background-position: -200% 0;
     }
+  }
+
+  @keyframes martelo {
+    0%, 100% { transform: rotate(0deg); }
+    12% { transform: rotate(-28deg); }
+    24% { transform: rotate(6deg); }
+    36% { transform: rotate(0deg); }
+  }
+
+  @keyframes furadeira {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(1.6px, -1.2px); }
+  }
+
+  @keyframes poeira {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    25% { opacity: 0.7; }
+    100% { transform: translateY(-46px) scale(1.4); opacity: 0; }
+  }
+
+  @keyframes faisca {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes obra-chegar {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes feno-atravessar {
+    0% { transform: translate(-135px, 0); }
+    20% { transform: translate(49px, -3px); }
+    40% { transform: translate(233px, 0); }
+    60% { transform: translate(417px, -4px); }
+    71%, 100% { transform: translate(530px, 0); }
+  }
+
+  @keyframes feno-girar {
+    to { transform: rotate(360deg); }
   }
 }
 
@@ -90,4 +139,59 @@
       animation: none !important;
     }
   }
+}
+
+/* Cenas locais: o estado base é completo; animações só quando o visitante permite movimento. */
+.dialogo-obra::backdrop { backdrop-filter: blur(10px); }
+.dialogo-obra { border: 1px solid var(--color-gold); }
+.dialogo-obra .cena-cartoon { max-height: 42dvh; }
+.obra-poeira { opacity: 0; }
+.ruina-porta { transform-origin: 218px 239px; }
+.ruina-placa { transform-origin: 452px 315px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .cena-obra-animada .obra-paredes { animation: obra-erguer 1.6s 1s both cubic-bezier(.22,.7,.3,1); }
+  .cena-obra-animada .obra-telhado { animation: obra-telhar .9s 2.6s both cubic-bezier(.2,.8,.3,1.1); }
+  .cena-obra-animada .obra-pronto { transform-origin: 410px 300px; animation: obra-entregar .55s 3.5s both; }
+  .cena-obra-animada .obra-brilho { animation: obra-entregar .5s 3.8s both; }
+  .cena-obra-animada .obra-operario { animation: obra-chegar .5s both; }
+  .cena-obra-animada .obra-braco { transform-origin: 144px 237px; animation: obra-trabalhar .7s 0s 5; }
+  .cena-obra-animada .obra-poeira { animation: obra-empoeirar 3.5s both; }
+  .cena-ruina-animada .ruina-porta { animation: ruina-porta 4s ease-in-out infinite; }
+  .cena-ruina-animada .ruina-placa { animation: ruina-placa 5s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .obra-etapas { display: none; }
+}
+@keyframes obra-erguer {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes obra-telhar {
+  from { transform: translateY(-45px) rotate(-4deg); opacity: 0; }
+  75% { transform: translateY(4px) rotate(1deg); opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes obra-entregar {
+  from { transform: scale(.75); opacity: 0; }
+  75% { transform: scale(1.04); opacity: 1; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes obra-trabalhar {
+  0%, 100% { transform: rotate(0); }
+  40% { transform: rotate(-22deg); }
+  65% { transform: rotate(8deg); }
+}
+@keyframes obra-empoeirar {
+  0%, 100% { opacity: 0; }
+  25%, 85% { opacity: .5; }
+}
+@keyframes ruina-porta {
+  0%, 100% { transform: rotate(-4deg); }
+  45% { transform: rotate(7deg); }
+  65% { transform: rotate(3deg); }
+}
+@keyframes ruina-placa {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-3deg); }
 }

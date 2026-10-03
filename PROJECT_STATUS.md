@@ -12,6 +12,79 @@ Validação: typecheck (0 erros), lint (0 avisos), 39 arquivos / 195 testes apro
 
 Concluído povoamento do banco Neon (corretor-db): 9 imóveis completos com mídias e fichas internas (avaliações mercadológicas), 12 características, 5 corretores/usuários, 12 pessoas (clientes, proprietários, inquilinos e leads nos 3 status de contato), 2 contratos de locação ativos e 3 comissões com parcelas. Validado com testes passando em ambos os repositórios.
 
+## 2026-10-02 — Codex: publicação dos easter eggs autorizada pelo dono
+
+Pedido explícito: commit e push na main. Pacote: cartoon no `/devs` e 404,
+diálogo acessível, som automático sujeito ao navegador, limpeza do áudio e testes.
+Diff revisado, origem sincronizada antes do commit; publicação destinada a origin/main.
+Validações da sessão registradas em CHANGELOG_AI. Somente arquivos dessa tarefa;
+anexos locais e artefatos ignorados ficam fora do commit. Sem operação na API/banco.
+
+## 2026-10-02 — Codex: autoplay da obra concluído (sem commit)
+
+A pedido do dono, a intro tenta áudio automaticamente em toda entrada no `/devs`,
+inclusive acesso direto. Botão e fallback preservados quando o navegador bloqueia.
+Área assumida: ObraOverlay e testes/documentação; sem commit/push.
+Validado: typecheck/lint, 42 arquivos/216 testes, build, seo-smoke e 5 cenários
+Chrome direcionados a áudio/teclado. Autoplay autorizado toca as três faixas no
+acesso direto; bloqueio permite repetir no botão. Mudo e saída param as faixas.
+
+## 2026-10-02 — Codex: refinamento cartoon dos easter eggs concluído (sem commit)
+
+Área assumida: cenas do `/devs` e 404, diálogo acessível, limpeza do áudio e validação visual.
+Plano aprovado pelo dono: preservar intro de 5s, retorno em 8s e dados dos desenvolvedores.
+Frontend apenas, direto na main, sem commit/push. Nenhum outro agente editando esta área.
+
+Obra em perspectiva com operário e entrega da casa em etapas; 404 com ruína, porta/placa
+balançando e feno atravessando. Intro usa `Dialogo` nativo; sem JS, o modal fica fechado
+e os créditos acessíveis. Áudio pendente não reativa após saída, inclusive em StrictMode.
+Validação: typecheck/lint, 42 arquivos/216 testes, build e seo-smoke aprovados; 20 cenários
+Chrome desktop/matriz dos easter eggs + 5 cenários públicos mobile. Matriz revisada por
+prints em 320/390/768/1440px, claro/escuro; teclado, áudio real/bloqueado, saída de rota,
+redução de movimento, sem JS e histórico conferidos. API simulada; Safari/iOS e aparelhos
+físicos não conferidos. Detalhes e comandos no novo registro de `CHANGELOG_AI.md`.
+
+## 2026-10-03 — Muse Spark: 404 com casa quebrada (commit `92d9e99`)
+
+Implementada a 404 personalizada: `CasaQuebrada` em SVG (ruína divertida, tokens
+navy/gold, `animate-feno` + `animate-feno-girar` em `tailwind.css`, SSR-safe) e
+`PaginaErro` com `404` gigante, countdown de 8s e volta automática ao catálogo com
+botão `Ficar aqui` (só no 404; 503 inalterado). SSR segue 404 `noindex,nofollow`,
+sem fetch. Validado: typecheck, lint, 42 arquivos/210 testes, build e seo-smoke
+aprovados; CSS e bundle SSR conferidos. Commit `92d9e99` na `main` + push
+`1c81e63..92d9e99` a pedido do dono. Pendente conferir no navegador: 404 desktop/mobile nos dois temas, reduced-motion,
+countdown, volta automática e cancelamento.
+
+## 2026-10-03 — Muse Spark: áudios reais no overlay do /devs (commit `a086849`)
+
+A pedido do dono: saiu a seção fixa ("card da casa") e o overlay virou o easter egg único, agora com
+áudios reais de obra em vez do synth. Três MP3 CC0 do BigSoundBank vendored em `public/assets`
+(furadeira #0184 aparada p/ loop de 10s, martelo #0005, ambiente #0631 aparado p/ 30s; ~650KB, lazy só
+no /devs). Overlay tenta o som sozinho p/ quem veio do rodapé, com botão Com som/Mudo; para tudo ao sair.
+Validado: typecheck, lint, 40 arquivos/202 testes, build e seo-smoke aprovados; SSR 200, `noindex,follow`,
+sem fetch; MP3s conferidos no `dist`. Commit `a086849` na `main` + push
+`38b21fb..a086849` a pedido do dono. Pendente ouvir no navegador
+(clique no rodapé, URL direta, temas, mobile, Safari/iOS).
+
+## 2026-10-03 — Muse Spark: overlay de abertura da obra no /devs (sem commit)
+
+Evolução do easter egg a pedido do dono: intro fullscreen com glassmorphism (`ObraOverlay`, `z-50`,
+`backdrop-blur`) sobre o `/devs`, com a casa animada e saída automática em ~5s (botão Pular, Escape ou
+clique fora também dispensam). Cena SVG extraída para `CenaObra.tsx`, reutilizada na seção fixa; som
+continua só na seção (`CasaEmObra`). Validado: typecheck, lint, 41 arquivos/205 testes, build e seo-smoke
+aprovados; SSR do `/devs` 200, `noindex,follow`, estático e sem fetch. Sem commit/push (aguardando o dono).
+Pendente conferir no navegador: entrada/saída do overlay, temas, mobile e Safari/iOS.
+
+## 2026-10-03 — Muse Spark: easter egg da casa em obra no /devs (sem commit)
+
+Área assumida: canteiro sempre visível no `/devs` com casa em SVG animado + som de obra sintetizado
+(`src/servicos/obra.ts`, `src/componentes/CasaEmObra.tsx`, integração em `Devs.tsx`/`LayoutPublico.tsx`,
+keyframes em `tailwind.css`). Som liberado pelo clique que leva ao `/devs`, com botão fallback.
+Validado: typecheck, lint, 40 arquivos/199 testes, build e seo-smoke aprovados; SSR do `/devs` 200,
+`noindex,follow`, estático e sem fetch. Sem commit/push (aguardando confirmação do dono).
+Pendente conferir no navegador com som: clique no rodapé, URL direta, temas, mobile e Safari/iOS.
+>>>>>>> 04d93d9740780040dfc9dc83cc37754f5ad5fbd0
+
 ## 2026-10-02 — Auditoria técnica full stack documentada
 
 Auditoria registrada em `docs/audits/2026-10-02-auditoria-fullstack.md`; fotografia original: frontend `94ebcef`, API `e3b0a32`.
