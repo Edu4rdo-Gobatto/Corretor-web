@@ -1,5 +1,39 @@
 # Estado atual — corretor-web
 
+## 2026-10-03 — Codex: publicação do cartoon de indisponibilidade autorizada
+
+Pedido explícito do dono: commit e push da implementação na main. Escopo: cena de reparo,
+sondagem/recuperação da página, smoke existente e os cinco documentos de contexto.
+Após fetch, main/ origin estavam sincronizadas (0/0). Typecheck/lint/smoke repetidos e aprovados;
+npm test repetido: exit 1, sem arquivos, conforme decisão do dono. Build e 22 checks Chrome da
+implementação permanecem válidos: nenhuma mudança posterior no código de produção.
+Excluir do commit dev.mjs, vite.config.ts e anexos preexistentes; artefatos ignorados não publicados.
+Sem deploy/migration/API/dados reais; pendências de homologação do registro abaixo mantidas.
+
+## 2026-10-03 — Codex: cartoon e recuperação da indisponibilidade concluídos localmente
+
+Implementada a espera pública 5xx com cena de reparo silenciosa, pausa/movimento reduzido e
+sondagem HEAD da própria página. Recuperação 200/404 recarrega a URL original; erro/timeout conserva
+a espera. Timers/requests invalidados ao sair/trocar URL/ocultar/offline; filtros/hash preservados no JS.
+Área liberada: Codex integrou serviço/hook/página/docs/QA; cena_reparo implementou SVG/CSS próprios.
+Typecheck/lint/build e smoke SSR aprovados; 22/22 verificações Chrome com API simulada aprovadas
+(14 cenários e 8 layouts 320/390/768/1440 claro/escuro). Sem erros JS/hidratação ou overflow observados.
+`npm test` terminou exit 1 por ausência de arquivos, conforme remoção do dono; suítes não recriadas.
+Pendências: cache/CDN/cold start publicados, API/serviços reais, Safari/iOS e dispositivos físicos.
+Visibilidade testada por evento simulado; tempos 30/50s por relógio virtual. Serviços QA próprios encerrados.
+Evidências ignoradas em `artifacts/indisponibilidade`; quatro diretórios vazios fora do repo ficaram após
+rejeição automática da limpeza, descrita em CHANGELOG_AI. Main; alterações locais anteriores preservadas.
+Sem dependências novas, commit/push/deploy ou alteração em dados/API reais.
+
+## 2026-10-03 — Codex: cartoon e recuperação da indisponibilidade em andamento
+
+Plano aprovado pelo dono em conversa. Área assumida: Codex (sondagem HEAD, hook de recuperação,
+integração da página, documentação e QA); subagente cena_reparo (SVG e estilos próprios da cena).
+Animação de reparo sem som, pausa/movimento reduzido e recuperação automática da URL original.
+Somente frontend, direto na main; preservar dev.mjs, vite.config.ts e anexos locais preexistentes.
+Sem API real, dependências novas, recriação de suítes, commit/push/deploy ou mudança de dados.
+Validação prevista: typecheck/lint/build, smoke SSR e navegador com API simulada.
+
 ## 2026-10-03 — Codex: refinamento do frontend concluído localmente
 
 Público e painel refinados conforme o plano aprovado: ações auxiliares em ícones com alvos de

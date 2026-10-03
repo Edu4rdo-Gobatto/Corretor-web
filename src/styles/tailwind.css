@@ -203,3 +203,32 @@
   0%, 100% { transform: rotate(0); }
   50% { transform: rotate(-3deg); }
 }
+
+/* A pausa preserva o ponto do reparo; nenhum movimento anuncia a volta do serviço. */
+.cena-reparo { max-width: 32.5rem; }
+.cena-reparo .reparo-braco { transform-origin: 148px 242px; }
+.cena-reparo .reparo-indicador { opacity: .6; }
+@media (prefers-reduced-motion: reduce) {
+  .reparo-controle { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cena-reparo .reparo-braco {
+    animation: reparo-ajustar 6s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+  .cena-reparo .reparo-indicador {
+    animation: reparo-indicador 6s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+  .cena-reparo-animada .reparo-braco,
+  .cena-reparo-animada .reparo-indicador { animation-play-state: running; }
+}
+@keyframes reparo-ajustar {
+  0%, 16%, 76%, 100% { transform: rotate(0); }
+  28%, 52% { transform: rotate(-5deg); }
+  40%, 64% { transform: rotate(3deg); }
+}
+@keyframes reparo-indicador {
+  0%, 18%, 78%, 100% { opacity: .35; }
+  38%, 58% { opacity: .85; }
+}

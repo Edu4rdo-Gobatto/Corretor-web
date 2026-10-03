@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider, Routes, Route, Link, Navigate, use
 import { caminhosCatalogo, urlNormalizada } from './servicos/urls';
 import LayoutPublico from './componentes/LayoutPublico';
 import CasaQuebrada from './componentes/CasaQuebrada';
+import PaginaIndisponivel from './componentes/PaginaIndisponivel';
 import EstadoCarregamento from './componentes/EstadoCarregamento';
 import Catalogo from './paginas/publico/Catalogo';
 import DetalheImovel from './paginas/publico/DetalheImovel';
@@ -67,6 +68,7 @@ export function PaginaErro({ status = 404 }: { status?: number }) {
     };
   }, [eh404, ficar]);
   if (voltar && eh404 && !ficar) return <Navigate to="/" replace />;
+  if (status >= 500) return <PaginaIndisponivel status={status} />;
   if (!eh404) {
     return (
       <div className="container py-20">

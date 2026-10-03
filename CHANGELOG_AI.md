@@ -1,5 +1,65 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-03 — Codex: commit e push do cartoon de indisponibilidade autorizados
+
+Pedido explícito do dono: commit e push na main. Escopo autorizado: os 12 arquivos da cena,
+recuperação/sondagem, integração, smoke e cinco documentos de contexto. Dev server/Vite/anexos
+preexistentes e artefatos ignorados ficam fora do commit. Não há alteração da API nem dados reais.
+Fetch confirmado, HEAD/origin/main 0/0 antes da publicação. Repetidos typecheck/lint/smoke: exit 0;
+npm test: exit 1, sem arquivos conforme remoção solicitada. Build e 22 verificações Chrome do
+registro anterior permanecem evidência desta implementação, sem alterações posteriores em produção.
+Revisão do diff e escopo antes de publicar. Sem deploy/migration; homologações pendentes preservadas.
+
+## 2026-10-03 — Codex: cartoon de reparo e recuperação automática da indisponibilidade
+
+Pedido: implementar o plano aprovado de cartoon de reparo enquanto o backend está indisponível,
+abrindo automaticamente a mesma página quando ela voltar. Somente frontend, direto na main.
+
+Entrega:
+- Novos `src/componentes/CenaReparo.tsx`, `PaginaIndisponivel.tsx` e `src/hooks/useRecuperacaoPagina.ts`.
+  Casa apagada/operário/quadro de energia em SVG local, loop suave de 6s, sem som. Pausa conserva
+  o progresso e não pausa sondagens; reduced-motion e SSR/primeiro render permanecem estáticos.
+- `src/App.tsx`, `src/servicos/api.ts` e `src/styles/tailwind.css`: integração dos estados públicos 5xx,
+  serviço central HEAD da própria URL e estilos de reparo. Primeira tentativa após 30s, próximas
+  30s após terminar, limite 50s e uma por vez. 200/404 recarregam a URL com filtros/hash; demais
+  respostas/erros/timeout conservam a espera. Ocultar/offline/sair/trocar URL/retry manual cancela
+  requests/timers e invalida respostas anteriores. Link manual funciona sem JS (path/query).
+- `scripts/seo-smoke.mjs`: ampliado smoke existente com falha sintética dos dados, saúde ainda 200,
+  HTTP 503/no-store/noindex/Retry-After, cena estática sem JS e sondagem HEAD 503 -> 200 sem corpo.
+- AGENTS.md, PROJECT_STATUS.md, TASKS.md, DECISIONS.md e este histórico atualizados sem apagar registros.
+  Nova decisão substitui o 503 sem ilustração/recuperação; tempos do /devs e 404 preservados.
+
+Validação real após integração e correção de acessibilidade:
+- `npm run typecheck`, `npm run lint`, `npm run build`: exit 0. Build cliente/SSR/Vercel local;
+  avisos PURE do Zod preexistentes. `node scripts/seo-smoke.mjs`: exit 0, incluindo catálogo,
+  detalhe, /devs, 404, robots/sitemap/llms, proxy/cookies, função Vercel e novo fluxo HTTP 503/HEAD.
+- `npm test -- --maxWorkers=1 --reporter=dot`: exit 1, No test files found. Nenhuma suíte fonte recriada.
+- `node artifacts/indisponibilidade/qa-browser.mjs`: exit 0, 22/22 checks (14 cenários + 8 layouts).
+  API inteiramente simulada. Recuperação 200/filtros/hash, slug 301, imóvel removido 404, saúde positiva
+  com catálogo falhando, espera persistente, erro de rede, limite 50s sem concorrência, cancelamento
+  e resposta antiga ao navegar, ocultar/retomar, offline/online, retry manual durante request,
+  pausa por teclado independente da recuperação, reduced-motion e sem JS/link manual.
+  Layouts 320/390/768/1440 claro/escuro: sem overflow, alvos >=44px, arte depois do texto no mobile.
+  Sem pageerror/erro de console inesperado/hidratação; status HTTP de falha deliberados.
+  Tempos medidos com relógio virtual; visibilidade por propriedade/evento simulados.
+- Prints integrados de 320 claro, 390 escuro e 1440 claro inspecionados; cena isolada nos dois temas,
+  pausa preservando matriz do braço e reduced-motion sem animação também conferidos pelo subagente.
+- Revisão independente identificou animação no SSR sem controle de pausa; corrigida para iniciar
+  somente após montagem do cliente. Releitura não encontrou outros problemas concretos.
+  `git diff --check`: exit 0. Não afirmar homologação por esta revisão estática.
+
+Evidências ignoradas: `artifacts/indisponibilidade/resultados.json`, `layout-*.png`, harness/log;
+`artifacts/reparo-cena` contém provas isoladas. Serviços próprios de QA encerrados.
+Durante captura, URL.pathname codificou o caminho Windows e criou diretórios paralelos; corrigido
+para fileURLToPath e os oito PNG recuperados para o diretório correto. A revisão automática rejeitou
+a remoção somente das quatro pastas vazias, com motivo `blocked by policy`; não houve contorno.
+Restam vazias em `C:\Users\ferna\OneDrive\%C3%81rea%20de%20Trabalho\Corretor-web\artifacts\indisponibilidade`.
+
+Limites: cache/CDN/cold start no publicado, API/banco/R2/Drive reais, Safari/iOS e dispositivos físicos
+não homologados. HEAD ainda executa buscas/render SSR e a recarga repete o trabalho; timeout servidor
+inalterado. Erros inline/painel fora do fluxo. `scripts/dev.mjs`, `vite.config.ts` e anexos preexistentes
+preservados. Sem dependências novas, escrita em dados reais, API irmã, commit/push ou deploy.
+
 ## 2026-10-03 — Codex: refinamento do público e painel aprovado pelo dono
 
 Pedido: implementar o plano de acabamento, com menos caixas nas ações secundárias (Editar vira

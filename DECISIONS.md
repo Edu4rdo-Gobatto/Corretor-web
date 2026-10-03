@@ -1,5 +1,27 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-03 — Cartoon de reparo e recuperação do 503 (Codex)
+
+- Plano aprovado pelo dono: casa apagada e operário ajustando o quadro de energia, SVG local na
+  identidade existente, loop suave de 6s sem som. Pausa congela o progresso; movimento reduzido e
+  SSR/primeiro render são estáticos. O movimento começa só quando o controle pode ser montado.
+- Substitui as decisões anteriores que mantinham o 503 sem cena/recuperação: sondar a própria URL
+  pública por HEAD em `verificarPaginaPublica`, centralizado em `api.ts`, sem cliente JSON/token.
+  `/saude` isolado não prova que classificações/catálogo/detalhe voltaram. Não usar saúde para recarregar.
+- Primeira sondagem após 30s, próxima 30s após terminar, uma por vez e limite de 50s (SSR conserva
+  orçamento de 45s). Resposta 200/404, após redirects internos, recarrega a URL atual com filtros/hash;
+  erro/timeout/outros status conservam a espera. Não declarar recuperação pela duração da animação.
+- Visibilidade/conexão governam as sondagens; ocultar/offline cancela e retomar aguarda outros 30s.
+  Sair/trocar URL/retry manual invalida timers e respostas anteriores, inclusive em StrictMode.
+- Tentar novamente é link estilizado: sem JS preserva path/query; com JS cancela a sondagem e recarrega,
+  preservando também hash. O href renderizado omite hash, que não chega ao SSR, para evitar hidratação
+  divergente. Pausar a cena não pausa a recuperação.
+- HTTP 503, noindex, no-store e Retry-After permanecem. HEAD ainda realiza as buscas/render SSR;
+  não aumentar timeouts do servidor, criar keep-alive nem mudar plano/infra nesta entrega.
+  Erros inline do catálogo/painel continuam fora deste fluxo. Sem dependências ou mudança da API.
+- QA pelo smoke existente e scripts efêmeros ignorados; não recriar suítes fonte removidas.
+  Cache/CDN e cold start no ambiente publicado exigem homologação própria.
+
 ## 2026-10-03 — Refinamento do público e painel com ações discretas (Codex)
 
 - Preservar logo, navy/dourado e fontes existentes. Ações auxiliares usam `AcaoIcone`

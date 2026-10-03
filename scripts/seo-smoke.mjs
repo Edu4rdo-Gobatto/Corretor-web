@@ -4,11 +4,14 @@ import assert from 'node:assert/strict';
 import { imovelExemplo, classificacoesExemplo } from '../src/seo/fixture.ts';
 
 const properties = Array.from({ length: 11 }, (_, i) => ({ ...imovelExemplo, id: 100 + i, slug: `sala-comercial-no-centro-${100 + i}`, titulo: `${imovelExemplo.titulo} ${i + 1}` }));
+let dadosIndisponiveis = false;
 const api = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   res.setHeader('Content-Type', 'application/json');
   if (url.pathname === '/saude') {
     res.end(JSON.stringify({ status: 'ok' }));
+  } else if (dadosIndisponiveis && (['/tipos-imovel', '/finalidades-imovel', '/caracteristicas', '/imoveis'].includes(url.pathname) || url.pathname.startsWith('/imoveis/'))) {
+    res.writeHead(503); res.end(JSON.stringify({ message: 'Indisponibilidade simulada' }));
   } else if (['/tipos-imovel','/finalidades-imovel','/caracteristicas'].includes(url.pathname)) {
     const itens=url.pathname==='/tipos-imovel'?classificacoesExemplo.tipos:url.pathname==='/finalidades-imovel'?classificacoesExemplo.finalidades:classificacoesExemplo.caracteristicas;res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
   } else if (url.pathname === '/imoveis') {
@@ -63,7 +66,28 @@ try {
     assert.equal(deployed.status, 200);
     assert.match(await deployed.text(), /<h1[^>]*>Sala comercial no Centro 1<\/h1>/);
   } finally { generated.close(); }
+  dadosIndisponiveis = true;
+  try {
+    const espera = await fetch('http://127.0.0.1:4180/?bairro=Centro');
+    assert.equal(espera.status, 503);
+    assert.equal(espera.headers.get('retry-after'), '30');
+    assert.equal(espera.headers.get('cache-control'), 'no-store');
+    assert.equal(espera.headers.get('x-robots-tag'), 'noindex,nofollow');
+    const esperaHtml = await espera.text();
+    assert.match(esperaHtml, /Serviço temporariamente indisponível/);
+    assert.match(esperaHtml, /Operário ajustando o quadro de energia/);
+    assert.match(esperaHtml, /href="\/\?bairro=Centro"[^>]*>Tentar novamente/);
+    assert.doesNotMatch(esperaHtml, /cena-reparo-animada/);
+    assert.doesNotMatch(esperaHtml, /Tentaremos novamente automaticamente/);
+    // Uma API saudável não significa que a página pública voltou.
+    assert.equal((await fetch('http://127.0.0.1:4180/api/saude')).status, 200);
+    const sondagem = await fetch('http://127.0.0.1:4180/?bairro=Centro', { method: 'HEAD' });
+    assert.equal(sondagem.status, 503); assert.equal(await sondagem.text(), '');
+  } finally { dadosIndisponiveis = false; }
+  const recuperada = await fetch('http://127.0.0.1:4180/?bairro=Centro', { method: 'HEAD' });
+  assert.equal(recuperada.status, 200); assert.equal(await recuperada.text(), '');
   console.log('Production smoke passed: SSR, metadata, pagination, 404, discovery and streaming API proxy with cookies.');
   console.log('Generated Vercel function passed in standalone Node runtime.');
+  console.log('Public unavailability smoke passed: static repair scene, 503 headers, HEAD failure and recovery.');
   if (process.argv.includes('--serve')) { console.log('Browser QA fixture: http://127.0.0.1:4180'); await new Promise(() => {}); }
 } finally { preview.kill(); api.close(); }

@@ -152,3 +152,14 @@ Por pedido do dono, as suítes fonte foram removidas em 03/10/2026; consultar DE
 Não recriar suítes sem novo pedido nem alegar que npm test sem arquivos passou. Smoke existente
 e verificações efêmeras com API simulada são documentados em CHANGELOG_AI.md; não equivalem
 a homologação de API/serviços reais. Main e confirmação antes de commit continuam vigentes.
+
+## 2026-10-03 — Espera pública e recuperação do 503
+
+`PaginaIndisponivel`, `CenaReparo` e `useRecuperacaoPagina` cuidam do bootstrap público 5xx.
+SSR/primeiro render e modo sem JS são estáticos; no cliente há loop silencioso com pausa e
+movimento reduzido. A pausa da cena não interrompe a verificação da página.
+Sondagem HEAD da mesma URL em `verificarPaginaPublica` (`api.ts`), primeira após 30s e próxima
+30s depois da conclusão, uma por vez e limite 50s. Saúde isolada não permite declarar recuperação.
+200/404 recarregam a URL atual; erros conservam a espera. Sair/trocar URL/ocultar/offline cancela
+e invalida respostas; retomar aguarda 30s. Não aplicar o retorno de 8s da 404 a essa espera.
+Preservar HTTP 503/SEO/no-store/Retry-After e orçamento SSR; sem keep-alive ou alteração de infra.

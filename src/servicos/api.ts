@@ -6,6 +6,17 @@ import { slugImovelValido } from './urls';
 
 const json = (metodo: string, corpo?: unknown): RequestInit => ({ method: metodo, ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }) });
 
+/** Confere o mesmo SSR que abrirá a página, sem confundir saúde da API com dados disponíveis. */
+export async function verificarPaginaPublica(caminho: string, sinal: AbortSignal): Promise<boolean> {
+  const origem = window.location.origin;
+  const destino = new URL(caminho, origem);
+  if (destino.origin !== origem) return false;
+  const resposta = await fetch(destino.pathname + destino.search, {
+    method: 'HEAD', cache: 'no-store', credentials: 'omit', redirect: 'follow', signal: sinal,
+  });
+  return new URL(resposta.url || destino.href, origem).origin === origem && (resposta.status === 200 || resposta.status === 404);
+}
+
 /** Ids de referência só vão no PATCH quando mudaram, para não invalidar vínculos com cadastros inativos. */
 const somenteAlterados = <T extends object, A extends object>(dados: T, anterior: A | undefined, chaves: (keyof T & keyof A)[]) =>
   Object.fromEntries(chaves.filter((chave) => anterior && (anterior[chave] as unknown) === (dados[chave] as unknown)).map((chave) => [chave, undefined]));

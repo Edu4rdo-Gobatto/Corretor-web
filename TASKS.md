@@ -1,5 +1,20 @@
 # Tarefas — corretor-web
 
+## UX-503-001 — Cena de reparo e recuperação automática da página
+
+Status: concluída; commit e push autorizados pelo dono em 03/10/2026. Responsável: Codex. Plano aprovado em conversa.
+
+- Casa apagada/operário em SVG, loop de 6s, pausa independente, sem som, reduced-motion e sem JS.
+- Sondagem HEAD da URL pública (não só saúde), após 30s e 30s depois de cada conclusão, limite 50s.
+- 200/404 recarregam a página original; erro/timeout conservam a espera. Filtros/hash preservados no JS.
+- Cancelar ao sair/trocar URL/ocultar/offline; retomar após 30s, sem concorrência/respostas antigas.
+- Preservar SSR/status/SEO, /devs, 404 e alterações locais. Frontend/main; sem API real ou deploy.
+- Typecheck/lint/build e smoke SSR aprovados. npm test: exit 1, sem arquivos, conforme remoção do dono.
+- QA Chrome: 22/22 verificações aprovadas (14 cenários e 8 layouts nos dois temas), sem erros JS ou overflow.
+  Visibilidade simulada e relógio virtual nos tempos; homologação publicada/Safari/iOS/dispositivos físicos pendente.
+
+Complementa UX-001 somente na experiência do 503; decisões de hospedagem e manter API acordada continuam adiadas.
+
 ## FRONT-REFINO-001 — Público e painel com ações discretas
 
 Status: concluída localmente, sem commit. Responsável: Codex — 03/10/2026. Plano aprovado pelo dono em conversa.
