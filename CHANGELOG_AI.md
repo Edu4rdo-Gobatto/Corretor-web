@@ -1,6 +1,6 @@
 # Histórico de trabalho dos agentes — corretor-web
 
-## 2026-10-03 — Muse Spark: 404 com casa quebrada, feno e volta automática (sem commit)
+## 2026-10-03 — Muse Spark: 404 com casa quebrada, feno e volta automática (commit `92d9e99`)
 
 Pedido do dono: página 404 personalizada com casa quebrada; escolhas confirmadas:
 ruína divertida em SVG, feno de velho oeste passando na frente e volta automática
@@ -34,8 +34,8 @@ Testes executados (resultado real):
 - Conferência do build: `feno-atravessar`/`feno-girar` no CSS e `Casa quebrada`
   no `dist/server/server.js`; SSR da 404 com casa e countdown conferido em teste.
 
-Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na
-`main` quando liberado); conferir no navegador a 404 nos dois temas, 320–390px
+Risco/pendência: commit `92d9e99` na `main` + push `1c81e63..92d9e99` a pedido
+do dono; conferir no navegador a 404 nos dois temas, 320–390px
 sem scroll-X, reduced-motion (casa parada, timer segue), countdown, volta em 8s
 e `Ficar aqui`.
 

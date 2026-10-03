@@ -1,14 +1,14 @@
 # Estado atual — corretor-web
 
-## 2026-10-03 — Muse Spark: 404 com casa quebrada concluída (sem commit)
+## 2026-10-03 — Muse Spark: 404 com casa quebrada (commit `92d9e99`)
 
 Implementada a 404 personalizada: `CasaQuebrada` em SVG (ruína divertida, tokens
 navy/gold, `animate-feno` + `animate-feno-girar` em `tailwind.css`, SSR-safe) e
 `PaginaErro` com `404` gigante, countdown de 8s e volta automática ao catálogo com
 botão `Ficar aqui` (só no 404; 503 inalterado). SSR segue 404 `noindex,nofollow`,
 sem fetch. Validado: typecheck, lint, 42 arquivos/210 testes, build e seo-smoke
-aprovados; CSS e bundle SSR conferidos. Sem commit/push (aguardando o dono).
-Pendente conferir no navegador: 404 desktop/mobile nos dois temas, reduced-motion,
+aprovados; CSS e bundle SSR conferidos. Commit `92d9e99` na `main` + push
+`1c81e63..92d9e99` a pedido do dono. Pendente conferir no navegador: 404 desktop/mobile nos dois temas, reduced-motion,
 countdown, volta automática e cancelamento.
 
 ## 2026-10-03 — Muse Spark: áudios reais no overlay do /devs (commit `a086849`)
