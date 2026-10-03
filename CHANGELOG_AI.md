@@ -1,6 +1,6 @@
 # Histórico de trabalho dos agentes — corretor-web
 
-## 2026-10-03 — Muse Spark: áudios reais de obra no overlay do /devs (sem commit)
+## 2026-10-03 — Muse Spark: áudios reais de obra no overlay do /devs (commit `a086849`)
 
 Pedido do dono ("áudios, áudios, áudios"): tirar o card da casa (a seção fixa) e colocar áudios de
 construção de verdade no lugar do som sintetizado. Escolha confirmada: saiu só a seção fixa; o overlay
@@ -31,7 +31,7 @@ Testes executados (resultado real):
 - Conferência do SSR: `/devs` 200 com overlay (“Levantando esta página”, “Ativar som da obra”) e sem a
   seção fixa, `X-Robots-Tag: noindex,follow`, sem nenhuma chamada à API; MP3s presentes no `dist/client`.
 
-Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado);
+Risco/pendência: commit `a086849` na `main` + push `38b21fb..a086849` a pedido do dono;
 ouvir de verdade no navegador (timbre/volume das 3 faixas, clique no rodapé x URL direta, temas, 320–390px,
 Safari/iOS que só toca MP3 — por isso nada de OGG).
 

@@ -1,13 +1,14 @@
 # Estado atual — corretor-web
 
-## 2026-10-03 — Muse Spark: áudios reais no overlay do /devs (sem commit)
+## 2026-10-03 — Muse Spark: áudios reais no overlay do /devs (commit `a086849`)
 
 A pedido do dono: saiu a seção fixa ("card da casa") e o overlay virou o easter egg único, agora com
 áudios reais de obra em vez do synth. Três MP3 CC0 do BigSoundBank vendored em `public/assets`
 (furadeira #0184 aparada p/ loop de 10s, martelo #0005, ambiente #0631 aparado p/ 30s; ~650KB, lazy só
 no /devs). Overlay tenta o som sozinho p/ quem veio do rodapé, com botão Com som/Mudo; para tudo ao sair.
 Validado: typecheck, lint, 40 arquivos/202 testes, build e seo-smoke aprovados; SSR 200, `noindex,follow`,
-sem fetch; MP3s conferidos no `dist`. Sem commit/push (aguardando o dono). Pendente ouvir no navegador
+sem fetch; MP3s conferidos no `dist`. Commit `a086849` na `main` + push
+`38b21fb..a086849` a pedido do dono. Pendente ouvir no navegador
 (clique no rodapé, URL direta, temas, mobile, Safari/iOS).
 
 ## 2026-10-03 — Muse Spark: overlay de abertura da obra no /devs (sem commit)
