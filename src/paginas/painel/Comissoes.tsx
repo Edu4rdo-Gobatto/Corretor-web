@@ -36,8 +36,15 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
     setImovel(null);
     setValue('imovel_id', 0);
     if (!valor) return;
-    const encontrado = (await buscarContratos('')).find((item) => item.id === valor.id) ?? (await buscarContratos(valor.nome)).find((item) => item.id === valor.id);
-    if (encontrado) { setImovel({ id: encontrado.imovel_id, nome: encontrado.imovel_titulo ?? `#${encontrado.imovel_id}` }); setValue('imovel_id', encontrado.imovel_id, { shouldValidate: true }); }
+    try {
+      const contratoCarregado = await api.obterContrato(valor.id);
+      if (contratoCarregado) {
+        setImovel({ id: contratoCarregado.imovel_id, nome: contratoCarregado.imovel_titulo ?? `#${contratoCarregado.imovel_id}` });
+        setValue('imovel_id', contratoCarregado.imovel_id, { shouldValidate: true });
+      }
+    } catch {
+      // Caso a busca falhe, mantém imovel_id zerado
+    }
   };
   async function salvar(valores: ValoresComissao) {
     setErro('');

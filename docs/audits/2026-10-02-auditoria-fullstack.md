@@ -244,9 +244,9 @@ Marque cada item somente depois de implementar e validar o critério. Registre a
 - [ ] **A03 — Revogar refresh no reset administrativo.** Tokens anteriores falham; outras contas permanecem válidas. Evidência:
 - [x] **A04 — Corrigir restauração da sessão ao remontar o painel.** Correção e testes de regressão chegaram em `0a8b84e`; reexecução pendente. Evidência:
 - [x] **A05 — Evitar reset do formulário de imóvel após entrada.** A carga agora precede a exibição do formulário em `0a8b84e`; reexecução pendente. Evidência:
-- [ ] **A06 — Unificar validação de telefone do contato.** Entradas aceitas pelo formulário são aceitas pela API e erros aparecem antes de abrir WhatsApp. Evidência:
-- [ ] **A07 — Sincronizar filtros, paginação e CSV dos contatos.** Página reinicia com filtro; falha de consulta não exporta resposta antiga. Evidência:
-- [ ] **A08 — Evitar respostas fora de ordem na seleção da comissão.** Seleção rápida, limpeza e falha não aplicam imóvel obsoleto. Evidência:
+- [x] **A06 — Unificar validação de telefone do contato.** Entradas aceitas pelo formulário são aceitas pela API e erros aparecem antes de abrir WhatsApp. Evidência: `telefoneValido` em `src/servicos/contato.ts` espelhando `@TelefoneValido()`, validação prévia em `src/componentes/FormularioContato.tsx`, testes unitários em `contato.test.ts` e `FormularioContato.test.tsx` (195 testes aprovados).
+- [x] **A07 — Sincronizar filtros, paginação e CSV dos contatos.** Página reinicia com filtro; falha de consulta não exporta resposta antiga. Evidência: `useEffect` com reset de `setPagina(1)` ao alterar `filtros` e proteção do botão de exportação com `Boolean(erro)` em `src/paginas/painel/Contatos.tsx`, testes em `Contatos.test.tsx`.
+- [x] **A08 — Evitar respostas fora de ordem na seleção da comissão.** Seleção rápida, limpeza e falha não aplicam imóvel obsoleto. Evidência: busca direta por ID via `api.obterContrato(valor.id)` com tratamento de erro em `src/paginas/painel/Comissoes.tsx`, testes em `Comissoes.test.tsx`.
 - [ ] **A09 — Preservar vínculos de características ocultas.** `0a8b84e` passa a enviar itens inativos da ficha; validar persistência em edição antes de marcar concluído. Evidência:
 - [ ] **A10 — Corrigir a busca de telefone formatado.** Mesmo cadastro é encontrado com e sem pontuação. Evidência:
 - [ ] **A11 — Validar timeout e recuperação do SSR.** API lenta não impede recuperação; erro mantém resposta segura até haver dados válidos. Evidência:

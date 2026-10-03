@@ -1,4 +1,4 @@
-import { useCallback, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
@@ -41,6 +41,11 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
   const [pagina, setPagina] = useState(1);
   const [ocupado, setOcupado] = useState(0);
   const [erroAcao, setErroAcao] = useState('');
+
+  useEffect(() => {
+    setPagina(1);
+  }, [filtros]);
+
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarPessoas({ ...paraApi(filtros), status_contato: status, pagina, limite: LIMITE }), [filtros, status, pagina, versao])); // eslint-disable-line react-hooks/exhaustive-deps
   async function mover(pessoa: Pessoa, destino: StatusContato) {
     setOcupado(pessoa.id);
@@ -52,7 +57,7 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
   return (
     <section aria-label={titulo} className="flex min-w-0 flex-col rounded border border-line bg-soft p-3">
       <div className="mb-3 flex items-baseline justify-between gap-2 px-1"><h2 className="m-0 text-[20px] text-ink">{titulo} <span className="text-base font-normal text-muted">{dados ? `(${dados.total})` : ''}</span></h2>
-        <button type="button" className="buttonGhost min-h-9 px-2 text-[12px]" disabled={!dados?.itens.length || carregando} onClick={() => dados && baixarCsvContatos(dados.itens, `${status.toLowerCase()}-pagina-${pagina}`)}>Exportar CSV</button></div>
+        <button type="button" className="buttonGhost min-h-9 px-2 text-[12px]" disabled={!dados?.itens.length || carregando || Boolean(erro)} onClick={() => dados && !erro && baixarCsvContatos(dados.itens, `${status.toLowerCase()}-pagina-${pagina}`)}>Exportar CSV</button></div>
       <p className="mb-3 px-1 text-[13px] text-muted">{descricao}</p>
       {erroAcao && <p className="error" role="alert">{erroAcao}</p>}
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />

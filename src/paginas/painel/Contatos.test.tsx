@@ -61,3 +61,43 @@ it('desabilita a exportação de coluna vazia e abre o cadastro de nova pessoa',
   fireEvent.click(screen.getByRole('button', { name: '+ Nova pessoa' }));
   expect(await screen.findByRole('dialog')).toHaveTextContent('Nova pessoa');
 });
+
+it('reinicia a paginação na página 1 ao alterar filtros', async () => {
+  simularSessao();
+  const listar = vi.spyOn(api, 'listarPessoas').mockImplementation(async (filtros = {}) => {
+    const pagina = filtros.pagina ?? 1;
+    const itens = [pessoa(1, `Maria p${pagina}`, 'PENDENTE')];
+    return { itens, total: 20, pagina, limite: 10, total_paginas: 2 };
+  });
+  vi.spyOn(api, 'listarFichas').mockResolvedValue({ itens: [], total: 0, pagina: 1, limite: 10, total_paginas: 0 });
+  render(<MemoryRouter><Contatos /></MemoryRouter>);
+
+  const pendentes = within(await screen.findByRole('region', { name: 'Pendentes' }));
+  expect(await pendentes.findByText('Maria p1')).toBeInTheDocument();
+
+  // Avança para a página 2
+  fireEvent.click(pendentes.getByRole('button', { name: 'Próxima página' }));
+  expect(await pendentes.findByText('Maria p2')).toBeInTheDocument();
+  expect(listar).toHaveBeenLastCalledWith(expect.objectContaining({ pagina: 2 }));
+
+  // Aplica novo filtro de busca
+  fireEvent.change(screen.getByLabelText('Buscar'), { target: { value: 'Silva' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Filtrar' }));
+
+  // Verifica que a chamada volta para página 1
+  await waitFor(() => {
+    expect(listar).toHaveBeenLastCalledWith(expect.objectContaining({ busca: 'Silva', pagina: 1 }));
+  });
+});
+
+it('desabilita a exportação de CSV quando a coluna está em estado de erro', async () => {
+  simularSessao();
+  vi.spyOn(api, 'listarPessoas').mockRejectedValue(new Error('Falha no servidor'));
+  vi.spyOn(api, 'listarFichas').mockResolvedValue({ itens: [], total: 0, pagina: 1, limite: 10, total_paginas: 0 });
+  render(<MemoryRouter><Contatos /></MemoryRouter>);
+
+  const pendentes = within(await screen.findByRole('region', { name: 'Pendentes' }));
+  await waitFor(() => expect(pendentes.getByText('Falha no servidor')).toBeInTheDocument());
+  expect(pendentes.getByRole('button', { name: 'Exportar CSV' })).toBeDisabled();
+});
+

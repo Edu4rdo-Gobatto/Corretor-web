@@ -2,17 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { esquemaContato, formatarTelefone, telefoneWhatsapp, urlWhatsapp } from './contato';
 
 describe('contato do site', () => {
-  it.each(['+1 202-555-0123', '+55 (65) 99999-8888', '5565999998888'])('preserva telefone internacional %s', (valor) => {
+  it.each(['+55 (65) 99999-8888', '5565999998888'])('preserva telefone com DDI brasileiro %s', (valor) => {
     expect(formatarTelefone(valor)).toBe(valor);
     expect(esquemaContato.safeParse({ nome: 'Ana', telefone: formatarTelefone(valor), consentimento: true }).success).toBe(true);
+  });
+  it('rejeita telefones curtos sem DDD ou com DDDs inválidos', () => {
+    for (const valor of ['9999-9999', '99999999', '99999-9999', '01999999999', '0099999999', '+1 202-555-0123']) {
+      expect(esquemaContato.safeParse({ nome: 'Ana', telefone: valor, consentimento: true }).success).toBe(false);
+    }
   });
   it('não transforma letras ou excesso de dígitos em telefone válido', () => {
     for (const valor of ['abc65999998888', '123456789012345678901']) expect(esquemaContato.safeParse({ nome: 'Ana', telefone: formatarTelefone(valor), consentimento: true }).success).toBe(false);
     expect(telefoneWhatsapp('+1 202-555-0123')).toBe('12025550123');
   });
-  it('exige consentimento explícito e telefone válido', () => {
+  it('exige consentimento explícito e telefone válido com DDD', () => {
     expect(esquemaContato.safeParse({ nome: 'Ana', telefone: 'abc', consentimento: false }).success).toBe(false);
     expect(esquemaContato.safeParse({ nome: 'Ana', telefone: '65999998888', consentimento: true, email: '', mensagem: '' }).success).toBe(true);
+    expect(esquemaContato.safeParse({ nome: 'Ana', telefone: '(65) 99999-9999', consentimento: true }).success).toBe(true);
   });
   it('normaliza DDD brasileiro sem duplicar DDI', () => {
     expect(telefoneWhatsapp('66 99999-9999')).toBe('5566999999999');

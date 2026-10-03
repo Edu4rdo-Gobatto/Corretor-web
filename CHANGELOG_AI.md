@@ -1,5 +1,50 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-02 — Resolução dos Gaps de Execução no Frontend: GAP-06, GAP-07 e GAP-08 (Antigravity)
+
+Objetivo: implementar as correções de frontend identificadas no relatório canônico de auditoria full stack (`docs/audits/2026-10-02-auditoria-fullstack.md`):
+- GAP-06 (Audit A06): Alinhar validação do formulário de contato do site com a regra estrita `@TelefoneValido()` da API, exigindo DDD nacional válido (10 ou 11 dígitos) e bloqueando o disparo preventivo de WhatsApp (`window.open`) caso inválido.
+- GAP-07 (Audit A07): Sincronizar paginação das colunas em Contatos (`/admin/contatos`) para reiniciar em `pagina = 1` ao alterar filtros e proteger a exportação de CSV contra disparos em estado de erro.
+- GAP-08 (Audit A08): Corrigir seleção de contratos no formulário de comissões (`/admin/comissoes`), consultando diretamente pelo ID via `api.obterContrato(valor.id)` em vez de varredura aproximada em página limitada, eliminando race conditions e garantindo vínculo correto com o imóvel.
+
+Alterações:
+- `src/servicos/contato.ts`: exportada função `telefoneValido(valor: string): boolean` espelhando `@TelefoneValido()` da API; refinado `esquemaContato.telefone` com mensagem `Informe um telefone com DDD válido.`.
+- `src/componentes/FormularioContato.tsx`: a validação síncrona com `esquemaContato.safeParse(getValues())` impede abertura do WhatsApp se o telefone for inválido e exibe erro imediatamente no campo.
+- `src/servicos/contato.test.ts`: testes cobrindo validação de telefones com DDD nacional, pontuação, prefixo `+55` e rejeição de telefones de 8 dígitos sem DDD ou com DDD inexistente.
+- `src/componentes/FormularioContato.test.tsx`: teste unitário validando que número sem DDD aciona erro visual no campo e não chama `window.open` nem API.
+- `src/paginas/painel/Contatos.tsx`: `ColunaContatos` adiciona `useEffect` monitorando `filtros` para resetar `pagina = 1`; botão de exportar CSV desabilitado quando `Boolean(erro)`.
+- `src/paginas/painel/Contatos.test.tsx`: testes garantindo reset de paginação ao filtrar e bloqueio de exportação de CSV em caso de erro na consulta.
+- `src/paginas/painel/Comissoes.tsx`: `EditorComissao.escolherContrato` consulta diretamente `api.obterContrato(valor.id)`, vinculando o imóvel correto e tratando exceção.
+- `src/paginas/painel/Comissoes.test.tsx`: suíte de teste garantindo a chamada direta a `api.obterContrato(valor.id)` e vinculação do imóvel correspondente.
+
+Testes executados (resultado real):
+- `npm run typecheck`: 0 erros.
+- `npm run lint`: 0 avisos / 0 erros.
+- `npm test`: 39 arquivos de teste / 195 testes aprovados.
+- `npm run build`: cliente, SSR e Vercel Build Output gerados com sucesso.
+- `node scripts/seo-smoke.mjs`: aprovado (SSR, metadados, 404, Vercel standalone function).
+- Sem modificação de variáveis de ambiente (`.env` intocado) e sem commit/push sem autorização do dono.
+
+## 2026-10-02 — Injeção de dados de demonstração completos (Antigravity)
+
+Pedido do dono: injetar dados no sistema para visualização completa das telas populadas, incluindo ao menos mais 5 imóveis completos, avaliações mercadológicas, contatos de clientes, usuários e outros cadastros.
+
+Alterações:
+- `Corretor-API/src/commands/seed-demonstracao.ts`: script transacional e idempotente de injeção de dados via PostgreSQL.
+- `Corretor-API/package.json`: adicionado comando `"seed": "ts-node src/commands/seed-demonstracao.ts"`.
+- Dados populados no banco Neon (`corretor-db`):
+  - **12 Características**: Estacionamento, Ar-condicionado, Pé-direito duplo, Docas, Piso de alta resistência, Energia solar, Portaria 24h, Acessibilidade PCD, Câmeras/alarme, Mezanino corporativo, Refeitório/vestiários, Gerador próprio.
+  - **5 Corretores/Usuários**: Eduardo Gobatto (ADMIN), Eduardo Teste Bergamin (CORRETOR), Lucas Gobatto (CORRETOR, CRECI 15776-MT), Mariana Silveira (CORRETOR, CRECI 18420-MT), Carlos Eduardo Mendes (ADMIN, CRECI 12390-MT). Senha padrão de teste: `03032005Edu@`.
+  - **12 Pessoas (Clientes, Proprietários, Inquilinos e Leads)**: distribuídos nas 3 colunas de contato (`PENDENTE`, `RESPONDIDO`, `FINALIZADO`), com dados bancários, PIX, endereços, CPF/CNPJ válidos e consentimento LGPD nos leads do site.
+  - **9 Imóveis completos**: 2 preexistentes + 7 novos de alto padrão (Galpão Logístico Modular, Sala Corporativa no Prime Corporate, Ponto Comercial de Esquina na Av. Júlio Campos, Edifício Corporativo Monousuário no Centro Cívico, Terreno Industrial na BR-163, Salão Comercial na Av. dos Tarumãs, Casa Corporativa para Advocacia na Rua dos Jacarandás). Todos com áreas coerentes, valores, descrições detalhadas, fichas internas completas (laudos de avaliação mercadológica, dados de captação, chaves, matrículas e inscrições municipais) e 27 mídias em alta resolução.
+  - **2 Contratos de locação ativos** (`CTR-2026-001`, `CTR-2026-002`) vinculando imóvel, locador, locatário e corretor intermediador.
+  - **3 Comissões e 6 parcelas financeiras**: comissões de locação e venda, com parcelas pagas e pendentes que alimentam os KPIs da Visão Geral e tela de Comissões.
+
+Testes executados (resultado real):
+- `Corretor-web`: `npm run typecheck` (0 erros), `npm run lint` (0 avisos/erros), `npm test` (38 arquivos / 190 testes aprovados), `npm run build` (cliente, SSR e Vercel Build Output gerados), `node scripts/seo-smoke.mjs` (aprovado).
+- `Corretor-API`: `npm run typecheck` (0 erros), `npm test` (26 suítes / 176 testes aprovados).
+- Sem deploy manual nem commit sem confirmação do dono.
+
 ## 2026-10-02 — Relatório da auditoria técnica full stack
 
 Pedido do dono: registrar a auditoria concluída do frontend e da API num Markdown e deixar tarefas marcáveis para as correções.

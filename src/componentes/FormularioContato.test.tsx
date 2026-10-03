@@ -47,3 +47,16 @@ it('exige consentimento antes de abrir o WhatsApp', () => {
   expect(screen.getByText('Autorize o contato para continuar.')).toBeInTheDocument();
   expect(abrir).not.toHaveBeenCalled();
 });
+
+it('rejeita telefone sem DDD exibindo erro no campo e sem abrir o WhatsApp', () => {
+  const abrir = vi.spyOn(window, 'open').mockImplementation(() => null);
+  montar();
+  fireEvent.change(screen.getByLabelText('Seu nome'), { target: { value: 'Visitante' } });
+  fireEvent.change(screen.getByLabelText('Telefone com DDD'), { target: { value: '9999-8888' } });
+  fireEvent.click(screen.getByRole('checkbox'));
+  fireEvent.submit(screen.getByRole('button', { name: 'Falar com corretor' }).closest('form')!);
+  expect(screen.getByText('Informe um telefone com DDD válido.')).toBeInTheDocument();
+  expect(abrir).not.toHaveBeenCalled();
+  expect(api.criarContato).not.toHaveBeenCalled();
+});
+

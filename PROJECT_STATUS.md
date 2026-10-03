@@ -1,5 +1,17 @@
 # Estado atual — corretor-web
 
+## 2026-10-02 — Antigravity: resolução dos Gaps de Execução no Frontend (GAP-06, GAP-07, GAP-08 concluídos)
+
+Concluído com sucesso:
+- GAP-06 (Audit A06): Validação estrita de telefone com DDD nacional no formulário de contato (`telefoneValido` em `src/servicos/contato.ts`), alinhada com `@TelefoneValido()` da API, e bloqueio de `window.open` em caso de telefone inválido (`src/componentes/FormularioContato.tsx`).
+- GAP-07 (Audit A07): Sincronização da paginação das 3 colunas em `/admin/contatos` (`src/paginas/painel/Contatos.tsx`), resetando para página 1 ao alterar filtros de busca/data, e proteção do botão de exportação CSV em caso de erro na requisição.
+- GAP-08 (Audit A08): Seleção direta de contratos por ID via `api.obterContrato(valor.id)` na tela de registro de comissões (`src/paginas/painel/Comissoes.tsx`), eliminando buscas aproximadas em lista paginada e garantindo vínculo correto do imóvel.
+Validação: typecheck (0 erros), lint (0 avisos), 39 arquivos / 195 testes aprovados, build de produção e `seo-smoke` aprovados.
+
+## 2026-10-02 — Antigravity: injeção de dados de demonstração concluída
+
+Concluído povoamento do banco Neon (corretor-db): 9 imóveis completos com mídias e fichas internas (avaliações mercadológicas), 12 características, 5 corretores/usuários, 12 pessoas (clientes, proprietários, inquilinos e leads nos 3 status de contato), 2 contratos de locação ativos e 3 comissões com parcelas. Validado com testes passando em ambos os repositórios.
+
 ## 2026-10-02 — Auditoria técnica full stack documentada
 
 Auditoria registrada em `docs/audits/2026-10-02-auditoria-fullstack.md`; fotografia original: frontend `94ebcef`, API `e3b0a32`.

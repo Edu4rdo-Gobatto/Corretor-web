@@ -1,10 +1,20 @@
 import { z } from 'zod';
 import { codigoImovel } from './formato';
 
+export function telefoneValido(valor: string): boolean {
+  if (!/^[+\d() .-]+$/.test(valor)) return false;
+  let numero = valor.replace(/\D/g, '');
+  if ((numero.length === 12 || numero.length === 13) && numero.startsWith('55')) numero = numero.slice(2);
+  return /^[1-9]\d(?:[2-5]\d{7}|9\d{8})$/.test(numero);
+}
+
 export const esquemaContato = z.object({
   nome: z.string().trim().min(2, 'Informe seu nome.').max(120),
-  telefone: z.string().trim().min(8, 'Informe um telefone válido.').max(20).regex(/^\+?[0-9 ()-]+$/, 'Use apenas números, espaços e o código de área.').refine((valor) => valor.replace(/\D/g, '').length >= 8, 'Informe um telefone válido.'),
-  email: z.union([z.literal(''), z.email('Informe um e-mail válido.')]).optional(),
+  telefone: z.string().trim()
+    .min(10, 'Informe um telefone com DDD válido.')
+    .max(20)
+    .refine(telefoneValido, 'Informe um telefone com DDD válido.'),
+  email: z.union([z.literal(''), z.string().email('Informe um e-mail válido.')]).optional(),
   mensagem: z.string().trim().max(2000).optional(),
   consentimento: z.boolean().refine((valor) => valor, 'Autorize o contato para continuar.'),
   // Campo isca: preenchido só por robôs.
