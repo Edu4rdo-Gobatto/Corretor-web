@@ -1,5 +1,105 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-03 — Muse Spark: áudios reais de obra no overlay do /devs (sem commit)
+
+Pedido do dono ("áudios, áudios, áudios"): tirar o card da casa (a seção fixa) e colocar áudios de
+construção de verdade no lugar do som sintetizado. Escolha confirmada: saiu só a seção fixa; o overlay
+fullscreen virou o easter egg único, com som.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novos `public/assets/obra-furadeira.mp3` (161KB, loop 10s), `obra-martelo.mp3` (128KB, 11s) e
+  `obra-ambiente.mp3` (361KB, loop 30s): sons CC0 (domínio público) do BigSoundBank — furadeira #0184,
+  martelo com prego #0005 e canteiro #0631 (os dois longos aparados com ffmpeg, sem dependência nova).
+  Vendored local (sem hotlink/streaming de terceiro) e lazy (`preload: 'none'`, só baixam no /devs).
+- `src/servicos/obra.ts` reescrito: motor em HTMLAudioElement (3 faixas em loop com volumes próprios),
+  mesma API de gesto (`sinalizarIdaAosDevs` agora pré-carrega no clique do rodapé); `ligarObra()` virou
+  `Promise<boolean>` (false quando o navegador bloqueia); `desligarObra()` pausa e zera para replay.
+- `src/componentes/ObraOverlay.tsx`: dono único do som — tenta ligar sozinho p/ quem veio do rodapé,
+  botão “Com som/Mudo” (`aria-pressed`) p/ acesso direto, para tudo ao desmontar.
+- Removidos `src/componentes/CasaEmObra.tsx` + teste (a seção fixa); `Devs.tsx` só com cards + overlay;
+  `CenaObra.tsx` segue no overlay. `Devs.test.tsx` sem o teste da seção; `obra.test.ts` reescrito p/
+  Audio mockado (4 testes); `ObraOverlay.test.tsx` com autoplay, toggle, parada ao sair (7 testes) e
+  mock silencioso de `Audio` (jsdom não implementa play/pause/load e poluía o stderr).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 40 arquivos, 202 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do SSR: `/devs` 200 com overlay (“Levantando esta página”, “Ativar som da obra”) e sem a
+  seção fixa, `X-Robots-Tag: noindex,follow`, sem nenhuma chamada à API; MP3s presentes no `dist/client`.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado);
+ouvir de verdade no navegador (timbre/volume das 3 faixas, clique no rodapé x URL direta, temas, 320–390px,
+Safari/iOS que só toca MP3 — por isso nada de OGG).
+
+## 2026-10-03 — Muse Spark: overlay de abertura da obra no /devs (sem commit)
+
+Pedido do dono sobre o easter egg: em vez da seção fixa, uma animação que se sobrepõe aos cards com
+glassmorphism de fundo e depois sai. Escolhas confirmadas: saída automática (~5s) + manual, toda visita,
+fullscreen, com som se liberado.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novo `src/componentes/CenaObra.tsx`: cena SVG extraída de `CasaEmObra.tsx` (props `animada`/`rotulo`),
+  sem lógica de som; `CasaEmObra.tsx` virou a seção fixa dona do áudio sobre a cena compartilhada.
+- Novo `src/componentes/ObraOverlay.tsx` (+ `ObraOverlay.test.tsx`, 5 testes): `fixed inset-0 z-50`
+  com `bg-navy/60 backdrop-blur-md` e cartão `bg-paper/80 backdrop-blur-xl`; auto-dismiss em 5s com
+  transição de saída de 350ms; fecha em Pular, Escape e clique fora (clique na casa não fecha); foco no
+  Pular na abertura; puramente visual, sem tocar em `AudioContext`.
+- `src/paginas/publico/Devs.tsx`: overlay aberto no primeiro render (igual no SSR, sem divergência de
+  hidratação) + `aria-live` anunciando “Página pronta.” na saída.
+- `src/styles/tailwind.css`: keyframe/utility `obra-chegar` para a entrada do cartão.
+- `Devs.test.tsx`: +1 teste (abre em overlay, dispensa sozinha, anuncia a página).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 41 arquivos, 205 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do SSR: `/devs` 200 com overlay estático (“Levantando esta página”, blur, Pular),
+  `X-Robots-Tag: noindex,follow`, sem nenhuma chamada à API.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado);
+conferir no navegador a entrada/saída do overlay nos dois temas, 320–390px, reduced-motion e Safari/iOS.
+
+## 2026-10-03 — Muse Spark: easter egg da casa em obra no /devs (sem commit)
+
+Pedido do dono: ao entrar no `/devs`, mostrar uma casa em construção com som de furadeira, martelo e afins.
+Escolhas confirmadas antes de implementar: som liberado pelo clique que leva ao `/devs` (gesto exigido pelo
+navegador), som 100% sintetizado via Web Audio (sem arquivos nem dependência nova), visual em SVG + CSS animado,
+canteiro sempre visível na página.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Novo `src/servicos/obra.ts`: motor de som da obra (furadeira em rajadas, marteladas periódicas, fundo de
+  canteiro) só com Web Audio nativo; `sinalizarIdaAosDevs()` tenta destravar o `AudioContext` dentro do gesto do
+  clique; tudo guarda SSR (`window` só dentro das funções).
+- Novo `src/componentes/CasaEmObra.tsx`: seção “Em obras” em SVG puro (paredes pela metade, vigas, andaime,
+  martelo, furadeira com faíscas, poeira, placa EM OBRAS) + botão “Ligar/desligar a obra” (`aria-pressed`,
+  ≥44px); primeiro render sempre parado (igual ao SSR); desliga o som ao sair da rota.
+- `src/paginas/publico/Devs.tsx`: seção do canteiro acima dos cards; `src/componentes/LayoutPublico.tsx`:
+  clique em “Desenvolvedores” chama `sinalizarIdaAosDevs()`.
+- `src/styles/tailwind.css`: keyframes `martelo`, `furadeira`, `poeira` e `faisca` (herdam o
+  `prefers-reduced-motion` global).
+- Testes: `obra.test.ts` (3), `CasaEmObra.test.tsx` (5), +1 em `Devs.test.tsx` (seção do canteiro).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 40 arquivos, 199 testes aprovados (ruído `render failed` do teste de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do SSR: `/devs` 200 com a seção estática (“Em obras”, botão, SVG), `X-Robots-Tag: noindex,follow`,
+  sem nenhuma chamada à API (fetcher que lança erro nunca foi acionado).
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); conferir no
+navegador com som ligado: clique no rodapé ligando sozinho, acesso direto por URL mostrando “Ligar a obra”,
+claro/escuro, 320–390px e Safari/iOS (pode exigir um segundo toque mesmo com o desbloqueio no link).
+
 ## 2026-10-02 — Relatório da auditoria técnica full stack
 
 Pedido do dono: registrar a auditoria concluída do frontend e da API num Markdown e deixar tarefas marcáveis para as correções.

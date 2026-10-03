@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Github, Instagram } from 'lucide-react';
 import { Seo } from '../../seo/context';
 import { devs, type Dev } from '../../config/devs';
+import ObraOverlay from '../../componentes/ObraOverlay';
 
 function DevAvatar({ dev }: { dev: Dev }) {
   const [failed, setFailed] = useState(false);
@@ -31,8 +32,13 @@ function DevAvatar({ dev }: { dev: Dev }) {
 }
 
 export default function Devs() {
+  // Intro em overlay toda visita: inicial true nos dois lados (SSR e cliente)
+  // para não divergir a hidratação; a saída acontece só em efeito no cliente.
+  const [mostrarIntro, setMostrarIntro] = useState(true);
   return (
     <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_.eyebrow]:mt-[45px]">
+      {mostrarIntro && <ObraOverlay aoSair={() => setMostrarIntro(false)} />}
+      <span aria-live="polite" className="srOnly">{mostrarIntro ? '' : 'Página pronta.'}</span>
       <div className="mx-auto max-w-[800px]">
       <Seo />
       <Link to="/">← Voltar ao catálogo</Link>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, Moon, Sun, X } from 'lucide-react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { rotas, urlCatalogo } from '../servicos/urls';
+import { sinalizarIdaAosDevs } from '../servicos/obra';
 import { brand } from '../config/brand';
 import { useTema } from '../hooks/useTema';
 import { telefoneWhatsapp } from '../servicos/contato';
@@ -75,7 +76,7 @@ export default function LayoutPublico() {
           <Link to={urlCatalogo({ finalidade: 'locacao' })}>Alugar</Link>
           <Link to={urlCatalogo({ finalidade: 'venda' })}>Comprar</Link>
           <Link to={rotas.privacidade}>Política de privacidade</Link>
-          <Link to={rotas.devs}>Desenvolvedores</Link>
+          <Link to={rotas.devs} onClick={sinalizarIdaAosDevs}>Desenvolvedores</Link>
           <Link to={rotas.painel}>Área do corretor</Link>
         </div>
         {temContato && <address className="grid content-start gap-2 text-sm not-italic text-white/80">

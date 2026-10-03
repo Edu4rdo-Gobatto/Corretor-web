@@ -1,5 +1,33 @@
 # Estado atual — corretor-web
 
+## 2026-10-03 — Muse Spark: áudios reais no overlay do /devs (sem commit)
+
+A pedido do dono: saiu a seção fixa ("card da casa") e o overlay virou o easter egg único, agora com
+áudios reais de obra em vez do synth. Três MP3 CC0 do BigSoundBank vendored em `public/assets`
+(furadeira #0184 aparada p/ loop de 10s, martelo #0005, ambiente #0631 aparado p/ 30s; ~650KB, lazy só
+no /devs). Overlay tenta o som sozinho p/ quem veio do rodapé, com botão Com som/Mudo; para tudo ao sair.
+Validado: typecheck, lint, 40 arquivos/202 testes, build e seo-smoke aprovados; SSR 200, `noindex,follow`,
+sem fetch; MP3s conferidos no `dist`. Sem commit/push (aguardando o dono). Pendente ouvir no navegador
+(clique no rodapé, URL direta, temas, mobile, Safari/iOS).
+
+## 2026-10-03 — Muse Spark: overlay de abertura da obra no /devs (sem commit)
+
+Evolução do easter egg a pedido do dono: intro fullscreen com glassmorphism (`ObraOverlay`, `z-50`,
+`backdrop-blur`) sobre o `/devs`, com a casa animada e saída automática em ~5s (botão Pular, Escape ou
+clique fora também dispensam). Cena SVG extraída para `CenaObra.tsx`, reutilizada na seção fixa; som
+continua só na seção (`CasaEmObra`). Validado: typecheck, lint, 41 arquivos/205 testes, build e seo-smoke
+aprovados; SSR do `/devs` 200, `noindex,follow`, estático e sem fetch. Sem commit/push (aguardando o dono).
+Pendente conferir no navegador: entrada/saída do overlay, temas, mobile e Safari/iOS.
+
+## 2026-10-03 — Muse Spark: easter egg da casa em obra no /devs (sem commit)
+
+Área assumida: canteiro sempre visível no `/devs` com casa em SVG animado + som de obra sintetizado
+(`src/servicos/obra.ts`, `src/componentes/CasaEmObra.tsx`, integração em `Devs.tsx`/`LayoutPublico.tsx`,
+keyframes em `tailwind.css`). Som liberado pelo clique que leva ao `/devs`, com botão fallback.
+Validado: typecheck, lint, 40 arquivos/199 testes, build e seo-smoke aprovados; SSR do `/devs` 200,
+`noindex,follow`, estático e sem fetch. Sem commit/push (aguardando confirmação do dono).
+Pendente conferir no navegador com som: clique no rodapé, URL direta, temas, mobile e Safari/iOS.
+
 ## 2026-10-02 — Auditoria técnica full stack documentada
 
 Auditoria registrada em `docs/audits/2026-10-02-auditoria-fullstack.md`; fotografia original: frontend `94ebcef`, API `e3b0a32`.

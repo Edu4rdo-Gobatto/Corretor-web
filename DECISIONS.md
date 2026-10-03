@@ -3,6 +3,57 @@
 Cada decisão registra a data, o motivo e o que **não** fazer. Antes de contrariar uma decisão, revise-a aqui
 e registre a mudança com a nova data.
 
+## 2026-10-03 — Easter egg da obra no /devs com Web Audio nativo (Muse Spark)
+
+Decisão: o canteiro do `/devs` (`CasaEmObra` + `src/servicos/obra.ts`) usa só SVG + CSS para o visual e só
+Web Audio nativo (`Oscillator`/`BiquadFilter`/`Gain`, sem arquivos de áudio e sem dependência nova). O som só
+começa após gesto do usuário: o clique no link "Desenvolvedores" do rodapé tenta destravar o `AudioContext`
+(`sinalizarIdaAosDevs`); se o navegador bloquear, ou no acesso direto por URL, vale o botão "Ligar a obra".
+O primeiro render é sempre parado (igual no SSR); áudio e timers só em efeito/handler, com desligamento total
+ao desmontar. O `/devs` segue estático, sem fetch, `noindex,follow`, fora de sitemap/`llms.txt`.
+
+Motivo: pedido do dono (casa construindo com furadeira/martelo); autoplay com som é bloqueado pelos
+navegadores, e a regra do projeto proíbe dependência nova sem justificativa.
+
+Não fazer:
+
+- Não adicionar Howler/Tone.js nem `.mp3` para este easter egg sem revisar esta decisão.
+- Não tentar autoplay sem gesto nem mascarar o bloqueio: acesso direto por URL mostra o botão, por desenho.
+- Não tocar em `window`/`AudioContext` durante o render de rota pública nem buscar o `/devs` na API.
+
+## 2026-10-03 — Intro em overlay com glassmorphism no /devs (Muse Spark)
+
+Extensão do easter egg acima, a pedido do dono: `ObraOverlay` (`fixed inset-0 z-50`, acima do header
+`z-40`) com fundo `bg-navy/60 backdrop-blur-md` e cartão `bg-paper/80 backdrop-blur-xl`. Abre em toda
+visita, sai sozinho em ~5s (transição de 350ms) ou antes via Pular/Escape/clique fora; o overlay é
+puramente visual e nunca toca em áudio — o som continua só na seção fixa. Primeiro render sempre aberto,
+igual no SSR; timers, foco e teclado só em efeito. Cena SVG compartilhada via `CenaObra.tsx`, sem duplicação.
+(Atualização no mesmo dia, ver decisão seguinte: a seção fixa foi removida e o overlay virou o dono único
+do som, agora com áudios reais.)
+
+Não fazer (então; revisto abaixo):
+
+- Não colocar lógica de som no overlay: um único dono de áudio (`CasaEmObra`) evita dois loops simultâneos.
+- Não usar `window`/`document` fora de efeito ou handler em rota pública (SSR). (Segue valendo.)
+
+## 2026-10-03 — Áudios reais CC0 no overlay do /devs (Muse Spark)
+
+Supersede parcial da decisão do synth, a pedido do dono ("áudios são a parte legal do easter egg"): o som
+saiu do Web Audio sintetizado e passou a três MP3 reais em `public/assets` — `obra-furadeira.mp3` (#0184,
+loop 10s), `obra-martelo.mp3` (#0005, 11s) e `obra-ambiente.mp3` (#0631, loop 30s) — todos CC0 (domínio
+público) do BigSoundBank, sem atribuição obrigatória. Arquivos vendored no repo (sha conferido por tamanho
+e magic bytes `ID3`; os longos aparados com ffmpeg local, sem dependência nova): nada de hotlink nem
+streaming de terceiro. Formato MP3 de propósito (Safari não toca OGG). Custo só para quem visita o `/devs`
+(`preload: 'none'` + `load()` no gesto do rodapé); resto do site e orçamento visual (`tests/visual`,
+sem cobertura do `/devs`) inalterados. A seção fixa saiu (`CasaEmObra` removida); o overlay é o dono único
+do som e para tudo ao desmontar.
+
+Não fazer:
+
+- Não voltar a hotlink externo de áudio sem motivo (quebra sem aviso, vaza `Referer`, depende de terceiro).
+- Não subir OGG como único formato (Safari/iOS mudo) nem WAV/AIFF sem aparar (megabytes à toa).
+- Não tocar áudio fora de gesto: acesso direto por URL começa mudo, com botão "Ativar som", por desenho.
+
 ## 2026-09-11 — Front com SSR próprio, em vez de SPA pura
 
 Decisão (implementada em `d4f6b2f`): as páginas públicas passam a ser renderizadas no servidor por um runtime

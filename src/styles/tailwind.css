@@ -33,10 +33,44 @@
 
   --animate-shimmer: shimmer 1.4s ease infinite;
 
+  --animate-martelo: martelo 1.8s ease-in-out infinite;
+  --animate-furadeira: furadeira 0.18s linear infinite;
+  --animate-poeira: poeira 2.6s ease-out infinite;
+  --animate-faisca: faisca 0.7s ease-in-out infinite;
+  --animate-obra-chegar: obra-chegar 0.35s ease-out;
+
   @keyframes shimmer {
     to {
       background-position: -200% 0;
     }
+  }
+
+  @keyframes martelo {
+    0%, 100% { transform: rotate(0deg); }
+    12% { transform: rotate(-28deg); }
+    24% { transform: rotate(6deg); }
+    36% { transform: rotate(0deg); }
+  }
+
+  @keyframes furadeira {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(1.6px, -1.2px); }
+  }
+
+  @keyframes poeira {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    25% { opacity: 0.7; }
+    100% { transform: translateY(-46px) scale(1.4); opacity: 0; }
+  }
+
+  @keyframes faisca {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes obra-chegar {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 }
 
