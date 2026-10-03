@@ -3,6 +3,43 @@
 Cada decisão registra a data, o motivo e o que **não** fazer. Antes de contrariar uma decisão, revise-a aqui
 e registre a mudança com a nova data.
 
+## 2026-10-02 — Tentativa automática de som em toda abertura do /devs (Codex)
+
+Novo pedido do dono: a intro tenta `ligarObra()` em efeito de montagem, inclusive
+em URL direta, sem exigir o sinal de entrada pelo rodapé. Substitui a restrição
+anterior de começar sempre mudo em acesso direto. O SSR continua mudo e sem áudio.
+O navegador pode recusar autoplay audível; rejeição mantém o botão Com som para
+repetir após gesto. A interface só indica som ligado depois do resultado de play.
+Mute manual não dispara nova tentativa automática durante a mesma intro.
+
+Não contornar as políticas do navegador, adicionar listeners que liguem som em
+qualquer clique, alterar os 5s ou deixar áudio depois de fechar. A flag de permissão
+usada na prova de autoplay é exclusiva do navegador do teste, nunca do produto.
+
+## 2026-10-02 — Cartoon, diálogo nativo e cancelamento da reprodução da obra (Codex)
+
+Plano aprovado: mesma família de ilustração SVG nas duas cenas, com perspectiva,
+tokens e fontes existentes. A obra prepara o alicerce em 0–1s, revela paredes em
+1–2,6s, assenta o telhado em 2,6–3,5s e entrega a placa em 3,5–5s; saída de 350ms.
+A ruína permanece distinta e o feno começa em 1s, cruza até 6s e repete a cada 7s.
+As legendas das placas usam `--color-cena-legenda`, constante nos dois temas:
+`--color-on-action` escurece no tema escuro e não serve para texto sobre placas navy.
+
+O overlay agora usa `Dialogo`/`showModal`, com `fecharAoClicarFora` opcional (padrão false)
+e `classe` opcional (padrão vazio). Modais existentes conservam o comportamento.
+O diálogo fechado do SSR não obstrui os créditos sem JS; foco retorna ao título
+do `/devs` após desmontar a intro. Redução de movimento mostra a casa pronta e
+remove a legenda temporal, mantendo os tempos e controles confirmados.
+
+`obra.ts` compartilha o play pendente e identifica gerações de reprodução.
+Desligar invalida a geração e libera as instâncias; play antigo que resolve tarde
+pausa apenas os seus áudios. O overlay ignora respostas antigas, cancela timers
+e preserva a origem pelo rodapé durante a repetição de efeitos do StrictMode.
+
+Não fazer: adicionar biblioteca/áudio novo; reutilizar a cena de construção como
+ruína; deixar áudio após a saída; fechar outros modais ao clicar fora por padrão;
+remover Pular/Ficar aqui; alterar HTTP 404/SEO, o 503 ou dados dos desenvolvedores.
+
 ## 2026-10-03 — 404 com casa quebrada, feno e volta automática (Muse Spark)
 
 Decisão: a 404 usa `CasaQuebrada` própria em SVG puro (ruína divertida, distinta da

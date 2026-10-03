@@ -109,4 +109,43 @@ describe('sons reais da obra', () => {
     obra.limparSinalDeIdaAosDevs();
     expect(obra.houveSinalDeIdaAosDevs()).toBe(false);
   });
+
+  it('compartilha reprodução pendente e ignora play resolvido depois de desligar', async () => {
+    const { criados } = instalarAudioFalso();
+    const obra = await carregarObra();
+    obra.sinalizarIdaAosDevs();
+    const concluir: (() => void)[] = [];
+    for (const audio of criados) {
+      audio.play.mockImplementation(() => new Promise<void>((resolve) => {
+        concluir.push(() => { audio.paused = false; resolve(); });
+      }));
+    }
+    const primeira = obra.ligarObra();
+    expect(obra.ligarObra()).toBe(primeira);
+    obra.desligarObra();
+    concluir.forEach((resolve) => resolve());
+    expect(await primeira).toBe(false);
+    expect(obra.obraLigada()).toBe(false);
+    expect(criados.every((audio) => audio.paused && audio.currentTime === 0)).toBe(true);
+  });
+
+  it('uma visita nova continua tocando quando o play da visita anterior termina', async () => {
+    const { criados } = instalarAudioFalso();
+    const obra = await carregarObra();
+    obra.sinalizarIdaAosDevs();
+    const anteriores = [...criados];
+    const concluir: (() => void)[] = [];
+    anteriores.forEach((audio) => audio.play.mockImplementation(() => new Promise<void>((resolve) => {
+      concluir.push(() => { audio.paused = false; resolve(); });
+    })));
+    const antiga = obra.ligarObra();
+    obra.desligarObra();
+    expect(await obra.ligarObra()).toBe(true);
+    concluir.forEach((resolve) => resolve());
+    expect(await antiga).toBe(false);
+    expect(obra.obraLigada()).toBe(true);
+    expect(anteriores.every((audio) => audio.paused)).toBe(true);
+    expect(criados.slice(3).every((audio) => !audio.paused)).toBe(true);
+    obra.desligarObra();
+  });
 });

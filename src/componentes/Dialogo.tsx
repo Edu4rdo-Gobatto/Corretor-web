@@ -14,7 +14,7 @@ const larguras: Record<TamanhoDialogo, string> = {
  * `<dialog>`. O cabeçalho fica fixo e o corpo rola por dentro; o corpo é um container, então as grades do
  * formulário usam a largura do modal, não a da janela.
  */
-export default function Dialogo({ titulo, aoFechar, children, tamanho = 'medio' }: { titulo: string; aoFechar: () => void; children: ReactNode; tamanho?: TamanhoDialogo }) {
+export default function Dialogo({ titulo, aoFechar, children, tamanho = 'medio', fecharAoClicarFora = false, classe = '' }: { titulo: string; aoFechar: () => void; children: ReactNode; tamanho?: TamanhoDialogo; fecharAoClicarFora?: boolean; classe?: string }) {
   const referencia = useRef<HTMLDialogElement>(null);
   const idTitulo = useId();
   useEffect(() => {
@@ -35,7 +35,12 @@ export default function Dialogo({ titulo, aoFechar, children, tamanho = 'medio' 
     aoFechar();
   }
   return (
-    <dialog ref={referencia} className={`m-auto max-h-[min(90dvh,960px)] overflow-hidden rounded-xl border-0 bg-paper p-0 text-ink shadow-2xl ${larguras[tamanho]}`} aria-labelledby={idTitulo} onCancel={cancelar}>
+    <dialog ref={referencia} className={`m-auto max-h-[min(90dvh,960px)] overflow-hidden rounded-xl border-0 bg-paper p-0 text-ink shadow-2xl ${larguras[tamanho]} ${classe}`} aria-labelledby={idTitulo} aria-modal="true" onCancel={cancelar}
+      onClick={(evento) => {
+        if (!fecharAoClicarFora || evento.target !== evento.currentTarget) return;
+        const area = evento.currentTarget.getBoundingClientRect();
+        if (evento.clientX < area.left || evento.clientX > area.right || evento.clientY < area.top || evento.clientY > area.bottom) aoFechar();
+      }}>
       <div className="flex max-h-[min(90dvh,960px)] flex-col">
         <div className="flex shrink-0 items-start justify-between gap-4 px-8 pb-4 pt-7 max-[520px]:px-[22px] max-[520px]:pt-5">
           <h2 id={idTitulo} className="mb-0 text-[27px]">{titulo}</h2>

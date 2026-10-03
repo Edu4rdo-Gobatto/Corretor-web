@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Instagram } from 'lucide-react';
 import { Seo } from '../../seo/context';
@@ -35,6 +35,10 @@ export default function Devs() {
   // Intro em overlay toda visita: inicial true nos dois lados (SSR e cliente)
   // para não divergir a hidratação; a saída acontece só em efeito no cliente.
   const [mostrarIntro, setMostrarIntro] = useState(true);
+  const titulo = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!mostrarIntro) titulo.current?.focus();
+  }, [mostrarIntro]);
   return (
     <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_.eyebrow]:mt-[45px]">
       {mostrarIntro && <ObraOverlay aoSair={() => setMostrarIntro(false)} />}
@@ -43,7 +47,7 @@ export default function Devs() {
       <Seo />
       <Link to="/">← Voltar ao catálogo</Link>
       <p className="eyebrow">Quem fez</p>
-      <h1>Desenvolvedores</h1>
+      <h1 ref={titulo} tabIndex={-1}>Desenvolvedores</h1>
       <p className="muted">Quem construiu este site: front-end e back-end.</p>
       <ul className="mt-8 grid list-none gap-6 p-0 max-[560px]:grid-cols-1 sm:grid-cols-2">
         {devs.map((dev) => (

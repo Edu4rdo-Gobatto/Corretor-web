@@ -4,6 +4,24 @@ Status possíveis: `aberta`, `em andamento`, `em revisão`, `bloqueada`, `conclu
 Quem assume uma tarefa escreve o próprio nome em Responsável e reflete isso no `PROJECT_STATUS.md`.
 Tarefas da API ficam em `../Corretor-API/TASKS.md`.
 
+## UX-EASTER-001 — Refinamento cartoon do /devs e 404
+
+Complemento de 02/10/2026 (Codex, concluído): a pedido do dono, áudio tenta iniciar
+automaticamente também por URL direta. Autoplay sujeito à permissão do navegador;
+fallback, Mudo e limpeza preservados. Cinco cenários Chrome específicos aprovados.
+
+Status: concluída; commit e push autorizados pelo dono em 02/10/2026.
+Responsável: Codex — 02/10/2026, plano aprovado pelo dono.
+
+- Obra com operário, perspectiva, sequência de 5s e placa Pronto; áudio local preservado.
+- Modal pelo `Dialogo`, teclado/fechamento e foco no título após a intro; créditos acessíveis sem JS.
+- Ruína com entulho, porta/placa animadas e feno; layout responsivo, retorno de 8s e cancelamento preservados.
+- Promessas de áudio e timers cancelados ao sair; reprodução antiga não interfere numa nova visita.
+- Typecheck, lint, 216 testes, build e SEO smoke aprovados; matriz visual e comportamentos validados no Chrome.
+- Pendência de homologação: Safari/iOS e dispositivos físicos; nenhum backend/deploy alterado.
+
+Comandos e evidências: registro de 02/10/2026 em `CHANGELOG_AI.md`.
+
 ## AUDIT-001 — Correções da auditoria full stack — checklist em aberto
 
 Responsável: dono/Codex conforme cada correção for iniciada.

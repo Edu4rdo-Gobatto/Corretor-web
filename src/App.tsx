@@ -83,26 +83,33 @@ export function PaginaErro({ status = 404 }: { status?: number }) {
     );
   }
   return (
-    <div className="container py-20">
+    <div className="container py-10 md:py-16">
       <Seo status={status} />
-      <p aria-hidden="true" className="font-display text-[clamp(64px,16vw,120px)] leading-none text-brand">404</p>
-      <h1 className="mb-4">Página não encontrada.</h1>
-      <p className="muted mb-6">Este ponto não existe, mas temos outros imóveis esperando por você.</p>
-      <CasaQuebrada animada rotulo="Casa quebrada com bola de feno passando" />
-      {ficar ? (
-        <p className="mt-6">Combinado, ficamos por aqui.</p>
-      ) : (
-        <p aria-live="polite" className="muted mt-6">Voltando ao catálogo em {restam}s…</p>
-      )}
-      <div className="mt-4 flex flex-wrap gap-3">
-        <Link to="/" className="button">Voltar agora</Link>
-        <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
-        <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
-        {!ficar && (
-          <button type="button" className="buttonSecondary" onClick={() => setFicar(true)}>
-            Ficar aqui
-          </button>
-        )}
+      <div className="grid items-center gap-5 lg:grid-cols-2 lg:gap-12">
+        <div className="min-w-0">
+          <p className="eyebrow">Endereço não encontrado · 404</p>
+          <h1 className="mb-4 text-[clamp(30px,5vw,48px)]">Página não encontrada.</h1>
+          <p className="mb-2 text-xl text-brand">Este endereço virou terreno baldio.</p>
+          <p className="muted mb-5">Mas ainda temos outros imóveis esperando por você.</p>
+          {ficar ? (
+            <p className="mt-6">Combinado, ficamos por aqui.</p>
+          ) : (
+            <p aria-live="polite" className="muted mt-6">Voltando ao catálogo em {restam}s…</p>
+          )}
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link to="/" className="button">Voltar agora</Link>
+            <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
+            <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+            {!ficar && (
+              <button type="button" className="buttonSecondary" onClick={() => setFicar(true)}>
+                Ficar aqui
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="min-w-0">
+          <CasaQuebrada animada rotulo="Casa quebrada com bola de feno passando" />
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,37 @@
 # Estado atual — corretor-web
 
+## 2026-10-02 — Codex: publicação dos easter eggs autorizada pelo dono
+
+Pedido explícito: commit e push na main. Pacote: cartoon no `/devs` e 404,
+diálogo acessível, som automático sujeito ao navegador, limpeza do áudio e testes.
+Diff revisado, origem sincronizada antes do commit; publicação destinada a origin/main.
+Validações da sessão registradas em CHANGELOG_AI. Somente arquivos dessa tarefa;
+anexos locais e artefatos ignorados ficam fora do commit. Sem operação na API/banco.
+
+## 2026-10-02 — Codex: autoplay da obra concluído (sem commit)
+
+A pedido do dono, a intro tenta áudio automaticamente em toda entrada no `/devs`,
+inclusive acesso direto. Botão e fallback preservados quando o navegador bloqueia.
+Área assumida: ObraOverlay e testes/documentação; sem commit/push.
+Validado: typecheck/lint, 42 arquivos/216 testes, build, seo-smoke e 5 cenários
+Chrome direcionados a áudio/teclado. Autoplay autorizado toca as três faixas no
+acesso direto; bloqueio permite repetir no botão. Mudo e saída param as faixas.
+
+## 2026-10-02 — Codex: refinamento cartoon dos easter eggs concluído (sem commit)
+
+Área assumida: cenas do `/devs` e 404, diálogo acessível, limpeza do áudio e validação visual.
+Plano aprovado pelo dono: preservar intro de 5s, retorno em 8s e dados dos desenvolvedores.
+Frontend apenas, direto na main, sem commit/push. Nenhum outro agente editando esta área.
+
+Obra em perspectiva com operário e entrega da casa em etapas; 404 com ruína, porta/placa
+balançando e feno atravessando. Intro usa `Dialogo` nativo; sem JS, o modal fica fechado
+e os créditos acessíveis. Áudio pendente não reativa após saída, inclusive em StrictMode.
+Validação: typecheck/lint, 42 arquivos/216 testes, build e seo-smoke aprovados; 20 cenários
+Chrome desktop/matriz dos easter eggs + 5 cenários públicos mobile. Matriz revisada por
+prints em 320/390/768/1440px, claro/escuro; teclado, áudio real/bloqueado, saída de rota,
+redução de movimento, sem JS e histórico conferidos. API simulada; Safari/iOS e aparelhos
+físicos não conferidos. Detalhes e comandos no novo registro de `CHANGELOG_AI.md`.
+
 ## 2026-10-03 — Muse Spark: 404 com casa quebrada (commit `92d9e99`)
 
 Implementada a 404 personalizada: `CasaQuebrada` em SVG (ruína divertida, tokens

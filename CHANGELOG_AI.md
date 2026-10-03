@@ -1,5 +1,94 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-02 — Codex: revisão e preparação do commit/push dos easter eggs
+
+Dono solicitou explicitamente commit e push. Diff revisado; `git fetch origin`
+confirmou main sincronizada (0/0) antes do commit. Arquivos limitados ao pacote
+de cartoon, autoplay, testes e documentação; `.codex-remote-attachments/` permanece
+fora do stage, assim como build, envs e prints. Nenhum segredo/dependência nova.
+Typecheck/lint, build, smoke e cenários Chrome têm os resultados reais dos registros
+acima; suíte completa repetida antes de commitar: 42 arquivos/216 testes aprovados.
+`git diff --cached --check` aprovado. Sem deploy manual.
+
+## 2026-10-02 — Codex: som automático da intro /devs (sem commit)
+
+Pedido: deixar o som automático. `ObraOverlay.tsx` tenta play em toda montagem,
+inclusive URL direta, mantendo confirmação pelo resultado, Mudo, fallback e
+cancelamento no fechamento. Sem áudio no SSR ou nas demais rotas.
+Atualizados `ObraOverlay.test.tsx`, mocks/cleanup em `Devs.test.tsx`, comentário
+em `obra.ts`, dois cenários em `tests/visual/easter-eggs.spec.ts` e os quatro
+arquivos de contexto. Nenhuma dependência/deploy/commit/push.
+
+Validação real: typecheck e lint aprovados; suíte completa 42 arquivos/216 testes;
+teste dirigido de 3 arquivos/18 testes aprovado, seguido de 2 testes de Devs
+aprovados após ajustar a ordem de cleanup dos mocks de mídia. A primeira execução
+com autoplay tinha ruído do HTMLMediaElement não implementado no jsdom, corrigido
+nos mocks. Build e `node scripts/seo-smoke.mjs --serve` aprovados.
+
+`npx playwright test -c playwright.visual.config.ts tests/visual/easter-eggs.spec.ts --project=claro-1440 --workers=2 --grep 'autoplay|áudio|MP3|teclado'`:
+5 cenários aprovados: teclado/fechamento; áudio bloqueado pelo rodapé; três MP3
+reais e parada ao sair; bloqueio na URL direta seguido de reprodução pelo botão;
+autoplay permitido na URL direta, Mudo respeitado, religação e parada ao pular.
+O teste de permissão cria seu próprio Chrome com política permissiva, só para
+comprovar o caminho permitido. Bloqueio testado separadamente; nenhuma política
+do browser do usuário ou do app foi alterada.
+
+Limite: não se garante som sem gesto quando o navegador o proíbe. Safari/iOS e
+dispositivos físicos não executados. Preview local 4180 atualizado com API fixture.
+
+## 2026-10-02 — Codex: easter eggs cartoon do /devs e 404 (sem commit)
+
+Implementado o plano aprovado: obra com operário, perspectiva, sombras e montagem
+em etapas, placa Pronto e intro de 5s; ruína com telhado rompido, entulho, porta/placa
+balançando e feno atravessando em 1–6s. 404 em duas colunas no desktop e empilhada
+no celular, com a frase “Este endereço virou terreno baldio.”. Retorno de 8s,
+cancelamento, links e comportamento do 503 preservados.
+
+Arquivos alterados: `src/componentes/CenaObra.tsx`, `CasaQuebrada.tsx`,
+`ObraOverlay.tsx`, `Dialogo.tsx`, `src/paginas/publico/Devs.tsx`, `src/App.tsx`,
+`src/servicos/obra.ts`, `src/styles/tailwind.css`; testes de `ObraOverlay`,
+`Dialogo`, `Devs` e `obra`; novo `tests/visual/easter-eggs.spec.ts`.
+Documentação atualizada em PROJECT_STATUS/TASKS/DECISIONS/CHANGELOG_AI, sem apagar histórico.
+
+Overlay migrou para o diálogo nativo compartilhado: teclado, clique fora opcional,
+backdrop desfocado e foco no h1 após fechar. Sem JS, o modal fica fechado e os
+créditos/links continuam disponíveis. Redução de movimento mostra ilustrações
+completas e estáticas. Áudio pendente compartilhado/cancelável, sem reativação
+após fechar, sem atingir instâncias de uma nova visita; timers limpos na saída.
+
+Validação executada:
+
+- `npm run typecheck`: aprovado.
+- `npm run lint`: aprovado na conferência final. Uma rodada intermediária encontrou
+  globals em dois scripts temporários de inspeção em test-results; scripts removidos
+  e lint repetido com sucesso. Nenhuma regra de lint relaxada.
+- `npm test -- --maxWorkers=1 --reporter=dot`: 42 arquivos/216 testes aprovados.
+  O erro render failed impresso pelo teste de LimiteErro é proposital.
+- `npm run build`: aprovado, cliente/SSR/Vercel; avisos conhecidos de anotações do Zod.
+- `node scripts/seo-smoke.mjs --serve`: aprovado, incluindo função Vercel gerada,
+  SSR, metadados, discovery e proxy com cookies; API fixture local, sem banco real.
+- `npx playwright test -c playwright.visual.config.ts tests/visual/easter-eggs.spec.ts tests/visual/publico.spec.ts --project=claro-1440 --workers=2`:
+  20 cenários aprovados, incluindo matriz própria de 320/390/768/1440px nos dois
+  temas, teclado/foco, Escape/Pular/clique fora, animação em tempo real, áudio
+  bloqueado, três MP3 reais tocando/parando ao sair, retorno/cancelamento/histórico,
+  redução de movimento, sem JS, catálogo, filtro, detalhe e modal de contato.
+- `npx playwright test -c playwright.visual.config.ts tests/visual/publico.spec.ts --project=claro-390 --workers=2`:
+  5 cenários públicos mobile aprovados.
+- Revisão dos prints das duas cenas nas oito combinações; corrigido contraste das
+  placas no escuro. Conferência de catálogo/detalhe/404 e visita no Chrome a
+  robots.txt e sitemap.xml (200, fixture sem indexação). `/devs` segue fora do sitemap.
+- `git diff --check`: aprovado.
+
+Uma primeira asserção de teclado esperava ciclo direto entre os botões: Chrome
+também passa pela barra do navegador, mantendo o conteúdo atrás inerte. O teste
+foi ajustado ao comportamento nativo; nenhum trap manual foi adicionado.
+Prints locais ignorados em `test-results/easter-eggs/` e `test-results/visual/prints/`.
+
+Limites: Chrome desktop com viewports simuladas; Safari/iOS, aparelhos físicos,
+avaliação auditiva da mixagem e E2E autenticado com API real não executados.
+Frontend apenas; nenhuma dependência, dado comercial, backend, migration ou deploy
+alterado. Main continua sem commit/push; `.codex-remote-attachments/` preexistente preservada.
+
 ## 2026-10-03 — Muse Spark: 404 com casa quebrada, feno e volta automática (commit `92d9e99`)
 
 Pedido do dono: página 404 personalizada com casa quebrada; escolhas confirmadas:

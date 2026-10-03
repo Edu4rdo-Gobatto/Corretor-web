@@ -1,11 +1,20 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Devs from './Devs';
 import { ContextoBootstrap } from '../../seo/context';
 
+beforeEach(() => {
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
+  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) { this.setAttribute('open', ''); });
+  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) { this.removeAttribute('open'); });
+});
+
 afterEach(() => {
+  cleanup();
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe('página de desenvolvedores', () => {
@@ -31,5 +40,6 @@ describe('página de desenvolvedores', () => {
     });
     expect(screen.queryByRole('dialog', { name: /levantando esta página/i })).not.toBeInTheDocument();
     expect(screen.getByText('Página pronta.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
   });
 });
