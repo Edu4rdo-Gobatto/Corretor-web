@@ -1,5 +1,29 @@
 # Tarefas — corretor-web
 
+## FRONT-REFINO-001 — Público e painel com ações discretas
+
+Status: concluída localmente, sem commit. Responsável: Codex — 03/10/2026. Plano aprovado pelo dono em conversa.
+
+- Base compartilhada: ícones 18–20px/alvos 44px com dicas e nomes acessíveis; Campo, Aviso,
+  ConfirmarAcao, tabelas em cartões abaixo de 40rem de container e estados proporcionais.
+- Público: abertura compacta, busca antes da foto no mobile, ordenação/resumo removível,
+  cards alinhados, custos antes da descrição, galeria navegável e contato com consentimento correto.
+- Painel: navegação móvel completa, prioridades no resumo, ações auxiliares discretas,
+  filtros com contexto e formulário orientado com salvamento visível.
+- Integração: permissões, contratos, dados, LGPD, rascunho/upload e SSR preservados.
+- Validação final: typecheck/lint/build, smoke existente e QA sintética de navegador nas
+  larguras 320/390/768/1024/1440 e temas claro/escuro. Sem recriar suítes removidas.
+- Documentação: registros adicionais, sem apagar histórico. Main; sem API, commit/push/deploy.
+
+Divisão: Codex controla shared/styles/docs/QA; implementar_publico controla seis arquivos do
+público; implementar_painel controla shell/resumo/listas/corretores/cadastros; detalhe_contato
+controla formulários/mídias/guarda. Nenhuma área com dois editores simultâneos.
+
+Conclusão: typecheck/lint/build, smoke SSR, 97 verificações Chrome e 5 registros de fluxos
+complexos aprovados. `npm test` não encontrou arquivos (exit 1); suítes removidas não recriadas.
+Sem homologação de API/serviços reais, Safari/iOS ou dispositivos físicos. Registro detalhado
+em `CHANGELOG_AI.md`; evidências efêmeras ignoradas em `artifacts/refino`.
+
 ## 2026-10-03 — Remover todos os arquivos de teste — concluída
 
 Por solicitação do dono, removidos os 46 arquivos `*.test.*`/`*.spec.*` deste repositório e 28 do `../Corretor-API`.
@@ -52,9 +76,9 @@ infraestrutura abaixo aguardam autorização. A coluna "Depois" do orçamento vi
 | PERF-001 | Fase 2 — público: cache de dados em memória, SSR com cache de lookups e SWR, `/estaticos` imutável, bundle sem zod/RHF, fontes | aberta |
 | PERF-002 | Fase 3 — painel: `useDadosPainel` sobre o cache, respostas de mutação aplicadas sem refetch, seletor com cancelamento | aberta |
 | PERF-003 | Fase 4 — sessão: unificar `api.renovar()` com a promessa do `http.ts`, renovação antecipada e carga do painel em paralelo | aberta (fazer `/security-review`) |
-| UI-BASE-001 | Fase 5 — campos 16px, foco com contraste, tokens de estado, `Aviso`, `ConfirmarAcao`, `Campo`, tabelas em cartões | aberta |
-| UX-007 | Fase 6 — navegação do painel: filtros na URL, título por página, skip link | aberta |
-| UX-008 | Fase 7 — conversão do site: hero menor, filtros e ordenação, galeria; botão direto de WhatsApp depende do dono | aberta |
+| UI-BASE-001 | Fase 5 — campos 16px, foco com contraste, tokens de estado, `Aviso`, `ConfirmarAcao`, `Campo`, tabelas em cartões | concluída localmente em 03/10 (Codex, FRONT-REFINO-001); sem commit |
+| UX-007 | Fase 6 — navegação do painel: filtros na URL, título por página, skip link | parcial em 03/10: título, skip link e menu móvel concluídos; filtros administrativos na URL seguem abertos |
+| UX-008 | Fase 7 — conversão do site: hero menor, filtros e ordenação, galeria; botão direto de WhatsApp depende do dono | concluída localmente em 03/10 pelo plano aprovado: CTA geral usa WhatsApp comercial de brand; homologação real pendente |
 | API-PERF-001 | `GET /admin/resumo` (dashboard 9+N → 1, perfil 8 → 1); revisa a decisão "sem /stats" | aguarda autorização |
 | API-PERF-002 | Leituras sem escrita, pool com keep-alive, menos idas ao banco, `Server-Timing` | aguarda autorização |
 | API-PERF-003 | `Cache-Control` público no catálogo e respostas mais leves | aguarda autorização |

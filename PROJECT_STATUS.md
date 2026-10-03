@@ -1,5 +1,32 @@
 # Estado atual — corretor-web
 
+## 2026-10-03 — Codex: refinamento do frontend concluído localmente
+
+Público e painel refinados conforme o plano aprovado: ações auxiliares em ícones com alvos de
+44px, catálogo compacto, filtros removíveis, custos e contato melhor posicionados no mobile,
+galeria navegável, navegação completa do painel, resumo por prioridade e formulário em seis
+seções com barra de salvar. Logo, cores, fontes, dados, permissões e contratos preservados.
+
+Validação atual: typecheck/lint/build e smoke SSR aprovados; 97 verificações Chrome (84 layouts
+e 13 cenários), mais 5 registros de fluxos complexos, sem falhas/erros de página. Matriz principal
+320/390/768/1024/1440 nos dois temas; telas adicionais em 390/1440. API inteiramente simulada.
+`npm test -- --maxWorkers=1 --reporter=dot` foi executado e terminou com código 1 por ausência
+de arquivos de teste, conforme a remoção pelo dono; nenhuma suíte fonte foi recriada.
+
+Pendências de homologação: API/banco/R2/Drive reais, reprodução de vídeos reais, Safari/iOS e
+dispositivos físicos. Filtros administrativos na URL seguem tarefa futura. Documentos atualizados
+sem apagar histórico. Main em 80717c0, HEAD/origin = 0/0 na conferência; API irmã limpa.
+Sem dependências novas, commit/push/deploy ou escrita em dados reais. Evidências locais ignoradas
+em `artifacts/refino`; prévia sintética em http://127.0.0.1:4180 durante esta sessão.
+
+## 2026-10-03 — Codex: refinamento do frontend em andamento
+
+Plano aprovado pelo dono: público e painel, identidade preservada, ações auxiliares com ícones
+compactos, hierarquia e navegação mais claras. Área assumida: Codex (base compartilhada,
+integração, documentação e QA), com subagentes em arquivos distintos do público, painel e formulários.
+Somente frontend, direto na main; sem API, dependências, recriação de suítes, commit/push ou deploy.
+Validação prevista: typecheck/lint/build, smoke SSR existente e navegador com API simulada.
+
 ## 2026-10-03 — Remoção de testes por solicitação do dono
 
 Removidos 46 arquivos `*.test.*`/`*.spec.*` do frontend e 28 da API irmã. Mantido o código de produção.
@@ -488,3 +515,9 @@ Homologação autenticada real aguarda stack/credenciais de teste. Nenhuma alter
 Confirmada a proteção existente em `src/seo/metadata.ts`: `serialize()` escapa caracteres de controle do contexto HTML antes de renderizar o JSON-LD. Adicionado teste com `<svg/onload>`, `<script>` e `</script><script>` verificando parse válido, preservação do texto e impossibilidade de fechar a tag SSR. Meta tags continuam cobertas por `escapeHtml()`.
 
 Validação desta tarefa: teste direcionado aprovado; validação completa registrada no `CHANGELOG_AI.md`. Sem alteração de dados, API, banco, migrations, uploads ou rate limiting.
+# 2026-10-03 — Codex: dev SSR acessível pela rede local
+
+O servidor `npm run dev` agora escuta em `0.0.0.0` por padrão, permitindo conferir o frontend em celular na mesma rede Wi-Fi. O host pode ser sobrescrito por `HOST`.
+Servidor local iniciado nesta sessão em `http://0.0.0.0:5173`; endereço de acesso no Wi-Fi: `http://192.168.0.20:5173`.
+
+## 2026-10-03 — Codex: refinamento do frontend concluído localmente

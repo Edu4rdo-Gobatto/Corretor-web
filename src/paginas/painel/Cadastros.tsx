@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { Archive, ArchiveRestore, Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +14,11 @@ import Dialogo from '../../componentes/Dialogo';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
+import Tabela from '../../componentes/Tabela';
+import AcaoIcone from '../../componentes/AcaoIcone';
+import Aviso from '../../componentes/Aviso';
+import Campo from '../../componentes/Campo';
+import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { estilos } from '../../componentes/estilosPainel';
 
 const esquema = z.object({
@@ -37,9 +43,9 @@ function Editor({ categoria, item, aoFechar, aoSalvar }: { categoria: CategoriaC
   return (
     <Dialogo titulo={item ? 'Editar cadastro' : 'Novo cadastro'} tamanho="estreito" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form onSubmit={handleSubmit(salvar)} noValidate className={`${estilos.formulario} grid gap-4`}>
-        <label>Nome<input {...register('nome')} />{errors.nome && <span className={estilos.erro}>{errors.nome.message}</span>}</label>
-        {categoria === 'caracteristicas' ? <label>Ícone (opcional)<input {...register('icone')} /></label> : <label>Identificador no endereço (opcional)<input {...register('slug')} />{errors.slug && <span className={estilos.erro}>{errors.slug.message}</span>}</label>}
-        {erro && <p role="alert" className="error">{erro}</p>}
+        <Campo rotulo="Nome" obrigatorio erro={errors.nome?.message}><input {...register('nome')} /></Campo>
+        {categoria === 'caracteristicas' ? <Campo rotulo="Ícone (opcional)" erro={errors.icone?.message}><input {...register('icone')} /></Campo> : <Campo rotulo="Identificador no endereço (opcional)" erro={errors.slug?.message} dica="Letras minúsculas, números e hífens."><input {...register('slug')} /></Campo>}
+        {erro && <Aviso tom="erro">{erro}</Aviso>}
         <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
@@ -52,13 +58,14 @@ export default function Cadastros() {
   const [editando, setEditando] = useState<Classificacao | null | undefined>();
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(false);
+  const [confirmando, setConfirmando] = useState<Classificacao>();
   // As rotas /admin/tipos-imovel etc. são exclusivas do ADMIN: sem o cargo, nem busca (evita o 403) e sai da página.
   const admin = useSessao().corretor?.cargo === 'ADMIN';
   const { dados, carregando, erro: erroCarga, recarregar } = useDadosPainel(useCallback(() => admin ? api.listarClassificacoes(categoria, pagina) : Promise.resolve(null), [admin, categoria, pagina]));
   async function alternar(item: Classificacao) {
     setOcupado(true);
     setErro('');
-    try { await api.salvarClassificacao(categoria, { ativo: !item.ativo }, item.id); recarregar(); }
+    try { await api.salvarClassificacao(categoria, { ativo: !item.ativo }, item.id); setConfirmando(undefined); recarregar(); }
     catch (causa) { setErro(mensagemErro(causa)); }
     finally { setOcupado(false); }
   }
@@ -66,20 +73,19 @@ export default function Cadastros() {
   return <>
     <CabecalhoPagina titulo="Cadastros de imóveis" descricao="Tipos, finalidades e características usados nos anúncios." acoes={<button className="button" onClick={() => setEditando(null)}>Novo cadastro</button>} />
     <label className="mb-6 grid max-w-xs gap-1.5">Categoria<select value={categoria} onChange={(evento) => { setCategoria(evento.target.value as CategoriaClassificacao); setPagina(1); }}>{Object.entries(CATEGORIAS).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
-    <EstadoCarregamento carregando={carregando} erro={erroCarga} tentarNovamente={recarregar} />
-    {erro && <p role="alert" className="error">{erro}</p>}
-    {dados && !erroCarga && (
+    <EstadoCarregamento compacto carregando={carregando} erro={erroCarga} tentarNovamente={recarregar} />
+    {erro && !confirmando && <Aviso tom="erro">{erro}</Aviso>}
+    {dados && !erroCarga && !carregando && (
       <section className={estilos.painel}>
-        {dados.itens.map((item) => (
-          <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-line py-4">
-            <div><strong>{item.nome}</strong><p className="m-0 text-sm text-muted"><Etiqueta tom={item.ativo ? 'neutro' : 'alerta'}>{item.ativo ? 'Ativo' : 'Inativo'}</Etiqueta>{item.slug ? ` · ${item.slug}` : ''}</p></div>
-            <div className="flex gap-3"><button className="buttonGhost" onClick={() => setEditando(item)}>Editar</button><button className="buttonSecondary" disabled={ocupado} onClick={() => void alternar(item)}>{item.ativo ? 'Desativar' : 'Reativar'}</button></div>
-          </div>
-        ))}
-        {dados.total === 0 && <p>Nenhum cadastro encontrado.</p>}
+        <Tabela itens={dados.itens} chave={(item) => item.id} rotulo={CATEGORIAS[categoria]} vazio="Nenhum cadastro encontrado." colunas={[
+          { titulo: 'Cadastro', celula: (item) => <><strong>{item.nome}</strong>{item.slug && <small className="mt-1 block text-muted">{item.slug}</small>}</> },
+          { titulo: 'Situação', celula: (item) => <Etiqueta tom={item.ativo ? 'neutro' : 'alerta'}>{item.ativo ? 'Ativo' : 'Inativo'}</Etiqueta> },
+          { titulo: 'Ações', celula: (item) => <div className={estilos.acoes}><AcaoIcone icone={Pencil} rotulo={`Editar ${item.nome}`} desabilitado={ocupado} aoClicar={() => setEditando(item)} /><AcaoIcone icone={item.ativo ? Archive : ArchiveRestore} rotulo={`${item.ativo ? 'Desativar' : 'Reativar'} ${item.nome}`} tom={item.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} ocupado={ocupado && confirmando?.id === item.id} aoClicar={() => { setErro(''); setConfirmando(item); }} /></div> },
+        ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
       </section>
     )}
     {editando !== undefined && <Editor categoria={categoria} item={editando} aoFechar={() => setEditando(undefined)} aoSalvar={recarregar} />}
+    {confirmando && <ConfirmarAcao titulo={`${confirmando.ativo ? 'Desativar' : 'Reativar'} cadastro`} descricao={<><p>{confirmando.nome}. {confirmando.ativo ? 'O cadastro deixará de ser oferecido para novas seleções. Os vínculos existentes serão preservados.' : 'O cadastro voltará a aparecer nas seleções.'}</p>{erro && <Aviso tom="erro">{erro}</Aviso>}</>} confirmar={confirmando.ativo ? 'Desativar cadastro' : 'Reativar cadastro'} perigo={confirmando.ativo} ocupado={ocupado} aoConfirmar={() => alternar(confirmando)} aoFechar={() => { if (!ocupado) setConfirmando(undefined); }} />}
   </>;
 }

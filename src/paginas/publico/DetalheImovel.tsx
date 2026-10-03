@@ -4,12 +4,13 @@ import { ArrowLeft, ArrowUpRight, MapPin, Maximize2, Building2, ShieldCheck, Sha
 import { api } from '../../servicos/api';
 import { useRecurso } from '../../hooks/useRecurso';
 import { urlImovel } from '../../servicos/urls';
-import { area, codigoImovel, dinheiro, precoPorMetro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal } from '../../servicos/formato';
+import { area, codigoImovel, dinheiro, precoPorMetro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal, rotulosStatusImovel } from '../../servicos/formato';
 import type { Imovel } from '../../tipos';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import GaleriaMidia from '../../componentes/GaleriaMidia';
 import CartaoImovel from '../../componentes/CartaoImovel';
 import FormularioContato from '../../componentes/FormularioContato';
+import AcaoIcone from '../../componentes/AcaoIcone';
 import { Seo, useDadosIniciais } from '../../seo/context';
 
 function Semelhantes({ atual }: { atual: Imovel }) {
@@ -72,28 +73,50 @@ export default function DetalheImovel() {
   return (
     <div className="container pb-6 pt-[30px]">
       <Seo dados={{ imovel }} status={statusErro || 200} />
-      <Link className="inline-flex items-center gap-2 text-sm text-muted no-underline transition duration-150 hover:-translate-x-[3px] hover:text-brand" to="/"><ArrowLeft size={16} /> Voltar aos imóveis</Link>
+      <Link className="inline-flex items-center gap-2 text-sm text-muted no-underline transition duration-150 hover:-translate-x-[3px] hover:text-brand motion-reduce:transform-none motion-reduce:transition-none" to="/"><ArrowLeft size={16} /> Voltar aos imóveis</Link>
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={tentarNovamente} esqueleto="detalhe" />
       {!carregando && !erro && imovel && <>
         <nav aria-label="Navegação estrutural" className="my-5 text-sm text-muted"><Link to="/">Imóveis comerciais</Link> / <span aria-current="page">{imovel.titulo}</span></nav>
         <div className="py-[30px] max-[760px]:pt-6">
+          <p className="mb-3 inline-flex rounded-full border border-line bg-soft px-3 py-1 text-sm text-muted">{rotulosStatusImovel[imovel.status]}</p>
           <p className="eyebrow mb-[14px]">{imovel.tipo?.nome || 'Imóvel'} · {imovel.finalidade?.nome || 'Imóvel comercial'} · Ref. {codigoImovel(imovel.id)}</p>
           <h1 className="mb-[15px] max-w-[950px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
-          <p className="mb-0 flex items-center gap-[7px] text-muted"><MapPin size={17} />{imovel.bairro}, {imovel.cidade} — {imovel.estado}</p>
+          <p className="mb-0 flex items-start gap-[7px] text-muted"><MapPin size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
           <div className="mt-[18px] flex flex-wrap gap-2.5 [&_a]:min-h-11 [&_button]:min-h-11">
-            <button type="button" className="buttonSecondary" onClick={compartilhar}><Share2 size={16} /> Compartilhar</button>
-            <a className="buttonSecondary" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" rel="noopener noreferrer"><MapPinned size={16} /> Ver no mapa</a>
+            <AcaoIcone icone={Share2} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
+            <AcaoIcone icone={MapPinned} rotulo="Ver no mapa" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" />
           </div>
           {linkCopiado && <p className="mb-0 mt-2 text-[13px] text-brand" role="status">Link copiado.</p>}
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-[52px] max-[1000px]:grid-cols-[minmax(0,1fr)_300px] max-[1000px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-5">
-          <div className="min-w-0">
-            <GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} />
+            <div className="order-1 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-1"><GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} /></div>
+          <aside className="order-2 sticky top-[120px] min-w-0 min-[761px]:col-start-2 min-[761px]:row-start-1 min-[761px]:row-span-2 max-[760px]:static">
+            <div className="rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-sm max-[1000px]:p-[22px] max-[480px]:px-5 max-[480px]:py-6">
+              {imovel.valor_venda !== null && <><p className="eyebrow">Valor de venda</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_venda)}</p></>}
+              {imovel.valor_locacao !== null && <><p className="eyebrow">Valor de locação</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_locacao)}<span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span></p></>}
+              {!preco && <><p className="eyebrow">Valor</p><p className="mb-[14px] text-[26px] font-semibold text-brand">Sob consulta</p></>}
+              {precoMetro !== null && <p className="mb-3 text-sm text-muted">{dinheiro(precoMetro)} / m² ({preco?.tipo === 'locacao' ? 'locação' : 'venda'})</p>}
+              {imovel.valor_locacao !== null && <><p className="mb-3 text-sm font-semibold text-ink">Soma dos valores informados{condominio === null || iptu === null ? ' (parcial)' : ''}: {dinheiro(somaMensal(Number(imovel.valor_locacao), condominio, iptu))}</p><p className="text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
+              <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-[15px] [&_div]:py-[5px] [&_dt]:text-muted">
+                {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
+                {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
+              </dl>
+              <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <ArrowUpRight size={18} /></button>
+              <p className="mb-[25px] mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
+              {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
+                <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={imovel.corretor.url_foto} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
+                <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
+              </div>}
+              <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><ShieldCheck size={16} /> Seus dados são usados apenas para o atendimento.</p>
+            </div>
+            <p className="px-2 py-[14px] text-[11px] text-muted max-[760px]:hidden">Referência: {codigoImovel(imovel.id)}</p>
+          </aside>
+            <div className="order-3 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-2">
             <div className="grid grid-cols-2 gap-[14px] border-b border-line py-[26px] max-[1000px]:gap-3 max-[480px]:grid-cols-1 [&_span]:flex [&_span]:items-center [&_span]:gap-2 [&_span]:rounded-[3px] [&_span]:bg-soft [&_span]:px-4 [&_span]:py-[14px] [&_span]:text-sm [&_svg]:shrink-0 [&_svg]:text-brand">
               <span><Maximize2 size={20} /><strong>{area(imovel.area_util)}</strong> de área útil</span>
               <span><Building2 size={20} /><strong>{area(imovel.area_total)}</strong> de área total</span>
             </div>
-            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]"><h2>Um espaço, muitas possibilidades.</h2><p className="whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></section>
+            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]"><h2>Sobre o imóvel</h2><p className="whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></section>
             {imovel.caracteristicas.length > 0 && (
               <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]">
                 <h2>Características</h2>
@@ -109,33 +132,12 @@ export default function DetalheImovel() {
                 ? <iframe className="mt-4 min-h-[260px] w-full rounded border-0" loading="lazy" title={`Mapa de ${imovel.titulo}`} referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${consultaMapa}&output=embed`} />
                 : <button type="button" className="buttonSecondary" onClick={() => setMapaCarregado(consultaMapa)}>Carregar mapa</button>)}
             </section>
-            <Semelhantes key={`semelhantes-${imovel.id}`} atual={imovel} />
           </div>
-          <aside className="sticky top-32 min-w-0 max-[760px]:static">
-            <div className="rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-[0_18px_38px_rgb(10_32_66/0.10)] max-[1000px]:p-[22px] max-[480px]:px-5 max-[480px]:py-6">
-              {imovel.valor_venda !== null && <><p className="eyebrow">Valor de venda</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_venda)}</p></>}
-              {imovel.valor_locacao !== null && <><p className="eyebrow">Valor de locação</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_locacao)}<span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span></p></>}
-              {!preco && <><p className="eyebrow">Valor</p><p className="mb-[14px] text-[26px] font-semibold text-brand">Sob consulta</p></>}
-              {precoMetro !== null && <p className="mb-3 text-sm text-muted">{dinheiro(precoMetro)} / m² ({preco?.tipo === 'locacao' ? 'locação' : 'venda'})</p>}
-              {imovel.valor_locacao !== null && <><p className="mb-3 text-sm font-semibold text-ink">Soma dos valores informados{condominio === null || iptu === null ? ' (parcial)' : ''}: {dinheiro(somaMensal(Number(imovel.valor_locacao), condominio, iptu))}</p><p className="text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
-              <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-[15px] [&_div]:py-[5px] [&_dt]:text-muted">
-                {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
-                {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
-              </dl>
-              <button className="button w-full max-[760px]:hidden" onClick={() => setContatoAberto(true)}>Falar com corretor <ArrowUpRight size={18} /></button>
-              <p className="mb-[25px] mt-[10px] text-center text-xs text-muted max-[760px]:hidden">Converse diretamente com o corretor.</p>
-              {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
-                <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={imovel.corretor.url_foto} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
-                <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
-              </div>}
-              <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><ShieldCheck size={16} /> Seus dados são usados apenas para o atendimento.</p>
-            </div>
-            <p className="px-2 py-[14px] text-[11px] text-muted max-[760px]:hidden">Referência: {codigoImovel(imovel.id)}</p>
-          </aside>
         </div>
-        <div className="hidden max-[760px]:sticky max-[760px]:bottom-0 max-[760px]:z-[5] max-[760px]:mt-6 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-4 max-[760px]:rounded-[5px] max-[760px]:border max-[760px]:border-navy max-[760px]:bg-navy max-[760px]:p-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-[0_-8px_24px_rgb(10_32_66/0.10)]">
-          <div><span className="block text-xs text-[#C6CEDD]">{imovel.finalidade?.nome || 'Imóvel comercial'}</span><strong className="font-display text-[19px] text-white">{preco ? <>{dinheiro(preco.valor)}{preco.tipo === 'locacao' && ' /mês'}</> : 'Sob consulta'}</strong></div>
-          <button className="button min-h-12 border-b-gold bg-gold text-navy hover:bg-[#b38935]" onClick={() => setContatoAberto(true)}>Falar com corretor</button>
+        <Semelhantes key={`semelhantes-${imovel.id}`} atual={imovel} />
+        <div className="hidden max-[760px]:fixed max-[760px]:inset-x-0 max-[760px]:bottom-0 max-[760px]:z-30 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-3 max-[760px]:border-t max-[760px]:border-gold max-[760px]:bg-navy max-[760px]:px-4 max-[760px]:pt-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-lg">
+          <div className="min-w-0"><span className="block text-xs text-white/80">{imovel.finalidade?.nome || 'Imóvel comercial'}</span><strong className="block font-display text-[19px] text-white [overflow-wrap:anywhere] max-[360px]:text-base">{preco ? <>{dinheiro(preco.valor)}{preco.tipo === 'locacao' && ' /mês'}</> : 'Sob consulta'}</strong></div>
+          <button className="button min-h-12 shrink-0 px-3 text-sm border-b-gold bg-gold text-navy hover:bg-gold/90" onClick={() => setContatoAberto(true)}>Falar com corretor</button>
         </div>
         {contatoAberto && <FormularioContato imovel={imovel} aoFechar={() => setContatoAberto(false)} />}
       </>}

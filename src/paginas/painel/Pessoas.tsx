@@ -1,5 +1,6 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { Eye, Pencil, X } from 'lucide-react';
 import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { data, rotulosStatusContato } from '../../servicos/formato';
@@ -9,6 +10,7 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
 import Tabela from '../../componentes/Tabela';
+import AcaoIcone from '../../componentes/AcaoIcone';
 import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
 
@@ -33,6 +35,16 @@ export default function Pessoas() {
     setPagina(1);
     setFiltros({ ...rascunho, busca: rascunho.busca.trim() });
   }
+  function removerFiltro(campo: keyof Filtros) {
+    setFiltros((atual) => ({ ...atual, [campo]: filtrosIniciais[campo] }));
+    setRascunho((atual) => ({ ...atual, [campo]: filtrosIniciais[campo] }));
+    setPagina(1);
+  }
+  const resumo: { campo: keyof Filtros; rotulo: string }[] = [
+    ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
+    ...(filtros.status ? [{ campo: 'status' as const, rotulo: rotulosStatusContato[filtros.status] }] : []),
+    ...(filtros.ativo === 'false' ? [{ campo: 'ativo' as const, rotulo: 'Inativos' }] : []),
+  ];
   return <>
     <CabecalhoPagina rotulo="CADASTRO ÚNICO" titulo="Pessoas" descricao="Clientes, proprietários e inquilinos: uma pessoa, um cadastro." acoes={<button className="button" onClick={() => setEditando(null)}>+ Nova pessoa</button>} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
@@ -40,17 +52,19 @@ export default function Pessoas() {
       <label>Situação do contato<select value={rascunho.status} onChange={(evento) => setRascunho({ ...rascunho, status: evento.target.value as Filtros['status'] })}><option value="">Todas</option>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
       <label>Cadastro<select value={rascunho.ativo} onChange={(evento) => setRascunho({ ...rascunho, ativo: evento.target.value as Filtros['ativo'] })}><option value="true">Ativos</option><option value="false">Inativos</option></select></label>
       <button className="buttonSecondary" type="submit">Filtrar</button>
-      {(filtros.busca || filtros.status || filtros.ativo === 'false') && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setPagina(1); }}>Limpar</button>}
+      {(resumo.length > 0 || rascunho.busca || rascunho.status || rascunho.ativo === 'false') && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setPagina(1); }}>Limpar</button>}
     </form>
-    <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
-    {dados && !erro && (
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><X size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
+    {dados && !erro && !carregando && (
       <section className={estilos.painel}>
+        <p role="status" className="mb-4 mt-0 text-sm text-muted">{dados.total} {dados.total === 1 ? 'pessoa encontrada' : 'pessoas encontradas'}</p>
         <Tabela<Pessoa> itens={dados.itens} chave={(pessoa) => pessoa.id} vazio="Nenhuma pessoa encontrada." rotulo="Pessoas" colunas={[
           { titulo: 'Pessoa', celula: (pessoa) => <><Link to={`/admin/pessoas/${pessoa.id}`}><strong>{pessoa.nome}</strong></Link><small className="mt-1 block text-muted">#{pessoa.id}{pessoa.tipo_pessoa ? ` · ${pessoa.tipo_pessoa}` : ''}{pessoa.cpf_cnpj ? ` · ${formatarDocumento(pessoa.cpf_cnpj)}` : ''}</small></> },
           { titulo: 'Contato', celula: (pessoa) => <>{pessoa.telefone || '—'}{pessoa.email && <small className="mt-1 block wrap-anywhere text-muted">{pessoa.email}</small>}</> },
           { titulo: 'Situação', celula: (pessoa) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={pessoa.status_contato === 'PENDENTE' ? 'atencao' : 'neutro'}>{rotulosStatusContato[pessoa.status_contato]}</Etiqueta>{!pessoa.ativo && <Etiqueta tom="alerta">Inativa</Etiqueta>}</div> },
           { titulo: 'Cadastro', celula: (pessoa) => <>{data(pessoa.criado_em)}<small className="mt-1 block text-muted">{pessoa.origem === 'SITE' ? 'Pelo site' : 'Manual'}{pessoa.consentimento ? ' · consentimento registrado' : ''}</small></> },
-          { titulo: 'Ações', celula: (pessoa) => <div className={`${estilos.acoes} max-lg:justify-end`}><Link to={`/admin/pessoas/${pessoa.id}`}>Ficha</Link><button className="buttonGhost" onClick={() => setEditando(pessoa)}>Editar</button></div> },
+          { titulo: 'Ações', celula: (pessoa) => <div className={estilos.acoes}><AcaoIcone icone={Eye} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} /><AcaoIcone icone={Pencil} rotulo={`Editar ${pessoa.nome}`} aoClicar={() => setEditando(pessoa)} /></div> },
         ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
       </section>

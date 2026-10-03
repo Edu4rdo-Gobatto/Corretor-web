@@ -9,6 +9,8 @@ import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { data, mensagemErro } from '../../servicos/formato';
 import { rotas } from '../../servicos/urls';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
+import Campo from '../../componentes/Campo';
+import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
 
 const esquemaPerfil = z.object({
@@ -24,7 +26,6 @@ const esquemaSenha = z.object({
 }).refine((valores) => valores.nova_senha === valores.confirmacao, { message: 'A confirmação não confere.', path: ['confirmacao'] });
 type ValoresPerfil = z.infer<typeof esquemaPerfil>;
 type ValoresSenha = z.infer<typeof esquemaSenha>;
-const rotulo = 'grid gap-[7px] font-semibold [&_input]:w-full';
 
 function cartao(titulo: string, valor: string | number, detalhe?: string) {
   return <div className="rounded border border-line bg-paper p-[18px] lg:p-7"><span>{titulo}</span><strong className="m-0 my-[18px] mb-2 block font-display text-[28px] text-ink lg:text-[38px]">{valor}</strong>{detalhe && <small className="text-muted">{detalhe}</small>}</div>;
@@ -93,25 +94,25 @@ export default function Perfil() {
     <section className={estilos.painel} aria-label="Editar perfil">
       <h2 className={estilos.tituloPainel}>Editar perfil</h2>
       <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate>
-        <label className={rotulo}>Nome<input type="text" {...formularioPerfil.register('nome')} aria-invalid={!!errosPerfil.nome} />{errosPerfil.nome && <span className={estilos.erro}>{errosPerfil.nome.message}</span>}</label>
-        <label className={rotulo}>WhatsApp com DDI e DDD<input type="tel" {...formularioPerfil.register('whatsapp')} aria-invalid={!!errosPerfil.whatsapp} />{errosPerfil.whatsapp && <span className={estilos.erro}>{errosPerfil.whatsapp.message}</span>}</label>
-        <label className={rotulo}>CRECI<input type="text" {...formularioPerfil.register('creci')} />{errosPerfil.creci && <span className={estilos.erro}>{errosPerfil.creci.message}</span>}</label>
-        <label className={rotulo}>URL da foto (HTTPS)<input type="url" {...formularioPerfil.register('url_foto')} aria-invalid={!!errosPerfil.url_foto} />{errosPerfil.url_foto && <span className={estilos.erro}>{errosPerfil.url_foto.message}</span>}</label>
+        <Campo rotulo="Nome" erro={errosPerfil.nome?.message}><input type="text" autoComplete="name" {...formularioPerfil.register('nome')} /></Campo>
+        <Campo rotulo="WhatsApp com DDI e DDD" erro={errosPerfil.whatsapp?.message} dica="Somente números. Ex.: 5565999999999."><input type="tel" autoComplete="tel" {...formularioPerfil.register('whatsapp')} /></Campo>
+        <Campo rotulo="CRECI" erro={errosPerfil.creci?.message}><input type="text" {...formularioPerfil.register('creci')} /></Campo>
+        <Campo rotulo="URL da foto (HTTPS)" erro={errosPerfil.url_foto?.message}><input type="url" {...formularioPerfil.register('url_foto')} /></Campo>
         <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioPerfil.formState.isSubmitting}>{formularioPerfil.formState.isSubmitting ? 'Salvando…' : 'Salvar perfil'}</button></div>
       </form>
-      {erroPerfil && <p className="error" role="alert">{erroPerfil}</p>}
-      {perfilSalvo && <p role="status">Perfil atualizado.</p>}
+      {erroPerfil && <Aviso tom="erro" classe="mt-4">{erroPerfil}</Aviso>}
+      {perfilSalvo && <Aviso tom="sucesso" classe="mt-4">Perfil atualizado.</Aviso>}
     </section>
     <section className={estilos.painel} aria-label="Trocar senha">
       <h2 className={estilos.tituloPainel}>Trocar senha</h2>
       <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioSenha.handleSubmit(salvarSenha)} noValidate>
-        <label className={`${rotulo} col-span-full`}>Senha atual<input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} aria-invalid={!!errosSenha.senha_atual} />{errosSenha.senha_atual && <span className={estilos.erro}>{errosSenha.senha_atual.message}</span>}</label>
-        <label className={rotulo}>Nova senha<input type="password" autoComplete="new-password" aria-label="Nova senha" {...formularioSenha.register('nova_senha')} aria-invalid={!!errosSenha.nova_senha} /><span className={estilos.dica}>Mínimo de 12 caracteres.</span>{errosSenha.nova_senha && <span className={estilos.erro}>{errosSenha.nova_senha.message}</span>}</label>
-        <label className={rotulo}>Confirmar nova senha<input type="password" autoComplete="new-password" aria-label="Confirmar nova senha" {...formularioSenha.register('confirmacao')} aria-invalid={!!errosSenha.confirmacao} />{errosSenha.confirmacao && <span className={estilos.erro}>{errosSenha.confirmacao.message}</span>}</label>
+        <Campo classe="col-span-full" rotulo="Senha atual" erro={errosSenha.senha_atual?.message}><input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} /></Campo>
+        <Campo rotulo="Nova senha" erro={errosSenha.nova_senha?.message} dica="Use entre 12 e 128 caracteres."><input type="password" autoComplete="new-password" {...formularioSenha.register('nova_senha')} /></Campo>
+        <Campo rotulo="Confirmar nova senha" erro={errosSenha.confirmacao?.message}><input type="password" autoComplete="new-password" {...formularioSenha.register('confirmacao')} /></Campo>
         <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioSenha.formState.isSubmitting}>{formularioSenha.formState.isSubmitting ? 'Salvando…' : 'Trocar senha'}</button></div>
       </form>
-      {erroSenha && <p className="error" role="alert">{erroSenha}</p>}
-      {senhaSalva && <p role="status">Senha atualizada.</p>}
+      {erroSenha && <Aviso tom="erro" classe="mt-4">{erroSenha}</Aviso>}
+      {senhaSalva && <Aviso tom="sucesso" classe="mt-4">Senha atualizada.</Aviso>}
     </section>
   </>;
 }

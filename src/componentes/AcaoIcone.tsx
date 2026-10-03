@@ -1,0 +1,58 @@
+import { useEffect, useId, useRef, useState } from 'react';
+import { LoaderCircle, type LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+type Propriedades = {
+  icone: LucideIcon;
+  rotulo: string;
+  to?: string;
+  href?: string;
+  aoClicar?: () => void;
+  desabilitado?: boolean;
+  ocupado?: boolean;
+  tom?: 'neutro' | 'perigo';
+  target?: string;
+};
+
+/** Ação auxiliar compacta: o desenho é pequeno, mas a área de toque continua 44px. */
+export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, desabilitado = false, ocupado = false, tom = 'neutro', target }: Propriedades) {
+  const id = useId();
+  const [dicaOculta, setDicaOculta] = useState(false);
+  const [deslocamentoDica, setDeslocamentoDica] = useState(0);
+  const [dicaAtiva, setDicaAtiva] = useState(false);
+  const grupo = useRef<HTMLSpanElement>(null);
+  const bloqueado = desabilitado || ocupado;
+  const classe = `acao-icone ${tom === 'perigo' ? 'text-error' : 'text-muted'}`;
+  const conteudo = ocupado ? <LoaderCircle size={19} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Icone size={19} aria-hidden="true" />;
+  const atributos = { className: classe, 'aria-label': rotulo, 'aria-describedby': id, 'aria-busy': ocupado || undefined };
+  useEffect(() => {
+    if (!dicaAtiva || dicaOculta) return;
+    function fecharDica(evento: KeyboardEvent) {
+      if (evento.key !== 'Escape') return;
+      setDicaOculta(true);
+      evento.preventDefault();
+      evento.stopPropagation();
+    }
+    document.addEventListener('keydown', fecharDica);
+    return () => document.removeEventListener('keydown', fecharDica);
+  }, [dicaAtiva, dicaOculta]);
+  function mostrarDica() {
+    setDicaOculta(false);
+    setDicaAtiva(true);
+    const caixa = grupo.current?.getBoundingClientRect();
+    const dica = grupo.current?.querySelector<HTMLElement>('[role="tooltip"]');
+    if (!caixa || !dica) return;
+    const largura = dica.getBoundingClientRect().width;
+    const esquerda = caixa.right - largura;
+    const limite = document.documentElement.clientWidth - largura - 8;
+    setDeslocamentoDica(Math.max(8, Math.min(esquerda, limite)) - esquerda);
+  }
+  return <span ref={grupo} className={`grupo-acao ${dicaOculta ? 'dica-oculta' : ''}`} onFocus={mostrarDica} onMouseEnter={mostrarDica}
+    onBlur={(evento) => { if (!evento.currentTarget.contains(evento.relatedTarget as Node | null) && !evento.currentTarget.matches(':hover')) setDicaAtiva(false); }}
+    onMouseLeave={() => { if (!grupo.current?.contains(document.activeElement)) setDicaAtiva(false); }}>
+    {to ? <Link {...atributos} to={to} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</Link>
+      : href ? <a {...atributos} href={href} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</a>
+      : <button {...atributos} type="button" disabled={bloqueado} onClick={aoClicar}>{conteudo}</button>}
+    <span id={id} role="tooltip" className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
+  </span>;
+}

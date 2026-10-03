@@ -2,11 +2,13 @@ import { useState, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import type { Imovel } from '../tipos';
 import { api } from '../servicos/api';
 import { esquemaContato, formatarTelefone, urlWhatsapp, type CamposContato } from '../servicos/contato';
 import Dialogo from './Dialogo';
+import Campo from './Campo';
+import Aviso from './Aviso';
 
 /** Contato do site: abre o WhatsApp no mesmo gesto do envio e registra a pessoa com consentimento. */
 export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel; aoFechar: () => void }) {
@@ -49,29 +51,28 @@ export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel
   return (
     <Dialogo titulo={registrado ? 'Obrigado pelo seu interesse.' : 'Vamos falar sobre este espaço?'} aoFechar={aoFechar}>
       {registrado ? (
-        <div className="grid justify-items-start gap-4 [&_svg]:text-brand">
-          <CheckCircle2 size={32} />
-          <p>Seu interesse foi registrado. Continue a conversa pelo WhatsApp.</p>
+        <div className="grid justify-items-start gap-4">
+          <Aviso tom="sucesso">Seu interesse foi registrado. Continue a conversa pelo WhatsApp.</Aviso>
           <a className="button" href={urlContato} target="_blank" rel="noopener noreferrer">Continuar no WhatsApp <ArrowUpRight size={17} /></a>
           <button className="buttonSecondary" onClick={aoFechar}>Concluir</button>
         </div>
       ) : (
         <>
-          <p className="muted">{imovel.titulo}<br />Atendimento com {imovel.corretor?.nome ?? 'o corretor responsável'}. Ao enviar, o WhatsApp será aberto antes do registro do contato.</p>
-          <form onSubmit={enviar} className="grid gap-[15px] [&_label]:grid [&_label]:gap-1" noValidate>
-            <label>Seu nome<input autoComplete="name" {...register('nome')} aria-invalid={Boolean(errors.nome)} />{errors.nome && <span className="error">{errors.nome.message}</span>}</label>
-            <label>Telefone com DDD<input type="tel" inputMode="tel" autoComplete="tel" placeholder="(65) 99999-9999" {...register('telefone', { onChange: (evento) => setValue('telefone', formatarTelefone(evento.target.value), { shouldDirty: true }) })} aria-invalid={Boolean(errors.telefone)} />{errors.telefone && <span className="error">{errors.telefone.message}</span>}</label>
-            <label>E-mail (opcional)<input type="email" autoComplete="email" {...register('email')} />{errors.email && <span className="error">{errors.email.message}</span>}</label>
-            <label>Mensagem (opcional)<textarea {...register('mensagem')} maxLength={2000} /></label>
+          <p className="muted">{imovel.titulo}<br />Converse com {imovel.corretor?.nome ?? 'o corretor responsável'} pelo WhatsApp.</p>
+          <form onSubmit={enviar} className="grid gap-[15px]" noValidate>
+            <Campo rotulo="Seu nome" obrigatorio erro={errors.nome?.message}><input autoComplete="name" {...register('nome')} /></Campo>
+            <Campo rotulo="Telefone com DDD" obrigatorio erro={errors.telefone?.message}><input type="tel" inputMode="tel" autoComplete="tel" placeholder="(65) 99999-9999" {...register('telefone', { onChange: (evento) => setValue('telefone', formatarTelefone(evento.target.value), { shouldDirty: true }) })} /></Campo>
+            <Campo rotulo="E-mail (opcional)" erro={errors.email?.message}><input type="email" autoComplete="email" {...register('email')} /></Campo>
+            <Campo rotulo="Mensagem (opcional)" erro={errors.mensagem?.message}><textarea {...register('mensagem')} maxLength={2000} /></Campo>
             <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden"><label>Site<input tabIndex={-1} autoComplete="off" {...register('website')} /></label></div>
             <div>
               <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-[13px] font-normal [&_input]:mt-1">
-                <input type="checkbox" {...register('consentimento')} />
+                <input type="checkbox" {...register('consentimento')} aria-invalid={Boolean(errors.consentimento)} aria-describedby={errors.consentimento ? 'contato-consentimento-erro' : undefined} />
                 <span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank">Política de Privacidade</Link>.</span>
               </label>
-              {errors.consentimento && <span className="error">{errors.consentimento.message}</span>}
+              {errors.consentimento && <span id="contato-consentimento-erro" className="error">{errors.consentimento.message}</span>}
             </div>
-            {falha && <p className="error" role="alert">{falha}</p>}
+            {falha && <Aviso tom="erro">{falha}</Aviso>}
             <button className="button" type="submit" disabled={enviando}>{enviando ? 'Registrando contato…' : falha ? 'Tentar registrar novamente' : 'Falar com corretor'}<ArrowUpRight size={17} /></button>
             {whatsappAberto && <a href={urlContato} target="_blank" rel="noopener noreferrer" className="text-center text-sm">Se o WhatsApp não abriu, clique aqui</a>}
           </form>

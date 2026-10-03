@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
@@ -9,6 +10,7 @@ import type { StatusImovel } from '../../tipos';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Tabela from '../../componentes/Tabela';
+import AcaoIcone from '../../componentes/AcaoIcone';
 import { estilos } from '../../componentes/estilosPainel';
 
 const STATUS: StatusImovel[] = ['DISPONIVEL', 'RESERVADO', 'VENDIDO', 'ALUGADO'];
@@ -52,9 +54,9 @@ async function carregarComissoes() {
 function Indicador<T>({ rotulo, carregar, children }: { rotulo: string; carregar: () => Promise<T>; children: (dados: T) => ReactNode }) {
   const { dados, carregando, erro, recarregar } = useDadosPainel(carregar);
   return (
-    <section aria-label={rotulo} className="rounded border border-line bg-paper p-[18px] lg:p-7">
-      <span>{rotulo}</span>
-      <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
+    <section aria-label={rotulo} className="rounded border border-line bg-paper p-5">
+      <span className="text-sm text-muted">{rotulo}</span>
+      <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
       {!carregando && !erro && dados !== undefined && children(dados)}
     </section>
   );
@@ -66,24 +68,27 @@ export default function VisaoGeral() {
   const pendentes = useDadosPainel(carregadores.pendentes);
   return <>
     <CabecalhoPagina rotulo="VISÃO GERAL" titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." acoes={<Link className="button" to="/admin/imoveis/novo">+ Novo imóvel</Link>} />
-    <section className="mb-8 grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3 lg:gap-5">
-      <Indicador rotulo="Contatos pendentes" carregar={carregadores.pendentes}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.contatos}>Responder contatos →</Link></>}</Indicador>
-      <Indicador rotulo="Contatos recebidos nos últimos 30 dias" carregar={carregadores.recentes}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.pessoas}>Ver pessoas →</Link></>}</Indicador>
-      <Indicador rotulo="Imóveis no portfólio" carregar={carregadores.imoveis}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.imoveis}>Gerenciar imóveis →</Link></>}</Indicador>
-      {STATUS.map((status) => <Indicador key={status} rotulo={rotulosStatusImovelPlural[status]} carregar={carregadores.porStatus[status]}>{(dados) => numeroGrande(dados.total)}</Indicador>)}
-      <Indicador rotulo="Contratos ativos" carregar={carregadores.contratos}>{(dados) => <>{numeroGrande(dados.total)}<Link to="/admin/contratos">Ver contratos →</Link></>}</Indicador>
-      <Indicador rotulo="Comissões" carregar={carregarComissoes}>{(dados) => <><p>Valor pendente: {moeda(dados.pendente)}</p><p>Valor recebido: {moeda(dados.recebido)}</p><Link to="/admin/comissoes">Ver financeiro →</Link></>}</Indicador>
-    </section>
-    {!pendentes.carregando && !pendentes.erro && pendentes.dados && (
-      <section className={estilos.painel}>
-        <h2 className={estilos.tituloPainel}>Contatos aguardando resposta</h2>
+    <section className={`${estilos.painel} border-t-4 border-t-gold`}>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-4"><div><h2 className="mb-1 text-[22px]">Contatos aguardando resposta</h2><p className="m-0 text-sm text-muted">Comece por quem ainda espera seu retorno.</p></div><Link className="buttonSecondary" to={rotas.contatos}>Responder contatos →</Link></div>
+      <EstadoCarregamento compacto carregando={pendentes.carregando} erro={pendentes.erro} tentarNovamente={pendentes.recarregar} />
+      {!pendentes.carregando && !pendentes.erro && pendentes.dados && <>
+        <p className="mb-5 mt-0 text-muted"><strong className="mr-2 font-sans text-[32px] text-ink">{pendentes.dados.total}</strong>{pendentes.dados.total === 1 ? 'contato pendente' : 'contatos pendentes'}{pendentes.dados.total > 5 ? ' · exibindo os primeiros 5' : ''}</p>
         <Tabela itens={pendentes.dados.itens} chave={(pessoa) => pessoa.id} vazio="Nenhum contato pendente. Bom trabalho." colunas={[
           { titulo: 'Contato', celula: (pessoa) => <><strong>{pessoa.nome}</strong><small className="mt-1 block text-muted">{pessoa.email}</small></> },
           { titulo: 'Telefone', celula: (pessoa) => pessoa.telefone },
           { titulo: 'Recebido em', celula: (pessoa) => data(pessoa.criado_em) },
-          { titulo: '', celula: (pessoa) => <Link to={`/admin/pessoas/${pessoa.id}`}>Abrir ficha →</Link> },
+          { titulo: 'Ações', celula: (pessoa) => <AcaoIcone icone={Eye} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} /> },
         ]} />
-      </section>
-    )}
+      </>}
+    </section>
+    <section aria-labelledby="titulo-portfolio" className="mb-8"><h2 id="titulo-portfolio" className={estilos.tituloPainel}>Seu portfólio</h2><div className="grid grid-cols-1 gap-3 @min-[32rem]/principal:grid-cols-2 @min-[60rem]/principal:grid-cols-3">
+      <Indicador rotulo="Imóveis no portfólio" carregar={carregadores.imoveis}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.imoveis}>Gerenciar imóveis →</Link></>}</Indicador>
+      {STATUS.map((status) => <Indicador key={status} rotulo={rotulosStatusImovelPlural[status]} carregar={carregadores.porStatus[status]}>{(dados) => numeroGrande(dados.total)}</Indicador>)}
+      <Indicador rotulo="Contatos recebidos nos últimos 30 dias" carregar={carregadores.recentes}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.pessoas}>Ver pessoas →</Link></>}</Indicador>
+    </div></section>
+    <section aria-labelledby="titulo-financeiro"><h2 id="titulo-financeiro" className={estilos.tituloPainel}>Contratos e comissões</h2><div className="grid grid-cols-1 gap-3 @min-[38rem]/principal:grid-cols-2">
+      <Indicador rotulo="Contratos ativos" carregar={carregadores.contratos}>{(dados) => <>{numeroGrande(dados.total)}<Link to="/admin/contratos">Ver contratos →</Link></>}</Indicador>
+      <Indicador rotulo="Comissões" carregar={carregarComissoes}>{(dados) => <><p className="mb-1 text-sm text-muted">Valor pendente</p>{numeroGrande(moeda(dados.pendente))}<p className="text-sm text-muted">Valor recebido: <strong className="text-ink">{moeda(dados.recebido)}</strong></p><Link to="/admin/comissoes">Ver financeiro →</Link></>}</Indicador>
+    </div></section>
   </>;
 }

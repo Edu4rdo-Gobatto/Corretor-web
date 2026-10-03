@@ -15,6 +15,8 @@ import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
+import Campo from '../../componentes/Campo';
+import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
 import { esquemaContrato, type ValoresContrato } from './esquemaLocacao';
 
@@ -54,15 +56,15 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
           <SeletorRegistro rotulo="Inquilino (locatário)" valor={locatario} buscar={buscarPessoas} aoEscolher={escolher('locatario_id', setLocatario)} erro={errors.locatario_id?.message} />
           {corretor?.cargo === 'ADMIN' ? <SeletorRegistro rotulo="Intermediador" valor={intermediador} buscar={buscarCorretores} aoEscolher={escolher('corretor_id', setIntermediador)} erro={errors.corretor_id?.message} /> : <p className="m-0">Intermediador: {corretor?.nome}.</p>}
           <div className={estilos.grade}>
-            {campos.map(([nome, rotulo, tipo]) => <label key={nome}>{rotulo}<input type={tipo} inputMode={nome === 'valor_aluguel' || nome === 'taxa_administracao' ? 'decimal' : undefined} {...register(nome)} aria-invalid={!!errors[nome]} /><span className={estilos.erro}>{errors[nome]?.message as string}</span></label>)}
-            <label>Dia de vencimento<input type="number" min={1} max={31} {...register('dia_vencimento', { valueAsNumber: true })} /><span className={estilos.erro}>{errors.dia_vencimento?.message}</span></label>
-            <label>Situação<select {...register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Encerrado</option></select></label>
-            <label className="col-span-full">Observações<textarea {...register('observacoes')} /><span className={estilos.erro}>{errors.observacoes?.message}</span></label>
+            {campos.map(([nome, rotulo, tipo]) => <Campo key={nome} rotulo={rotulo} erro={errors[nome]?.message as string | undefined}><input type={tipo} inputMode={nome === 'valor_aluguel' || nome === 'taxa_administracao' ? 'decimal' : undefined} {...register(nome)} /></Campo>)}
+            <Campo rotulo="Dia de vencimento" erro={errors.dia_vencimento?.message}><input type="number" min={1} max={31} {...register('dia_vencimento', { valueAsNumber: true })} /></Campo>
+            <Campo rotulo="Situação" erro={errors.status?.message}><select {...register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Encerrado</option></select></Campo>
+            <Campo classe="col-span-full" rotulo="Observações" erro={errors.observacoes?.message}><textarea {...register('observacoes')} /></Campo>
             {contrato && <label className="col-span-full flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Manter no cadastro de contratos</label>}
           </div>
         </fieldset>
         <p className={estilos.dica}>A receita de intermediação é registrada separadamente em Comissões. O contrato vencido é encerrado automaticamente.</p>
-        {erro && <p role="alert" className="error">{erro}</p>}
+        {erro && <Aviso tom="erro">{erro}</Aviso>}
         <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar contrato'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>

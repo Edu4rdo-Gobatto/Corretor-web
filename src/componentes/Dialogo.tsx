@@ -26,6 +26,7 @@ export default function Dialogo({ titulo, aoFechar, children, tamanho = 'medio',
     const larguraBarra = larguraUtil > 0 ? window.innerWidth - larguraUtil : 0;
     const { overflow, paddingRight } = document.body.style;
     dialogo?.showModal();
+    dialogo?.querySelector<HTMLElement>('[data-foco-inicial]')?.focus();
     document.body.style.overflow = 'hidden';
     if (larguraBarra > 0) document.body.style.paddingRight = `${larguraBarra}px`;
     return () => { dialogo?.close(); document.body.style.overflow = overflow; document.body.style.paddingRight = paddingRight; elementoAnterior?.focus(); };

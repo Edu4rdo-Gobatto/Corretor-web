@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Copy, Trash2 } from 'lucide-react';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { GuardaFormulario, useGuardaFormulario } from '../../hooks/useGuardaFormulario';
@@ -13,6 +14,10 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import GerenciadorMidia from '../../componentes/GerenciadorMidia';
 import SelecaoMidia from '../../componentes/SelecaoMidia';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
+import Campo from '../../componentes/Campo';
+import Aviso from '../../componentes/Aviso';
+import AcaoIcone from '../../componentes/AcaoIcone';
+import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { estilos } from '../../componentes/estilosPainel';
 import { prepararEnvio } from '../../componentes/prepararMidia';
 import FichaImovel from './FichaImovel';
@@ -50,6 +55,7 @@ function InstanciaFormulario() {
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [duplicando, setDuplicando] = useState(false);
+  const [confirmacaoCopia, setConfirmacaoCopia] = useState<'alteracoes' | 'rascunho' | null>(null);
   const [arquivosPendentes, setArquivosPendentes] = useState<File[]>([]);
   const [videosPendentes, setVideosPendentes] = useState<string[]>([]);
   const [progresso, setProgresso] = useState('');
@@ -119,13 +125,13 @@ function InstanciaFormulario() {
     && classificacoes.finalidades.some((item) => item.ativo && String(item.id) === valores.finalidade_id)
     && valores.caracteristicas.every((item) => classificacoes.caracteristicas.some((registro) => registro.ativo && String(registro.id) === item.caracteristica_id));
 
-  function duplicar() {
+  function duplicar(confirmouAlteracoes = false, confirmouRascunho = false) {
     if (!imovel || !podeEditar) return;
     const valores = getValues();
     if (!classificacoesAtivas(valores)) { setErro('Não é possível duplicar um imóvel com classificações inativas ou indisponíveis. Atualize o imóvel antes de duplicar.'); return; }
-    if (alterado && !window.confirm('Usar os dados salvos e sair desta edição?')) return;
+    if (alterado && !confirmouAlteracoes) { setConfirmacaoCopia('alteracoes'); return; }
     const chaveNovo = chaveRascunho(corretor?.id ?? 'anonimo');
-    if (lerRascunho(sessionStorage, chaveNovo) && !window.confirm('Substituir o rascunho de novo imóvel desta aba?')) return;
+    if (lerRascunho(sessionStorage, chaveNovo) && !confirmouRascunho) { setConfirmacaoCopia('rascunho'); return; }
     const copia = esquemaImovel.safeParse({ ...valoresDaFicha(imovel), titulo: `${imovel.titulo.slice(0, 190)} — Cópia`, status: 'DISPONIVEL', corretor_id: String(corretor?.id ?? '') });
     if (!copia.success) { setErro('Revise os dados do imóvel antes de duplicar.'); return; }
     if (gravarRascunho(sessionStorage, chaveNovo, copia.data) !== 'salvo') { setErro('Não foi possível preparar a cópia nesta aba. Verifique o armazenamento do navegador.'); return; }
@@ -180,16 +186,16 @@ function InstanciaFormulario() {
   }
 
   const campoTexto = (nome: CampoTexto, rotulo: string, extra?: string) => (
-    <label>{rotulo}<input {...register(nome)} aria-invalid={!!errors[nome]} />{extra && <span className={estilos.dica}>{extra}</span>}{errors[nome] && <span className={estilos.erro}>{errors[nome]?.message}</span>}</label>
+    <Campo rotulo={rotulo.replace(' *', '')} obrigatorio={rotulo.endsWith(' *')} dica={extra} erro={errors[nome]?.message}><input {...register(nome)} /></Campo>
   );
   const campoNumero = (nome: CampoNumero, rotulo: string, opcional = false) => (
-    <label>{rotulo}<input type="number" min={nome.includes('area') ? '0.01' : '0'} step="0.01" {...register(nome, { setValueAs: (valor: string | number | null) => (valor === '' || valor === null || valor === undefined ? (opcional ? null : NaN) : Number(valor)) })} aria-invalid={!!errors[nome]} />{errors[nome] && <span className={estilos.erro}>{errors[nome]?.message}</span>}</label>
+    <Campo rotulo={rotulo.replace(' *', '')} obrigatorio={!opcional} erro={errors[nome]?.message}><input type="number" min={nome.includes('area') ? '0.01' : '0'} step="0.01" {...register(nome, { setValueAs: (valor: string | number | null) => (valor === '' || valor === null || valor === undefined ? (opcional ? null : NaN) : Number(valor)) })} /></Campo>
   );
   const campoData = (nome: 'exclusividade_ate' | 'data_captacao', rotulo: string) => (
-    <label>{rotulo}<input type="date" {...register(nome)} aria-invalid={!!errors[nome]} />{errors[nome] && <span className={estilos.erro}>{errors[nome]?.message}</span>}</label>
+    <Campo rotulo={rotulo} erro={errors[nome]?.message}><input type="date" {...register(nome)} /></Campo>
   );
   const secao = (numero: string, titulo: string, conteudo: React.ReactNode, descricao?: string) => (
-    <section className={estilos.painel}><h2 className={estilos.tituloPainel}>{numero}. {titulo}</h2>{descricao && <p className="muted">{descricao}</p>}{conteudo}</section>
+    <section id={`imovel-secao-${numero}`} aria-labelledby={`imovel-titulo-${numero}`} className={`${estilos.painel} scroll-mt-28`}><h2 id={`imovel-titulo-${numero}`} className={estilos.tituloPainel}><span className="mr-2 text-sm font-sans font-semibold text-muted">{numero}</span>{titulo}</h2>{descricao && <p className="muted">{descricao}</p>}{conteudo}</section>
   );
   const avisoNavegacao = (typeof window !== 'undefined' ? (window.history.state as { usr?: { aviso?: string } } | null)?.usr?.aviso : undefined) ?? '';
 
@@ -197,27 +203,29 @@ function InstanciaFormulario() {
     <GuardaFormulario alterado={alterado} liberado={navegacaoLiberada} />
     <CabecalhoPagina
       voltar={<Link to="/admin/imoveis" className="inline-flex min-h-11 items-center">← Imóveis</Link>}
-      titulo={imovel ? `Editar imóvel ${codigoImovel(imovel.id)}` : 'Um novo espaço.'}
+      titulo={imovel ? `Editar imóvel ${codigoImovel(imovel.id)}` : 'Novo imóvel'}
       descricao="Conte o que torna este imóvel uma boa oportunidade."
       acoes={imovel && <>
         <Link to={urlImovel(imovel.slug)} target="_blank" rel="noopener noreferrer" className="buttonSecondary">Pré-visualizar público ↗</Link>
-        {podeEditar && <button type="button" className="buttonSecondary" disabled={duplicando || isSubmitting} onClick={duplicar}>Duplicar</button>}
+        {podeEditar && <AcaoIcone icone={Copy} rotulo="Duplicar imóvel" desabilitado={duplicando || isSubmitting} aoClicar={() => duplicar()} />}
       </>}
     />
     <EstadoCarregamento carregando={carregando} erro={erroCarga} tentarNovamente={() => void carregar()} />
     {imovel && !podeEditar ? <FichaImovel imovel={imovel} /> : !carregando && !erroCarga && <>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
-        {avisoNavegacao && !sucesso && <p className={estilos.sucesso} role="status">{avisoNavegacao}</p>}
-        {rascunhoRestaurado && <p className={estilos.sucesso} role="status">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</p>}
-        {avisoRascunho && <p className="error" role="alert">{avisoRascunho}</p>}
+        {avisoNavegacao && !sucesso && <Aviso tom={avisoNavegacao.includes('falhou') ? 'atencao' : 'sucesso'} classe="mb-5">{avisoNavegacao}</Aviso>}
+        {rascunhoRestaurado && <Aviso classe="mb-5">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</Aviso>}
+        {avisoRascunho && <Aviso tom="atencao" classe="mb-5">{avisoRascunho}</Aviso>}
+        <nav aria-label="Seções do imóvel" className="mb-6 flex flex-wrap gap-2 border-b border-line pb-4">{['Apresentação', 'Valores e dimensões', 'Localização', 'Características', 'Fotos e vídeos', 'Ficha interna'].map((titulo, indice) => <a key={titulo} href={`#imovel-secao-${String(indice + 1).padStart(2, '0')}`} className="inline-flex min-h-11 items-center gap-2 rounded px-3 text-sm no-underline hover:bg-soft"><span className="text-xs text-muted">{String(indice + 1).padStart(2, '0')}</span>{titulo}</a>)}</nav>
+        <fieldset disabled={isSubmitting} className="m-0 min-w-0 border-0 p-0">
         {secao('01', 'Apresentação', <div className={estilos.grade}>
           <div className="col-span-full">{campoTexto('titulo', 'Título do anúncio *')}</div>
-          <label>Tipo de imóvel *<select {...register('tipo_id')} aria-invalid={!!errors.tipo_id}><option value="">Selecione</option>{classificacoes.tipos.filter((item) => item.ativo || item.id === imovel?.tipo_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select>{errors.tipo_id && <span className={estilos.erro}>{errors.tipo_id.message}</span>}</label>
-          <label>Finalidade *<select {...register('finalidade_id')} aria-invalid={!!errors.finalidade_id}><option value="">Selecione</option>{classificacoes.finalidades.filter((item) => item.ativo || item.id === imovel?.finalidade_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select>{errors.finalidade_id && <span className={estilos.erro}>{errors.finalidade_id.message}</span>}</label>
-          <label>Situação *<select {...register('status')}>{Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
-          {corretor?.cargo === 'ADMIN' && <label>Corretor responsável<select {...register('corretor_id')}><option value="">Minha conta</option>{corretores.filter((item) => item.ativo || item.id === imovel?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></label>}
+          <Campo rotulo="Tipo de imóvel" obrigatorio erro={errors.tipo_id?.message}><select {...register('tipo_id')}><option value="">Selecione</option>{classificacoes.tipos.filter((item) => item.ativo || item.id === imovel?.tipo_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
+          <Campo rotulo="Finalidade" obrigatorio erro={errors.finalidade_id?.message}><select {...register('finalidade_id')}><option value="">Selecione</option>{classificacoes.finalidades.filter((item) => item.ativo || item.id === imovel?.finalidade_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
+          <Campo rotulo="Situação" obrigatorio erro={errors.status?.message}><select {...register('status')}>{Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
+          {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{corretores.filter((item) => item.ativo || item.id === imovel?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>}
           <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('destaque')} />Destacar na vitrine do site</label>
-          <label className="col-span-full">Descrição *<textarea rows={6} {...register('descricao')} aria-invalid={!!errors.descricao} />{errors.descricao && <span className={estilos.erro}>{errors.descricao.message}</span>}</label>
+          <Campo classe="col-span-full" rotulo="Descrição" obrigatorio erro={errors.descricao?.message}><textarea rows={6} {...register('descricao')} /></Campo>
         </div>)}
         {secao('02', 'Valores e dimensões', <div className={estilos.grade}>
           {campoNumero('valor_venda', 'Valor de venda (R$)', true)}
@@ -229,22 +237,22 @@ function InstanciaFormulario() {
         </div>, 'Sem valor de venda nem de locação, o site mostra "sob consulta".')}
         {secao('03', 'Localização', <div className={estilos.grade}>
           {campoTexto('cep', 'CEP')}{campoTexto('complemento', 'Complemento')}{campoTexto('logradouro', 'Rua / avenida *')}{campoTexto('numero', 'Número *')}{campoTexto('bairro', 'Bairro *')}{campoTexto('cidade', 'Cidade *')}
-          <label>Estado *<select {...register('estado')}>{estados.map((estado) => <option key={estado}>{estado}</option>)}</select></label>
+          <Campo rotulo="Estado" obrigatorio erro={errors.estado?.message}><select {...register('estado')}>{estados.map((estado) => <option key={estado}>{estado}</option>)}</select></Campo>
         </div>)}
         {secao('04', 'Características', <>
           {caracteristicas.map((campo, indice) => (
-            <div key={campo.id} className="my-3 grid gap-3 @min-[38rem]:grid-cols-3">
-              <label>Característica<select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></label>
-              <label>Valor<input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></label>
-              <button type="button" className="buttonGhost" onClick={() => removerCaracteristica(indice)}>Remover característica</button>
+            <div key={campo.id} className="my-3 grid grid-cols-[minmax(0,1fr)_auto] gap-3 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <Campo classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica" erro={errors.caracteristicas?.[indice]?.caracteristica_id?.message}><select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
+              <Campo rotulo="Valor" erro={errors.caracteristicas?.[indice]?.valor?.message}><input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></Campo>
+              <div className="flex items-end pb-1"><AcaoIcone icone={Trash2} rotulo={`Remover característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
             </div>
           ))}
           {errors.caracteristicas && <p className="error">Revise as características: selecione cada uma apenas uma vez e use até 500 caracteres no valor.</p>}
           <button type="button" className="buttonSecondary" disabled={caracteristicas.length >= 100} onClick={() => adicionarCaracteristica({ caracteristica_id: '', valor: '' })}>Adicionar característica</button>
         </>, 'Selecione as características cadastradas e informe seus valores.')}
-        {imovel
+        {secao('05', 'Fotos e vídeos', imovel
           ? <GerenciadorMidia imovel={imovel} aoAlterar={async () => { setImovel(await api.obterFicha(imovel.id)); }} />
-          : <SelecaoMidia arquivos={arquivosPendentes} videos={videosPendentes} desabilitado={isSubmitting} aoAlterar={(arquivos, videos) => { setArquivosPendentes(arquivos); setVideosPendentes(videos); }} />}
+          : <SelecaoMidia arquivos={arquivosPendentes} videos={videosPendentes} desabilitado={isSubmitting} aoAlterar={(arquivos, videos) => { setArquivosPendentes(arquivos); setVideosPendentes(videos); }} />)}
         {secao('06', 'Ficha interna', <div className={estilos.grade}>
           <div className="col-span-full"><SeletorRegistro rotulo="Proprietário" valor={proprietario} buscar={buscarPessoas} aoEscolher={(valor) => setValue('proprietario', valor, { shouldDirty: true })} dica="Pessoa cadastrada em Pessoas. Fica só no painel." /></div>
           <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('exclusividade')} />Exclusividade de venda ou locação</label>
@@ -253,17 +261,18 @@ function InstanciaFormulario() {
           {campoTexto('chaves', 'Onde estão as chaves', 'Ex.: com o zelador, no escritório.')}
           {campoTexto('matricula', 'Matrícula do imóvel')}
           {campoTexto('inscricao_municipal', 'Inscrição municipal / IPTU')}
-          <label className="col-span-full">Observações internas<textarea rows={4} {...register('observacoes_internas')} />{errors.observacoes_internas && <span className={estilos.erro}>{errors.observacoes_internas.message}</span>}</label>
-          {['VENDIDO', 'ALUGADO', 'RETIRADO'].includes(status) && <label className="col-span-full">Motivo da baixa<textarea rows={2} {...register('motivo_baixa')} placeholder="Ex.: vendido para cliente do site; retirado a pedido do proprietário." /></label>}
+          <Campo classe="col-span-full" rotulo="Observações internas" erro={errors.observacoes_internas?.message}><textarea rows={4} {...register('observacoes_internas')} /></Campo>
+          {['VENDIDO', 'ALUGADO', 'RETIRADO'].includes(status) && <Campo classe="col-span-full" rotulo="Motivo da baixa" erro={errors.motivo_baixa?.message}><textarea rows={2} {...register('motivo_baixa')} placeholder="Ex.: vendido para cliente do site; retirado a pedido do proprietário." /></Campo>}
         </div>, 'Nada desta seção aparece no site.')}
-        {erro && <p className="error" role="alert">{erro}</p>}
-        {progresso && <p role="status">{progresso}</p>}
-        {sucesso && <p className={estilos.sucesso} role="status">{sucesso}</p>}
-        <div className={estilos.rodape}>
-          <button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
-          <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link>
+        </fieldset>
+        {erro && <Aviso tom="erro" classe="mb-5">{erro}</Aviso>}
+        <div className="sticky bottom-0 z-10 mt-7 flex flex-wrap items-center justify-between gap-4 rounded border border-line bg-paper px-5 py-4 shadow-lg">
+          <p role="status" className="m-0 min-w-0 flex-1 text-sm text-muted">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
+          <div className="flex flex-wrap items-center gap-3"><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
+          <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link></div>
         </div>
       </form>
     </>}
+    {confirmacaoCopia && <ConfirmarAcao titulo={confirmacaoCopia === 'alteracoes' ? 'Duplicar os dados salvos?' : 'Substituir o rascunho de novo imóvel?'} descricao={confirmacaoCopia === 'alteracoes' ? 'A cópia usará os dados salvos do imóvel. As alterações desta edição não serão incluídas.' : 'Já existe um rascunho de novo imóvel nesta aba. A cópia substituirá esse rascunho; fotos e vídeos do imóvel original não serão copiados.'} confirmar={confirmacaoCopia === 'alteracoes' ? 'Usar dados salvos' : 'Substituir rascunho'} aoFechar={() => setConfirmacaoCopia(null)} aoConfirmar={() => { const etapa = confirmacaoCopia; setConfirmacaoCopia(null); duplicar(true, etapa === 'rascunho'); }} />}
   </>;
 }

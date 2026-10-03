@@ -1,5 +1,73 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-03 — Codex: refinamento do público e painel aprovado pelo dono
+
+Pedido: implementar o plano de acabamento, com menos caixas nas ações secundárias (Editar vira
+lápis). Preservada a identidade navy/dourado, fontes, logo, conteúdo comercial, rotas e contratos.
+Somente frontend, direto na main; nenhuma alteração na API irmã, dependência nova ou dado real.
+
+Entrega:
+- `AcaoIcone`: desenho de 19px/alvo 44px, nome contextual, dica legível no hover/foco, Escape
+  também quando só há hover, posição limitada à tela, foco com contraste e estado ocupado.
+  Ações primárias e transições de atendimento continuam com texto.
+- `Campo`, `Aviso` e `ConfirmarAcao` padronizam rótulos/erros, estados e confirmações nativas.
+  Cancelar recebe foco inicial; operações bloqueiam nova ação/fechamento e permitem retry.
+  Tabelas viram cartões por container abaixo de 40rem, mantendo os campos; textos longos quebram
+  sem recortar as dicas. Corrigidos asterisco em linha separada e foco perdido ao limpar seletor.
+- Catálogo com hero menor, busca antes da foto no mobile, ordenação visível, filtros removíveis
+  e cartões alinhados. Detalhe coloca custos/corretor antes da descrição no mobile e reserva espaço
+  para o CTA fixo após o rodapé. Galeria recebe setas, navegação ampliada e fallback de foto.
+  Consentimento fica alinhado; falha do registro do contato mantém retentativa sem reabrir WhatsApp.
+  CTA geral usa o WhatsApp comercial configurado em `brand`.
+- Painel com menu móvel completo por cargo, título de página e skip link. Resumo prioriza
+  contatos pendentes/reutiliza essa leitura; portfólio e financeiro conservam cálculos/serviços.
+  Listas recebem ícones e contexto dos filtros. Seletor/listas/comissões ocultam ações obsoletas.
+  Formulário mantém seis seções abertas, âncoras, rascunho, guarda e duplicação em duas etapas,
+  com barra de salvar/progresso. Formulários e controles de mídia usam a base compartilhada.
+
+Arquivos de produção alterados:
+- `src/componentes/`: AcaoIcone.tsx, Aviso.tsx, Campo.tsx, ConfirmarAcao.tsx (novos);
+  CabecalhoPagina.tsx, CartaoImovel.tsx, Dialogo.tsx, EstadoCarregamento.tsx,
+  FormularioContato.tsx, GaleriaMidia.tsx, GerenciadorMidia.tsx, LayoutPublico.tsx,
+  SelecaoMidia.tsx, SeletorRegistro.tsx, Tabela.tsx e estilosPainel.ts.
+- `src/paginas/publico/`: Catalogo.tsx e DetalheImovel.tsx.
+- `src/paginas/painel/`: LayoutPainel.tsx, VisaoGeral.tsx, Imoveis.tsx, Pessoas.tsx,
+  Contatos.tsx, Corretores.tsx, Cadastros.tsx, FormularioImovel.tsx, EditorPessoa.tsx,
+  Contratos.tsx, DetalheContrato.tsx, Comissoes.tsx, Perfil.tsx e Entrar.tsx.
+- `src/hooks/useGuardaFormulario.tsx`, `src/styles/global.css` e `src/styles/tailwind.css`.
+- Documentação: AGENTS.md, PROJECT_STATUS.md, TASKS.md, DECISIONS.md e CHANGELOG_AI.md.
+
+Validação real após integração/correções:
+- `npm run typecheck`, `npm run lint` e `npm run build`: exit 0. Build cliente/SSR/Vercel local;
+  avisos PURE do Zod preexistentes. Não houve deploy.
+- `npm test -- --maxWorkers=1 --reporter=dot`: exit 1, “No test files found”. Respeitada a
+  remoção pelo dono: não recriadas suítes fonte, nem executado `npm run visual` sem specs.
+- `node scripts/seo-smoke.mjs --serve`: aprovado, inclusive SSR/metadados/paginação/404,
+  robots/sitemap/descoberta, proxy streaming/cookies e função Vercel no Node local.
+- `node artifacts/refino/validar.mjs`: exit 0, 97 verificações, sem falhas/pageerror. 84 layouts:
+  catálogo/detalhe/resumo/imóveis/contatos/formulário em 320/390/768/1024/1440 e dois temas;
+  pessoas/corretores/cadastros/contratos/comissões/perfil em 390/1440 e dois temas.
+  Confere overflow da página/tabela, fonte mínima dos campos, rótulos e alvos dos ícones.
+  Outros 13 cenários cobrem foco/dicas/Escape, navegação/permissões, consentimento inválido,
+  contato válido/falha/retry, filtros/ordenação/histórico/intervalo, galeria/fallback/teclado,
+  rascunho/guarda/erro, confirmação cancelada/busy/falha/retry, footer mobile, SSR sem JS,
+  movimento reduzido, registros longos, imóvel sem mídia/sob consulta.
+- `node artifacts/refino/fluxos-painel.mjs`: exit 0, 5/5 registros, sem pageerror/chamadas
+  inesperadas. Duplicação com duas confirmações e rascunho existente; âncora dirty/guarda
+  cancelar/prosseguir/restauração; selector lento/erro/clear/foco/teclado; mídia cancelar/retry/busy.
+- Conferência focal adicional da galeria: embed seguro e vídeo arquivo com controles;
+  setas no player não trocam a mídia. Embed simulado e arquivo indisponível, sem provar playback real.
+- Prints inspecionados de catálogo, detalhe, contatos, resumo, formulário e rodapé nos dois temas.
+  Evidências/scripts efêmeros ignorados em `artifacts/refino`, incluindo resultado.json,
+  fluxos-painel.json e resultado-galeria.json. Sem alteração em tests/ ou suites novas.
+- `git diff --check`: exit 0. Main em 80717c0, HEAD/origin = 0/0; API irmã limpa na conferência.
+  Anexos `.codex-remote-attachments/` preexistentes preservados; nenhum artefato de build rastreado.
+
+Limites: API/banco/Drive/R2 reais, gravação/upload reais, playback de vídeos reais, Safari/iOS e
+dispositivos físicos não homologados. Filtros administrativos na URL permanecem parte aberta de
+UX-007; itens de performance/infra anteriores não foram assumidos. Sem commit/push/deploy.
+Prévia sintética local em http://127.0.0.1:4180 enquanto o processo desta sessão permanecer ativo.
+
 ## 2026-10-03 — Remoção dos arquivos de teste
 
 Por solicitação do dono, removidos os 46 arquivos `*.test.*`/`*.spec.*` do frontend e os 28 equivalentes
@@ -1334,3 +1402,8 @@ Adicionado teste em `src/seo/metadata.test.ts` para payloads armazenados em tít
 Decisão registrada em `DECISIONS.md`: manter escape contextual Unicode em `serialize()`, sem regex de remoção de tags, DOMPurify ou `JSON.stringify()` direto no HTML. Nenhum dado, banco, API ou configuração de rate limit foi alterado.
 
 Validação real: teste direcionado aprovado (1 arquivo/4 testes), `npm run typecheck` aprovado, `npm run lint` aprovado, suíte completa aprovada (37 arquivos/178 testes), `npm run build` aprovado e `git diff --check` aprovado. `node scripts/seo-smoke.mjs` permanece bloqueado por asserção preexistente que usa query parameters legados (`purpose/type`) e espera redirect 301, incompatível com as rotas/parâmetros atuais em português; o smoke não foi alterado nesta tarefa.
+# 2026-10-03 — Codex: acesso do dev server pelo celular
+
+Alterado `scripts/dev.mjs` para escutar em `HOST` ou, por padrão, `0.0.0.0`. O servidor foi reiniciado com `npm run dev` e iniciou em `http://0.0.0.0:5173`.
+
+Validação: inicialização real do servidor aprovada. Endereço Wi-Fi observado: `http://192.168.0.20:5173`. Não foram executados typecheck, lint, testes ou build, pois a mudança é somente no bind do servidor de desenvolvimento.

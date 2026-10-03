@@ -10,6 +10,8 @@ import { mensagemErro, rotulosStatusContato } from '../../servicos/formato';
 import type { Pessoa, Referencia } from '../../tipos';
 import Dialogo from '../../componentes/Dialogo';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
+import Campo from '../../componentes/Campo';
+import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
 
 const texto = (maximo: number) => z.string().trim().max(maximo, `Use no máximo ${maximo} caracteres.`);
@@ -79,7 +81,7 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
     }
   }
   const campo = (nome: keyof ValoresPessoa & string, rotulo: string, tipo = 'text', extra?: string) => (
-    <label>{rotulo}<input type={tipo} {...register(nome)} aria-invalid={!!errors[nome]} autoComplete="off" />{extra && <span className={estilos.dica}>{extra}</span>}{errors[nome] && <span className={estilos.erro}>{errors[nome]?.message as string}</span>}</label>
+    <Campo rotulo={rotulo.replace(' *', '')} obrigatorio={rotulo.endsWith(' *')} dica={extra} erro={errors[nome]?.message as string | undefined}><input type={tipo} {...register(nome)} autoComplete="off" /></Campo>
   );
 
   return (
@@ -90,27 +92,27 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
             {campo('nome', 'Nome / razão social *')}
             {campo('telefone', 'Telefone com DDD *', 'tel')}
             {campo('email', 'E-mail', 'email')}
-            <label>Tipo de pessoa<select {...register('tipo_pessoa')}><option value="">Não informado</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option></select></label>
+            <Campo rotulo="Tipo de pessoa" erro={errors.tipo_pessoa?.message}><select {...register('tipo_pessoa')}><option value="">Não informado</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option></select></Campo>
             {/* Sem data de nascimento (PJ), o documento ocupa a linha inteira para não deixar célula vazia. */}
             <div className={tipoPessoa === 'PJ' ? 'col-span-full' : ''}>{campo('cpf_cnpj', 'CPF / CNPJ')}</div>
             {tipoPessoa !== 'PJ' && campo('data_nascimento', 'Data de nascimento', 'date')}
             <div className="col-span-full">{campo('endereco', 'Endereço completo')}</div>
             <div className="col-span-full"><SeletorRegistro rotulo="Imóvel de interesse" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => setValue('imovel', valor, { shouldDirty: true })} dica="Opcional. Vincula a pessoa ao imóvel que ela procura." /></div>
-            <label className={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'}>Situação do contato<select {...register('status_contato')}>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
-            {corretor?.cargo === 'ADMIN' && <label>Corretor responsável<select {...register('corretor_id')}><option value="">Minha conta</option>{(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></label>}
+            <Campo classe={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'} rotulo="Situação do contato" erro={errors.status_contato?.message}><select {...register('status_contato')}>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
+            {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></Campo>}
           </div>
           <details className="mt-5">
             <summary className="cursor-pointer font-semibold">Dados bancários (proprietários)</summary>
             <div className={`${estilos.grade} mt-3`}>{campo('banco_nome', 'Banco')}{campo('banco_agencia', 'Agência')}{campo('banco_conta', 'Conta')}{campo('chave_pix', 'Chave Pix')}</div>
           </details>
           <div className={`${estilos.grade} mt-5`}>
-            <label className="col-span-full">Mensagem do primeiro contato<textarea rows={2} {...register('mensagem')} /></label>
-            <label className="col-span-full">Observações<textarea rows={3} {...register('observacoes')} placeholder="Anotações do atendimento, preferências, próximos passos." /></label>
+            <Campo classe="col-span-full" rotulo="Mensagem do primeiro contato" erro={errors.mensagem?.message}><textarea rows={2} {...register('mensagem')} /></Campo>
+            <Campo classe="col-span-full" rotulo="Observações" erro={errors.observacoes?.message}><textarea rows={3} {...register('observacoes')} placeholder="Anotações do atendimento, preferências, próximos passos." /></Campo>
             {pessoa && <label className="col-span-full flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Cadastro ativo</label>}
           </div>
         </fieldset>
         <p className={estilos.dica}>O cadastro manual não registra consentimento do site.</p>
-        {erro && <p role="alert" className="error">{erro}</p>}
+        {erro && <Aviso tom="erro">{erro}</Aviso>}
         <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>

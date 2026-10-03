@@ -27,7 +27,7 @@ h2 { font-size: clamp(26px, 3vw, 38px); }
 h3 { font-size: 20px; font-weight: 600; line-height: 1.35; }
 button:disabled { cursor: not-allowed; opacity: .55; }
 :focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-input,select,textarea { min-width: 0; width: 100%; background: var(--white); color: var(--ink); border: 1px solid var(--color-control-line); border-radius: 4px; min-height: 46px; padding: 10px 12px; }
+input,select,textarea { min-width: 0; width: 100%; background: var(--color-paper); color: var(--ink); border: 1px solid var(--color-control-line); border-radius: 4px; min-height: 46px; padding: 10px 12px; font-size: 16px; font-weight: 400; }
 input[type=checkbox] { width: 19px; height: 19px; min-height: 19px; accent-color: var(--green); flex-shrink: 0; }
 textarea { resize: vertical; min-height: 112px; }
 label { display: block; font-size: 15px; font-weight: 600; }
@@ -39,6 +39,20 @@ label input, label select, label textarea { margin-top: 6px; }
 .buttonSecondary:hover { background: var(--soft); }
 .buttonGhost { padding: 10px 12px; background: transparent; border-color: var(--color-control-line); }
 .buttonGhost:hover { background: var(--soft); }
+.buttonPerigo { background: var(--color-error); color: var(--color-paper); border-bottom-color: var(--color-error); }
+.buttonPerigo:hover { background: var(--color-error); filter: brightness(.95); }
+.campo { display: grid; gap: 6px; min-width: 0; }
+.campo > label { margin: 0; }
+.grupo-acao { position: relative; display: inline-flex; flex-shrink: 0; }
+.acao-icone { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; text-decoration: none; transition: background .16s, color .16s; }
+.acao-icone:hover { background: var(--color-soft); }
+.acao-icone:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline-color: var(--color-brand); }
+.acao-icone[aria-disabled=true] { opacity: .55; cursor: not-allowed; }
+.dica-acao { position: absolute; z-index: 45; right: 0; bottom: calc(100% + 6px); width: max-content; max-width: min(240px,70vw); padding: 6px 9px; border-radius: 4px; background: var(--color-ink); color: var(--color-paper); font-size: 12px; font-weight: 400; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; visibility: hidden; opacity: 0; }
+.dica-acao::after { content: ''; position: absolute; inset-inline: 0; bottom: -6px; height: 6px; }
+.grupo-acao:focus-within .dica-acao { visibility: visible; opacity: 1; }
+@media (hover: hover) { .grupo-acao:hover .dica-acao { visibility: visible; opacity: 1; } }
+.grupo-acao.dica-oculta .dica-acao { visibility: hidden; opacity: 0; }
 .field { display: grid; gap: 6px; }
 .error { color: var(--error); font-size: 15px; }
 .muted { color: var(--muted); }

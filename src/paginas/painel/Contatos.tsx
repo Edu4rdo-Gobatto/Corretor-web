@@ -1,5 +1,6 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { Eye, Pencil, X } from 'lucide-react';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { data, mensagemErro } from '../../servicos/formato';
@@ -11,6 +12,8 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
+import AcaoIcone from '../../componentes/AcaoIcone';
+import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
 
@@ -51,11 +54,11 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
   }
   return (
     <section aria-label={titulo} className="flex min-w-0 flex-col rounded border border-line bg-soft p-3">
-      <div className="mb-3 flex items-baseline justify-between gap-2 px-1"><h2 className="m-0 text-[20px] text-ink">{titulo} <span className="text-base font-normal text-muted">{dados ? `(${dados.total})` : ''}</span></h2>
-        <button type="button" className="buttonGhost min-h-9 px-2 text-[12px]" disabled={!dados?.itens.length || carregando || Boolean(erro)} onClick={() => dados && !erro && baixarCsvContatos(dados.itens, `${status.toLowerCase()}-pagina-${pagina}`)}>Exportar CSV</button></div>
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 px-1"><h2 className="m-0 text-[20px] text-ink">{titulo} <span className="text-base font-normal text-muted">{dados && !carregando && !erro ? `(${dados.total})` : ''}</span></h2>
+        <button type="button" className="buttonGhost px-2 text-[12px]" title={`Exportar somente a página ${pagina} de ${titulo.toLowerCase()}`} disabled={!dados?.itens.length || carregando || Boolean(erro)} onClick={() => dados && !erro && !carregando && baixarCsvContatos(dados.itens, `${status.toLowerCase()}-pagina-${pagina}`)}>CSV desta página</button></div>
       <p className="mb-3 px-1 text-[13px] text-muted">{descricao}</p>
-      {erroAcao && <p className="error" role="alert">{erroAcao}</p>}
-      <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
+      {erroAcao && <Aviso tom="erro">{erroAcao}</Aviso>}
+      <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
       {dados && !erro && !carregando && (dados.itens.length ? (
         <ul className="m-0 grid list-none gap-3 p-0">
           {dados.itens.map((pessoa) => (
@@ -68,15 +71,15 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
               {pessoa.mensagem && <details className="mt-2 text-sm"><summary className="cursor-pointer">Ver mensagem</summary><p className="mt-1 whitespace-pre-wrap break-words">{pessoa.mensagem}</p></details>}
               <div className="mt-3 flex flex-wrap gap-2 text-[13px] [&_a]:inline-flex [&_a]:min-h-10 [&_a]:items-center [&_button]:min-h-10 [&_button]:px-2.5">
                 {pessoa.telefone && <a href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}
-                <Link to={`/admin/pessoas/${pessoa.id}`}>Ficha</Link>
-                <button type="button" className="buttonGhost" onClick={() => aoEditar(pessoa)}>Editar</button>
+                <AcaoIcone icone={Eye} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} desabilitado={!!ocupado} />
+                <AcaoIcone icone={Pencil} rotulo={`Editar ${pessoa.nome}`} aoClicar={() => aoEditar(pessoa)} desabilitado={!!ocupado} />
                 {PROXIMOS[status].map((proximo) => <button key={proximo.status} type="button" className="buttonSecondary" disabled={!!ocupado} onClick={() => void mover(pessoa, proximo.status)}>{ocupado === pessoa.id ? 'Salvando…' : proximo.rotulo}</button>)}
               </div>
             </li>
           ))}
         </ul>
       ) : <p className="px-1 py-6 text-center text-sm text-muted">Nenhum contato aqui.</p>)}
-      {dados && <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />}
+      {dados && !carregando && !erro && <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />}
     </section>
   );
 }
@@ -96,17 +99,29 @@ export default function Contatos() {
     setErroFiltro('');
     setFiltros({ ...rascunho, busca: rascunho.busca.trim() });
   }
+  function removerFiltro(campo: keyof Filtros) {
+    setFiltros((atual) => ({ ...atual, [campo]: filtrosIniciais[campo] }));
+    setRascunho((atual) => ({ ...atual, [campo]: filtrosIniciais[campo] }));
+    setErroFiltro('');
+  }
+  const resumo: { campo: keyof Filtros; rotulo: string }[] = [
+    ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
+    ...(filtros.imovel ? [{ campo: 'imovel' as const, rotulo: `Imóvel: ${filtros.imovel.nome}` }] : []),
+    ...(filtros.desde ? [{ campo: 'desde' as const, rotulo: `Desde: ${filtros.desde.split('-').reverse().join('/')}` }] : []),
+    ...(filtros.ate ? [{ campo: 'ate' as const, rotulo: `Até: ${filtros.ate.split('-').reverse().join('/')}` }] : []),
+  ];
   return <>
     <CabecalhoPagina rotulo="NOVAS CONEXÕES" titulo="Contatos" descricao="Quem chegou pelo site ou pelo balcão, do primeiro contato ao fechamento." acoes={<button className="button" onClick={() => setEditando(null)}>+ Nova pessoa</button>} />
     <form noValidate className={estilos.barraFiltros} onSubmit={aplicar}>
       <label>Buscar<input value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou documento" /></label>
-      <div className="min-w-[260px]"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor })} /></div>
+      <div className="w-full min-w-0 @min-[38rem]/principal:w-[260px]"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor })} /></div>
       <label>De<input type="date" value={rascunho.desde} onChange={(evento) => setRascunho({ ...rascunho, desde: evento.target.value })} /></label>
       <label>Até<input type="date" value={rascunho.ate} onChange={(evento) => setRascunho({ ...rascunho, ate: evento.target.value })} /></label>
       <button type="submit" className="buttonSecondary">Filtrar</button>
-      <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setErroFiltro(''); }}>Limpar</button>
+      {(resumo.length > 0 || rascunho.busca || rascunho.imovel || rascunho.desde || rascunho.ate) && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setErroFiltro(''); }}>Limpar</button>}
     </form>
-    {erroFiltro && <p className="error" role="alert">{erroFiltro}</p>}
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><X size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    {erroFiltro && <Aviso tom="erro">{erroFiltro}</Aviso>}
     <div className="grid items-start gap-4 @4xl/principal:grid-cols-3">
       {COLUNAS.map((coluna) => <ColunaContatos key={`${coluna.status}:${filtros.busca}:${filtros.imovel?.id ?? 0}:${filtros.desde}:${filtros.ate}`} {...coluna} filtros={filtros} versao={versao} aoMudar={recarregarTudo} aoEditar={setEditando} />)}
     </div>

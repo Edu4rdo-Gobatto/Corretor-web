@@ -4,7 +4,10 @@ import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
-import Dialogo from '../../componentes/Dialogo';
+import { Archive, Pencil } from 'lucide-react';
+import AcaoIcone from '../../componentes/AcaoIcone';
+import Aviso from '../../componentes/Aviso';
+import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import { estilos } from '../../componentes/estilosPainel';
 import Comissoes from './Comissoes';
@@ -38,7 +41,7 @@ export default function DetalheContrato() {
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && <>
       <CabecalhoPagina voltar={<Link to="/admin/contratos">← Contratos</Link>} titulo={dados.numero_contrato} descricao={`${dados.status === 'ATIVO' ? 'Ativo' : 'Encerrado'}${dados.ativo ? '' : ' · Arquivado'}`}
-        acoes={<><button className="button" onClick={() => setEditando(true)}>Editar contrato</button>{dados.ativo && <button className="buttonGhost" onClick={() => setArquivando(true)}>Arquivar</button>}</>} />
+        acoes={<><AcaoIcone icone={Pencil} rotulo="Editar contrato" aoClicar={() => setEditando(true)} />{dados.ativo && <AcaoIcone icone={Archive} rotulo="Arquivar contrato" aoClicar={() => setArquivando(true)} />}</>} />
       <section className={estilos.painel}>
         <h2 className={estilos.tituloPainel}>{dados.imovel_titulo ?? `Imóvel #${dados.imovel_id}`}</h2>
         <p>Proprietário: <Link to={`/admin/pessoas/${dados.locador_id}`}>{dados.locador_nome ?? `#${dados.locador_id}`}</Link></p>
@@ -56,15 +59,11 @@ export default function DetalheContrato() {
         {urlDrive && <a href={urlDrive} target="_blank" rel="noopener noreferrer" className="buttonGhost">Abrir pasta no Google Drive</a>}
         <p>{dados.status_pasta_drive === 'CRIADA' ? 'Pasta disponível para as pessoas autorizadas no Drive.' : dados.status_pasta_drive === 'FALHOU' ? 'O contrato foi salvo. A criação ou atualização da pasta não foi concluída.' : 'A pasta será preparada para este contrato quando ele estiver ativo.'}</p>
         {dados.status === 'ATIVO' && dados.ativo && dados.status_pasta_drive !== 'CRIADA' && <button className="buttonSecondary" disabled={ocupado} onClick={() => void executar('drive')}>{ocupado ? 'Preparando pasta…' : 'Tentar preparar pasta novamente'}</button>}
-        {erroAcao && <p className="error" role="alert">{erroAcao}</p>}
+        {erroAcao && <Aviso tom="erro">{erroAcao}</Aviso>}
       </section>
       <Comissoes contrato={dados} />
       {editando && <EditorContrato contrato={dados} aoFechar={() => setEditando(false)} aoSalvar={recarregar} />}
-      {arquivando && <Dialogo titulo="Arquivar contrato" tamanho="estreito" aoFechar={() => { if (!ocupado) setArquivando(false); }}>
-        <p>Arquivar {dados.numero_contrato}? O contrato será encerrado e o histórico permanecerá disponível.</p>
-        <button className="button" disabled={ocupado} onClick={() => void executar('arquivar')}>{ocupado ? 'Arquivando…' : 'Arquivar contrato'}</button>
-        {erroAcao && <p role="alert" className="error">{erroAcao}</p>}
-      </Dialogo>}
+      {arquivando && <ConfirmarAcao titulo="Arquivar contrato?" descricao={<><p>O contrato {dados.numero_contrato} será encerrado e o histórico permanecerá disponível.</p>{erroAcao && <Aviso tom="erro">{erroAcao}</Aviso>}</>} confirmar="Arquivar contrato" ocupado={ocupado} aoFechar={() => { if (!ocupado) setArquivando(false); }} aoConfirmar={() => executar('arquivar')} />}
     </>}
   </>;
 }

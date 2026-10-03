@@ -21,6 +21,10 @@
   --color-soft: #e2eaf5;
   --color-error: #9c302b;
   --color-background: #ebf1f9;
+  --color-sucesso: #215a43;
+  --color-sucesso-suave: #e8f2ec;
+  --color-atencao: #775314;
+  --color-atencao-suave: #f4e9cf;
   --color-foreground: #0a2042;
   --color-sobreposicao: rgb(4 15 36 / 0.62);
 
@@ -117,6 +121,10 @@
   --color-soft: #28416d;
   --color-error: #f0a09b;
   --color-background: #182d50;
+  --color-sucesso: #b6ddc8;
+  --color-sucesso-suave: #244a42;
+  --color-atencao: #f0d197;
+  --color-atencao-suave: #493b25;
   --color-foreground: #f4e9cf;
 }
 

@@ -16,6 +16,7 @@ interface Propriedades {
 /** Campo de busca com sugestões: substitui os seletores paginados de imóvel, pessoa, contrato e corretor. */
 export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, erro, dica, desabilitado }: Propriedades) {
   const idLista = useId();
+  const idCampo = `${idLista}-campo`;
   const [termo, setTermo] = useState('');
   const [opcoes, setOpcoes] = useState<Referencia[]>([]);
   const [aberto, setAberto] = useState(false);
@@ -25,6 +26,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
   const [paraCima, setParaCima] = useState(false);
   const [alturaMaxima, setAlturaMaxima] = useState(256);
   const raiz = useRef<HTMLDivElement>(null);
+  const entrada = useRef<HTMLInputElement>(null);
 
   // Dentro de um Dialogo a lista não pode ser cortada pela área rolável: sem espaço abaixo, abre para cima.
   useLayoutEffect(() => {
@@ -43,6 +45,8 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
     let atual = true;
     setCarregando(true);
     setErroBusca('');
+    setOpcoes([]);
+    setAtiva(-1);
     const temporizador = window.setTimeout(() => {
       buscar(termo.trim())
         .then((resultado) => { if (atual) { setOpcoes(resultado); setAtiva(-1); } })
@@ -53,6 +57,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
   }, [aberto, termo, buscar]);
 
   function escolher(opcao: Referencia) {
+    if (carregando || erroBusca) return;
     aoEscolher(opcao);
     setTermo('');
     setAberto(false);
@@ -60,47 +65,54 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
   function limpar() {
     aoEscolher(null);
     setTermo('');
+    if (!aberto || termo) {
+      setOpcoes([]);
+      setAtiva(-1);
+      setCarregando(true);
+    }
     setAberto(true);
+    entrada.current?.focus();
   }
   function teclado(evento: React.KeyboardEvent<HTMLInputElement>) {
-    if (evento.key === 'ArrowDown') { evento.preventDefault(); setAberto(true); setAtiva((indice) => Math.min(indice + 1, opcoes.length - 1)); }
-    if (evento.key === 'ArrowUp') { evento.preventDefault(); setAtiva((indice) => Math.max(indice - 1, 0)); }
-    if (evento.key === 'Enter' && aberto && ativa >= 0 && opcoes[ativa]) { evento.preventDefault(); escolher(opcoes[ativa]); }
+    if (evento.key === 'ArrowDown') { evento.preventDefault(); setAberto(true); if (!carregando && !erroBusca) setAtiva((indice) => Math.min(indice + 1, opcoes.length - 1)); }
+    if (evento.key === 'ArrowUp') { evento.preventDefault(); if (!carregando && !erroBusca) setAtiva((indice) => Math.max(indice - 1, 0)); }
+    if (evento.key === 'Enter' && aberto) { evento.preventDefault(); if (!carregando && !erroBusca && ativa >= 0 && opcoes[ativa]) escolher(opcoes[ativa]); }
     if (evento.key === 'Escape') setAberto(false);
   }
 
   return (
     <div ref={raiz} className="relative grid gap-[7px]" onBlur={(evento) => { if (!raiz.current?.contains(evento.relatedTarget as Node | null)) setAberto(false); }}>
-      <label className="font-semibold">{rotulo}
-        <div className="relative mt-[6px]">
+      <label htmlFor={idCampo} className="font-semibold">{rotulo}</label>
+        <div className="relative">
           <input
-            role="combobox" aria-expanded={aberto} aria-controls={idLista} aria-autocomplete="list" aria-invalid={!!erro}
+            ref={entrada}
+            id={idCampo} role="combobox" aria-expanded={aberto} aria-controls={idLista} aria-autocomplete="list" aria-invalid={!!erro}
+            aria-describedby={erro || dica ? `${idLista}-descricao` : undefined} aria-activedescendant={aberto && !carregando && !erroBusca && ativa >= 0 && opcoes[ativa] ? `${idLista}-opcao-${opcoes[ativa].id}` : undefined}
             value={valor && !aberto ? valor.nome : termo} disabled={desabilitado} placeholder="Digite para buscar"
-            onChange={(evento) => { setTermo(evento.target.value); setAberto(true); }}
-            onFocus={() => setAberto(true)} onKeyDown={teclado}
+            onChange={(evento) => { setTermo(evento.target.value); setOpcoes([]); setAtiva(-1); setCarregando(true); setErroBusca(''); setAberto(true); }}
+            onFocus={() => { if (!aberto) { setOpcoes([]); setAtiva(-1); setCarregando(true); setAberto(true); } }} onKeyDown={teclado}
           />
           {valor && !desabilitado && (
-            <button type="button" aria-label={`Limpar ${rotulo.toLowerCase()}`} onClick={limpar} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded border-0 bg-transparent text-muted hover:text-ink">
+            <button type="button" aria-label={`Limpar ${rotulo.toLowerCase()}`} onClick={limpar} className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded border-0 bg-transparent text-muted hover:text-ink">
               <X size={16} />
             </button>
           )}
         </div>
-      </label>
       {aberto && (
         <ul id={idLista} role="listbox" data-direcao={paraCima ? 'acima' : 'abaixo'} style={{ maxHeight: alturaMaxima }} className={`absolute z-20 m-0 w-full list-none overflow-auto rounded border border-line bg-paper p-1 shadow-lg ${paraCima ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
           {carregando && <li className="px-3 py-2 text-sm text-muted">Buscando…</li>}
           {erroBusca && <li className="px-3 py-2 text-sm text-error" role="alert">{erroBusca}</li>}
           {!carregando && !erroBusca && !opcoes.length && <li className="px-3 py-2 text-sm text-muted">Nenhum registro encontrado.</li>}
-          {opcoes.map((opcao, indice) => (
+          {!carregando && !erroBusca && opcoes.map((opcao, indice) => (
             <li key={opcao.id}>
-              <button type="button" role="option" aria-selected={valor?.id === opcao.id} onMouseDown={(evento) => evento.preventDefault()} onClick={() => escolher(opcao)} className={`block w-full rounded border-0 px-3 py-2 text-left text-sm ${indice === ativa ? 'bg-soft' : 'bg-transparent'} hover:bg-soft`}>
+              <button id={`${idLista}-opcao-${opcao.id}`} type="button" role="option" aria-selected={valor?.id === opcao.id} onMouseDown={(evento) => evento.preventDefault()} onClick={() => escolher(opcao)} className={`block min-h-11 w-full rounded border-0 px-3 py-2 text-left text-sm ${indice === ativa ? 'bg-soft' : 'bg-transparent'} hover:bg-soft`}>
                 {opcao.nome} <span className="text-muted">#{opcao.id}</span>
               </button>
             </li>
           ))}
         </ul>
       )}
-      {erro ? <span className="m-0 text-[13px] text-error">{erro}</span> : dica ? <span className="text-[13px] font-normal text-muted">{dica}</span> : null}
+      {erro ? <span id={`${idLista}-descricao`} className="m-0 text-[13px] text-error">{erro}</span> : dica ? <span id={`${idLista}-descricao`} className="text-[13px] font-normal text-muted">{dica}</span> : null}
     </div>
   );
 }

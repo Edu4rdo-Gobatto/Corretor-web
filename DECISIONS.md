@@ -1,5 +1,31 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-03 — Refinamento do público e painel com ações discretas (Codex)
+
+- Preservar logo, navy/dourado e fontes existentes. Ações auxiliares usam `AcaoIcone`
+  com desenho de 19px, área de toque de 44px, nome contextual, dica no hover/foco e Escape.
+  Salvar, criar, buscar, WhatsApp e transições de atendimento continuam com texto. Não substituir
+  decisões importantes por símbolos ambíguos nem diminuir o alvo junto com o desenho.
+- `Campo` conecta rótulo, dica e erro sem trocar RHF/zod; controles têm pelo menos 16px.
+  `Aviso` usa tokens de estado próprios nos dois temas. `Tabela` conserva todas as colunas nos
+  cartões quando seu container tem menos de 40rem; não esconder identificadores ou dados.
+- Confirmações usam `ConfirmarAcao`/`Dialogo`, com foco inicial em Cancelar e bloqueio durante
+  a operação. O consumidor fecha ou avança após sucesso; falhas mantêm a confirmação aberta.
+  Não fechar automaticamente em toda resolução: há erros tratados e duplicação em duas etapas.
+- Formulário de imóvel conserva seis seções abertas e rascunho por aba. Âncoras internas não
+  disparam a guarda; mudança de página/query e saída do navegador continuam protegidas.
+  Mídias de imóvel existente continuam salvas imediatamente, com aviso explícito ao usuário.
+- Navegação móvel do painel usa diálogo completo, com destinos conforme o cargo. Resumo
+  prioriza contatos pendentes e reutiliza sua leitura; finanças e portfólio preservam os cálculos.
+  Listas e seletores ocultam ações/resultados antigos durante recarga ou erro. Não criar endpoints.
+- Catálogo compacto, filtros removíveis e ordenação usam o contrato de URL existente. Preços,
+  encargos e corretor vêm antes da descrição no mobile; o CTA fixo reserva espaço após o rodapé.
+  WhatsApp geral usa o contato comercial já configurado em `brand`, nunca contatos de desenvolvedores.
+  Consentimento, validação síncrona e abertura do WhatsApp no gesto do envio permanecem preservados.
+- QA desta mudança usa scripts de smoke existentes e verificações efêmeras em `artifacts/refino`
+  (ignorado), com API simulada. Respeita a exclusão das suítes fonte pelo dono; não recriá-las nem
+  apresentar `npm test` sem arquivos como aprovado. Sem API, dependências novas ou publicação.
+
 ## 2026-10-03 — Remover os arquivos de teste
 
 Por pedido explícito do dono, excluir todos os fontes `*.test.*` e `*.spec.*` dos dois repositórios.
@@ -765,3 +791,8 @@ Plano aprovado pelo dono em 17/09 (resumo em `TASKS.md`). Escopo só front; API 
   `tests/visual/orcamento.ts`, que começa na linha de base de 18/09 e só desce. Subagentes `revisor-design` e
   `auditor-desempenho` em `.claude/agents/` usam essa suíte. Não fazer: fixture de dados no código do produto; apontar a
   suíte para API real; subir limite do orçamento sem justificativa no `CHANGELOG_AI.md`.
+# 2026-10-03 — Desenvolvimento SSR acessível pela rede local
+
+`scripts/dev.mjs` usa `HOST` quando informado e `0.0.0.0` como padrão, porque a conferência em celular precisa aceitar conexões além do loopback. O endereço público continua sendo informado pelo IP local do computador; `localhost` permanece válido apenas no próprio computador.
+
+Não fazer: expor o servidor de desenvolvimento na internet ou usar isso como configuração de produção.

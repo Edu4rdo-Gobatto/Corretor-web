@@ -134,3 +134,21 @@ Vocabulário: código, tipos, nomes de arquivo e rótulos em português, com os 
 O pedido integral do dono em docs/specs/2026-09-13-backend-integral.md prevalece sobre instruções antigas conflitantes deste arquivo. Contrato e operação atual: docs/handoffs/2026-09-14-backend-portugues.md. Backend em português, auditoria universal, soft delete, dados pessoais em colunas sem cifra; documentos novos no Drive compartilhado privado e receita em comissões. Modelos antigos só permanecem nas migrations/histórico.
 
 Migration 1789516800000 exige complementos reais e backup; use apenas os comandos npm documentados (executor sanitizado). Não editar migrations aplicadas nem imprimir dados privados. A chave antiga é necessária só para decifrar o legado na migração. Nenhuma migration/deploy automático. Cookie Secure exige HTTPS no navegador. Adaptar frontend e health check /api/v1/saude antes da publicação conjunta. main e regra de confirmação antes de commit continuam vigentes.
+
+## 2026-10-03 — Base compartilhada do frontend
+
+`src/componentes/AcaoIcone.tsx`, `Campo.tsx`, `Aviso.tsx` e `ConfirmarAcao.tsx` integram a base de UI.
+Ações auxiliares usam ícone com nome contextual/dica e alvo de 44px; salvar, criar, buscar, WhatsApp
+e transições de atendimento conservam texto. Campos têm no mínimo 16px; use Campo para ligar
+rótulo/dica/erro ao controle e Aviso com tokens de estado. Tabela mostra os mesmos dados em cartões
+abaixo de 40rem de container, com quebra de textos longos.
+
+ConfirmarAcao não fecha automaticamente após resolver: o consumidor fecha ou avança a etapa só
+quando obtém sucesso. Erros mantêm o diálogo aberto e ocupado bloqueia nova ação/fechamento.
+Dialogo aceita `data-foco-inicial` em um descendente para foco após showModal; Cancelar é o padrão
+das confirmações. Preserve a guarda de edição, o rascunho por aba e as duas etapas da duplicação.
+
+Por pedido do dono, as suítes fonte foram removidas em 03/10/2026; consultar DECISIONS.md.
+Não recriar suítes sem novo pedido nem alegar que npm test sem arquivos passou. Smoke existente
+e verificações efêmeras com API simulada são documentados em CHANGELOG_AI.md; não equivalem
+a homologação de API/serviços reais. Main e confirmação antes de commit continuam vigentes.
