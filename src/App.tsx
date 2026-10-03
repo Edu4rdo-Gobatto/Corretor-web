@@ -2,6 +2,7 @@ import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { createBrowserRouter, RouterProvider, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { caminhosCatalogo, urlNormalizada } from './servicos/urls';
 import LayoutPublico from './componentes/LayoutPublico';
+import CasaQuebrada from './componentes/CasaQuebrada';
 import EstadoCarregamento from './componentes/EstadoCarregamento';
 import Catalogo from './paginas/publico/Catalogo';
 import DetalheImovel from './paginas/publico/DetalheImovel';
@@ -47,17 +48,61 @@ export default function App() {
   return <RouterProvider router={roteador} />;
 }
 
+export const TEMPO_VOLTA_404_MS = 8000;
+
 export function PaginaErro({ status = 404 }: { status?: number }) {
+  const eh404 = status === 404;
+  // Volta automática só no cliente: inicial igual no SSR e no primeiro render
+  // (sem divergência de hidratação); timers e navegação só em efeito.
+  const [voltar, setVoltar] = useState(false);
+  const [ficar, setFicar] = useState(false);
+  const [restam, setRestam] = useState(Math.ceil(TEMPO_VOLTA_404_MS / 1000));
+  useEffect(() => {
+    if (!eh404 || ficar) return;
+    const relogio = window.setInterval(() => setRestam((atual) => Math.max(0, atual - 1)), 1000);
+    const volta = window.setTimeout(() => setVoltar(true), TEMPO_VOLTA_404_MS);
+    return () => {
+      window.clearInterval(relogio);
+      window.clearTimeout(volta);
+    };
+  }, [eh404, ficar]);
+  if (voltar && eh404 && !ficar) return <Navigate to="/" replace />;
+  if (!eh404) {
+    return (
+      <div className="container py-20">
+        <Seo status={status} />
+        <h1 className="mb-6">Serviço temporariamente indisponível.</h1>
+        <p>Tente novamente em alguns instantes.</p>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/" className="button">Voltar ao catálogo</Link>
+          <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
+          <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+          {status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="container py-20">
       <Seo status={status} />
-      <h1 className="mb-6">{status === 404 ? 'Página não encontrada.' : 'Serviço temporariamente indisponível.'}</h1>
-      {status !== 404 && <p>Tente novamente em alguns instantes.</p>}
-      <div className="flex flex-wrap gap-3">
-        <Link to="/" className="button">Voltar ao catálogo</Link>
+      <p aria-hidden="true" className="font-display text-[clamp(64px,16vw,120px)] leading-none text-brand">404</p>
+      <h1 className="mb-4">Página não encontrada.</h1>
+      <p className="muted mb-6">Este ponto não existe, mas temos outros imóveis esperando por você.</p>
+      <CasaQuebrada animada rotulo="Casa quebrada com bola de feno passando" />
+      {ficar ? (
+        <p className="mt-6">Combinado, ficamos por aqui.</p>
+      ) : (
+        <p aria-live="polite" className="muted mt-6">Voltando ao catálogo em {restam}s…</p>
+      )}
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link to="/" className="button">Voltar agora</Link>
         <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
         <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
-        {status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}
+        {!ficar && (
+          <button type="button" className="buttonSecondary" onClick={() => setFicar(true)}>
+            Ficar aqui
+          </button>
+        )}
       </div>
     </div>
   );

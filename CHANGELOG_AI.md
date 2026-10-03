@@ -1,5 +1,44 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-03 — Muse Spark: 404 com casa quebrada, feno e volta automática (sem commit)
+
+Pedido do dono: página 404 personalizada com casa quebrada; escolhas confirmadas:
+ruína divertida em SVG, feno de velho oeste passando na frente e volta automática
+à principal após exibir o 404.
+
+Alterações em código (front apenas, sem commit/push):
+
+- Nova `src/componentes/CasaQuebrada.tsx`: ruína em SVG puro (parede com buraco e
+  tijolos à mostra, telhado caído de um lado, porta torta, janela quebrada, telha
+  e placa 404 caídas, poeira) + bola de feno em dois grupos (atravessa + gira);
+  presentacional, SSR-safe, `animada` liga/desliga como na `CenaObra`.
+- `src/styles/tailwind.css`: `--animate-feno` (`feno-atravessar` 7s linear,
+  -340px→340px) + `--animate-feno-girar` (360° em 1.4s); `prefers-reduced-motion`
+  global já desliga.
+- `src/App.tsx`: `PaginaErro` do 404 com `404` gigante, casa, frase de corretor,
+  countdown de 8s (`TEMPO_VOLTA_404_MS`, `aria-live`) e `<Navigate replace>`
+  após timeout em efeito + botão `Ficar aqui` que cancela. 503 inalterado
+  (sem casa, sem timer). Inicial igual no SSR/cliente, sem divergência.
+- Testes: `CasaQuebrada.test.tsx` (3), `App.test.tsx` (4: visual, volta, cancela,
+  503 sem volta) e +1 em `server.test.ts` (HTML estático da 404 com casa,
+  countdown e `noindex,nofollow`).
+
+Testes executados (resultado real):
+
+- `npm run typecheck`: aprovado. `npm run lint`: aprovado.
+- `npm test`: 42 arquivos, 210 testes aprovados (ruído `render failed` do teste
+  de boundary é esperado).
+- `npm run build`: aprovado (cliente + SSR + `.vercel/output`; avisos de pureza
+  do Zod no Rollup, já conhecidos).
+- `node scripts/seo-smoke.mjs`: aprovado.
+- Conferência do build: `feno-atravessar`/`feno-girar` no CSS e `Casa quebrada`
+  no `dist/server/server.js`; SSR da 404 com casa e countdown conferido em teste.
+
+Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na
+`main` quando liberado); conferir no navegador a 404 nos dois temas, 320–390px
+sem scroll-X, reduced-motion (casa parada, timer segue), countdown, volta em 8s
+e `Ficar aqui`.
+
 ## 2026-10-03 — Muse Spark: áudios reais de obra no overlay do /devs (commit `a086849`)
 
 Pedido do dono ("áudios, áudios, áudios"): tirar o card da casa (a seção fixa) e colocar áudios de

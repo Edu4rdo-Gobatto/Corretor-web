@@ -38,6 +38,8 @@
   --animate-poeira: poeira 2.6s ease-out infinite;
   --animate-faisca: faisca 0.7s ease-in-out infinite;
   --animate-obra-chegar: obra-chegar 0.35s ease-out;
+  --animate-feno: feno-atravessar 7s linear infinite;
+  --animate-feno-girar: feno-girar 1.4s linear infinite;
 
   @keyframes shimmer {
     to {
@@ -71,6 +73,15 @@
   @keyframes obra-chegar {
     from { transform: scale(0.94); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes feno-atravessar {
+    from { transform: translateX(-340px); }
+    to { transform: translateX(340px); }
+  }
+
+  @keyframes feno-girar {
+    to { transform: rotate(360deg); }
   }
 }
 

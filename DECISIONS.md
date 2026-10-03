@@ -3,6 +3,26 @@
 Cada decisão registra a data, o motivo e o que **não** fazer. Antes de contrariar uma decisão, revise-a aqui
 e registre a mudança com a nova data.
 
+## 2026-10-03 — 404 com casa quebrada, feno e volta automática (Muse Spark)
+
+Decisão: a 404 usa `CasaQuebrada` própria em SVG puro (ruína divertida, distinta da
+`CenaObra` de construção), só com tokens do `@theme` e duas animações novas
+(`feno-atravessar` 7s linear + `feno-girar` 1.4s linear, desligadas pelo
+`prefers-reduced-motion` global). A volta ao catálogo (8s, `TEMPO_VOLTA_404_MS`)
+é só navegação cliente declarativa (`<Navigate replace>` após timeout em efeito,
+com countdown `aria-live` e botão `Ficar aqui` que cancela); o SSR segue
+respondendo HTTP 404 estático com `noindex,nofollow`, sem redirect nem fetch.
+O 503 mantém o visual anterior, sem casa e sem timer.
+
+Motivo: pedido do dono (casa quebrada + feno + redirecionar à principal),
+sem sequestrar a navegação de quem quer copiar a URL ou ler com calma.
+
+Não fazer:
+
+- Não reutilizar a `CenaObra` de obra na 404 nem voltar a imagem externa/hotlink.
+- Não redirecionar no SSR (301/302) nem indexar a 404: status continua 404.
+- Não aplicar a volta automática ao 503 nem remover o `Ficar aqui`.
+
 ## 2026-10-03 — Easter egg da obra no /devs com Web Audio nativo (Muse Spark)
 
 Decisão: o canteiro do `/devs` (`CasaEmObra` + `src/servicos/obra.ts`) usa só SVG + CSS para o visual e só
