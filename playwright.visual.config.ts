@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { assertSafeTarget } from './tests/e2e/helpers/env';
+import { assertSafeTarget } from './tests/visual/seguranca';
 
 // Suíte visual (`npm run visual`): build de produção servido pelo seo-smoke em 127.0.0.1:4180, com a API
 // pública simulada em 127.0.0.1:4199. O painel usa API simulada no navegador (tests/visual/api-simulada.ts),
