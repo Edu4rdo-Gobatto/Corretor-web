@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
@@ -41,11 +41,6 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
   const [pagina, setPagina] = useState(1);
   const [ocupado, setOcupado] = useState(0);
   const [erroAcao, setErroAcao] = useState('');
-
-  useEffect(() => {
-    setPagina(1);
-  }, [filtros]);
-
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarPessoas({ ...paraApi(filtros), status_contato: status, pagina, limite: LIMITE }), [filtros, status, pagina, versao])); // eslint-disable-line react-hooks/exhaustive-deps
   async function mover(pessoa: Pessoa, destino: StatusContato) {
     setOcupado(pessoa.id);
@@ -113,7 +108,7 @@ export default function Contatos() {
     </form>
     {erroFiltro && <p className="error" role="alert">{erroFiltro}</p>}
     <div className="grid items-start gap-4 @4xl/principal:grid-cols-3">
-      {COLUNAS.map((coluna) => <ColunaContatos key={coluna.status} {...coluna} filtros={filtros} versao={versao} aoMudar={recarregarTudo} aoEditar={setEditando} />)}
+      {COLUNAS.map((coluna) => <ColunaContatos key={`${coluna.status}:${filtros.busca}:${filtros.imovel?.id ?? 0}:${filtros.desde}:${filtros.ate}`} {...coluna} filtros={filtros} versao={versao} aoMudar={recarregarTudo} aoEditar={setEditando} />)}
     </div>
     {editando !== undefined && <EditorPessoa pessoa={editando} aoFechar={() => setEditando(undefined)} aoSalvar={recarregarTudo} />}
   </>;

@@ -22,17 +22,19 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
     let ativo = true;
     const promessa = restauracao ??= api.renovar().then((sessao) => sessao.corretor);
     promessa
-      .then((atual) => { if (ativo) setCorretor(atual); })
-      .catch(() => { if (restauracao === promessa) restauracao = null; if (ativo) setCorretor(null); })
+      .then((atual) => { if (ativo && restauracao === promessa) setCorretor(atual); })
+      .catch(() => { if (restauracao === promessa) { restauracao = null; if (ativo) setCorretor(null); } })
       .finally(() => { if (ativo) setCarregando(false); });
-    const expirar = () => { restauracao = null; setCorretor(null); };
+    const expirar = () => { restauracao = null; setCorretor(null); setCarregando(false); };
     window.addEventListener('session-expired', expirar);
     return () => { ativo = false; window.removeEventListener('session-expired', expirar); };
   }, []);
   async function entrar(email: string, senha: string) {
+    restauracao = null;
     const sessao = await api.entrar(email, senha);
     restauracao = Promise.resolve(sessao.corretor);
     setCorretor(sessao.corretor);
+    setCarregando(false);
   }
   async function sair() {
     await api.sair();

@@ -1,5 +1,43 @@
 # Estado atual — corretor-web
 
+## 2026-10-03 — Remoção de testes por solicitação do dono
+
+Removidos 46 arquivos `*.test.*`/`*.spec.*` do frontend e 28 da API irmã. Mantido o código de produção.
+Nenhum teste foi executado após a remoção; os resultados abaixo e no histórico são evidência da execução
+anterior, não da árvore atual. Scripts e dependências de teste permanecem sem suítes fonte.
+
+## 2026-10-03 — Codex: revisão das correções concluída localmente (sem commit)
+
+Pedido do dono: revisar as correções baseadas na auditoria de 02/10 e melhorar o que estivesse inadequado.
+Corrigidos vínculos legítimos no PATCH de contrato (A01), limite durante recepção multipart/concorrência e lock
+fora de transação (A02), respostas obsoletas e refresh compartilhado (A04), preservação de características
+sem ressuscitar vínculos removidos (A09) e busca telefônica com +55 (A10). Correções anteriores A05–A08 mantidas.
+
+Validação: frontend typecheck/lint, 43 arquivos/231 testes, build e SEO smoke aprovados; API typecheck/lint,
+27 suítes/188 testes e build aprovados, 1 suíte/4 testes PostgreSQL não executados. HTTP sintético cobre A01,
+upload chunked agregado, autorização anterior ao storage, concorrência e limite de 20 arquivos. Sessões e
+round-trip de características exercitados com persistência sintética. API lenta/recuperação e teto SSR testados.
+Navegador local: catálogo, detalhe e 404; robots/sitemap por HTTP. Sem homologação de banco/Drive/R2 reais,
+infra publicada ou testes de carga. A09/A10/A11/H01 conservam pendências operacionais no relatório.
+
+Trabalho direto na main, HEADs sincronizados com origin/main após fetch (0/0 em ambos). Alterações locais
+anteriores preservadas. Sem commit/push/deploy/migration ou escrita em serviços reais nesta revisão.
+Relatório: docs/audits/2026-10-02-auditoria-fullstack.md no Corretor-web.
+
+
+## 2026-10-03 — Codex: revisão das correções da auditoria (em andamento)
+
+Área assumida: A01–A11 e documentação, por pedido do dono. Revisão e correções com testes locais/sintéticos; sem commit, deploy, migrations ou escrita em serviços reais. Alterações locais anteriores preservadas.
+
+
+## 2026-10-03 — Muse Spark: manutenção da auditoria full stack concluída em código (sem commit)
+
+Endurecidos A06 (fonte única), A07 (stale guard + remonte), A08 (sequência + erro visível + bloqueio),
+A09 (tipo + round-trip, sem marcar) e A11 (orçamento 45s + `Retry-After`, sem marcar) após pull dos dois repos
+(front `8d40cb8`, back `85a6301`). Validado: typecheck/lint, front 43 arquivos/223 testes, API 24 suítes/175 testes,
+build e seo-smoke aprovados. Checkboxes A06–A08 atualizados; A09/A10/A11/H01 seguem abertos. Sem commit/push
+(aguardando confirmação do dono, direto na `main`).
+
 ## 2026-10-02 — Antigravity: resolução dos Gaps de Execução no Frontend (GAP-06, GAP-07, GAP-08 concluídos)
 
 Concluído com sucesso:
@@ -83,7 +121,7 @@ keyframes em `tailwind.css`). Som liberado pelo clique que leva ao `/devs`, com 
 Validado: typecheck, lint, 40 arquivos/199 testes, build e seo-smoke aprovados; SSR do `/devs` 200,
 `noindex,follow`, estático e sem fetch. Sem commit/push (aguardando confirmação do dono).
 Pendente conferir no navegador com som: clique no rodapé, URL direta, temas, mobile e Safari/iOS.
->>>>>>> 04d93d9740780040dfc9dc83cc37754f5ad5fbd0
+> Marcador de merge histórico preservado como nota: `>>>>>>> 04d93d9740780040dfc9dc83cc37754f5ad5fbd0`.
 
 ## 2026-10-02 — Auditoria técnica full stack documentada
 

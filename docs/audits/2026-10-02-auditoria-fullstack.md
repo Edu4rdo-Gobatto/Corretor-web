@@ -1,5 +1,55 @@
 # Auditoria técnica full stack — 02/10/2026
 
+## Atualização de 03/10/2026 — revisão das correções por Codex
+
+Esta atualização complementa a fotografia original abaixo, preservando seu histórico. Revisão sobre frontend
+`8d40cb8` com as alterações locais anteriores e API `85a6301`, seguida de correções locais, sem commit/deploy.
+Os dois HEADs foram conferidos contra `origin/main` após fetch: zero commits de diferença.
+
+Foram reproduzidas e corrigidas falhas restantes nas correções:
+
+- **A01:** a exclusão do contrato atual na autorização impedia editar partes legitimamente compartilhadas pelo ADMIN.
+  O PATCH preserva as partes persistidas antes da alteração; novas referências alheias continuam proibidas.
+- **A02:** o guard antecipado não limitava o buffering. Storage do Multer soma bytes durante a leitura, rejeita
+  o chunk excedente com 413 e limpa buffers; duas requisições simultâneas por instância, contando também o envio R2.
+  O transporte rejeitado é drenado pelo Multer sem armazenamento adicional, não destruído abruptamente.
+  Corrigido também lock pessimista fora de transação na autorização anterior ao R2; o lock continua na gravação.
+- **A04:** restauração pendente podia ressuscitar uma sessão expirada ou sobrescrever login recente.
+  Provedor ignora resultados invalidados; restauração e HTTP compartilham refresh; geração impede token antigo
+  de sobrescrever o token de um login posterior.
+- **A09:** a ficha administrativa expunha vínculos removidos e podia reativá-los. Agora expõe apenas associações
+  ativas, inclusive quando a classificação global está inativa. PATCH omite coleção inalterada e envia remoção
+  explícita. Classificação inativa só é aceita se a associação ainda estiver ativa antes da gravação.
+- **A10:** pesquisar com +55 não encontrava legado sem prefixo. A busca telefônica remove esse prefixo quando
+  corresponde ao tamanho nacional completo; o parâmetro de CPF/CNPJ conserva todos os dígitos.
+
+| Item | Resultado da revisão | Evidência / limite |
+|---|---|---|
+| A01 | Corrigido e validado por HTTP local | Dois corretores e ADMIN; POST/PATCH alheios 403, leitura não se amplia; compartilhamento ADMIN preservado. Banco e autenticação simulados, serviços e DTOs reais. |
+| A02 | Corrigido e validado por HTTP local | Multipart chunked, limite agregado reduzido, concorrência, rejeição antes do serviço e autorização antes do storage; 20 arquivos aceitos/21 recusados. Sem R2 real/carga. |
+| A03 | Correção anterior mantida e revalidada | Duas sessões do alvo deixam de ser consumíveis após reset; outra conta permanece válida; serviços de senha e sessão reais com persistência sintética. PostgreSQL real não exercitado. |
+| A04 | Corrigido e revalidado | Remonte, expiração, respostas fora de ordem, uma renovação para restauração/401 e preservação do token novo. |
+| A05 | Correção anterior mantida | Carga inicial oculta entradas antes do reset; suíte de formulário aprovada. |
+| A06 | Correção anterior mantida | Validador único no frontend corresponde à API; testes de telefone e formulário aprovados. |
+| A07 | Correções locais anteriores mantidas | Filtros remontam colunas na página 1; CSV bloqueado em carga/falha; respostas obsoletas ignoradas. |
+| A08 | Correções locais anteriores mantidas | Busca por ID, sequência, limpeza e falha testadas; registro bloqueado durante resolução. |
+| A09 | Código corrigido; homologação PostgreSQL pendente | Round-trip sintético desativar classificação → editar título → reativar preserva valor; remoção não reaparece. Teste HTTP do cliente distingue coleção omitida, removida e editada. |
+| A10 | Código corrigido; SQL com legado real pendente | Normalização de coluna/termo e +55 conferidas; testes não executam PostgreSQL. |
+| A11 | Validação local ampliada; ambiente implantado pendente | API lenta simulada gera 503/noindex/no-store/Retry-After; nova tentativa recupera catálogo/detalhe; teto total encerra paginação. Timings reduzidos apenas no teste. |
+| H01 | Pendente; hipótese de infraestrutura | Sem inspeção das ACLs reais do Drive e sem mudança de permissões. |
+
+**Resultado:** o bloqueio funcional A01 foi tratado e verificado em HTTP sintético. Isso não homologou produção.
+A09/A10/A11/H01 continuam com caixas abertas por dependerem de validação integrada ou operacional.
+Em um bootstrap SSR 503, `AppRoutes` mostra `PaginaErro`: **Tentar novamente recarrega a página**.
+`useRecurso` só atua nas páginas públicas efetivamente montadas; não recupera automaticamente aquele bootstrap.
+
+Validação desta revisão: frontend typecheck/lint, 43 arquivos/231 testes e build aprovados; API typecheck/lint,
+27 suítes/188 testes e build aprovados, com 1 suíte/4 testes PostgreSQL não executados. Smoke do build aprovado
+(SSR, metadados, paginação, descoberta, 404, proxy/cookies e função Vercel local). Navegador local: catálogo,
+detalhe e 404 conferidos, sem avisos/erros de console no catálogo/detalhe. `robots.txt` e `sitemap.xml` conferidos
+por HTTP; a fixture é noindex e gera sitemap vazio. Sitemap indexável/paginado coberto em `server.test.ts`.
+Não houve migration, banco real, upload R2/Drive, alteração de ACL, commit, push ou deploy.
+
 Escopo: `Corretor-web` e o repositório irmão `Corretor-API`. A auditoria original examinou frontend `94ebcef` e API `e3b0a32`. Antes da publicação deste relatório, chegaram ao remoto `0a8b84e` no frontend e `f585fed`/`f9a1fcb` na API; o código atual incorpora esses commits. O relatório mantém os achados como fotografia das revisões auditadas e registra abaixo as mudanças sincronizadas. Não representa homologação do ambiente publicado.
 
 ## A. Veredito executivo
@@ -239,15 +289,32 @@ Não foram executados build, smoke de produção, Playwright, startup real da AP
 
 Marque cada item somente depois de implementar e validar o critério. Registre abaixo do item o commit ou a evidência do teste quando concluído.
 
-- [ ] **A01 — Restringir vínculos de contrato.** POST/PATCH com pessoa sem autorização falha; ADMIN e vínculos legítimos continuam acessíveis. Evidência:
-- [ ] **A02 — Limitar upload antes de consumir memória.** Limite agregado e concorrência são aplicados durante a leitura; teste sintético não chama R2 após rejeição. Evidência:
-- [ ] **A03 — Revogar refresh no reset administrativo.** Tokens anteriores falham; outras contas permanecem válidas. Evidência:
+- [x] **A01 — Restringir vínculos de contrato.** POST/PATCH com pessoa sem autorização falha; ADMIN e vínculos legítimos continuam acessíveis. Evidência: `locacoes.http.spec.ts` e `locacoes.service.spec.ts`, HTTP local com persistência/autenticação sintéticas em 03/10/2026; compartilhamento ADMIN mantido no PATCH.
+- [x] **A02 — Limitar upload antes de consumir memória.** Limite agregado e concorrência são aplicados durante a leitura; teste sintético não chama R2 após rejeição. Evidência: `recepcao-midias.ts`, `recepcao-midias.spec.ts`, `midias.http.spec.ts`; HTTP chunked com teto reduzido, guard antes do storage, 2 uploads por instância, 20 arquivos aceitos/21 recusados; sem R2/carga real.
+- [x] **A03 — Revogar refresh no reset administrativo.** Tokens anteriores falham; outras contas permanecem válidas. Evidência: `corretores.service.spec.ts` usa `CorretoresService` e `SessoesService` reais com sessões sintéticas; dois refreshes antigos rejeitados e refresh da outra conta válido em 03/10/2026.
 - [x] **A04 — Corrigir restauração da sessão ao remontar o painel.** Correção e testes de regressão chegaram em `0a8b84e`; reexecução pendente. Evidência:
 - [x] **A05 — Evitar reset do formulário de imóvel após entrada.** A carga agora precede a exibição do formulário em `0a8b84e`; reexecução pendente. Evidência:
-- [x] **A06 — Unificar validação de telefone do contato.** Entradas aceitas pelo formulário são aceitas pela API e erros aparecem antes de abrir WhatsApp. Evidência: `telefoneValido` em `src/servicos/contato.ts` espelhando `@TelefoneValido()`, validação prévia em `src/componentes/FormularioContato.tsx`, testes unitários em `contato.test.ts` e `FormularioContato.test.tsx` (195 testes aprovados).
-- [x] **A07 — Sincronizar filtros, paginação e CSV dos contatos.** Página reinicia com filtro; falha de consulta não exporta resposta antiga. Evidência: `useEffect` com reset de `setPagina(1)` ao alterar `filtros` e proteção do botão de exportação com `Boolean(erro)` em `src/paginas/painel/Contatos.tsx`, testes em `Contatos.test.tsx`.
-- [x] **A08 — Evitar respostas fora de ordem na seleção da comissão.** Seleção rápida, limpeza e falha não aplicam imóvel obsoleto. Evidência: busca direta por ID via `api.obterContrato(valor.id)` com tratamento de erro em `src/paginas/painel/Comissoes.tsx`, testes em `Comissoes.test.tsx`.
-- [ ] **A09 — Preservar vínculos de características ocultas.** `0a8b84e` passa a enviar itens inativos da ficha; validar persistência em edição antes de marcar concluído. Evidência:
-- [ ] **A10 — Corrigir a busca de telefone formatado.** Mesmo cadastro é encontrado com e sem pontuação. Evidência:
-- [ ] **A11 — Validar timeout e recuperação do SSR.** API lenta não impede recuperação; erro mantém resposta segura até haver dados válidos. Evidência:
+- [x] **A06 — Unificar validação de telefone do contato.** Entradas aceitas pelo formulário são aceitas pela API e erros aparecem antes de abrir WhatsApp. Evidência: `telefoneValido` com fonte única em `src/servicos/validacao.ts` (reexportado por `contato.ts`), validação prévia em `src/componentes/FormularioContato.tsx`, testes em `contato.test.ts` e `FormularioContato.test.tsx` (front 43 arquivos/223 testes em 03/10/2026).
+- [x] **A07 — Sincronizar filtros, paginação e CSV dos contatos.** Página reinicia com filtro; falha de consulta não exporta resposta antiga. Evidência: remonte por chave de filtros (página 1 em 1 fetch) + `useDadosPainel` com guarda de sequência que descarta resposta obsoleta + botão CSV desabilitado com `Boolean(erro)` em `src/paginas/painel/Contatos.tsx`; testes em `Contatos.test.tsx`.
+- [x] **A08 — Evitar respostas fora de ordem na seleção da comissão.** Seleção rápida, limpeza e falha não aplicam imóvel obsoleto. Evidência: busca por ID via `api.obterContrato(valor.id)` com token de sequência, erro visível, dica `Buscando imóvel…` e botão bloqueado durante a resolução em `src/paginas/painel/Comissoes.tsx`; 3 testes em `Comissoes.test.tsx` (direta, fora de ordem, limpar/falha).
+- [ ] **A09 — Preservar vínculos de características ocultas.** `0a8b84e` passa a enviar itens inativos da ficha; validar persistência em edição antes de marcar concluído. Evidência (03/10/2026, sem marcar): back `GAP-04` expõe todos os vínculos com `caracteristica_ativa` e aceita inativa já vinculada; front tipa `caracteristica_ativa?` e tem teste de round-trip em `esquemaImovel.test.ts`. Falta homologação integrada (desativar, editar título, reativar e conferir).
+- [ ] **A10 — Corrigir a busca de telefone formatado.** Mesmo cadastro é encontrado com e sem pontuação. Evidência (back `7f59109`, sem marcar no front): `regexp_replace(pessoa.telefone, '\D', '', 'g')` em `pessoas.service.ts` com teste unitário `GAP-05 / A10`; falta busca real com legado pontuado.
+- [ ] **A11 — Validar timeout e recuperação do SSR.** API lenta não impede recuperação; erro mantém resposta segura até haver dados válidos. Evidência (03/10/2026, sem marcar): `ORCAMENTO_PUBLICO_MS=45s` + 10s por requisição + `Retry-After: 30` e `noindex` em 503 em `src/seo/server.tsx`, retentativa no cliente via `useRecurso`; teste de 503 em `server.test.ts`. Falta simular API lenta e confirmar recuperação pós-partida.
 - [ ] **H01 — Homologar ACLs do Drive.** ADMIN, intermediador e corretor sem vínculo têm acesso conforme política decidida. Evidência:
+
+### Nota posterior — remoção das suítes, 03/10/2026
+
+Por solicitação do dono, os 46 arquivos `*.test.*`/`*.spec.*` do frontend e os 28 da API irmã foram removidos
+após a validação descrita abaixo. Os resultados de testes permanecem como histórico da revisão anterior; não
+representam validação da árvore atual. Não executar nem afirmar testes após esta remoção.
+
+### Complemento final do checklist — Codex, 03/10/2026
+
+A04/A05 foram reexecutados: as pendências de reexecução nas linhas anteriores são históricas.
+A04 tem testes novos de expiração/login durante refresh e renovação compartilhada. A05 tem teste com
+classificações pendentes: não há campo editável antes da carga/reset inicial. Frontend final: 43 arquivos/231 testes.
+A09 preserva somente associações ativas (mesmo com classificação global inativa), omite coleção inalterada
+no PATCH e testa remoção/round-trip sintéticos. A10 ganhou busca nacional com +55 sem modificar registros.
+A11 foi simulado com API lenta, recuperação por nova requisição e limite total da paginação. Bootstrap 503
+exibe botão de recarga da página; a menção anterior a useRecurso não significa recuperação automática desse estado.
+A09/A10/A11 continuam abertos apenas quanto à homologação integrada/operacional; H01 depende das ACLs reais.

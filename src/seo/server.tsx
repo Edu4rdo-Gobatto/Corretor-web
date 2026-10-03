@@ -36,20 +36,26 @@ export function serverConfig(env: Record<string, string | undefined>): ServerCon
 
 class PublicError extends Error { constructor(public status: number) { super('Public request failed'); } }
 
-async function publicGet<T>(path: string, config: ServerConfig, fetcher: typeof fetch, allowNotFound = false): Promise<T> {
+/** Orçamento total das buscas públicas: 45s dentro da duração máxima de 60s da função, com 10s por requisição. */
+export const ORCAMENTO_PUBLICO_MS = 45000;
+const TIMEOUT_REQUISICAO_MS = 10000;
+
+async function publicGet<T>(path: string, config: ServerConfig, fetcher: typeof fetch, allowNotFound = false, sinalExterno?: AbortSignal): Promise<T> {
   if (!config.apiOrigin) throw new PublicError(503);
-  const result = await fetcher(`${config.apiOrigin}${path}`, { headers: { Accept: 'application/json' }, credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(10000) });
+  const limite = AbortSignal.any([AbortSignal.timeout(TIMEOUT_REQUISICAO_MS), ...(sinalExterno ? [sinalExterno] : [])]);
+  const result = await fetcher(`${config.apiOrigin}${path}`, { headers: { Accept: 'application/json' }, credentials: 'omit', redirect: 'error', signal: limite });
   if (!result.ok) throw new PublicError(result.status === 404 && allowNotFound ? 404 : 503);
   return result.json();
 }
 
-async function classificacoesPublicas(config: ServerConfig, fetcher: typeof fetch): Promise<Classificacoes> {
+async function classificacoesPublicas(config: ServerConfig, fetcher: typeof fetch, sinalExterno?: AbortSignal): Promise<Classificacoes> {
   const carregar = async (categoria: string) => {
     const itens: Classificacao[] = [];
     let pagina = 1;
     let totalPaginas = 1;
     do {
-      const resultado = await publicGet<Pagina<Classificacao>>(`/${categoria}?pagina=${pagina}&limite=100`, config, fetcher);
+      sinalExterno?.throwIfAborted();
+      const resultado = await publicGet<Pagina<Classificacao>>(`/${categoria}?pagina=${pagina}&limite=100`, config, fetcher, false, sinalExterno);
       itens.push(...resultado.itens);
       totalPaginas = resultado.total_paginas ?? Math.ceil(resultado.total / resultado.limite);
       pagina++;
@@ -130,15 +136,17 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
       return { status: 200, headers, body };
     }
     if (!admin) {
+      // Orçamento total coerente com a duração máxima da função; o cliente hidrata e pode tentar de novo.
+      const orcamento = AbortSignal.timeout(ORCAMENTO_PUBLICO_MS);
       if (catalogo) {
-        boot.data.classificacoes = await classificacoesPublicas(config, fetcher);
+        boot.data.classificacoes = await classificacoesPublicas(config, fetcher, orcamento);
         const codificada = consultaParaApi(catalogo, boot.data.classificacoes);
-        boot.data.catalogo = codificada === null ? { itens: [], total: 0, pagina: catalogo.pagina, limite: catalogo.limite, total_paginas: 0 } : await publicGet<Pagina<Imovel>>(`/imoveis?${codificada}`, config, fetcher);
+        boot.data.catalogo = codificada === null ? { itens: [], total: 0, pagina: catalogo.pagina, limite: catalogo.limite, total_paginas: 0 } : await publicGet<Pagina<Imovel>>(`/imoveis?${codificada}`, config, fetcher, false, orcamento);
         if (catalogo.pagina > Math.max(1, boot.data.catalogo.total_paginas)) boot.status = 404;
       } else if (/^\/imoveis\/[^/]+$/.test(url.pathname)) {
         const slug = decodeURIComponent(url.pathname.slice('/imoveis/'.length));
         if (!slugImovelValido(slug)) throw new PublicError(404);
-        const imovel = await publicGet<Imovel>(`/imoveis/${encodeURIComponent(slug)}`, config, fetcher, true);
+        const imovel = await publicGet<Imovel>(`/imoveis/${encodeURIComponent(slug)}`, config, fetcher, true, orcamento);
         // O slug muda com o título; o id no final garante que o link antigo leve ao endereço atual.
         if (imovel.slug !== slug) return redirect(urlImovel(imovel.slug) + url.search);
         boot.data.imovel = imovel;
@@ -146,6 +154,7 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
     }
   } catch (error) { boot.status = error instanceof PublicError ? error.status : error instanceof URIError ? 404 : 503; boot.data = {}; }
   if (boot.status !== 200) headers['Cache-Control'] = 'no-store';
+  if (boot.status === 503) headers['Retry-After'] = '30';
   const seo = buildSeo(boot.url, config, boot.data, boot.status);
   headers['X-Robots-Tag'] = seo.robots;
   const content = admin ? '' : renderToString(<ContextoBootstrap.Provider value={boot}><StaticRouter location={boot.url}><AppRoutes /></StaticRouter></ContextoBootstrap.Provider>);

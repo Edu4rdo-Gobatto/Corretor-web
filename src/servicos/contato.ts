@@ -1,12 +1,8 @@
 import { z } from 'zod';
 import { codigoImovel } from './formato';
+import { telefoneValido } from './validacao';
 
-export function telefoneValido(valor: string): boolean {
-  if (!/^[+\d() .-]+$/.test(valor)) return false;
-  let numero = valor.replace(/\D/g, '');
-  if ((numero.length === 12 || numero.length === 13) && numero.startsWith('55')) numero = numero.slice(2);
-  return /^[1-9]\d(?:[2-5]\d{7}|9\d{8})$/.test(numero);
-}
+export { telefoneValido };
 
 export const esquemaContato = z.object({
   nome: z.string().trim().min(2, 'Informe seu nome.').max(120),

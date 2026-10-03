@@ -1,7 +1,48 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-03 — Remover os arquivos de teste
+
+Por pedido explícito do dono, excluir todos os fontes `*.test.*` e `*.spec.*` dos dois repositórios.
+Manter configurações/scripts e dependências de teste por enquanto; não alegar validação atual por testes.
+Resultados registrados antes da exclusão são históricos. Não recriar suítes sem novo pedido.
+
+## 2026-10-03 — Revisão da auditoria: sessão e preservação de características (Codex)
+
+- Restauração explícita e retentativa por 401 passam por `renovarSessao` no cliente HTTP, compartilhando a
+  promessa apenas enquanto pendente. Uma geração invalida respostas de refresh anteriores a login/saída.
+  O provedor só aplica a promessa de restauração que continua atual. Substitui o paliativo documental de dois
+  caminhos de refresh. Não criar outra renovação nem persistir token fora da memória.
+- PATCH de imóvel omite a coleção de características quando IDs/valores não mudaram; coleção vazia enviada
+  significa remover todos os vínculos, e valores alterados são enviados explicitamente. A ficha administrativa
+  inclui associação ativa com classificação global inativa; associação removida permanece fora do formulário.
+- O bootstrap SSR 503 monta `PaginaErro` e seu botão recarrega a página; não afirmar recuperação automática
+  por `useRecurso` nesse estado. Prazo total de 45s, individual de 10s e `Retry-After` preservados e testados com
+  timings reduzidos em simulação. Nenhuma mudança de plano/serviço ou dependência.
+- Evidência sintética não equivale a banco/Drive/R2/infra reais. A09/A10/A11/H01 mantêm homologação operacional
+  pendente, mesmo com os testes locais aprovados.
+
 Cada decisão registra a data, o motivo e o que **não** fazer. Antes de contrariar uma decisão, revise-a aqui
 e registre a mudança com a nova data.
+
+## 2026-10-03 — Manutenção da auditoria: fonte única, respostas vinculadas e orçamento do SSR (Muse Spark)
+
+- **Telefone com fonte única (A06).** `src/servicos/contato.ts` importa `telefoneValido` de `src/servicos/validacao.ts`
+  (idêntico ao `telefoneValido` da API) e só reexporta por compatibilidade. Motivo: o GAP-06 duplicou a regex no
+  contato; duas cópias voltam a divergir como na auditoria. Não fazer: nova regra local de telefone no formulário.
+- **Respostas vinculadas à consulta (A07/A08).** `useDadosPainel` guarda sequência e só aplica dados/erro/carregando
+  da consulta mais recente; `Contatos` remonta a coluna pela chave dos filtros (página 1 em um único fetch, sem
+  `useEffect` de reset); `Comissoes.escolherContrato` guarda sequência, ignora resposta obsoleta/limpa, exibe erro
+  de carga, mostra `Buscando imóvel…` e bloqueia o `Registrar` durante a resolução. Motivo: o GAP-07/08 zerava a
+  página e buscava por ID, mas a resposta tardia ainda vencia a atual. Não fazer: `setPagina(1)` em efeito após fetch
+  com a página antiga nem `catch` silencioso em escolha de contrato.
+- **SSR com orçamento total (A11).** `ORCAMENTO_PUBLICO_MS=45s` limita o conjunto das buscas públicas (10s por
+  requisição), preservando `noindex` e `Cache-Control: no-store` em erro e adicionando `Retry-After: 30` no 503; o
+  cliente hidrata via `useRecurso` e pode tentar de novo. Motivo: aumentar cada timeout sem teto estoura os 60s da
+  função; cold start de plano gratuito continua possível e deve degradar para 503 seguro + retentativa. Não fazer:
+  subir o timeout por requisição sem teto total nem transformar 503 em 200 parcial.
+- **A09 sem marcar como concluído.** Back expõe `caracteristica_ativa` e aceita inativa já vinculada; front tipa o
+  campo opcional e testa o round-trip. A persistência real (desativar → editar título → reativar) exige homologação
+  integrada e segue aberta. Não marcar A09/A10/A11 como concluídos só com teste unitário.
 
 ## 2026-10-02 — Tentativa automática de som em toda abertura do /devs (Codex)
 

@@ -1,5 +1,5 @@
 import type { CategoriaClassificacao, Classificacao, Classificacoes, ConsultaCatalogo, Corretor, DadosCorretor, FichaImovel, Imovel, Midia, Pagina, Pessoa, Sessao, StatusContato, StatusImovel } from '../tipos';
-import { ErroApi, http, definirTokenAcesso } from './http';
+import { ErroApi, http, definirTokenAcesso, renovarSessao } from './http';
 import { consultaParaApi, montarParametros } from './catalogo';
 import { locacoesApi } from './locacoes';
 import { slugImovelValido } from './urls';
@@ -107,7 +107,10 @@ export const api = {
   },
   obterFicha: (id: number) => http<FichaImovel>(`/admin/imoveis/${id}`),
   salvarImovel: (dados: DadosImovel, id?: number, anterior?: FichaImovel) =>
-    http<FichaImovel>(`/admin/imoveis${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', { ...dados, ...somenteAlterados(dados, anterior, ['tipo_id', 'finalidade_id', 'corretor_id', 'proprietario_id']) })),
+    http<FichaImovel>(`/admin/imoveis${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', {
+      ...dados, ...somenteAlterados(dados, anterior, ['tipo_id', 'finalidade_id', 'corretor_id', 'proprietario_id']),
+      ...(id && anterior && dados.caracteristicas.length === anterior.caracteristicas.length && dados.caracteristicas.every(item => anterior.caracteristicas.some(atual => atual.caracteristica_id === item.caracteristica_id && atual.valor === item.valor)) ? { caracteristicas: undefined } : {}),
+    })),
   ativarImovel: (id: number, ativo: boolean) => http<FichaImovel>(`/admin/imoveis/${id}`, json('PATCH', { ativo })),
 
   /** Contato do site: só os campos do formulário e o consentimento. */
@@ -137,11 +140,7 @@ export const api = {
     definirTokenAcesso(sessao.token_acesso);
     return sessao;
   },
-  renovar: async () => {
-    const sessao = await http<Sessao>('/autenticacao/renovar', json('POST'), false);
-    definirTokenAcesso(sessao.token_acesso);
-    return sessao;
-  },
+  renovar: renovarSessao,
   sair: async () => {
     await http<void>('/autenticacao/sair', json('POST'), false);
     definirTokenAcesso(null);

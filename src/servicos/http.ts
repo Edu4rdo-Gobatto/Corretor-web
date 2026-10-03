@@ -1,8 +1,11 @@
+import type { Sessao } from '../tipos';
+
 const urlBase = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 let tokenAcesso: string | null = null;
-let renovacaoPendente: Promise<void> | null = null;
+let renovacaoPendente: Promise<Sessao> | null = null;
+let versaoSessao = 0;
 
-export const definirTokenAcesso = (token: string | null) => { tokenAcesso = token; };
+export const definirTokenAcesso = (token: string | null) => { versaoSessao++; tokenAcesso = token; renovacaoPendente = null; };
 
 export class ErroApi extends Error {
   constructor(mensagem: string, public status: number) { super(mensagem); }
@@ -24,10 +27,14 @@ async function lerMensagem(resposta: Response): Promise<string | undefined> {
   return typeof corpo.message === 'string' ? corpo.message : corpo.message?.join(' ');
 }
 
-async function renovarAcesso(): Promise<void> {
+async function renovarAcesso(): Promise<Sessao> {
+  const versao = versaoSessao;
   const resposta = await enviar('/autenticacao/renovar', { method: 'POST' });
+  const verificarVersao = () => { if (versao !== versaoSessao) throw new ErroApi('A sessão foi alterada durante a renovação.', 401); };
+  verificarVersao();
   if (!resposta.ok) {
     const mensagem = await lerMensagem(resposta);
+    verificarVersao();
     if (resposta.status === 401 || resposta.status === 403) {
       tokenAcesso = null;
       if (mensagem === 'Origem não autorizada.') {
@@ -38,8 +45,19 @@ async function renovarAcesso(): Promise<void> {
     }
     throw new ErroApi(mensagem || 'O serviço de sessão está indisponível. Tente novamente.', resposta.status);
   }
-  const sessao = await resposta.json() as { token_acesso: string };
+  const sessao = await resposta.json() as Sessao;
+  verificarVersao();
   tokenAcesso = sessao.token_acesso;
+  return sessao;
+}
+
+/** A restauração do provedor e a retentativa HTTP usam a mesma rotação do cookie. */
+export function renovarSessao(): Promise<Sessao> {
+  if (!renovacaoPendente) {
+    const promessa = renovarAcesso().finally(() => { if (renovacaoPendente === promessa) renovacaoPendente = null; });
+    renovacaoPendente = promessa;
+  }
+  return renovacaoPendente;
 }
 
 const MENSAGENS_PADRAO: Record<number, string> = {
@@ -54,8 +72,7 @@ async function respostaAutenticada(caminho: string, opcoes: RequestInit = {}, po
   let resposta = await enviar(caminho, opcoes);
   const rotaDeSessao = ['/autenticacao/entrar', '/autenticacao/renovar', '/autenticacao/sair'].some((rota) => caminho.startsWith(rota));
   if (resposta.status === 401 && podeRenovar && !rotaDeSessao) {
-    if (!renovacaoPendente) renovacaoPendente = renovarAcesso().finally(() => { renovacaoPendente = null; });
-    await renovacaoPendente;
+    await renovarSessao();
     resposta = await enviar(caminho, opcoes);
   }
   if (!resposta.ok) {

@@ -35,7 +35,7 @@ export type StatusImovel = 'DISPONIVEL' | 'RESERVADO' | 'VENDIDO' | 'ALUGADO' | 
 export type Ordenacao = 'recentes' | 'valor_asc' | 'valor_desc' | 'area_asc' | 'area_desc';
 
 export interface Midia { id: number; tipo: 'IMAGEM' | 'VIDEO_EMBED' | 'VIDEO_ARQUIVO'; url: string; ordem: number; capa: boolean }
-export interface CaracteristicaImovel { caracteristica_id: number; nome: string; icone: string | null; valor: string | null }
+export interface CaracteristicaImovel { caracteristica_id: number; nome: string; icone: string | null; valor: string | null; caracteristica_ativa?: boolean }
 
 /** Campos do imóvel visíveis no site. Valores monetários e áreas chegam como texto decimal. */
 export interface Imovel {

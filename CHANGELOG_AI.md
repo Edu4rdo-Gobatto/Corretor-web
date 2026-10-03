@@ -1,5 +1,79 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-03 — Remoção dos arquivos de teste
+
+Por solicitação do dono, removidos os 46 arquivos `*.test.*`/`*.spec.*` do frontend e os 28 equivalentes
+do `../Corretor-API`, incluindo fontes modificados e novos não rastreados. Código de produção e módulo
+`src/midias/recepcao-midias.ts` preservados. Validação: conferência dos caminhos removidos no Git; testes
+não executados após a exclusão. Scripts e dependências de teste permanecem, mas já não há suítes fonte.
+
+## 2026-10-03 — Codex: revisão das correções da auditoria full stack
+
+Pedido do dono: revisar as correções e alterar o que estivesse inadequado. Mantidas as alterações locais
+anteriores de A06–A08/SSR; corrigidas corridas na restauração de sessão, unificado refresh com o cliente HTTP,
+invalidados tokens de respostas antigas e omitida a coleção de características inalterada no PATCH.
+API irmã: autorização de contrato sem bloquear compartilhamento legítimo, armazenamento multipart limitado,
+concorrência, lock de upload dentro da transação, associação removida fora da ficha e busca com +55.
+
+Arquivos alterados nesta revisão no frontend: src/hooks/useSessao.tsx e useSessao.test.tsx;
+src/servicos/http.ts, http.test.ts, api.ts e api.test.ts; src/seo/server.test.ts;
+src/paginas/painel/FormularioImovel.test.tsx; docs/audits/2026-10-02-auditoria-fullstack.md;
+PROJECT_STATUS.md, TASKS.md, DECISIONS.md e este CHANGELOG_AI.md.
+Os diffs anteriores em useDadosPainel, Contatos, Comissoes/testes, esquemaImovel.test, server.ts,
+contato.ts e tipos/index.ts foram revisados e preservados. Marcadores de merge documentais antigos foram
+convertidos em notas, preservando seu texto e o histórico.
+
+Validação real final:
+- npm run typecheck e npm run lint: aprovados nos dois repositórios.
+- npm test -- --maxWorkers=1 --reporter=dot: 43 arquivos/231 testes aprovados no frontend.
+- API npm test: 27 suítes/188 testes aprovados; 1 suíte/4 testes PostgreSQL não executados.
+- npm run build: aprovado nos dois repositórios. Avisos PURE do Zod preexistentes.
+- node scripts/seo-smoke.mjs --serve: smoke aprovado (SSR/metadados/paginação/404/descoberta/proxy/cookies
+  e função Vercel em Node local); modo serve usado apenas para a conferência manual.
+- Navegador local: catálogo, detalhe e 404 conferidos; sem avisos/erros de console no catálogo/detalhe.
+  robots.txt/sitemap.xml/404 conferidos também por HTTP. Fixture noindex gera sitemap vazio;
+  sitemap indexável/paginado coberto nos testes. Navegador bloqueou abertura do robots.txt; leitura HTTP aprovada.
+- API lenta e recuperação do catálogo/detalhe, teto total SSR e carga inicial do imóvel novo testados.
+- git diff --check aprovado nos dois; git fetch + rev-list mostram HEAD...origin/main = 0/0 em ambos.
+
+Limites: sem banco real, migrations, carga, R2/Drive reais, ACLs, Safari/iOS ou homologação implantada.
+A09/A10/A11/H01 permanecem com pendências operacionais no relatório. Nenhuma dependência nova,
+commit/push/deploy ou escrita em serviços reais. Mensagens render failed são do teste intencional de LimiteErro.
+
+
+## 2026-10-03 — Muse Spark: manutenção da auditoria (endurecer A06–A08, A09/A11 sem marcar)
+
+Pedido do dono: pull nos dois repos (front `8d40cb8`, back `85a6301`; DELL de e2e/docs mortos incluído) e
+manutenção front + back do relatório `docs/audits/2026-10-02-auditoria-fullstack.md`. Baseline antes de mexer:
+front 43 arquivos/220 testes; API 24 suítes/175 testes.
+
+Alterações no front (sem commit/push):
+- `src/servicos/contato.ts`: `telefoneValido` com fonte única em `validacao.ts` (reexport por compatibilidade).
+- `src/hooks/useDadosPainel.ts`: guarda de sequência — só a consulta mais recente aplica dados/erro/carregando.
+- `src/paginas/painel/Contatos.tsx`: coluna remonta pela chave dos filtros (página 1 em 1 fetch); CSV segue
+  desabilitado com erro; sem `useEffect` de reset.
+- `src/paginas/painel/Comissoes.tsx`: `escolherContrato` com sequência, erro visível, dica
+  `Buscando imóvel…`, botão bloqueado resolvendo, e troca de operação invalida pendência.
+- `src/tipos/index.ts` + `esquemaImovel.test.ts`: `caracteristica_ativa?` tipada e teste de round-trip A09.
+- `src/paginas/painel/Comissoes.test.tsx`: +2 testes A08 (fora de ordem; limpar/falha).
+- `src/seo/server.tsx` + `server.test.ts`: `ORCAMENTO_PUBLICO_MS=45s`, 10s por requisição, `Retry-After: 30`
+  e `noindex` em 503.
+- Docs: checkboxes A06–A08 com evidência atualizada; A09/A10/A11 com progresso sem marcar; decisão em
+  `DECISIONS.md`; estado em `PROJECT_STATUS.md`.
+
+Validação real (03/10/2026):
+- `npm run typecheck`: aprovado (front e API com `--incremental false`).
+- `npm run lint`: aprovado (front e API).
+- Front `npm test -- --maxWorkers=1`: 43 arquivos/223 testes aprovados (+3: 2 de A08 e 1 de A09).
+- API `npm test -- --runInBand`: 24 suítes/175 testes aprovados (sem mudança de código no back nesta sessão).
+- `npm run build` + `node scripts/seo-smoke.mjs`: aprovados.
+- `git diff --check`: aprovado (rodar antes de commitar).
+
+Pendências e riscos: A09/A10/A11 e H01 seguem abertos (critério exige homologação integrada/lenta/ACLs);
+A02 chunked + concorrência segue mitigado (guard + Content-Length + auth antecipada) sem limite em streaming;
+A01/A03 têm teste unitário no back mas pedem HTTP com dois corretores/sessões; e2e deletado no DELL reduz
+cobertura ponta a ponta; sem commit/push (aguardando confirmação do dono, direto na `main`).
+
 ## 2026-10-02 — Resolução dos Gaps de Execução no Frontend: GAP-06, GAP-07 e GAP-08 (Antigravity)
 
 Objetivo: implementar as correções de frontend identificadas no relatório canônico de auditoria full stack (`docs/audits/2026-10-02-auditoria-fullstack.md`):
@@ -272,7 +346,7 @@ Testes executados (resultado real):
 Risco/pendência: sem commit/push (aguardando confirmação do dono, direto na `main` quando liberado); conferir no
 navegador com som ligado: clique no rodapé ligando sozinho, acesso direto por URL mostrando “Ligar a obra”,
 claro/escuro, 320–390px e Safari/iOS (pode exigir um segundo toque mesmo com o desbloqueio no link).
->>>>>>> 04d93d9740780040dfc9dc83cc37754f5ad5fbd0
+> Marcador de merge histórico preservado como nota: `>>>>>>> 04d93d9740780040dfc9dc83cc37754f5ad5fbd0`.
 
 ## 2026-10-02 — Relatório da auditoria técnica full stack
 

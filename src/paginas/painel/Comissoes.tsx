@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '../../servicos/api';
@@ -24,6 +24,8 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
   const [imovel, setImovel] = useState<Referencia | null>(contrato ? { id: contrato.imovel_id, nome: contrato.imovel_titulo ?? `#${contrato.imovel_id}` } : null);
   const [pessoa, setPessoa] = useState<Referencia | null>(null);
   const [contratoEscolhido, setContratoEscolhido] = useState<Referencia | null>(contrato ? { id: contrato.id, nome: contrato.numero_contrato } : null);
+  const [resolvendoContrato, setResolvendoContrato] = useState(false);
+  const sequenciaContrato = useRef(0);
   const { register, setValue, watch, handleSubmit, formState: { errors, isSubmitting } } = useForm<ValoresComissao>({
     resolver: zodResolver(esquemaComissao),
     defaultValues: { tipo_operacao: contrato ? 'LOCACAO' : 'VENDA', contrato_id: contrato?.id ?? null, imovel_id: contrato?.imovel_id ?? 0, pessoa_id: 0, valor_total: '', quantidade_parcelas: 1, primeiro_vencimento: '', observacoes: '' },
@@ -31,19 +33,26 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
   const operacao = watch('tipo_operacao');
   const previa = previaParcelas(watch('valor_total'), watch('quantidade_parcelas'), watch('primeiro_vencimento'));
   const escolherContrato = async (valor: Referencia | null) => {
+    const atual = ++sequenciaContrato.current;
     setContratoEscolhido(valor);
     setValue('contrato_id', valor?.id ?? null, { shouldValidate: true });
     setImovel(null);
     setValue('imovel_id', 0);
-    if (!valor) return;
+    setErro('');
+    if (!valor) { setResolvendoContrato(false); return; }
+    setResolvendoContrato(true);
     try {
       const contratoCarregado = await api.obterContrato(valor.id);
+      if (sequenciaContrato.current !== atual) return;
       if (contratoCarregado) {
         setImovel({ id: contratoCarregado.imovel_id, nome: contratoCarregado.imovel_titulo ?? `#${contratoCarregado.imovel_id}` });
         setValue('imovel_id', contratoCarregado.imovel_id, { shouldValidate: true });
       }
-    } catch {
-      // Caso a busca falhe, mantém imovel_id zerado
+    } catch (falha) {
+      if (sequenciaContrato.current !== atual) return;
+      setErro(`Não foi possível carregar o imóvel do contrato. ${mensagemErro(falha)}`);
+    } finally {
+      if (sequenciaContrato.current === atual) setResolvendoContrato(false);
     }
   };
   async function salvar(valores: ValoresComissao) {
@@ -56,9 +65,9 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
         <fieldset disabled={isSubmitting} className="m-0 grid gap-4 border-0 p-0">
           <p className="m-0">Informe a receita devida pela intermediação do negócio.</p>
-          {!contrato && <label>Operação<select {...register('tipo_operacao', { onChange: () => { setValue('contrato_id', null); setValue('imovel_id', 0); setValue('pessoa_id', 0); setContratoEscolhido(null); setImovel(null); setPessoa(null); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></label>}
+          {!contrato && <label>Operação<select {...register('tipo_operacao', { onChange: () => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null); setValue('imovel_id', 0); setValue('pessoa_id', 0); setContratoEscolhido(null); setImovel(null); setPessoa(null); setErro(''); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></label>}
           {contrato ? <p className="m-0">Contrato: {contrato.numero_contrato} · {contrato.imovel_titulo}</p>
-            : operacao === 'LOCACAO' ? <SeletorRegistro rotulo="Contrato de locação" valor={contratoEscolhido} buscar={buscarContratos} aoEscolher={(valor) => void escolherContrato(valor)} erro={errors.contrato_id?.message} dica={imovel ? `Imóvel: ${imovel.nome}` : undefined} />
+            : operacao === 'LOCACAO' ? <SeletorRegistro rotulo="Contrato de locação" valor={contratoEscolhido} buscar={buscarContratos} aoEscolher={(valor) => void escolherContrato(valor)} erro={errors.contrato_id?.message} dica={resolvendoContrato ? 'Buscando imóvel do contrato…' : imovel ? `Imóvel: ${imovel.nome}` : undefined} />
               : <SeletorRegistro rotulo="Imóvel" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => { setImovel(valor); setValue('imovel_id', valor?.id ?? 0, { shouldValidate: true }); }} erro={errors.imovel_id?.message} />}
           <SeletorRegistro rotulo="Pessoa (cliente do negócio)" valor={pessoa} buscar={buscarPessoas} aoEscolher={(valor) => { setPessoa(valor); setValue('pessoa_id', valor?.id ?? 0, { shouldValidate: true }); }} erro={errors.pessoa_id?.message} dica="A pessoa precisa estar ativa e sob o mesmo responsável pelo imóvel." />
           <div className={estilos.grade}>
@@ -70,7 +79,7 @@ function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato;
           {previa.length > 0 && <section className="rounded border border-line p-4" aria-label="Prévia das parcelas"><h3 className="mt-0">Prévia do parcelamento</h3><ul>{previa.slice(0, 4).map((item, indice) => <li key={indice}>Parcela {indice + 1}: {dinheiroExato(item.valor)} em {dataCivil(item.data)}</li>)}</ul>{previa.length > 4 && <p>Mais {previa.length - 4} parcelas. Último vencimento: {dataCivil(previa.at(-1)!.data)}.</p>}<p className={estilos.dica}>Os centavos são distribuídos entre as parcelas. Dias 29–31 são ajustados ao fim do mês.</p></section>}
         </fieldset>
         {erro && <p role="alert" className="error">{erro}</p>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Registrando…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting || resolvendoContrato}>{isSubmitting ? 'Registrando…' : resolvendoContrato ? 'Buscando imóvel…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );
