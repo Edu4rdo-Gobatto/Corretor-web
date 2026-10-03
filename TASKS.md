@@ -4,6 +4,14 @@ Status possíveis: `aberta`, `em andamento`, `em revisão`, `bloqueada`, `conclu
 Quem assume uma tarefa escreve o próprio nome em Responsável e reflete isso no `PROJECT_STATUS.md`.
 Tarefas da API ficam em `../Corretor-API/TASKS.md`.
 
+## AUDIT-001 — Correções da auditoria full stack — checklist em aberto
+
+Responsável: dono/Codex conforme cada correção for iniciada.
+
+Relatório, prioridades, critérios de conclusão e caixas para marcar: [`docs/audits/2026-10-02-auditoria-fullstack.md`](docs/audits/2026-10-02-auditoria-fullstack.md), seção “Tasks para acompanhar as correções”.
+
+Veredito da auditoria: bloquear publicação até corrigir A01. Esta tarefa documental não corrige os achados. Atualize as caixas no relatório após implementar e validar cada item; as tarefas backend estão referenciadas também na cópia do `TASKS.md` da API.
+
 ---
 
 ## Plano de UI/UX e velocidade (aprovado em 17/09/2026)

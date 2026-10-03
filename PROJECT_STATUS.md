@@ -1,14 +1,11 @@
 # Estado atual — corretor-web
 
-## 2026-09-18 — Claude: Etapa 0 e Fase 1 do plano de UI/velocidade concluídas em código (sem commit)
+## 2026-10-02 — Auditoria técnica full stack documentada
 
-Plano aprovado pelo dono em 17/09 (resumo e próximas fases em `TASKS.md`). Concluído nesta rodada: FERR-001 (subagentes
-em `.claude/`, `npm run visual` com API simulada e orçamento de requisições), UX-006 (telas divididas: causa era o
-`<dialog>` sem `m-auto`), FIX-001 (CORRETOR sem 403 no formulário de imóvel), FIX-002 (sessão obsoleta) e TEMA-001
-(fundo azul-claro, escuro mais leve e logo por tema, pedido do dono em 18/09). Também: build sempre em produção (o
-`NODE_ENV=development` do `.env` gerava bundle com React de desenvolvimento). Validação: typecheck, lint, 38 arquivos/190
-testes, build, seo-smoke e suíte visual 143/143 aprovados. Commit fica a cargo do dono (pedido em 18/09): nenhum
-agente deve commitar estas alterações. Próxima fase (PERF-001) só depois do commit e da liberação do dono.
+Auditoria registrada em `docs/audits/2026-10-02-auditoria-fullstack.md`; fotografia original: frontend `94ebcef`, API `e3b0a32`.
+Veredito: bloquear publicação até corrigir A01. O remoto atual já contém alterações posteriores; A04/A05 têm correções aparentes descritas no relatório.
+Na auditoria passaram typecheck/lint dos dois repositórios; frontend 37 arquivos/178 testes; API 25 suítes/173 testes,
+com bootstrap e integração PostgreSQL excluídos. Três reproduções usaram dados sintéticos. Nenhuma correção foi iniciada nesta tarefa documental.
 
 ## 2026-09-16 — Claude: contrato v2 concluído no front (ids inteiros, pessoas, ficha do imóvel, português)
 
