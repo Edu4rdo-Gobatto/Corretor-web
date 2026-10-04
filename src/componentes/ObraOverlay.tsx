@@ -63,7 +63,7 @@ export default function ObraOverlay({ aoSair }: { aoSair: () => void }) {
     <Dialogo titulo="Levantando esta página…" aoFechar={iniciarSaida} fecharAoClicarFora
       classe={`dialogo-obra transition-opacity duration-300 ${saindo ? 'opacity-0' : 'opacity-100'}`}>
       <div className="text-center">
-        <p className="mb-1 text-sm text-muted">Uma pequena obra antes de conhecer quem fez.</p>
+        <p className="mb-1 text-sm text-muted">Os contrutores do site foram:</p>
         <CenaObra animada={!saindo} rotulo="Casa em construção com um operário de capacete" />
         <div className="obra-etapas mb-5 flex items-center justify-center gap-2 text-sm text-brand" aria-hidden="true">
           <span className={etapa === 0 ? 'font-semibold' : 'text-muted'}>Alicerce</span><span>·</span>

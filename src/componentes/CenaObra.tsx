@@ -32,10 +32,6 @@ export default function CenaObra({ animada, rotulo }: { animada: boolean; rotulo
         <path d="m363 55 32-7 4 10-34 7z" fill="var(--color-gold)" stroke="var(--color-brand)" strokeWidth="3" />
         <circle cx="231" cy="126" r="12" fill="var(--color-soft)" stroke="var(--color-brand)" strokeWidth="3" />
       </g>
-      <g stroke="var(--color-brand)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M115 176v109m41-100v111m-49-71 57 12m-49-54 41 104" fill="none" />
-        <path d="m104 176 58 12 0 10-58-12z" fill="var(--color-gold)" />
-      </g>
       <g fill="var(--color-gold)" stroke="var(--color-brand)" strokeWidth="2.5" strokeLinejoin="round">
         <path d="m458 270 31-7 22 7-31 8z" /><path d="m458 270v13l22 7 0-12zm22 8 31-8v13l-31 7z" />
         <path d="m464 257 26-5 18 6-26 6z" /><path d="m464 257v11l18 6v-10zm18 7 26-6v11l-26 5z" />

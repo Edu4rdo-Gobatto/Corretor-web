@@ -1,5 +1,17 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-03 — Antigravity: remoção de artefato do operário em CenaObra (/devs)
+
+Pedido: analisar e corrigir artefato visual na cena do operário em /devs (parecia um suporte amarelo atrás da cabeça).
+Entrega:
+- `src/componentes/CenaObra.tsx`: removido o bloco `<g>` do andaime posicionado diretamente atrás do operário.
+  Eliminada a prancha `var(--color-gold)` que vazava atrás do capacete e a barra vertical que simulava uma haste.
+- Atualizados `PROJECT_STATUS.md`, `DECISIONS.md` e `CHANGELOG_AI.md`.
+Validação:
+- `npm run typecheck`, `npm run lint`, `npm run build`: exit 0.
+- `node scripts/seo-smoke.mjs`: exit 0.
+- `npm test`: exit 1 (conforme esperado, nenhuma suíte de teste presente).
+
 ## 2026-10-03 — Codex: commit e push do cartoon de indisponibilidade autorizados
 
 Pedido explícito do dono: commit e push na main. Escopo autorizado: os 12 arquivos da cena,

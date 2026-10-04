@@ -1,5 +1,14 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-03 — Limpeza visual da animação do operário no /devs (Antigravity)
+
+- Removido o bloco de andaime em `CenaObra.tsx` posicionado nas mesmas coordenadas do operário.
+  A prancha superior dourada (`var(--color-gold)`) vazava pelas laterais do capacete, criando a
+  ilusão de um suporte/haste amarelo fixado na cabeça do operário.
+- Com a remoção, a silhueta do personagem, o capacete e o movimento do martelo ficam destacados
+  e limpos, em consonância com a apresentação do operário em `CenaReparo.tsx`. Não recolocar
+  estruturas estáticas com a mesma cor do personagem sobre a mesma área de desenho.
+
 ## 2026-10-03 — Cartoon de reparo e recuperação do 503 (Codex)
 
 - Plano aprovado pelo dono: casa apagada e operário ajustando o quadro de energia, SVG local na

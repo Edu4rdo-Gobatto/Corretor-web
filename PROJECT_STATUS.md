@@ -1,5 +1,13 @@
 # Estado atual — corretor-web
 
+## 2026-10-03 — Antigravity: remoção do andaime sobreposto ao operário em /devs
+
+A pedido do dono, corrigida a animação do operário no overlay de /devs (CenaObra.tsx).
+Removido o bloco do andaime que se sobrepunha diretamente ao personagem, eliminando o artefato
+visual da prancha amarela atrás da cabeça e da haste vertical.
+Validação: typecheck, lint, build e seo-smoke aprovados (exit 0).
+npm test: exit 1, sem arquivos de teste, conforme decisão do dono.
+
 ## 2026-10-03 — Codex: publicação do cartoon de indisponibilidade autorizada
 
 Pedido explícito do dono: commit e push da implementação na main. Escopo: cena de reparo,
