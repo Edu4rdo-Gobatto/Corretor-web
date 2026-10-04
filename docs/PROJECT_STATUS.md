@@ -1,5 +1,12 @@
 # Estado atual — corretor-web
 
+## 2026-10-04 — Antigravity: consolidação de todos os arquivos .md em docs/
+
+A pedido explícito do dono, todos os arquivos markdown (.md) do projeto foram movidos para a pasta `docs/`.
+As subpastas (`docs/audits/`, `.claude/agents/`, `.claude/commands/`) foram excluídas, centralizando
+toda a documentação em um nível plano dentro de `docs/`.
+Arquivos de regras e instruções (AGENTS.md, CLAUDE.md) atualizados para apontar para `docs/`.
+
 ## 2026-10-03 — Antigravity: remoção do andaime sobreposto ao operário em /devs
 
 A pedido do dono, corrigida a animação do operário no overlay de /devs (CenaObra.tsx).

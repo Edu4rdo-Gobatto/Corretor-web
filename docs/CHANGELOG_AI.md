@@ -1,5 +1,13 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-04 — Antigravity: consolidação de todos os arquivos .md em docs/
+
+Pedido: mover todos os arquivos .md para a pasta docs/ e remover todas as subpastas em docs e agentes.
+Entrega:
+- Todos os arquivos .md da raiz, de `.claude/` e de `docs/audits/` foram movidos para a pasta `docs/` de forma plana.
+- Subpastas `docs/audits/`, `.claude/agents/`, `.claude/commands/` e `.claude/` foram removidas.
+- Atualizados `docs/AGENTS.md` e `docs/CLAUDE.md` com os novos caminhos.
+
 ## 2026-10-03 — Antigravity: remoção de artefato do operário em CenaObra (/devs)
 
 Pedido: analisar e corrigir artefato visual na cena do operário em /devs (parecia um suporte amarelo atrás da cabeça).

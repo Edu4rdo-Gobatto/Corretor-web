@@ -1,5 +1,12 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-04 — Centralização de documentação em estrutura plana na pasta docs/ (Antigravity)
+
+- **Decisão:** Todos os arquivos de documentação em markdown (`.md`), incluindo instruções de agentes (`AGENTS.md`, `CLAUDE.md`), histórico (`CHANGELOG_AI.md`), decisões (`DECISIONS.md`), status (`PROJECT_STATUS.md`), tarefas (`TASKS.md`), plano do projeto (`PLANO-PROJETO-CORRETOR.md`), README e auditorias devem residir exclusivamente dentro da pasta `docs/`.
+- **Estrutura plana:** A pasta `docs/` é estritamente plana (sem subpastas como `docs/audits/`, etc.) e pastas de configuração de agentes isoladas (como `.claude/`) foram eliminadas.
+- **Motivo:** Decisão explícita do proprietário para organizar a navegação humana, eliminando arquivos markdown dispersos na raiz do repositório e em múltiplas árvores de diretórios.
+- **O que não fazer:** Não recriar arquivos `.md` soltos na raiz nem subdiretórios dentro de `docs/`. Todos os agentes de IA devem ler e manter a documentação diretamente em `docs/*.md`.
+
 ## 2026-10-03 — Limpeza visual da animação do operário no /devs (Antigravity)
 
 - Removido o bloco de andaime em `CenaObra.tsx` posicionado nas mesmas coordenadas do operário.

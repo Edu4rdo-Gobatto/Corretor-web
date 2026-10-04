@@ -77,16 +77,16 @@ Nunca coloque segredo em variável `VITE_*`: tudo que tem esse prefixo vai para 
 
 Antes de trabalhar:
 
-1. Ler `PROJECT_STATUS.md`, `TASKS.md`, `DECISIONS.md` e o último registro de `CHANGELOG_AI.md`.
+1. Ler `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, `docs/DECISIONS.md` e o último registro de `docs/CHANGELOG_AI.md`.
 2. Verificar o estado do Git: `git status`, `git log --oneline -5` e se a branch está sincronizada com o remoto.
-3. Conferir em `PROJECT_STATUS.md` se outro agente já assumiu a mesma área.
-4. Atualizar `PROJECT_STATUS.md` com a tarefa assumida, o seu nome e a data.
+3. Conferir em `docs/PROJECT_STATUS.md` se outro agente já assumiu a mesma área.
+4. Atualizar `docs/PROJECT_STATUS.md` com a tarefa assumida, o seu nome e a data.
 
 Depois de trabalhar:
 
-1. Atualizar `PROJECT_STATUS.md`.
-2. Registrar decisões relevantes em `DECISIONS.md`, com motivo e o que não fazer.
-3. Registrar em `CHANGELOG_AI.md` a tarefa, os arquivos alterados, os testes executados com o resultado real e as pendências.
+1. Atualizar `docs/PROJECT_STATUS.md`.
+2. Registrar decisões relevantes em `docs/DECISIONS.md`, com motivo e o que não fazer.
+3. Registrar em `docs/CHANGELOG_AI.md` a tarefa, os arquivos alterados, os testes executados com o resultado real e as pendências.
 4. Informar riscos e o que ficou sem teste.
 
 Divisão sugerida de papéis:
