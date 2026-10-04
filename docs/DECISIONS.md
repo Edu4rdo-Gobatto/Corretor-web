@@ -6,6 +6,16 @@
 - **Estrutura plana:** A pasta `docs/` é estritamente plana (sem subpastas como `docs/audits/`, etc.) e pastas de configuração de agentes isoladas (como `.claude/`) foram eliminadas.
 - **Motivo:** Decisão explícita do proprietário para organizar a navegação humana, eliminando arquivos markdown dispersos na raiz do repositório e em múltiplas árvores de diretórios.
 - **O que não fazer:** Não recriar arquivos `.md` soltos na raiz nem subdiretórios dentro de `docs/`. Todos os agentes de IA devem ler e manter a documentação diretamente em `docs/*.md`.
+## 2026-10-04 — Suíte mínima recriada e filtros reorganizados (Claude)
+
+- Após a revisão externa, o dono pediu a recuperação da rede de segurança sem voltar aos 46 arquivos. Foram recriados apenas
+  3 arquivos em `src/servicos/` (contato/LGPD/WhatsApp/CPF-CNPJ, URL de filtro e cálculos de valor com o catálogo de exemplo).
+  Isto substitui, só neste escopo, a regra "não recriar suítes sem novo pedido". Não ampliar sem pedido.
+- `npm test` volta a passar de verdade; `visual` continua sem specs e não deve ser alegado como verificado.
+- Cidade e bairro saem da linha principal do filtro e vão para "Mais filtros" (dois campos sem uso comum não valem a linha principal).
+  Não recolocar campos opcionais na linha principal sem dado que justifique.
+- O herói do catálogo não pode reutilizar a capa de anúncios. Dados de demonstração devem variar tipo, finalidade, valor e bairro.
+- Ações secundárias do detalhe (compartilhar/mapa) ficam no card de valor, nunca soltas acima da galeria.
 
 ## 2026-10-03 — Limpeza visual da animação do operário no /devs (Antigravity)
 
@@ -15,6 +25,21 @@
 - Com a remoção, a silhueta do personagem, o capacete e o movimento do martelo ficam destacados
   e limpos, em consonância com a apresentação do operário em `CenaReparo.tsx`. Não recolocar
   estruturas estáticas com a mesma cor do personagem sobre a mesma área de desenho.
+
+## 2026-10-03 — Catálogo com dados persistentes na API (Codex)
+
+- Esclarecimento do dono: preencher de verdade o banco da API com 12 anúncios e fotos da internet.
+  O frontend continua consumindo o contrato real; não adicionar fixtures/fallback ou modo demo.
+- Conteúdo de Juara/MT com preços, áreas, características e endereços sintéticos, e fotos
+  ilustrativas identificadas nas descrições. Fontes e licença das 36 imagens ficam documentadas
+  na API. Arquivos originais também são armazenados no R2 existente; como `R2_PUBLIC_URL` responde
+  HTTP 401, `imoveis_midias.url` usa a URL Unsplash licenciada. Não abrir/publicar o bucket para
+  corrigir isso; fazer a migração para domínio público próprio quando houver configuração aprovada.
+- ADMIN Codice responsável pelos imóveis; criação/dados assinados tecnicamente pelo ADMIN id 1.
+  Contatos vêm do WhatsApp comercial confirmado; não inventar contatos de pessoas desconhecidas.
+- Preservar dados atuais, logo/cores/layout, os 503/404 e mudanças locais anteriores.
+  QA local usa controllers/services e banco/R2 reais, sem scheduler financeiro/limpeza de sessões.
+  Sem migration, commit, push ou deploy nesta carga; não alterar os dados de imóveis existentes.
 
 ## 2026-10-03 — Cartoon de reparo e recuperação do 503 (Codex)
 

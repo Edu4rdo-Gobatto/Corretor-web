@@ -163,3 +163,23 @@ Sondagem HEAD da mesma URL em `verificarPaginaPublica` (`api.ts`), primeira apó
 200/404 recarregam a URL atual; erros conservam a espera. Sair/trocar URL/ocultar/offline cancela
 e invalida respostas; retomar aguarda 30s. Não aplicar o retorno de 8s da 404 a essa espera.
 Preservar HTTP 503/SEO/no-store/Retry-After e orçamento SSR; sem keep-alive ou alteração de infra.
+
+## 2026-10-03 — Catálogo persistente no Neon
+
+A carga autorizada acrescentou 12 anúncios ilustrativos e 36 mídias ao banco da API. Não confundir
+persistência real com oferta comercial confirmada: preços, áreas, características e endereços são
+sintéticos; cada descrição identifica imagens/endereço de referência. Fontes/licenças em
+`../Corretor-API/docs/2026-10-03-fontes-catalogo.md`. O cliente público continua usando a API normal,
+sem fixture nem modo demo. A URL pública do bucket R2 respondeu 401; o seed mantém uma cópia dos
+arquivos no R2 privado e grava URLs HTTPS da Unsplash no campo público da mídia. Não habilitar o
+bucket publicamente sem decisão de infraestrutura. Reexecução `npm run seed:catalogo:executar`
+reconcilia essas URLs apenas nos IDs e chaves do lote. Não alterar nem remover os 4 imóveis
+anteriores, nem commitar/publicar sem autorização expressa. Ver `CHANGELOG_AI.md`/`TASKS.md` para
+validação, credencial administrativa em pasta local restrita e limites desta carga.
+
+## 2026-10-04 — Suíte mínima
+
+Depois da revisão externa, 
+pm test voltou a ter 3 arquivos em src/servicos/ (contato/LGPD, URL de filtro, valores e catálogo de exemplo). Não ampliar nem recriar as demais suítes sem novo pedido; 
+pm run visual segue sem specs. Dados de demonstração: catalogoExemplo() em src/seo/fixture.ts. Índice da documentação: docs/INDICE.md.
+

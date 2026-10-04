@@ -7,6 +7,23 @@ Entrega:
 - Todos os arquivos .md da raiz, de `.claude/` e de `docs/audits/` foram movidos para a pasta `docs/` de forma plana.
 - Subpastas `docs/audits/`, `.claude/agents/`, `.claude/commands/` e `.claude/` foram removidas.
 - Atualizados `docs/AGENTS.md` e `docs/CLAUDE.md` com os novos caminhos.
+## 2026-10-04 — Revisão externa: ajustes de design, suíte mínima e índice (Claude)
+
+Pedido: tratar a revisão do repositório (riscos operacionais e 5 ajustes de design).
+
+Arquivos: `src/paginas/publico/Catalogo.tsx` (cidade/bairro movidos para "Mais filtros: local, preço e área";
+herói trocado por `public/assets/rua-comercial-{640,960,1200}.webp`), `src/paginas/publico/DetalheImovel.tsx`
+(compartilhar/mapa foram do cabeçalho para o card de valor; "Soma dos valores informados" sem negrito, em cor atenuada),
+`src/seo/fixture.ts` (`catalogoExemplo()` com 11 imóveis variados e tipos Loja/Terreno/Prédio),
+`scripts/seo-smoke.mjs` e `tests/visual/api-simulada.ts` (usam o catálogo variado), `tsconfig.json` (removido `tests/e2e` e
+`playwright.config.ts`, inexistentes), `docs/INDICE.md` (novo), testes novos `src/servicos/{contato,urls,formato}.test.ts`.
+
+Testes executados (resultado real): `npm run typecheck` exit 0; `npm run lint` exit 0; `npm test` 3 arquivos/21 testes passaram;
+`npm run build` exit 0; `node scripts/seo-smoke.mjs` passou (SSR, 404, robots/sitemap/llms, proxy, 503). Prints Chrome do catálogo
+e do detalhe em 1440 e 390 conferidos manualmente. `npm run visual` NÃO foi executado: continua sem `.spec.ts`.
+
+Pendências: fotos reais dos imóveis (hoje Unsplash); testes de autorização, comissão e upload são da API irmã;
+imagem do herói gerada por IA, trocar por foto real de Juara quando houver. Commit e push autorizados pelo dono na main.
 
 ## 2026-10-03 — Antigravity: remoção de artefato do operário em CenaObra (/devs)
 
@@ -19,6 +36,27 @@ Validação:
 - `npm run typecheck`, `npm run lint`, `npm run build`: exit 0.
 - `node scripts/seo-smoke.mjs`: exit 0.
 - `npm test`: exit 1 (conforme esperado, nenhuma suíte de teste presente).
+
+## 2026-10-03 — CARGA-001: catálogo persistente no Neon
+
+Por solicitação do dono, a API irmã recebeu 12 imóveis ilustrativos de Juara/MT, 9 características,
+1 conta ADMIN Codice e 36 fotos; o frontend continuou no contrato real, sem fallback/modo demo.
+Os imóveis existentes e registros das outras tabelas foram preservados. Valores, áreas, itens e
+endereços são sintéticos, não confirmam disponibilidade. As descrições identificam fotos e endereço
+de referência; proveniência/licenças das imagens estão no documento da API.
+
+O comando fez uma simulação direta sem escrita e exigiu backup completo do mesmo Neon fora do
+repositório e OneDrive. Snapshot de 39 tabelas/114 linhas: todas as linhas anteriores conferidas
+intactas após a carga. Os 36 objetos ficaram no R2 e tiveram hash validado; a URL `r2.dev` configurada
+respondeu 401. A política do bucket permaneceu igual; o banco aponta às URLs Unsplash verificadas,
+36/36 HTTP 200. SSR do catálogo, página 2, detalhe e galeria foram conferidos em browser local; a
+capa carregou (1400×933). Localmente, `robots.txt` segue `Disallow: /`, sitemap vazio com indexação
+desativada e uma rota desconhecida respondeu 404.
+
+Validação API final: typecheck/lint/build aprovados; `npm test` exit 1 por ausência de suites fonte
+removidas a pedido do dono, sem recriação. Execução repetida: 12 itens ignorados, 0 duplicados.
+Nenhum código funcional do frontend foi alterado neste trabalho; nenhum commit/push/deploy foi feito.
+Credencial aleatória do Codice ficou em arquivo privado local fora do repositório/OneDrive.
 
 ## 2026-10-03 — Codex: commit e push do cartoon de indisponibilidade autorizados
 

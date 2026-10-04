@@ -82,11 +82,6 @@ export default function DetalheImovel() {
           <p className="eyebrow mb-[14px]">{imovel.tipo?.nome || 'Imóvel'} · {imovel.finalidade?.nome || 'Imóvel comercial'} · Ref. {codigoImovel(imovel.id)}</p>
           <h1 className="mb-[15px] max-w-[950px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
           <p className="mb-0 flex items-start gap-[7px] text-muted"><MapPin size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
-          <div className="mt-[18px] flex flex-wrap gap-2.5 [&_a]:min-h-11 [&_button]:min-h-11">
-            <AcaoIcone icone={Share2} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
-            <AcaoIcone icone={MapPinned} rotulo="Ver no mapa" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" />
-          </div>
-          {linkCopiado && <p className="mb-0 mt-2 text-[13px] text-brand" role="status">Link copiado.</p>}
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-[52px] max-[1000px]:grid-cols-[minmax(0,1fr)_300px] max-[1000px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-5">
             <div className="order-1 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-1"><GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} /></div>
@@ -96,13 +91,18 @@ export default function DetalheImovel() {
               {imovel.valor_locacao !== null && <><p className="eyebrow">Valor de locação</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_locacao)}<span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span></p></>}
               {!preco && <><p className="eyebrow">Valor</p><p className="mb-[14px] text-[26px] font-semibold text-brand">Sob consulta</p></>}
               {precoMetro !== null && <p className="mb-3 text-sm text-muted">{dinheiro(precoMetro)} / m² ({preco?.tipo === 'locacao' ? 'locação' : 'venda'})</p>}
-              {imovel.valor_locacao !== null && <><p className="mb-3 text-sm font-semibold text-ink">Soma dos valores informados{condominio === null || iptu === null ? ' (parcial)' : ''}: {dinheiro(somaMensal(Number(imovel.valor_locacao), condominio, iptu))}</p><p className="text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
+              {imovel.valor_locacao !== null && <><p className="mb-1 text-sm text-muted">Soma dos valores informados{condominio === null || iptu === null ? ' (parcial)' : ''}: {dinheiro(somaMensal(Number(imovel.valor_locacao), condominio, iptu))}</p><p className="mb-3 text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
               <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-[15px] [&_div]:py-[5px] [&_dt]:text-muted">
                 {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
                 {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
               </dl>
               <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <ArrowUpRight size={18} /></button>
-              <p className="mb-[25px] mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
+              <p className="mb-4 mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
+              <div className="mb-[22px] flex flex-wrap items-center justify-center gap-2.5 [&_a]:min-h-11 [&_button]:min-h-11">
+                <AcaoIcone icone={Share2} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
+                <AcaoIcone icone={MapPinned} rotulo="Ver no mapa" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" />
+              </div>
+              {linkCopiado && <p className="-mt-3 mb-4 text-center text-[13px] text-brand" role="status">Link copiado.</p>}
               {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
                 <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={imovel.corretor.url_foto} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
                 <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>

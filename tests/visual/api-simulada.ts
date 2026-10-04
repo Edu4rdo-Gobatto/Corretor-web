@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test';
-import { classificacoesExemplo, imovelExemplo } from '../../src/seo/fixture';
+import { catalogoExemplo, classificacoesExemplo, imovelExemplo } from '../../src/seo/fixture';
 import type { Cargo, Classificacao, Corretor, FichaImovel, Pagina, Pessoa, StatusContato, StatusImovel } from '../../src/tipos';
 import type { Comissao, Contrato } from '../../src/servicos/locacoes';
 
@@ -29,11 +29,12 @@ function pagina<T>(itens: T[], url: URL): Pagina<T> {
 }
 
 const statusImovel: StatusImovel[] = ['DISPONIVEL', 'DISPONIVEL', 'RESERVADO', 'ALUGADO', 'VENDIDO', 'RETIRADO'];
+const modelosFicha = catalogoExemplo();
 const fichas: FichaImovel[] = statusImovel.map((status, indice) => ({
-  ...imovelExemplo,
+  ...modelosFicha[indice],
   id: 42 + indice,
-  slug: `sala-comercial-no-centro-${42 + indice}`,
-  titulo: indice === 0 ? imovelExemplo.titulo : `${imovelExemplo.titulo} ${indice + 1}`,
+  slug: `${modelosFicha[indice].slug.replace(/-\d+$/, '')}-${42 + indice}`,
+  titulo: modelosFicha[indice].titulo,
   status,
   destaque: indice === 1,
   // O imóvel 43 é da corretora de teste (id 2): serve para o cenário do cargo CORRETOR editando o próprio imóvel.
