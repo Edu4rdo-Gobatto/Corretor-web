@@ -15,4 +15,5 @@ const handler = createHandler(async (...args) => {
   return handleRequest(...args);
 }, async url => vite.transformIndexHtml(url, await readFile('index.html', 'utf8')), config);
 const port = Number(process.env.PORT || 5173);
-createHttpServer((req, res) => vite.middlewares(req, res, () => handler(req, res))).listen(port, '127.0.0.1', () => console.log(`SSR development: http://127.0.0.1:${port}`));
+const host = process.env.HOST || '0.0.0.0';
+createHttpServer((req, res) => vite.middlewares(req, res, () => handler(req, res))).listen(port, host, () => console.log(`SSR development: http://${host}:${port}`));

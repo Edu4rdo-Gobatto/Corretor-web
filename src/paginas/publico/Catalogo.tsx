@@ -37,7 +37,7 @@ export default function Catalogo() {
   const classificacoesRecurso = useRecurso(useCallback(() => api.classificacoes(), []), iniciais?.data.classificacoes);
   const classificacoes = classificacoesRecurso.valor;
   const tipos = (classificacoes?.tipos ?? []).map((item) => ({ chave: item.slug ?? String(item.id), nome: item.nome }));
-  const [avancadoAberto, setAvancadoAberto] = useState(Boolean(consulta.valor_min || consulta.valor_max || consulta.area_min || consulta.area_max));
+  const [avancadoAberto, setAvancadoAberto] = useState(Boolean(consulta.cidade || consulta.bairro || consulta.valor_min || consulta.valor_max || consulta.area_min || consulta.area_max));
   const [erroFiltro, setErroFiltro] = useState('');
   const formulario = useRef<HTMLFormElement>(null);
   useEffect(() => { formulario.current?.reset(); }, [chaveConsulta]);
@@ -88,23 +88,23 @@ export default function Catalogo() {
         <a className="inline-flex items-center gap-7 border-b-2 border-gold pb-2 text-sm font-semibold no-underline" href="#catalogo" onClick={(evento) => { evento.preventDefault(); rolarParaCatalogo(); }}>Explore os imóveis <ArrowDown size={17} /></a>
       </div>
       <div className="relative order-2 h-[340px] overflow-hidden rounded-lg bg-soft max-[800px]:order-3 max-[800px]:h-[clamp(200px,46vw,300px)]">
-        <img src="/assets/commercial-space-1200.webp" srcSet="/assets/commercial-space-640.webp 640w, /assets/commercial-space-960.webp 960w, /assets/commercial-space-1200.webp 1200w" sizes="(max-width: 800px) calc(100vw - 36px), 600px" width="1200" height="900" alt="Ambiente comercial iluminado, com mesas, vegetação e janelas amplas" className="h-full w-full rounded-lg object-cover" {...{ fetchpriority: 'high' }} />
+        <img src="/assets/rua-comercial-1200.webp" srcSet="/assets/rua-comercial-640.webp 640w, /assets/rua-comercial-960.webp 960w, /assets/rua-comercial-1200.webp 1200w" sizes="(max-width: 800px) calc(100vw - 36px), 600px" width="1200" height="900" alt="Rua comercial arborizada ao entardecer, com lojas no térreo, salas nos andares superiores e prédio moderno ao fundo" className="h-full w-full rounded-lg object-cover" {...{ fetchpriority: 'high' }} />
       </div>
     <div className="relative order-3 col-span-full max-[800px]:order-2">
       <form ref={formulario} onSubmit={buscar} className="rounded-lg border border-line bg-paper px-7 pt-[26px] pb-[15px] shadow-sm max-[560px]:px-[18px] max-[560px]:pt-5 max-[560px]:pb-[10px]" aria-label="Buscar imóveis">
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-end gap-[26px] max-[1100px]:gap-[18px] max-[800px]:grid-cols-2 max-[800px]:gap-5 max-[560px]:grid-cols-1 max-[560px]:gap-x-[14px] max-[560px]:gap-y-[18px]">
+        <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-[26px] max-[1100px]:gap-[18px] max-[800px]:grid-cols-2 max-[800px]:gap-5 max-[560px]:grid-cols-1 max-[560px]:gap-x-[14px] max-[560px]:gap-y-[18px]">
           <label className={`${rotuloFiltro} border-r border-line pr-5 max-[1100px]:pr-[10px] max-[800px]:border-0 max-[800px]:p-0`}>O que você procura?<select name="finalidade" defaultValue={consulta.finalidade || ''} className={campoControle}><option value="">Alugar ou comprar</option>{classificacoes?.finalidades.map((item) => <option key={item.id} value={item.slug ?? item.id}>{item.nome}</option>)}</select></label>
-          <label className={`${rotuloFiltro} border-r border-line pr-5 max-[1100px]:pr-[10px] max-[800px]:border-0 max-[800px]:p-0`}>Tipo de imóvel<select name="tipo" defaultValue={consulta.tipo || ''} className={campoControle}><option value="">Todos os tipos</option>{tipos.map((tipo) => <option value={tipo.chave} key={tipo.chave}>{tipo.nome}</option>)}</select></label>
-          <label className={rotuloFiltro}>Onde?<input name="cidade" list="catalogo-cidades" placeholder="Cidade" defaultValue={consulta.cidade || ''} maxLength={100} className={campoControle} /></label>
-          <label className={rotuloFiltro}>Bairro<input name="bairro" placeholder="Bairro" defaultValue={consulta.bairro || ''} maxLength={100} className={campoControle} /></label>
-          <button className="button mb-[3px] min-h-12 w-auto max-[1100px]:px-[15px] max-[1100px]:py-3 max-[560px]:w-full" type="submit"><Search size={17} /> Buscar</button>
+          <label className={rotuloFiltro}>Tipo de imóvel<select name="tipo" defaultValue={consulta.tipo || ''} className={campoControle}><option value="">Todos os tipos</option>{tipos.map((tipo) => <option value={tipo.chave} key={tipo.chave}>{tipo.nome}</option>)}</select></label>
+          <button className="button mb-[3px] min-h-12 w-auto max-[1100px]:px-[15px] max-[1100px]:py-3 max-[800px]:col-span-2 max-[560px]:col-span-1 max-[560px]:w-full" type="submit"><Search size={17} /> Buscar</button>
         </div>
         <div className="mt-[19px] flex items-center gap-5 border-t border-line pt-3">
-          <button type="button" className="inline-flex min-h-11 items-center gap-2 border-0 bg-transparent px-0 py-[6px] text-xs text-muted" aria-expanded={avancadoAberto} onClick={() => setAvancadoAberto(!avancadoAberto)}><SlidersHorizontal size={15} /> Preço e área</button>
+          <button type="button" className="inline-flex min-h-11 items-center gap-2 border-0 bg-transparent px-0 py-[6px] text-xs text-muted" aria-expanded={avancadoAberto} onClick={() => setAvancadoAberto(!avancadoAberto)}><SlidersHorizontal size={15} /> Mais filtros: local, preço e área</button>
           {temFiltro && <button type="button" className="inline-flex min-h-11 items-center gap-2 border-0 bg-transparent px-0 py-[6px] text-xs text-muted underline" onClick={() => { irPara(new URLSearchParams()); setErroFiltro(''); }}>Limpar filtros</button>}
 
         </div>
-        <div className={avancadoAberto ? 'grid gap-5 py-3 md:grid-cols-4 max-[560px]:grid-cols-1' : 'hidden'}>
+        <div className={avancadoAberto ? 'grid gap-5 py-3 md:grid-cols-2 max-[560px]:grid-cols-1' : 'hidden'}>
+          <label className="block">Cidade<input name="cidade" list="catalogo-cidades" placeholder="Ex.: Juara" defaultValue={consulta.cidade || ''} maxLength={100} /></label>
+          <label className="block">Bairro<input name="bairro" placeholder="Ex.: Centro" defaultValue={consulta.bairro || ''} maxLength={100} /></label>
           <label className="block">Preço mínimo (R$)<input name="preco-minimo" type="number" min="0" step="0.01" max="9999999999.99" placeholder="Sem mínimo" defaultValue={consulta.valor_min} /></label>
           <label className="block">Preço máximo (R$)<input name="preco-maximo" type="number" min="0" step="0.01" max="9999999999.99" placeholder="Sem máximo" defaultValue={consulta.valor_max} /></label>
           <label className="block">Área mínima (m²)<input name="area-minima" type="number" min="0" step="0.01" placeholder="Sem mínimo" defaultValue={consulta.area_min} /></label>

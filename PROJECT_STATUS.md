@@ -1,5 +1,13 @@
 # Estado atual — corretor-web
 
+## 2026-10-04 — Publicação autorizada pelo dono: ajustes da revisão externa e suíte mínima
+
+Pedido explícito do dono: commit e push da implementação na main. Escopo: filtros do catálogo enxutos,
+novo herói de rua comercial, ações do detalhe no card de valor, soma atenuada, catálogo de demonstração
+variado, suíte mínima de 21 testes vitest, limpeza de tsconfig.json e .gitignore, documentação em docs/INDICE.md e docs/plans/.
+Sincronizado via fast-forward com o commit be877c0 do parceiro antes do envio. Typecheck, lint, vitest
+e seo-smoke aprovados (exit 0). Sem deploy/migração de produção.
+
 ## 2026-10-03 — Antigravity: remoção do andaime sobreposto ao operário em /devs
 
 A pedido do dono, corrigida a animação do operário no overlay de /devs (CenaObra.tsx).
@@ -7,6 +15,18 @@ Removido o bloco do andaime que se sobrepunha diretamente ao personagem, elimina
 visual da prancha amarela atrás da cabeça e da haste vertical.
 Validação: typecheck, lint, build e seo-smoke aprovados (exit 0).
 npm test: exit 1, sem arquivos de teste, conforme decisão do dono.
+
+## 2026-10-03 — Codex: carga persistente do catálogo concluída localmente
+
+Pedido esclarecido pelo dono: preencher o Neon atual da API com 12 imóveis e fotos da internet,
+sem modo de demonstração no frontend. Criar ADMIN Codice conforme escolhas em conversa.
+Neon direto: 12 novos imóveis disponíveis, 36 fotos, 9 características, Codice ADMIN e nenhum
+cadastro auxiliar duplicado. Backup privado antes da escrita; verificação comparou o snapshot
+completo e preservou todas as linhas anteriores. As fotos ficam em cópia no R2 e o banco aponta
+à CDN Unsplash, pois a URL pública do bucket responde 401; nenhuma política de acesso foi alterada.
+SSR/ficha/galeria conferidos localmente com uma foto carregada. Typecheck/lint/build API aprovados;
+npm test sai 1 sem suítes. Documentação da API e frontend atualizada. Sem migration, commit,
+push ou deploy; credenciais ficam em pasta local restrita fora do Git/OneDrive.
 
 ## 2026-10-03 — Codex: publicação do cartoon de indisponibilidade autorizada
 

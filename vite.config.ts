@@ -4,5 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(() => ({
     plugins: [react(), tailwindcss()],
+    server: { allowedHosts: ['.loca.lt'] },
     test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'], restoreMocks: true, exclude: ['node_modules', 'dist', '.worktrees', '.vercel', 'tests/e2e/**', 'tests/visual/**'] },
 }));

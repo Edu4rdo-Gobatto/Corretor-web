@@ -1,5 +1,30 @@
 # Tarefas — corretor-web
 
+## REVISAO-001 — Ajustes da revisão externa
+
+Status: concluída e publicada na main em 04/10/2026.
+
+- [x] Filtro do catálogo sem campos vazios na linha principal.
+- [x] Herói diferente da capa dos anúncios.
+- [x] Compartilhar/mapa no card de valor; soma dos valores sem negrito.
+- [x] Dados de demonstração variados (`catalogoExemplo()`).
+- [x] Suíte mínima (3 arquivos), `tsconfig.json` sem caminhos inexistentes, índice em `docs/INDICE.md`.
+- [x] Commitar e publicar na main com autorização expressa do dono.
+- [ ] Fotos reais dos 12 imóveis (conteúdo; hoje Unsplash).
+- [ ] Testes de autorização por perfil, comissão e round-trip de upload na API irmã.
+- [ ] Specs da suíte visual (`tests/visual` só tem utilitários; `npm run visual` sai com erro).
+## CARGA-001 — Preencher o catálogo persistente
+
+Status: concluída localmente em 03/10/2026. Responsável: Codex.
+
+- 12 imóveis ilustrativos no Neon atual, 36 fotos HTTPS da Unsplash vinculadas no catálogo e cópias no R2, ADMIN Codice responsável.
+- Preservar os quatro imóveis existentes e todas as linhas anteriores; sem modo demo no frontend.
+- Comando/simulação/backup/journal na API irmã; plano em docs/plans/2026-10-03-carga-catalogo.md.
+- Snapshot completo antes da carga; verificação posterior preservou todas as linhas antigas e adicionou apenas dados do lote nas tabelas permitidas.
+- SSR do catálogo e ficha, galeria, autor, 36/36 URLs HTTP 200, senha/conta e simulação de idempotência conferidos.
+- API typecheck/lint/build aprovados; npm test indisponível por ausência de suítes fonte removidas a pedido do dono. Sem commit/push/deploy.
+
+
 ## UX-503-001 — Cena de reparo e recuperação automática da página
 
 Status: concluída; commit e push autorizados pelo dono em 03/10/2026. Responsável: Codex. Plano aprovado em conversa.
