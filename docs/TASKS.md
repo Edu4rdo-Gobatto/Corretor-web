@@ -1,8 +1,8 @@
 # Tarefas — corretor-web
 
 Status possíveis: `aberta`, `em andamento`, `em revisão`, `bloqueada`, `concluída`.
-Quem assume uma tarefa escreve o próprio nome em Responsável e reflete isso no `PROJECT_STATUS.md`.
-Tarefas da API ficam em `../Corretor-API/TASKS.md`.
+Quem assume uma tarefa escreve o próprio nome em Responsável e reflete isso no `docs/PROJECT_STATUS.md`.
+Tarefas da API ficam em `../Corretor-API/docs/TASKS.md`.
 
 ---
 
@@ -13,7 +13,7 @@ Tarefas da API ficam em `../Corretor-API/TASKS.md`.
 - **Responsável:** a definir
 - **Objetivo:** Publicar a aplicação com SSR em produção conectada à API real.
 - **Critérios de conclusão:**
-  - Definir e registrar em `DECISIONS.md` a plataforma de hospedagem comercial (Vercel plano comercial ou alternativa Node.js).
+  - Definir e registrar em `docs/DECISIONS.md` a plataforma de hospedagem comercial (Vercel plano comercial ou alternativa Node.js).
   - Configurar variáveis de produção:
     - `VITE_API_URL=/api`
     - `API_ORIGIN` com o domínio HTTPS real da API
@@ -30,6 +30,29 @@ Tarefas da API ficam em `../Corretor-API/TASKS.md`.
   - Ambiente Node 24 com `npm run start:prod`.
   - Configurar variáveis de ambiente (`DATABASE_URL`, `JWT_SECRET`, credenciais do R2, etc.).
   - Health check da API respondendo 200 em `/api/v1/saude`.
+
+### CONTEUDO-001 — Fotos comerciais reais dos imóveis e acesso público do R2
+- **Status:** aberta (trazida em CARGA-001 e REVISAO-001)
+- **Responsável:** a definir
+- **Objetivo:** Substituir as fotos ilustrativas da Unsplash pelas fotos comerciais reais dos 12 imóveis cadastrados no Neon, e resolver a permissão de leitura pública do bucket R2.
+- **Critérios de conclusão:**
+  - Configurar acesso público/domínio customizado no Cloudflare R2 (atualmente a URL pública do R2 retorna 401, necessitando do CDN da Unsplash como paliativo temporário).
+  - Fazer upload das fotos reais dos imóveis comerciais de Juara/MT.
+  - Atualizar os links no banco e validar carregamento no catálogo, na galeria e nas miniaturas.
+
+### TEST-VISUAL-001 — Especificações de teste para a suíte visual Playwright
+- **Status:** aberta (trazida em REVISAO-001)
+- **Responsável:** a definir
+- **Objetivo:** Criar arquivos de teste `.spec.ts` para `tests/visual/` para que o comando `npm run visual` funcione corretamente.
+- **Critérios de conclusão:**
+  - A pasta `tests/visual/` atualmente só possui arquivos utilitários (`api-simulada.ts`, `orcamento.ts`), fazendo o Playwright falhar por falta de specs.
+  - Criar testes visuais cobrindo páginas públicas e painel nos temas claro e escuro e nas larguras responsivas.
+  - Garantir que `npm run visual` conclua a execução gerando o relatório sem falhas.
+
+### TEST-API-001 — Testes de permissões e upload na API irmã (Corretor-API)
+- **Status:** aberta (trazida em REVISAO-001)
+- **Responsável:** a definir
+- **Objetivo:** Cobrir no backend (`Corretor-API`) a autorização por perfil (ADMIN vs CORRETOR), cálculo de comissões e round-trip de upload de arquivos.
 
 ### SEO-001 — Liberar a indexação pública nos motores de busca
 - **Status:** bloqueada por DEPLOY-002

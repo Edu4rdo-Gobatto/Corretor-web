@@ -7,14 +7,14 @@ Atualize este índice quando um documento mudar de papel.
 
 | Preciso saber… | Leia | Observação |
 |---|---|---|
-| Como rodar, regras e mapa do código | [`AGENTS.md`](../AGENTS.md) | Fonte das regras do projeto e do protocolo entre agentes |
-| O que está em andamento e quem assumiu | [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) | Só as 2–3 entradas do topo importam; o resto é histórico |
-| O que falta fazer | [`TASKS.md`](../TASKS.md) | Uma seção por tarefa, com status |
-| Por que algo foi decidido (e o que não fazer) | [`DECISIONS.md`](../DECISIONS.md) | Ordem cronológica inversa |
-| O que mudou, arquivos e testes executados | [`CHANGELOG_AI.md`](../CHANGELOG_AI.md) | Só o último registro é obrigatório no protocolo |
-| Regras de produto e contrato | `corretor-spec.json` e [`PLANO-PROJETO-CORRETOR.md`](../PLANO-PROJETO-CORRETOR.md) | Compartilhados com a API |
-| Última auditoria | [`audits/2026-10-02-auditoria-fullstack.md`](audits/2026-10-02-auditoria-fullstack.md) | Achados A01–A11 |
-| Carga do catálogo no Neon | [`plans/2026-10-03-carga-catalogo.md`](plans/2026-10-03-carga-catalogo.md) | Fontes das fotos na API irmã |
+| Como rodar, regras e mapa do código | [`AGENTS.md`](AGENTS.md) | Fonte das regras do projeto e do protocolo entre agentes |
+| O que está em andamento e quem assumiu | [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Só as 2–3 entradas do topo importam; o resto é histórico |
+| O que falta fazer | [`TASKS.md`](TASKS.md) | Uma seção por tarefa, com status |
+| Por que algo foi decidido (e o que não fazer) | [`DECISIONS.md`](DECISIONS.md) | Ordem cronológica inversa |
+| O que mudou, arquivos e testes executados | [`CHANGELOG_AI.md`](CHANGELOG_AI.md) | Só o último registro é obrigatório no protocolo |
+| Regras de produto e contrato | `corretor-spec.json` e [`PLANO-PROJETO-CORRETOR.md`](PLANO-PROJETO-CORRETOR.md) | Compartilhados com a API |
+| Última auditoria | [`2026-10-02-auditoria-fullstack.md`](2026-10-02-auditoria-fullstack.md) | Achados A01–A11 |
+| Carga do catálogo no Neon | [`2026-10-03-carga-catalogo.md`](2026-10-03-carga-catalogo.md) | Fontes das fotos na API irmã |
 
 ## Estado resumido (04/10/2026)
 
