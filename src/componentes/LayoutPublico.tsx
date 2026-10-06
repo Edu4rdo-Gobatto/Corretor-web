@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Menu, Moon, Sun, X } from 'lucide-react';
+import { IconeSetaExterna, IconeMenu, IconeModoEscuro, IconeModoClaro, IconeFechar } from './Icones';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { lerUrlCatalogo, rotas, urlCatalogo } from '../servicos/urls';
 import { sinalizarIdaAosDevs } from '../servicos/obra';
@@ -64,12 +64,12 @@ export default function LayoutPublico() {
             <Link ref={primeiroLink} to={rotas.inicio} className={encontrarAtivo ? classeAtiva : undefined} aria-current={encontrarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Encontrar um imóvel</Link>
             <Link to={urlCatalogo({ finalidade: 'locacao' })} className={alugarAtivo ? classeAtiva : undefined} aria-current={alugarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Alugar</Link>
             <Link to={urlCatalogo({ finalidade: 'venda' })} className={comprarAtivo ? classeAtiva : undefined} aria-current={comprarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Comprar</Link>
-            <Link to={rotas.painel} onClick={() => fecharMenu(false)} className="flex items-center gap-[14px] border-l border-line py-3 pl-8 max-[900px]:pl-3 max-[650px]:min-h-12 max-[650px]:border-l-0 max-[650px]:border-t max-[650px]:border-t-white/20 max-[650px]:pl-0 max-[650px]:font-sans max-[650px]:text-base">Área do corretor <ArrowUpRight size={16} /></Link>
+            <Link to={rotas.painel} onClick={() => fecharMenu(false)} className="flex items-center gap-[14px] border-l border-line py-3 pl-8 max-[900px]:pl-3 max-[650px]:min-h-12 max-[650px]:border-l-0 max-[650px]:border-t max-[650px]:border-t-white/20 max-[650px]:pl-0 max-[650px]:font-sans max-[650px]:text-base">Área do corretor <IconeSetaExterna size={16} /></Link>
             <p aria-hidden="true" className="m-0 hidden pt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold max-[650px]:block">CRECI {brand.creci}</p>
           </nav>
           <div className="relative z-[6] flex items-center gap-2">
-            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className="buttonGhost inline-flex min-h-11 min-w-11 items-center justify-center">{escuro ? <Sun size={18} /> : <Moon size={18} />}</button>
-            <button ref={botaoMenu} className="hidden min-h-11 min-w-11 items-center justify-center rounded border border-transparent bg-transparent p-2.5 font-semibold hover:bg-soft max-[650px]:inline-flex" aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuAberto} aria-controls="public-navigation" onClick={() => (menuAberto ? fecharMenu() : setMenuAberto(true))}>{menuAberto ? <X /> : <Menu />}</button>
+            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className="buttonGhost inline-flex min-h-11 min-w-11 items-center justify-center">{escuro ? <IconeModoClaro size={18} /> : <IconeModoEscuro size={18} />}</button>
+            <button ref={botaoMenu} className="hidden min-h-11 min-w-11 items-center justify-center rounded border border-transparent bg-transparent p-2.5 font-semibold hover:bg-soft max-[650px]:inline-flex" aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuAberto} aria-controls="public-navigation" onClick={() => (menuAberto ? fecharMenu() : setMenuAberto(true))}>{menuAberto ? <IconeFechar /> : <IconeMenu />}</button>
           </div>
         </div>
       </div>

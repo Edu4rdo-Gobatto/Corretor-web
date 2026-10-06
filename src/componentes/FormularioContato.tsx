@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { IconeSetaExterna } from './Icones';
 import type { Imovel } from '../tipos';
 import { api } from '../servicos/api';
 import { esquemaContato, formatarTelefone, urlWhatsapp, type CamposContato } from '../servicos/contato';
@@ -53,7 +53,7 @@ export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel
       {registrado ? (
         <div className="grid justify-items-start gap-4">
           <Aviso tom="sucesso">Seu interesse foi registrado. Continue a conversa pelo WhatsApp.</Aviso>
-          <a className="button" href={urlContato} target="_blank" rel="noopener noreferrer">Continuar no WhatsApp <ArrowUpRight size={17} /></a>
+          <a className="button" href={urlContato} target="_blank" rel="noopener noreferrer">Continuar no WhatsApp <IconeSetaExterna size={17} /></a>
           <button className="buttonSecondary" onClick={aoFechar}>Concluir</button>
         </div>
       ) : (
@@ -73,7 +73,7 @@ export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel
               {errors.consentimento && <span id="contato-consentimento-erro" className="error">{errors.consentimento.message}</span>}
             </div>
             {falha && <Aviso tom="erro">{falha}</Aviso>}
-            <button className="button" type="submit" disabled={enviando}>{enviando ? 'Registrando contato…' : falha ? 'Tentar registrar novamente' : 'Falar com corretor'}<ArrowUpRight size={17} /></button>
+            <button className="button" type="submit" disabled={enviando}>{enviando ? 'Registrando contato…' : falha ? 'Tentar registrar novamente' : 'Falar com corretor'}<IconeSetaExterna size={17} /></button>
             {whatsappAberto && <a href={urlContato} target="_blank" rel="noopener noreferrer" className="text-center text-sm">Se o WhatsApp não abriu, clique aqui</a>}
           </form>
         </>

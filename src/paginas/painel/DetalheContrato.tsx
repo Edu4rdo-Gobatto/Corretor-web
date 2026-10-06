@@ -4,7 +4,7 @@ import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
-import { Archive, Pencil } from 'lucide-react';
+import { IconeArquivar, IconeEditar } from '../../componentes/Icones';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import Aviso from '../../componentes/Aviso';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
@@ -41,7 +41,7 @@ export default function DetalheContrato() {
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && <>
       <CabecalhoPagina voltar={<Link to="/admin/contratos">← Contratos</Link>} titulo={dados.numero_contrato} descricao={`${dados.status === 'ATIVO' ? 'Ativo' : 'Encerrado'}${dados.ativo ? '' : ' · Arquivado'}`}
-        acoes={<><AcaoIcone icone={Pencil} rotulo="Editar contrato" aoClicar={() => setEditando(true)} />{dados.ativo && <AcaoIcone icone={Archive} rotulo="Arquivar contrato" aoClicar={() => setArquivando(true)} />}</>} />
+        acoes={<><AcaoIcone icone={IconeEditar} rotulo="Editar contrato" aoClicar={() => setEditando(true)} />{dados.ativo && <AcaoIcone icone={IconeArquivar} rotulo="Arquivar contrato" aoClicar={() => setArquivando(true)} />}</>} />
       <section className={estilos.painel}>
         <h2 className={estilos.tituloPainel}>{dados.imovel_titulo ?? `Imóvel #${dados.imovel_id}`}</h2>
         <p>Proprietário: <Link to={`/admin/pessoas/${dados.locador_id}`}>{dados.locador_nome ?? `#${dados.locador_id}`}</Link></p>

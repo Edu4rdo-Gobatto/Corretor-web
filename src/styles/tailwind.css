@@ -27,6 +27,16 @@
   --color-atencao-suave: #f4e9cf;
   --color-foreground: #0a2042;
   --color-sobreposicao: rgb(4 15 36 / 0.62);
+  /* Painel (/admin): dourado mais fechado para o ícone branco ficar legível; texto azul passa de 4,5:1. */
+  --color-acao-painel: #b3892d;
+  --color-acao-painel-hover: #a37d29;
+  --color-sobre-acao: #ffffff;
+  --color-campo: #f3f6fb;
+  --color-linha-a: #f5f6f8;
+  --color-linha-b: #e8ebef;
+  --color-linha-foco: #d9e2ef;
+  --color-cabecalho-tabela: #dfe5ee;
+  --color-texto-cabecalho-tabela: #2c3a52;
 
   --font-sans: "Source Sans 3", system-ui, sans-serif;
   --font-display: "Libre Baskerville", Georgia, serif;
@@ -126,6 +136,12 @@
   --color-atencao: #f0d197;
   --color-atencao-suave: #493b25;
   --color-foreground: #f4e9cf;
+  --color-campo: #1a2f55;
+  --color-linha-a: #192d52;
+  --color-linha-b: #213a64;
+  --color-linha-foco: #2a4470;
+  --color-cabecalho-tabela: #142748;
+  --color-texto-cabecalho-tabela: #dce4f0;
 }
 
 @layer base {

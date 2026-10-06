@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Pencil } from 'lucide-react';
+import { IconeEditar } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import type { Comissao, Contrato, ParcelaComissao, TipoOperacao } from '../../servicos/locacoes';
@@ -148,7 +148,7 @@ function DetalheComissao({ id, aoAlterar }: { id: number; aoAlterar: () => void 
     <section className={estilos.painel}>
       <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
       {dados && !carregando && !erro && <>
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-5"><div><h3 className={estilos.tituloPainel}>{dados.imovel?.titulo ?? `Imóvel #${dados.comissao.imovel_id}`}</h3><p>Pessoa: {dados.pessoa?.nome ?? `#${dados.comissao.pessoa_id}`} · {dados.comissao.ativo ? 'Comissão ativa' : 'Comissão arquivada'}</p></div><AcaoIcone icone={Pencil} rotulo="Editar comissão" aoClicar={() => setEditando(true)} /></div>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-5"><div><h3 className={estilos.tituloPainel}>{dados.imovel?.titulo ?? `Imóvel #${dados.comissao.imovel_id}`}</h3><p>Pessoa: {dados.pessoa?.nome ?? `#${dados.comissao.pessoa_id}`} · {dados.comissao.ativo ? 'Comissão ativa' : 'Comissão arquivada'}</p></div><AcaoIcone icone={IconeEditar} rotulo="Editar comissão" aoClicar={() => setEditando(true)} /></div>
         {dados.comissao.observacoes && <p className="whitespace-pre-wrap">{dados.comissao.observacoes}</p>}
         <Tabela<ParcelaComissao> itens={dados.comissao.parcelas} chave={(parcela) => parcela.id} vazio="Sem parcelas." colunas={[
           { titulo: 'Parcela', celula: (parcela) => parcela.numero_parcela },

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode, type SyntheticEvent } from 'react';
-import { X } from 'lucide-react';
+import { IconeFechar } from './Icones';
 
 export type TamanhoDialogo = 'estreito' | 'medio' | 'largo';
 
@@ -43,9 +43,9 @@ export default function Dialogo({ titulo, aoFechar, children, tamanho = 'medio',
         if (evento.clientX < area.left || evento.clientX > area.right || evento.clientY < area.top || evento.clientY > area.bottom) aoFechar();
       }}>
       <div className="flex max-h-[min(90dvh,960px)] flex-col">
-        <div className="flex shrink-0 items-start justify-between gap-4 px-8 pb-4 pt-7 max-[520px]:px-[22px] max-[520px]:pt-5">
-          <h2 id={idTitulo} className="mb-0 text-[27px]">{titulo}</h2>
-          <button type="button" className="buttonGhost" aria-label="Fechar" onClick={aoFechar}><X size={22} /></button>
+        <div className="flex shrink-0 items-start justify-between gap-4 px-8 pb-4 pt-7 max-520px:px-22px max-520px:pt-5">
+          <h2 id={idTitulo} className="dialogo-titulo">{titulo}</h2>
+          <button type="button" className="buttonGhost dialogo-fechar" aria-label="Fechar" onClick={aoFechar}><IconeFechar size={22} /></button>
         </div>
         <div data-rolagem className="@container min-h-0 flex-1 overflow-y-auto overscroll-contain px-8 pb-8 max-[520px]:px-[22px] max-[520px]:pb-6">
           {children}

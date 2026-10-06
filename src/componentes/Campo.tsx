@@ -11,7 +11,7 @@ export default function Campo({ rotulo, erro, dica, obrigatorio = false, classe 
   return <div className={`campo ${classe}`}>
     <label htmlFor={id}><span>{rotulo}{obrigatorio && !rotulo.endsWith('*') && <span aria-hidden="true"> *</span>}</span></label>
     {cloneElement(children, { id, 'aria-describedby': descricao, 'aria-invalid': Boolean(erro) || children.props['aria-invalid'] || undefined, 'aria-required': obrigatorio || rotulo.trimEnd().endsWith('*') || children.props['aria-required'] || undefined })}
-    {dica && <span id={`${id}-dica`} className="text-sm font-normal text-muted">{dica}</span>}
-    {erro && <span id={`${id}-erro`} className="text-sm font-normal text-error">{erro}</span>}
+    {dica && <span id={`${id}-dica`} className="campo-dica">{dica}</span>}
+    {erro && <span id={`${id}-erro`} className="campo-erro">{erro}</span>}
   </div>;
 }

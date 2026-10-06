@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowUpRight, MapPin, Maximize2, Building2, ShieldCheck, Share2, MapPinned } from 'lucide-react';
+import { IconeSetaEsquerda, IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeMapa } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useRecurso } from '../../hooks/useRecurso';
 import { urlImovel } from '../../servicos/urls';
@@ -73,7 +73,7 @@ export default function DetalheImovel() {
   return (
     <div className="container pb-6 pt-[30px]">
       <Seo dados={{ imovel }} status={statusErro || 200} />
-      <Link className="inline-flex items-center gap-2 text-sm text-muted no-underline transition duration-150 hover:-translate-x-[3px] hover:text-brand motion-reduce:transform-none motion-reduce:transition-none" to="/"><ArrowLeft size={16} /> Voltar aos imóveis</Link>
+      <Link className="inline-flex items-center gap-2 text-sm text-muted no-underline transition duration-150 hover:-translate-x-[3px] hover:text-brand motion-reduce:transform-none motion-reduce:transition-none" to="/"><IconeSetaEsquerda size={16} /> Voltar aos imóveis</Link>
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={tentarNovamente} esqueleto="detalhe" />
       {!carregando && !erro && imovel && <>
         <nav aria-label="Navegação estrutural" className="my-5 text-sm text-muted"><Link to="/">Imóveis comerciais</Link> / <span aria-current="page">{imovel.titulo}</span></nav>
@@ -81,7 +81,7 @@ export default function DetalheImovel() {
           <p className="mb-3 inline-flex rounded-full border border-line bg-soft px-3 py-1 text-sm text-muted">{rotulosStatusImovel[imovel.status]}</p>
           <p className="eyebrow mb-[14px]">{imovel.tipo?.nome || 'Imóvel'} · {imovel.finalidade?.nome || 'Imóvel comercial'} · Ref. {codigoImovel(imovel.id)}</p>
           <h1 className="mb-[15px] max-w-[950px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
-          <p className="mb-0 flex items-start gap-[7px] text-muted"><MapPin size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
+          <p className="mb-0 flex items-start gap-[7px] text-muted"><IconeLocal size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-[52px] max-[1000px]:grid-cols-[minmax(0,1fr)_300px] max-[1000px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-5">
             <div className="order-1 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-1"><GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} /></div>
@@ -96,25 +96,25 @@ export default function DetalheImovel() {
                 {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
                 {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
               </dl>
-              <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <ArrowUpRight size={18} /></button>
+              <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <IconeSetaExterna size={18} /></button>
               <p className="mb-4 mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
               <div className="mb-[22px] flex flex-wrap items-center justify-center gap-2.5 [&_a]:min-h-11 [&_button]:min-h-11">
-                <AcaoIcone icone={Share2} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
-                <AcaoIcone icone={MapPinned} rotulo="Ver no mapa" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" />
+                <AcaoIcone icone={IconeCompartilhar} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
+                <AcaoIcone icone={IconeMapa} rotulo="Ver no mapa" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" />
               </div>
               {linkCopiado && <p className="-mt-3 mb-4 text-center text-[13px] text-brand" role="status">Link copiado.</p>}
               {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
                 <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={imovel.corretor.url_foto} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
                 <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
               </div>}
-              <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><ShieldCheck size={16} /> Seus dados são usados apenas para o atendimento.</p>
+              <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><IconeProtegido size={16} /> Seus dados são usados apenas para o atendimento.</p>
             </div>
             <p className="px-2 py-[14px] text-[11px] text-muted max-[760px]:hidden">Referência: {codigoImovel(imovel.id)}</p>
           </aside>
             <div className="order-3 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-2">
             <div className="grid grid-cols-2 gap-[14px] border-b border-line py-[26px] max-[1000px]:gap-3 max-[480px]:grid-cols-1 [&_span]:flex [&_span]:items-center [&_span]:gap-2 [&_span]:rounded-[3px] [&_span]:bg-soft [&_span]:px-4 [&_span]:py-[14px] [&_span]:text-sm [&_svg]:shrink-0 [&_svg]:text-brand">
-              <span><Maximize2 size={20} /><strong>{area(imovel.area_util)}</strong> de área útil</span>
-              <span><Building2 size={20} /><strong>{area(imovel.area_total)}</strong> de área total</span>
+              <span><IconeArea size={20} /><strong>{area(imovel.area_util)}</strong> de área útil</span>
+              <span><IconeEdificio size={20} /><strong>{area(imovel.area_total)}</strong> de área total</span>
             </div>
             <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]"><h2>Sobre o imóvel</h2><p className="whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></section>
             {imovel.caracteristicas.length > 0 && (

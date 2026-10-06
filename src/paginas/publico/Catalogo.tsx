@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowDown, ArrowUpRight, Building2, Layers, Search, SlidersHorizontal, X, Store, Trees, Warehouse } from 'lucide-react';
+import { IconeSetaBaixo, IconeSetaExterna, IconeEdificio, IconePredio, IconeBuscar, IconeFiltros, IconeFechar, IconeLoja, IconeTerreno, IconeGalpao, type Icone } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { lerConsultaCatalogo } from '../../servicos/catalogo';
 import { lerUrlCatalogo, urlCatalogo } from '../../servicos/urls';
@@ -14,7 +14,7 @@ import { Seo, useDadosIniciais } from '../../seo/context';
 import { brand } from '../../config/brand';
 import type { ConsultaCatalogo } from '../../tipos';
 
-const icones: Record<string, typeof Building2> = { galpao: Warehouse, 'sala-comercial': Building2, predio: Layers, loja: Store, terreno: Trees };
+const icones: Record<string, Icone> = { galpao: IconeGalpao, 'sala-comercial': IconeEdificio, predio: IconePredio, loja: IconeLoja, terreno: IconeTerreno };
 const campoControle = 'mt-2 min-h-12 border-0 p-[2px_26px_2px_0] text-base';
 const chipBase = 'inline-flex min-h-[42px] items-center gap-2 rounded-[3px] border px-4 py-[10px] text-[13px] max-[560px]:min-h-11 max-[560px]:px-3';
 const chipInativo = 'border-line bg-transparent text-muted hover:border-navy dark:hover:border-gold';
@@ -85,7 +85,7 @@ export default function Catalogo() {
         <p className="eyebrow">Imóveis comerciais</p>
         <h1 className="mb-5 mt-4 max-w-[650px] text-balance text-[clamp(30px,3.5vw,48px)] leading-[1.17] tracking-[-0.045em]">Imóveis comerciais para alugar e comprar <em className="font-normal text-brand">em {brand.region.name}.</em></h1>
         <p className="mb-6 text-[17px] leading-[1.75] text-muted max-[800px]:text-[15px] max-[560px]:text-base max-[560px]:leading-[1.6]">Encontre salas comerciais, lojas, galpões, prédios e terrenos.<br className="max-[800px]:hidden" /> Consulte as opções para o seu negócio em {brand.region.name}.</p>
-        <a className="inline-flex items-center gap-7 border-b-2 border-gold pb-2 text-sm font-semibold no-underline" href="#catalogo" onClick={(evento) => { evento.preventDefault(); rolarParaCatalogo(); }}>Explore os imóveis <ArrowDown size={17} /></a>
+        <a className="inline-flex items-center gap-7 border-b-2 border-gold pb-2 text-sm font-semibold no-underline" href="#catalogo" onClick={(evento) => { evento.preventDefault(); rolarParaCatalogo(); }}>Explore os imóveis <IconeSetaBaixo size={17} /></a>
       </div>
       <div className="relative order-2 h-[340px] overflow-hidden rounded-lg bg-soft max-[800px]:order-3 max-[800px]:h-[clamp(200px,46vw,300px)]">
         <img src="/assets/rua-comercial-1200.webp" srcSet="/assets/rua-comercial-640.webp 640w, /assets/rua-comercial-960.webp 960w, /assets/rua-comercial-1200.webp 1200w" sizes="(max-width: 800px) calc(100vw - 36px), 600px" width="1200" height="900" alt="Rua comercial arborizada ao entardecer, com lojas no térreo, salas nos andares superiores e prédio moderno ao fundo" className="h-full w-full rounded-lg object-cover" {...{ fetchpriority: 'high' }} />
@@ -95,10 +95,10 @@ export default function Catalogo() {
         <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-[26px] max-[1100px]:gap-[18px] max-[800px]:grid-cols-2 max-[800px]:gap-5 max-[560px]:grid-cols-1 max-[560px]:gap-x-[14px] max-[560px]:gap-y-[18px]">
           <label className={`${rotuloFiltro} border-r border-line pr-5 max-[1100px]:pr-[10px] max-[800px]:border-0 max-[800px]:p-0`}>O que você procura?<select name="finalidade" defaultValue={consulta.finalidade || ''} className={campoControle}><option value="">Alugar ou comprar</option>{classificacoes?.finalidades.map((item) => <option key={item.id} value={item.slug ?? item.id}>{item.nome}</option>)}</select></label>
           <label className={rotuloFiltro}>Tipo de imóvel<select name="tipo" defaultValue={consulta.tipo || ''} className={campoControle}><option value="">Todos os tipos</option>{tipos.map((tipo) => <option value={tipo.chave} key={tipo.chave}>{tipo.nome}</option>)}</select></label>
-          <button className="button mb-[3px] min-h-12 w-auto max-[1100px]:px-[15px] max-[1100px]:py-3 max-[800px]:col-span-2 max-[560px]:col-span-1 max-[560px]:w-full" type="submit"><Search size={17} /> Buscar</button>
+          <button className="button mb-[3px] min-h-12 w-auto max-[1100px]:px-[15px] max-[1100px]:py-3 max-[800px]:col-span-2 max-[560px]:col-span-1 max-[560px]:w-full" type="submit"><IconeBuscar size={17} /> Buscar</button>
         </div>
         <div className="mt-[19px] flex items-center gap-5 border-t border-line pt-3">
-          <button type="button" className="inline-flex min-h-11 items-center gap-2 border-0 bg-transparent px-0 py-[6px] text-xs text-muted" aria-expanded={avancadoAberto} onClick={() => setAvancadoAberto(!avancadoAberto)}><SlidersHorizontal size={15} /> Mais filtros: local, preço e área</button>
+          <button type="button" className="inline-flex min-h-11 items-center gap-2 border-0 bg-transparent px-0 py-[6px] text-xs text-muted" aria-expanded={avancadoAberto} onClick={() => setAvancadoAberto(!avancadoAberto)}><IconeFiltros size={15} /> Mais filtros: local, preço e área</button>
           {temFiltro && <button type="button" className="inline-flex min-h-11 items-center gap-2 border-0 bg-transparent px-0 py-[6px] text-xs text-muted underline" onClick={() => { irPara(new URLSearchParams()); setErroFiltro(''); }}>Limpar filtros</button>}
 
         </div>
@@ -127,18 +127,18 @@ export default function Catalogo() {
       </div>
       {filtrosAplicados.length > 0 && <div className="mt-5 flex flex-wrap items-center gap-2" role="group" aria-label="Filtros aplicados">
         <span className="mr-1 text-xs text-muted">Filtros aplicados:</span>
-        {filtrosAplicados.map((filtro) => <button type="button" key={filtro.nome} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-soft px-3 text-sm" aria-label={`Remover filtro ${filtro.rotulo}`} onClick={() => removerFiltro(filtro.nome)}>{filtro.rotulo}<X size={14} aria-hidden="true" /></button>)}
+        {filtrosAplicados.map((filtro) => <button type="button" key={filtro.nome} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-soft px-3 text-sm" aria-label={`Remover filtro ${filtro.rotulo}`} onClick={() => removerFiltro(filtro.nome)}>{filtro.rotulo}<IconeFechar size={14} aria-hidden="true" /></button>)}
       </div>}
       <div className="my-[30px] flex flex-wrap gap-[10px] max-[560px]:gap-2" role="group" aria-label="Filtrar por tipo">
         <button className={`${chipBase} ${!consulta.tipo ? chipSelecionado : chipInativo}`} onClick={() => escolherTipo('')} aria-pressed={!consulta.tipo}>Todos os imóveis</button>
-        {tipos.map((tipo) => { const Icone = icones[tipo.chave] || Building2; return <button key={tipo.chave} className={`${chipBase} ${consulta.tipo === tipo.chave ? chipSelecionado : chipInativo}`} aria-pressed={consulta.tipo === tipo.chave} onClick={() => escolherTipo(tipo.chave)}><Icone size={17} strokeWidth={1.5} />{tipo.nome}</button>; })}
+        {tipos.map((tipo) => { const Icone = icones[tipo.chave] || IconeEdificio; return <button key={tipo.chave} className={`${chipBase} ${consulta.tipo === tipo.chave ? chipSelecionado : chipInativo}`} aria-pressed={consulta.tipo === tipo.chave} onClick={() => escolherTipo(tipo.chave)}><Icone size={17} />{tipo.nome}</button>; })}
       </div>
       <EstadoCarregamento carregando={false} erro={classificacoesRecurso.erro} tentarNovamente={classificacoesRecurso.tentarNovamente} />
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={tentarNovamente} esqueleto="cartoes" />
       {!carregando && !erro && <>
         {imoveis?.itens.length
           ? <div className="grid grid-cols-[repeat(3,minmax(0,1fr))] gap-x-[30px] gap-y-[54px] max-[1100px]:gap-x-5 max-[1100px]:gap-y-9 max-[800px]:grid-cols-[repeat(2,minmax(0,1fr))] max-[560px]:grid-cols-1 max-[560px]:gap-7">{imoveis.itens.map((imovel) => <CartaoImovel key={imovel.id} imovel={imovel} />)}</div>
-          : <div className="rounded-[5px] border border-dashed border-line bg-soft px-6 py-[72px] text-center [&_svg]:mx-auto [&_svg]:mb-3 [&_svg]:text-brand"><Search size={30} /><h3>Nenhum ponto com esse filtro</h3><p>Limpe a cidade ou o preço e tente de novo.</p><button className="buttonSecondary min-h-12" onClick={() => irPara(new URLSearchParams())}>Limpar filtros</button></div>}
+          : <div className="rounded-[5px] border border-dashed border-line bg-soft px-6 py-[72px] text-center [&_svg]:mx-auto [&_svg]:mb-3 [&_svg]:text-brand"><IconeBuscar size={30} /><h3>Nenhum ponto com esse filtro</h3><p>Limpe a cidade ou o preço e tente de novo.</p><button className="buttonSecondary min-h-12" onClick={() => irPara(new URLSearchParams())}>Limpar filtros</button></div>}
         <Paginacao pagina={consulta.pagina} totalPaginas={imoveis?.total_paginas || 0}
           href={(pagina) => { const proximos = new URLSearchParams(parametrosAtuais); if (pagina === 1) proximos.delete('pagina'); else proximos.set('pagina', String(pagina)); return urlCatalogo(lerConsultaCatalogo(proximos), new URLSearchParams(location.search)); }}
           aoMudar={(pagina) => { const proximos = new URLSearchParams(parametrosAtuais); proximos.set('pagina', String(pagina)); irPara(proximos); rolarParaCatalogo(); }} />
@@ -146,7 +146,7 @@ export default function Catalogo() {
     </section>
     <section className="container mt-[92px] grid grid-cols-2 gap-12 rounded-[3px] border-l-4 border-gold bg-navy px-14 py-[54px] text-white max-[800px]:gap-[30px] max-[800px]:p-8 max-[560px]:mt-[50px] max-[560px]:grid-cols-1 max-[560px]:gap-6 max-[560px]:px-6 max-[560px]:py-[30px]">
       <div><p className="eyebrow text-white">Atendimento com corretor</p><h2 className="mb-0">Precisa de ajuda para<br />encontrar seu imóvel?</h2></div>
-      <div className="max-w-[400px] self-center"><p className="text-white/80">Conte o que seu negócio precisa. O corretor ajuda você a encontrar opções para alugar ou comprar em {brand.region.name}.</p><a href={`https://wa.me/${telefoneWhatsapp(brand.contact.whatsapp)}`} target="_blank" rel="noopener noreferrer" className="buttonSecondary border-gold text-white hover:bg-white/10">Conversar pelo WhatsApp <ArrowUpRight size={18} /></a></div>
+      <div className="max-w-[400px] self-center"><p className="text-white/80">Conte o que seu negócio precisa. O corretor ajuda você a encontrar opções para alugar ou comprar em {brand.region.name}.</p><a href={`https://wa.me/${telefoneWhatsapp(brand.contact.whatsapp)}`} target="_blank" rel="noopener noreferrer" className="buttonSecondary border-gold text-white hover:bg-white/10">Conversar pelo WhatsApp <IconeSetaExterna size={18} /></a></div>
     </section>
   </>;
 }

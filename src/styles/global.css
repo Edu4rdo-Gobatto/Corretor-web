@@ -44,7 +44,8 @@ label input, label select, label textarea { margin-top: 6px; }
 .campo { display: grid; gap: 6px; min-width: 0; }
 .campo > label { margin: 0; }
 .grupo-acao { position: relative; display: inline-flex; flex-shrink: 0; }
-.acao-icone { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; text-decoration: none; transition: background .16s, color .16s; }
+.acao-icone { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--color-muted); text-decoration: none; transition: background .16s, color .16s; }
+.acao-icone.acao-perigo { color: var(--color-error); }
 .acao-icone:hover { background: var(--color-soft); }
 .acao-icone:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline-color: var(--color-brand); }
 .acao-icone[aria-disabled=true] { opacity: .55; cursor: not-allowed; }
@@ -53,6 +54,10 @@ label input, label select, label textarea { margin-top: 6px; }
 .grupo-acao:focus-within .dica-acao { visibility: visible; opacity: 1; }
 @media (hover: hover) { .grupo-acao:hover .dica-acao { visibility: visible; opacity: 1; } }
 .grupo-acao.dica-oculta .dica-acao { visibility: hidden; opacity: 0; }
+.campo-dica, .campo-erro { font-size: 14px; line-height: 1.43; font-weight: 400; }
+.campo-dica { color: var(--color-muted); }
+.campo-erro { color: var(--color-error); }
+.dialogo-titulo { margin-bottom: 0; font-size: 27px; }
 .field { display: grid; gap: 6px; }
 .error { color: var(--error); font-size: 15px; }
 .muted { color: var(--muted); }
@@ -61,6 +66,38 @@ label input, label select, label textarea { margin-top: 6px; }
 .skipLink { position: fixed; top: -100px; left: 20px; z-index: 100; background: var(--color-paper); color: var(--color-ink); padding: 12px; }
 .skipLink:focus { top: 12px; }
 @media(prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+
+/* Painel (/admin): escala 16/18/22/28, botões dourados e campos contornados. Só vale dentro de .painel-ui
+   (LayoutPainel), então o site público continua com as regras acima. */
+.painel-ui { font-size: 18px; line-height: 1.55; }
+.painel-ui label { font-size: 16px; font-weight: 600; }
+.painel-ui input, .painel-ui select, .painel-ui textarea { min-height: 48px; padding: 11px 14px; border: 1.5px solid var(--color-control-line); border-radius: 10px; background: var(--color-campo); font-size: 18px; }
+.painel-ui input[type=checkbox] { width: 22px; height: 22px; min-height: 22px; padding: 0; accent-color: var(--color-acao-painel); }
+.painel-ui input:focus-visible, .painel-ui select:focus-visible, .painel-ui textarea:focus-visible { border-color: var(--color-acao-painel); outline: 3px solid var(--color-acao-painel); outline-offset: 1px; }
+.painel-ui input[aria-invalid=true], .painel-ui select[aria-invalid=true], .painel-ui textarea[aria-invalid=true] { border-color: var(--color-error); }
+.painel-ui .campo { gap: 8px; }
+.painel-ui .campo-dica, .painel-ui .campo-erro { font-size: 16px; line-height: 1.45; }
+.painel-ui .button, .painel-ui .buttonSecondary, .painel-ui .buttonGhost { min-height: 48px; padding: 11px 20px; border-radius: 12px; font-size: 18px; }
+.painel-ui .button { border: 0; background: var(--color-acao-painel); color: var(--color-navy-deep); }
+.painel-ui .button:hover { background: var(--color-acao-painel-hover); }
+.painel-ui .button svg { color: var(--color-sobre-acao); }
+.painel-ui .buttonPerigo, .painel-ui .buttonPerigo:hover { background: var(--color-error); color: var(--color-paper); }
+.painel-ui .buttonPerigo svg { color: currentColor; }
+.painel-ui .buttonSecondary, .painel-ui .buttonGhost { border: 1.5px solid var(--color-control-line); color: var(--color-ink); }
+.painel-ui :is(.button, .buttonSecondary, .buttonGhost) svg { width: 22px; height: 22px; flex-shrink: 0; }
+.painel-ui .acao-icone { width: 48px; height: 48px; min-height: 48px; border-radius: 12px; background: var(--color-acao-painel); color: var(--color-sobre-acao); }
+.painel-ui .acao-icone:hover { background: var(--color-acao-painel-hover); }
+.painel-ui .acao-icone.acao-perigo, .painel-ui .acao-icone.acao-perigo:hover { background: var(--color-error); color: var(--color-paper); }
+.painel-ui .acao-icone:focus-visible { outline-color: var(--color-ink); }
+.painel-ui .acao-icone svg { width: 22px; height: 22px; }
+/* Dentro das listagens a ação é discreta: sem fundo dourado, na cor do texto da linha. */
+.painel-ui .acoes-linha .acao-icone { width: 40px; height: 40px; min-height: 40px; border-radius: 10px; background: transparent; color: var(--color-ink); }
+.painel-ui .acoes-linha .acao-icone:hover, .painel-ui .acoes-linha .acao-icone:focus-visible { background: color-mix(in srgb, currentColor 14%, transparent); }
+.painel-ui .acoes-linha .acao-icone.acao-perigo { background: transparent; color: var(--color-error); }
+.painel-ui .acoes-linha .acao-icone.acao-perigo:hover { background: color-mix(in srgb, currentColor 14%, transparent); }
+.painel-ui .dica-acao { padding: 7px 11px; border-radius: 8px; font-size: 15px; }
+.painel-ui .dialogo-titulo { font-size: 22px; line-height: 1.3; }
+.painel-ui .dialogo-fechar { width: 48px; padding: 0; }
 
 }
 

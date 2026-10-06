@@ -15,6 +15,7 @@ Atualize este índice quando um documento mudar de papel.
 | Regras de produto e contrato | `corretor-spec.json` e [`PLANO-PROJETO-CORRETOR.md`](PLANO-PROJETO-CORRETOR.md) | Compartilhados com a API |
 | Última auditoria | [`2026-10-02-auditoria-fullstack.md`](2026-10-02-auditoria-fullstack.md) | Achados A01–A11 |
 | Carga do catálogo no Neon | [`2026-10-03-carga-catalogo.md`](2026-10-03-carga-catalogo.md) | Fontes das fotos na API irmã |
+| Padrão visual e comportamentos do painel | [`2026-10-06-painel-especificacao-visual.md`](2026-10-06-painel-especificacao-visual.md) | Tokens, listagem, ícones, sidebar e o que falta aplicar |
 
 ## Estado resumido (04/10/2026)
 

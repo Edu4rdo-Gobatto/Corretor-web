@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
-import { CheckCircle2, CircleAlert, Info, TriangleAlert } from 'lucide-react';
+import { IconeSucesso, IconeErro, IconeInfo, IconeAtencao } from './Icones';
 
 type Tom = 'informacao' | 'sucesso' | 'atencao' | 'erro';
 const aparencias = {
-  informacao: { icone: Info, classe: 'border-line bg-soft text-ink' },
-  sucesso: { icone: CheckCircle2, classe: 'border-sucesso/30 bg-sucesso-suave text-sucesso' },
-  atencao: { icone: TriangleAlert, classe: 'border-atencao/30 bg-atencao-suave text-atencao' },
-  erro: { icone: CircleAlert, classe: 'border-error/30 bg-error/10 text-error' },
+  informacao: { icone: IconeInfo, classe: 'border-line bg-soft text-ink' },
+  sucesso: { icone: IconeSucesso, classe: 'border-sucesso/30 bg-sucesso-suave text-sucesso' },
+  atencao: { icone: IconeAtencao, classe: 'border-atencao/30 bg-atencao-suave text-atencao' },
+  erro: { icone: IconeErro, classe: 'border-error/30 bg-error/10 text-error' },
 };
 
 export default function Aviso({ tom = 'informacao', children, classe = '' }: { tom?: Tom; children: ReactNode; classe?: string }) {

@@ -1,6 +1,6 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Pencil, X } from 'lucide-react';
+import { IconeVer, IconeEditar, IconeFechar } from '../../componentes/Icones';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { data, mensagemErro } from '../../servicos/formato';
@@ -71,8 +71,8 @@ function ColunaContatos({ status, titulo, descricao, filtros, versao, aoMudar, a
               {pessoa.mensagem && <details className="mt-2 text-sm"><summary className="cursor-pointer">Ver mensagem</summary><p className="mt-1 whitespace-pre-wrap break-words">{pessoa.mensagem}</p></details>}
               <div className="mt-3 flex flex-wrap gap-2 text-[13px] [&_a]:inline-flex [&_a]:min-h-10 [&_a]:items-center [&_button]:min-h-10 [&_button]:px-2.5">
                 {pessoa.telefone && <a href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}
-                <AcaoIcone icone={Eye} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} desabilitado={!!ocupado} />
-                <AcaoIcone icone={Pencil} rotulo={`Editar ${pessoa.nome}`} aoClicar={() => aoEditar(pessoa)} desabilitado={!!ocupado} />
+                <AcaoIcone icone={IconeVer} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} desabilitado={!!ocupado} />
+                <AcaoIcone icone={IconeEditar} rotulo={`Editar ${pessoa.nome}`} aoClicar={() => aoEditar(pessoa)} desabilitado={!!ocupado} />
                 {PROXIMOS[status].map((proximo) => <button key={proximo.status} type="button" className="buttonSecondary" disabled={!!ocupado} onClick={() => void mover(pessoa, proximo.status)}>{ocupado === pessoa.id ? 'Salvando…' : proximo.rotulo}</button>)}
               </div>
             </li>
@@ -120,7 +120,7 @@ export default function Contatos() {
       <button type="submit" className="buttonSecondary">Filtrar</button>
       {(resumo.length > 0 || rascunho.busca || rascunho.imovel || rascunho.desde || rascunho.ate) && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setErroFiltro(''); }}>Limpar</button>}
     </form>
-    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><X size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
     {erroFiltro && <Aviso tom="erro">{erroFiltro}</Aviso>}
     <div className="grid items-start gap-4 @4xl/principal:grid-cols-3">
       {COLUNAS.map((coluna) => <ColunaContatos key={`${coluna.status}:${filtros.busca}:${filtros.imovel?.id ?? 0}:${filtros.desde}:${filtros.ate}`} {...coluna} filtros={filtros} versao={versao} aoMudar={recarregarTudo} aoEditar={setEditando} />)}

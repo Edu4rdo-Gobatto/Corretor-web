@@ -8,5 +8,5 @@ const tons = {
 
 /** Marcador curto de situação (status, origem, destaque). */
 export default function Etiqueta({ tom = 'neutro', children }: { tom?: keyof typeof tons; children: ReactNode }) {
-  return <span className={`inline-block rounded px-2.5 py-1 text-[13px] ${tons[tom]}`}>{children}</span>;
+  return <span className={`inline-block whitespace-nowrap rounded-md px-2.5 py-1 text-sm ${tons[tom]}`}>{children}</span>;
 }

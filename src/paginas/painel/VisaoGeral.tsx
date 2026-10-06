@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Eye } from 'lucide-react';
+import { IconeVer } from '../../componentes/Icones';
 import { Link } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
@@ -77,7 +77,7 @@ export default function VisaoGeral() {
           { titulo: 'Contato', celula: (pessoa) => <><strong>{pessoa.nome}</strong><small className="mt-1 block text-muted">{pessoa.email}</small></> },
           { titulo: 'Telefone', celula: (pessoa) => pessoa.telefone },
           { titulo: 'Recebido em', celula: (pessoa) => data(pessoa.criado_em) },
-          { titulo: 'Ações', celula: (pessoa) => <AcaoIcone icone={Eye} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} /> },
+          { titulo: 'Ações', celula: (pessoa) => <AcaoIcone icone={IconeVer} rotulo={`Abrir ficha de ${pessoa.nome}`} to={`/admin/pessoas/${pessoa.id}`} /> },
         ]} />
       </>}
     </section>

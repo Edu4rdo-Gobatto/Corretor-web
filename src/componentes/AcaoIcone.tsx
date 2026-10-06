@@ -1,9 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { LoaderCircle, type LucideIcon } from 'lucide-react';
+import { IconeCarregando, type Icone } from './Icones';
 import { Link } from 'react-router-dom';
 
 type Propriedades = {
-  icone: LucideIcon;
+  icone: Icone;
   rotulo: string;
   to?: string;
   href?: string;
@@ -12,19 +12,25 @@ type Propriedades = {
   ocupado?: boolean;
   tom?: 'neutro' | 'perigo';
   target?: string;
+  tipo?: 'button' | 'submit';
+  /** Completa o nome acessível (ex.: o nome da pessoa) sem alongar a dica visível. */
+  contexto?: string;
 };
 
-/** Ação auxiliar compacta: o desenho é pequeno, mas a área de toque continua 44px. */
-export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, desabilitado = false, ocupado = false, tom = 'neutro', target }: Propriedades) {
+/**
+ * Ação só com ícone. A dica visível mostra o verbo curto ("Editar"); `contexto` entra apenas no nome acessível
+ * ("Editar Fulano"), para o leitor de tela distinguir as linhas sem alongar a dica.
+ */
+export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, desabilitado = false, ocupado = false, tom = 'neutro', target, tipo = 'button', contexto }: Propriedades) {
   const id = useId();
   const [dicaOculta, setDicaOculta] = useState(false);
   const [deslocamentoDica, setDeslocamentoDica] = useState(0);
   const [dicaAtiva, setDicaAtiva] = useState(false);
   const grupo = useRef<HTMLSpanElement>(null);
   const bloqueado = desabilitado || ocupado;
-  const classe = `acao-icone ${tom === 'perigo' ? 'text-error' : 'text-muted'}`;
-  const conteudo = ocupado ? <LoaderCircle size={19} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Icone size={19} aria-hidden="true" />;
-  const atributos = { className: classe, 'aria-label': rotulo, 'aria-describedby': id, 'aria-busy': ocupado || undefined };
+  const classe = `acao-icone ${tom === 'perigo' ? 'acao-perigo' : ''}`;
+  const conteudo = ocupado ? <IconeCarregando size={20} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Icone size={20} aria-hidden="true" />;
+  const atributos = { className: classe, 'aria-label': contexto ? `${rotulo} ${contexto}` : rotulo, 'aria-describedby': contexto ? undefined : id, 'aria-busy': ocupado || undefined };
   useEffect(() => {
     if (!dicaAtiva || dicaOculta) return;
     function fecharDica(evento: KeyboardEvent) {
@@ -52,7 +58,7 @@ export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, de
     onMouseLeave={() => { if (!grupo.current?.contains(document.activeElement)) setDicaAtiva(false); }}>
     {to ? <Link {...atributos} to={to} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</Link>
       : href ? <a {...atributos} href={href} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</a>
-      : <button {...atributos} type="button" disabled={bloqueado} onClick={aoClicar}>{conteudo}</button>}
-    <span id={id} role="tooltip" className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
+      : <button {...atributos} type={tipo} disabled={bloqueado} onClick={aoClicar}>{conteudo}</button>}
+    <span id={id} role="tooltip" aria-hidden={contexto ? true : undefined} className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
   </span>;
 }

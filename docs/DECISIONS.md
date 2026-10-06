@@ -859,3 +859,14 @@ Plano aprovado pelo dono em 17/09 (resumo em `TASKS.md`). Escopo só front; API 
 `scripts/dev.mjs` usa `HOST` quando informado e `0.0.0.0` como padrão, porque a conferência em celular precisa aceitar conexões além do loopback. O endereço público continua sendo informado pelo IP local do computador; `localhost` permanece válido apenas no próprio computador.
 
 Não fazer: expor o servidor de desenvolvimento na internet ou usar isso como configuração de produção.
+
+# 2026-10-06 — Ícones Material Symbols inline
+
+Por pedido do dono, painel e site público usam ícones Material Symbols (Google), estilo Outlined preenchido (FILL 1,
+peso 400), em `src/componentes/Icones.tsx`. Os desenhos foram copiados de
+`github.com/google/material-design-icons/tree/master/symbols/web` (Apache License 2.0) e ficam inline como SVG
+(`fill="currentColor"`, prop `size` igual à do lucide), sem fonte externa nem pacote novo. `lucide-react` continua
+só para os logos GitHub/Instagram de `Devs.tsx`, porque o Material não tem marcas.
+
+Não fazer: carregar a fonte Material Symbols do Google Fonts (requisição externa e arquivo grande); misturar ícones de
+contorno do lucide com os preenchidos; adicionar ícone novo sem baixar o SVG oficial do mesmo estilo.

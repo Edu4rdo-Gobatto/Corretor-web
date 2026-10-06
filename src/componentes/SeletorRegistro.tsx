@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { IconeFechar } from './Icones';
 import type { Referencia } from '../tipos';
 import { mensagemErro } from '../servicos/formato';
 
@@ -94,7 +94,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
           />
           {valor && !desabilitado && (
             <button type="button" aria-label={`Limpar ${rotulo.toLowerCase()}`} onClick={limpar} className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded border-0 bg-transparent text-muted hover:text-ink">
-              <X size={16} />
+              <IconeFechar size={16} />
             </button>
           )}
         </div>
@@ -112,7 +112,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
           ))}
         </ul>
       )}
-      {erro ? <span id={`${idLista}-descricao`} className="m-0 text-[13px] text-error">{erro}</span> : dica ? <span id={`${idLista}-descricao`} className="text-[13px] font-normal text-muted">{dica}</span> : null}
+      {erro ? <span id={`${idLista}-descricao`} className="campo-erro m-0">{erro}</span> : dica ? <span id={`${idLista}-descricao`} className="campo-dica">{dica}</span> : null}
     </div>
   );
 }

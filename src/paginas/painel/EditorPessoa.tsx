@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IconeSalvar } from '../../componentes/Icones';
 import { api, type DadosPessoa } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
@@ -113,7 +114,7 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
         </fieldset>
         <p className={estilos.dica}>O cadastro manual não registra consentimento do site.</p>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
       </form>
     </Dialogo>
   );

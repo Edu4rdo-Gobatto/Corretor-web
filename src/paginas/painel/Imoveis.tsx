@@ -1,6 +1,6 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Archive, ArchiveRestore, Eye, Pencil, X } from 'lucide-react';
+import { IconeArquivar, IconeDesarquivar, IconeVer, IconeEditar, IconeFechar } from '../../componentes/Icones';
 import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { api } from '../../servicos/api';
@@ -72,7 +72,7 @@ export default function Imoveis() {
       <button className="buttonSecondary" type="submit">Filtrar</button>
       {(resumo.length > 0 || rascunho.busca || rascunho.status || rascunho.semFoto || rascunho.ativo === 'false') && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setPagina(1); }}>Limpar</button>}
     </form>
-    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><X size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && !carregando && (
@@ -92,8 +92,8 @@ export default function Imoveis() {
               { titulo: 'Valor', celula: (imovel) => { const preco = valorPrincipal(imovel); return <>{preco ? dinheiro(preco.valor) : 'Sob consulta'}<small className="mt-1 block text-muted">{imovel.finalidade?.nome ?? ''}{preco?.tipo === 'locacao' ? ' · por mês' : ''}</small></>; } },
               { titulo: 'Situação', celula: (imovel) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={imovel.status === 'DISPONIVEL' ? 'neutro' : 'atencao'}>{rotulosStatusImovel[imovel.status]}</Etiqueta>{imovel.destaque && <Etiqueta tom="atencao">Destaque</Etiqueta>}{!imovel.ativo && <Etiqueta tom="alerta">Inativo</Etiqueta>}</div> },
               { titulo: 'Ações', celula: (imovel) => <div className={`${estilos.acoes} max-lg:justify-end`}>
-                <AcaoIcone icone={podeEditar(imovel) ? Pencil : Eye} rotulo={`${podeEditar(imovel) ? 'Editar' : 'Ver ficha de'} ${imovel.titulo}`} to={`/admin/imoveis/${imovel.id}/editar`} desabilitado={!!ocupado} />
-                {podeEditar(imovel) && <AcaoIcone icone={imovel.ativo ? Archive : ArchiveRestore} rotulo={`${imovel.ativo ? 'Desativar' : 'Reativar'} ${imovel.titulo}`} tom={imovel.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === imovel.id} aoClicar={() => { setErroMutacao(''); setConfirmando(imovel); }} />}
+                <AcaoIcone icone={podeEditar(imovel) ? IconeEditar : IconeVer} rotulo={`${podeEditar(imovel) ? 'Editar' : 'Ver ficha de'} ${imovel.titulo}`} to={`/admin/imoveis/${imovel.id}/editar`} desabilitado={!!ocupado} />
+                {podeEditar(imovel) && <AcaoIcone icone={imovel.ativo ? IconeArquivar : IconeDesarquivar} rotulo={`${imovel.ativo ? 'Desativar' : 'Reativar'} ${imovel.titulo}`} tom={imovel.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === imovel.id} aoClicar={() => { setErroMutacao(''); setConfirmando(imovel); }} />}
               </div> },
             ]} />
             <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />

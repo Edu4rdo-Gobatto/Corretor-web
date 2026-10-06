@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate } from 'react-router-dom';
-import { Archive, ArchiveRestore, KeyRound, Pencil } from 'lucide-react';
+import { IconeArquivar, IconeDesarquivar, IconeChave, IconeEditar } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
@@ -122,7 +122,7 @@ export default function Corretores() {
           { titulo: 'Corretor', celula: (corretor) => <><strong>{corretor.nome}</strong><small className="mt-1 block wrap-anywhere text-muted">{corretor.email}</small><small className="mt-1 block text-muted">{corretor.creci ? `CRECI ${corretor.creci}` : corretor.whatsapp}</small></> },
           { titulo: 'Permissão', celula: (corretor) => corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor' },
           { titulo: 'Situação', celula: (corretor) => <Etiqueta tom={corretor.ativo ? 'neutro' : 'alerta'}>{corretor.ativo ? 'Ativo' : 'Inativo'}</Etiqueta> },
-          { titulo: 'Ações', celula: (corretor) => <div className={estilos.acoes}><AcaoIcone icone={Pencil} rotulo={`Editar ${corretor.nome}`} desabilitado={!!ocupado} aoClicar={() => setEditando(corretor)} /><AcaoIcone icone={KeyRound} rotulo={`Redefinir senha de ${corretor.nome}`} desabilitado={!!ocupado} aoClicar={() => setRedefinindo(corretor)} /><AcaoIcone icone={corretor.ativo ? Archive : ArchiveRestore} rotulo={`${corretor.ativo ? 'Desativar' : 'Reativar'} ${corretor.nome}`} tom={corretor.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === corretor.id} aoClicar={() => { setErroMutacao(''); setConfirmando(corretor); }} /></div> },
+          { titulo: 'Ações', celula: (corretor) => <div className={estilos.acoes}><AcaoIcone icone={IconeEditar} rotulo={`Editar ${corretor.nome}`} desabilitado={!!ocupado} aoClicar={() => setEditando(corretor)} /><AcaoIcone icone={IconeChave} rotulo={`Redefinir senha de ${corretor.nome}`} desabilitado={!!ocupado} aoClicar={() => setRedefinindo(corretor)} /><AcaoIcone icone={corretor.ativo ? IconeArquivar : IconeDesarquivar} rotulo={`${corretor.ativo ? 'Desativar' : 'Reativar'} ${corretor.nome}`} tom={corretor.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === corretor.id} aoClicar={() => { setErroMutacao(''); setConfirmando(corretor); }} /></div> },
         ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
       </section>

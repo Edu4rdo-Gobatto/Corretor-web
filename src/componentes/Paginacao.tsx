@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { IconeSetaEsquerda, IconeSetaDireita } from './Icones';
 import { Link } from 'react-router-dom';
 
 function rolarAoCatalogo() {
@@ -15,17 +15,17 @@ export default function Paginacao({ pagina, totalPaginas, aoMudar, href }: { pag
   if (href) {
     return (
       <nav className={classe} aria-label="Paginação">
-        {pagina > 1 ? <Link className="buttonSecondary" to={href(pagina - 1)} aria-label="Página anterior" onClick={rolarAoCatalogo}><ArrowLeft size={17} /></Link> : <span />}
+        {pagina > 1 ? <Link className="buttonSecondary" to={href(pagina - 1)} aria-label="Página anterior" onClick={rolarAoCatalogo}><IconeSetaEsquerda size={17} /></Link> : <span />}
         <span>Página {pagina} de {Math.max(1, totalPaginas)}</span>
-        {pagina < totalPaginas ? <Link className="buttonSecondary" to={href(pagina + 1)} aria-label="Próxima página" onClick={rolarAoCatalogo}><ArrowRight size={17} /></Link> : <span />}
+        {pagina < totalPaginas ? <Link className="buttonSecondary" to={href(pagina + 1)} aria-label="Próxima página" onClick={rolarAoCatalogo}><IconeSetaDireita size={17} /></Link> : <span />}
       </nav>
     );
   }
   return (
     <nav className={classe} aria-label="Paginação">
-      <button type="button" className="buttonSecondary" disabled={pagina <= 1} onClick={() => aoMudar(pagina - 1)} aria-label="Página anterior"><ArrowLeft size={17} /></button>
+      <button type="button" className="buttonSecondary" disabled={pagina <= 1} onClick={() => aoMudar(pagina - 1)} aria-label="Página anterior"><IconeSetaEsquerda size={17} /></button>
       <span aria-live="polite">Página {pagina} de {Math.max(1, totalPaginas)}</span>
-      <button type="button" className="buttonSecondary" disabled={pagina >= totalPaginas} onClick={() => aoMudar(pagina + 1)} aria-label="Próxima página"><ArrowRight size={17} /></button>
+      <button type="button" className="buttonSecondary" disabled={pagina >= totalPaginas} onClick={() => aoMudar(pagina + 1)} aria-label="Próxima página"><IconeSetaDireita size={17} /></button>
     </nav>
   );
 }

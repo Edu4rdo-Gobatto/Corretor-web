@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pause, Play } from 'lucide-react';
+import { IconePausar, IconeReproduzir } from './Icones';
 import { Link, useLocation } from 'react-router-dom';
 import { useRecuperacaoPagina } from '../hooks/useRecuperacaoPagina';
 import { Seo } from '../seo/context';
@@ -34,7 +34,7 @@ export default function PaginaIndisponivel({ status }: { status: number }) {
       <div className="min-w-0">
         <CenaReparo animada={estado !== 'inicial' && !pausada} rotulo="Operário ajustando o quadro de energia de uma casa com as luzes apagadas" />
         {estado !== 'inicial' && <div className="reparo-controle flex items-center justify-center gap-2">
-          <AcaoIcone icone={pausada ? Play : Pause} rotulo={pausada ? 'Retomar animação' : 'Pausar animação'} aoClicar={() => setPausada((atual) => !atual)} />
+          <AcaoIcone icone={pausada ? IconeReproduzir : IconePausar} rotulo={pausada ? 'Retomar animação' : 'Pausar animação'} aoClicar={() => setPausada((atual) => !atual)} />
           <span className="text-sm text-muted">{pausada ? 'Animação pausada' : 'Pausar animação'}</span>
         </div>}
       </div>

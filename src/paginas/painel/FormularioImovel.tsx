@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, Trash2 } from 'lucide-react';
+import { IconeCopiar, IconeExcluir } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { GuardaFormulario, useGuardaFormulario } from '../../hooks/useGuardaFormulario';
@@ -207,7 +207,7 @@ function InstanciaFormulario() {
       descricao="Conte o que torna este imóvel uma boa oportunidade."
       acoes={imovel && <>
         <Link to={urlImovel(imovel.slug)} target="_blank" rel="noopener noreferrer" className="buttonSecondary">Pré-visualizar público ↗</Link>
-        {podeEditar && <AcaoIcone icone={Copy} rotulo="Duplicar imóvel" desabilitado={duplicando || isSubmitting} aoClicar={() => duplicar()} />}
+        {podeEditar && <AcaoIcone icone={IconeCopiar} rotulo="Duplicar imóvel" desabilitado={duplicando || isSubmitting} aoClicar={() => duplicar()} />}
       </>}
     />
     <EstadoCarregamento carregando={carregando} erro={erroCarga} tentarNovamente={() => void carregar()} />
@@ -244,7 +244,7 @@ function InstanciaFormulario() {
             <div key={campo.id} className="my-3 grid grid-cols-[minmax(0,1fr)_auto] gap-3 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <Campo classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica" erro={errors.caracteristicas?.[indice]?.caracteristica_id?.message}><select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
               <Campo rotulo="Valor" erro={errors.caracteristicas?.[indice]?.valor?.message}><input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></Campo>
-              <div className="flex items-end pb-1"><AcaoIcone icone={Trash2} rotulo={`Remover característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
+              <div className="flex items-end pb-1"><AcaoIcone icone={IconeExcluir} rotulo={`Remover característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
             </div>
           ))}
           {errors.caracteristicas && <p className="error">Revise as características: selecione cada uma apenas uma vez e use até 500 caracteres no valor.</p>}

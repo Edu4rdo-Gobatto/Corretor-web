@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
+import { IconeSomLigado, IconeSomDesligado, IconeSetaDireita } from './Icones';
 import { desligarObra, ligarObra, limparSinalDeIdaAosDevs } from '../servicos/obra';
 import CenaObra from './CenaObra';
 import Dialogo from './Dialogo';
@@ -75,11 +75,11 @@ export default function ObraOverlay({ aoSair }: { aoSair: () => void }) {
             aria-label={comSom ? 'Desligar som da obra' : 'Ativar som da obra'}
             onClick={() => { if (comSom) { desligarObra(); setComSom(false); } else { void ativarSom(); } }}
             className="buttonSecondary inline-flex min-h-11 items-center gap-2">
-            {comSom ? <VolumeX size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
+            {comSom ? <IconeSomDesligado size={18} aria-hidden="true" /> : <IconeSomLigado size={18} aria-hidden="true" />}
             {comSom ? 'Mudo' : 'Com som'}
           </button>
           <button type="button" onClick={iniciarSaida} className="button inline-flex min-h-11 items-center gap-2">
-            Pular <ArrowRight size={18} aria-hidden="true" />
+            Pular <IconeSetaDireita size={18} aria-hidden="true" />
           </button>
         </div>
         {bloqueado && <p role="status" className="mt-3 text-sm text-muted">O som não pôde tocar. Você pode tentar novamente.</p>}

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Archive, ArchiveRestore, Pencil } from 'lucide-react';
+import { IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,7 +80,7 @@ export default function Cadastros() {
         <Tabela itens={dados.itens} chave={(item) => item.id} rotulo={CATEGORIAS[categoria]} vazio="Nenhum cadastro encontrado." colunas={[
           { titulo: 'Cadastro', celula: (item) => <><strong>{item.nome}</strong>{item.slug && <small className="mt-1 block text-muted">{item.slug}</small>}</> },
           { titulo: 'Situação', celula: (item) => <Etiqueta tom={item.ativo ? 'neutro' : 'alerta'}>{item.ativo ? 'Ativo' : 'Inativo'}</Etiqueta> },
-          { titulo: 'Ações', celula: (item) => <div className={estilos.acoes}><AcaoIcone icone={Pencil} rotulo={`Editar ${item.nome}`} desabilitado={ocupado} aoClicar={() => setEditando(item)} /><AcaoIcone icone={item.ativo ? Archive : ArchiveRestore} rotulo={`${item.ativo ? 'Desativar' : 'Reativar'} ${item.nome}`} tom={item.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} ocupado={ocupado && confirmando?.id === item.id} aoClicar={() => { setErro(''); setConfirmando(item); }} /></div> },
+          { titulo: 'Ações', celula: (item) => <div className={estilos.acoes}><AcaoIcone icone={IconeEditar} rotulo={`Editar ${item.nome}`} desabilitado={ocupado} aoClicar={() => setEditando(item)} /><AcaoIcone icone={item.ativo ? IconeArquivar : IconeDesarquivar} rotulo={`${item.ativo ? 'Desativar' : 'Reativar'} ${item.nome}`} tom={item.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} ocupado={ocupado && confirmando?.id === item.id} aoClicar={() => { setErro(''); setConfirmando(item); }} /></div> },
         ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
       </section>
