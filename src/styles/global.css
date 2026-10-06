@@ -41,6 +41,16 @@ label input, label select, label textarea { margin-top: 6px; }
 .buttonGhost:hover { background: var(--soft); }
 .buttonPerigo { background: var(--color-error); color: var(--color-paper); border-bottom-color: var(--color-error); }
 .buttonPerigo:hover { background: var(--color-error); filter: brightness(.95); }
+/* Botões e links dos cabeçalhos (site e painel): negrito e linha dourada de 2px que cresce da esquerda no hover/foco
+   e fica fixa no destino atual. --linha-x/--linha-y recuam a linha quando há padding ou ícone. Num item com ícone,
+   a classe vai no texto e o link/botão pai dispara a linha. */
+.linha-nav { position: relative; font-weight: 600; text-decoration: none; }
+.linha-nav::after { content: ''; position: absolute; inset-inline: var(--linha-x, 0); bottom: var(--linha-y, 0); height: 2px; background: var(--color-gold); transform: scaleX(0); transform-origin: left; transition: transform .2s ease-out; pointer-events: none; }
+.linha-nav[aria-current]::after, .linha-nav:focus-visible::after, :is(a,button)[aria-current] > .linha-nav::after, :is(a,button):focus-visible > .linha-nav::after { transform: scaleX(1); }
+@media (hover: hover) { .linha-nav:hover::after, :is(a,button):hover > .linha-nav::after { transform: scaleX(1); } }
+/* Link dentro de texto: sublinhado discreto que fica dourado no hover, para não se passar por texto comum. */
+.link-texto { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-color .18s; }
+.link-texto:hover { text-decoration-color: var(--color-gold); }
 .campo { display: grid; gap: 6px; min-width: 0; }
 .campo > label { margin: 0; }
 .grupo-acao { position: relative; display: inline-flex; flex-shrink: 0; }

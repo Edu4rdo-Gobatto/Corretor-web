@@ -15,7 +15,7 @@ import { brand } from '../../config/brand';
 import type { ConsultaCatalogo } from '../../tipos';
 
 const icones: Record<string, Icone> = { galpao: IconeGalpao, 'sala-comercial': IconeEdificio, predio: IconePredio, loja: IconeLoja, terreno: IconeTerreno };
-const campoControle = 'mt-2 min-h-12 border-0 p-[2px_26px_2px_0] text-base';
+const campoControle = 'mt-2 min-h-12 border-0 p-[2px_26px_2px_0] text-base normal-case tracking-normal';
 const chipBase = 'inline-flex min-h-[42px] items-center gap-2 rounded-[3px] border px-4 py-[10px] text-[13px] max-[560px]:min-h-11 max-[560px]:px-3';
 const chipInativo = 'border-line bg-transparent text-muted hover:border-navy dark:hover:border-gold';
 const chipSelecionado = 'border-navy bg-navy text-white shadow-[inset_0_-2px_0_var(--color-gold)]';

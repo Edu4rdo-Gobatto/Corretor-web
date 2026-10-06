@@ -1,5 +1,25 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-06 — Claude: cabeçalhos no estilo de "Encontrar um imóvel"
+
+Pedido: todos os botões dos cabeçalhos com negrito e linha dourada no hover; remover "Encontrar um imóvel";
+tirar a borda do botão de tema; painel incluído; corrigir outras diferenças encontradas.
+
+Arquivos: `global.css` (`.linha-nav`, `.link-texto`), LayoutPublico, LayoutPainel, App, PaginaIndisponivel,
+FormularioContato, Catalogo, DetalheImovel, Privacidade, Devs e Entrar.
+
+Validação (exit 0): typecheck, lint, 3 arquivos/21 testes, build cliente/SSR/Vercel e `seo-smoke`. Curl no preview:
+`/`, `/imoveis/para-alugar`, detalhe, `robots.txt`, `sitemap.xml` e `/privacidade` com 200; rota inexistente com 404.
+O SSR não traz mais "Encontrar um imóvel" e marca Alugar com `aria-current`.
+
+QA efêmero em Playwright/Chrome com API simulada: 4 projetos (claro/escuro 1440 e 390) × 2 cenários, 8 de 8
+aprovados. O primeiro rodou com 4 falhas, todas do próprio script (seletor ambíguo e expectativa errada da
+transformação), corrigido em seguida. Verificado: sem link removido, linha ativa, tema sem borda, foco em Alugar
+ao abrir o menu mobile, sem overflow, sem erro JS e sem chamada de API inesperada. Capturas inspecionadas
+visualmente e guardadas em `artifacts/cabecalhos-2026-10-06/`; spec temporária removida. `git diff --check`
+aprovado. Sem commit, push ou publicação.
+
+
 ## 2026-10-06 — Codex: conclusão local das specs completas da Área do Corretor
 
 Pedido aprovado: aplicar o plano completo ao restante do painel. Implementados padrões em

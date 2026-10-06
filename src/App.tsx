@@ -1,6 +1,6 @@
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { createBrowserRouter, RouterProvider, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { caminhosCatalogo, urlNormalizada } from './servicos/urls';
+import { caminhosCatalogo, urlCatalogo, urlNormalizada } from './servicos/urls';
 import LayoutPublico from './componentes/LayoutPublico';
 import CasaQuebrada from './componentes/CasaQuebrada';
 import PaginaIndisponivel from './componentes/PaginaIndisponivel';
@@ -81,8 +81,8 @@ export function PaginaErro({ status = 404 }: { status?: number }) {
         <p>Tente novamente em alguns instantes.</p>
         <div className="flex flex-wrap gap-3">
           <Link to="/" className="button">Voltar ao catálogo</Link>
-          <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
-          <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+          <Link to={urlCatalogo({ finalidade: 'locacao' })} className="buttonSecondary">Alugar</Link>
+          <Link to={urlCatalogo({ finalidade: 'venda' })} className="buttonSecondary">Comprar</Link>
           {status >= 500 && <button className="buttonSecondary" onClick={() => window.location.reload()}>Tentar novamente</button>}
         </div>
       </div>
@@ -104,8 +104,8 @@ export function PaginaErro({ status = 404 }: { status?: number }) {
           )}
           <div className="mt-4 flex flex-wrap gap-3">
             <Link to="/" className="button">Voltar agora</Link>
-            <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
-            <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+            <Link to={urlCatalogo({ finalidade: 'locacao' })} className="buttonSecondary">Alugar</Link>
+            <Link to={urlCatalogo({ finalidade: 'venda' })} className="buttonSecondary">Comprar</Link>
             {!ficar && (
               <button type="button" className="buttonSecondary" onClick={() => setFicar(true)}>
                 Ficar aqui

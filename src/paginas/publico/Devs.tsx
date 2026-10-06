@@ -45,7 +45,7 @@ export default function Devs() {
       <span aria-live="polite" className="srOnly">{mostrarIntro ? '' : 'Página pronta.'}</span>
       <div className="mx-auto max-w-[800px]">
       <Seo />
-      <Link to="/">← Voltar ao catálogo</Link>
+      <Link to="/" className="link-texto">← Voltar ao catálogo</Link>
       <p className="eyebrow">Quem fez</p>
       <h1 ref={titulo} tabIndex={-1}>Desenvolvedores</h1>
       <p className="muted">Quem construiu este site: front-end e back-end.</p>

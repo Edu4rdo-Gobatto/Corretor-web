@@ -1,5 +1,15 @@
 # Estado atual — corretor-web
 
+## 2026-10-06 — Claude: cabeçalhos padronizados e ajustes de consistência
+
+Pedido do dono: botões dos cabeçalhos no estilo de "Encontrar um imóvel", remover esse link e tirar a borda do
+botão de tema; painel incluído. Entregue com `.linha-nav` no site e no painel. Também ajustados links que pareciam
+texto comum, rotas fixas nas páginas de erro, rótulos digitados em maiúsculas no login e espaçamento herdado
+nos selects do catálogo. Typecheck, lint, 21 testes, build, smoke SSR, curl das rotas públicas e QA efêmero
+(Chrome, 390/1440, claro/escuro, API simulada) aprovados. Evidências: `artifacts/cabecalhos-2026-10-06/`.
+Sem commit, push ou publicação.
+
+
 ## 2026-10-06 — Codex: Área do Corretor concluída e validada localmente
 
 Plano completo autorizado e implementado: Imóveis/Contratos/Comissões/Cadastros/Corretores/

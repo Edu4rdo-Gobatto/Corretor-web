@@ -13,10 +13,14 @@ import { IconeBuscar } from '../../componentes/Icones';
 import PaletaPainel from '../../componentes/PaletaPainel';
 import { ProvedorComandosPainel } from '../../hooks/useComandosPainel';
 
-// O ícone só ganha a base dourada no destino ativo; os demais ficam neutros ao lado do nome. No desktop os itens
+// O ícone só ganha a base dourada no destino ativo; os demais ficam neutros ao lado do nome. O nome segue o estilo
+// dos cabeçalhos do site (.linha-nav): negrito e linha dourada no hover/foco, fixa no destino atual. No desktop os itens
 // dividem a altura livre entre 40px e 64px: espaçados em telas altas e sem rolagem até ~620px de altura.
-const linkNavegacao = 'group flex max-h-16 min-h-10 flex-[1_1_52px] items-center gap-3 rounded-[10px] px-1.5 text-[18px] text-white/85 no-underline hover:bg-white/10 aria-[current]:bg-white/10 aria-[current]:font-semibold aria-[current]:text-white';
-const linkNavegacaoMobile = 'group flex min-h-12 items-center gap-3 rounded-xl px-2 py-1.5 text-[18px] text-ink no-underline hover:bg-soft aria-[current]:bg-soft aria-[current]:font-semibold';
+const linkNavegacao = 'group flex max-h-16 min-h-10 flex-[1_1_52px] items-center gap-3 rounded-[10px] px-1.5 text-[18px] font-semibold text-white/85 no-underline hover:text-white aria-[current]:text-white [--linha-y:-4px]';
+const linkNavegacaoMobile = 'group flex min-h-12 items-center gap-3 rounded-xl px-2 py-1.5 text-[18px] font-semibold text-ink no-underline [--linha-y:-4px]';
+// Botões do topo da sidebar: sem borda, no mesmo estilo dos links (linha dourada sob o ícone ou o texto).
+const botaoIcone = 'linha-nav grid cursor-pointer place-items-center rounded-[10px] border-0 bg-transparent text-white [--linha-x:10px] [--linha-y:4px]';
+const botaoTexto = 'inline-flex cursor-pointer items-center rounded-[10px] border-0 bg-transparent font-semibold text-white [--linha-y:-4px]';
 const baseIcone = 'grid h-9 w-9 shrink-0 place-items-center rounded-lg group-aria-[current]:bg-acao-painel group-aria-[current]:text-sobre-acao';
 // A sidebar é sempre navy: usa a variante do logo com as cores originais (texto claro).
 const logo = (altura: number, classe: string) => <img src={`${brand.logo.temaEscuro}-48.webp`} srcSet={`${brand.logo.temaEscuro}-48.webp 1x, ${brand.logo.temaEscuro}-96.webp 2x, ${brand.logo.temaEscuro}-144.webp 3x`}
@@ -102,7 +106,7 @@ function EstruturaPainel() {
   const itensMenu = visiveis.length + 1; // + "Ver site"
   const navegacao = (mobile = false) => {
     const classe = mobile ? linkNavegacaoMobile : linkNavegacao;
-    const item = (Icone: Icone, nome: string) => <><span aria-hidden="true" className={baseIcone}><Icone size={22} /></span><span className="min-w-0">{nome}</span></>;
+    const item = (Icone: Icone, nome: string) => <><span aria-hidden="true" className={baseIcone}><Icone size={22} /></span><span className="linha-nav min-w-0">{nome}</span></>;
     return <nav aria-label="Administração" className={mobile ? 'grid gap-0.5' : 'flex min-h-0 flex-1 flex-col gap-1'}>
       {visiveis.map((destino) => <NavLink key={destino.to} to={destino.to} end={destino.end} className={classe} onClick={() => setMenuAberto(false)}>{item(destino.icone, destino.nome)}</NavLink>)}
       {mobile && <NavLink to={rotas.perfil} className={classe} onClick={() => setMenuAberto(false)}>{item(IconePessoa, 'Meu perfil')}</NavLink>}
@@ -116,13 +120,13 @@ function EstruturaPainel() {
         <div className="flex items-center justify-between gap-3 lg:block">
           <Link to={rotas.inicio} className="block min-w-0 text-inherit no-underline lg:px-1.5">{logo(48, 'h-9 lg:h-12')}<span className="mt-1 hidden text-sm text-white/70 lg:block">Área do corretor</span></Link>
           <div className="flex shrink-0 items-center gap-1 lg:hidden">
-            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className="grid min-h-11 min-w-11 cursor-pointer place-items-center rounded border border-white/40 bg-transparent text-white">{escuro ? <IconeModoClaro size={18} /> : <IconeModoEscuro size={18} />}</button>
+            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className={`${botaoIcone} min-h-11 min-w-11`}>{escuro ? <IconeModoClaro size={18} /> : <IconeModoEscuro size={18} />}</button>
             <button type="button" onClick={() => setContaAberta(true)} aria-label={`Abrir conta de ${corretor.nome}`} aria-haspopup="dialog" className="grid min-h-11 min-w-11 cursor-pointer place-items-center rounded text-white">
               <span aria-hidden="true" className="grid h-8 w-8 place-items-center overflow-hidden rounded-full border border-white/40 bg-white/10 text-sm font-semibold">{foto('h-full w-full object-cover')}</span>
             </button>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3 lg:hidden"><span className="min-w-0 flex-1 truncate text-sm font-semibold">{paginaAtual}</span><button type="button" aria-label="Buscar no painel" aria-haspopup="dialog" className="grid min-h-11 min-w-11 shrink-0 place-items-center rounded border border-white/40 bg-transparent text-white" onClick={() => setPaletaAberta(true)}><IconeBuscar size={22} /></button><button type="button" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded border border-white/40 bg-transparent px-3 text-white" aria-haspopup="dialog" onClick={() => setMenuAberto(true)}><IconeMenu size={19} aria-hidden="true" />Menu</button></div>
+        <div className="flex items-center justify-between gap-3 lg:hidden"><span className="min-w-0 flex-1 truncate text-sm font-semibold">{paginaAtual}</span><button type="button" aria-label="Buscar no painel" aria-haspopup="dialog" className={`${botaoIcone} min-h-11 min-w-11 shrink-0`} onClick={() => setPaletaAberta(true)}><IconeBuscar size={22} /></button><button type="button" className={`${botaoTexto} min-h-11 shrink-0 gap-2 px-3`} aria-haspopup="dialog" onClick={() => setMenuAberto(true)}><IconeMenu size={19} aria-hidden="true" /><span className="linha-nav">Menu</span></button></div>
         {/* Altura mínima = itens a 40px: abaixo disso a sidebar rola em vez de sobrepor o cartão do perfil. */}
         <div className="hidden min-h-0 flex-1 flex-col lg:flex" style={{ minHeight: `${itensMenu * 44 - 4}px` }}>{navegacao()}</div>
         <div className="hidden shrink-0 gap-2 lg:grid">
@@ -134,9 +138,9 @@ function EstruturaPainel() {
           </NavLink>
           {erroSaida && <Aviso tom="erro">{erroSaida}</Aviso>}
           <div className="flex items-center gap-2">
-            <button type="button" aria-label="Buscar no painel (Ctrl ou Command K)" aria-haspopup="dialog" onClick={() => setPaletaAberta(true)} className="grid min-h-10 min-w-10 cursor-pointer place-items-center rounded-[10px] border border-white/40 bg-transparent text-white hover:bg-white/10"><IconeBuscar size={20} /></button>
-            <button disabled={saindo} onClick={encerrar} className="inline-flex min-h-10 flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-white/40 bg-transparent px-2.5 py-1.5 text-base text-white hover:bg-white/10 disabled:opacity-60">{saindo ? 'Saindo…' : 'Sair da conta'}</button>
-            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className="grid min-h-10 min-w-10 cursor-pointer place-items-center rounded-[10px] border border-white/40 bg-transparent text-white hover:bg-white/10">{escuro ? <IconeModoClaro size={20} /> : <IconeModoEscuro size={20} />}</button>
+            <button type="button" aria-label="Buscar no painel (Ctrl ou Command K)" aria-haspopup="dialog" onClick={() => setPaletaAberta(true)} className={`${botaoIcone} min-h-10 min-w-10`}><IconeBuscar size={20} /></button>
+            <button disabled={saindo} onClick={encerrar} className={`${botaoTexto} min-h-10 flex-1 justify-center px-2.5 py-1.5 text-base disabled:opacity-60`}><span className="linha-nav">{saindo ? 'Saindo…' : 'Sair da conta'}</span></button>
+            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className={`${botaoIcone} min-h-10 min-w-10`}>{escuro ? <IconeModoClaro size={20} /> : <IconeModoEscuro size={20} />}</button>
           </div>
         </div>
       </aside>

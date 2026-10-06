@@ -24,10 +24,9 @@ export default function LayoutPublico() {
   const location = useLocation();
   const consulta = lerUrlCatalogo(location.pathname + location.search);
   const detalheImovel = consulta === null && /^\/imoveis\/[^/]+\/?$/.test(location.pathname);
-  const encontrarAtivo = consulta !== null && !consulta.finalidade;
   const alugarAtivo = consulta?.finalidade === 'locacao';
   const comprarAtivo = consulta?.finalidade === 'venda';
-  const classeAtiva = 'font-semibold text-brand underline decoration-gold decoration-2 underline-offset-8 max-[650px]:text-gold';
+  const classeAtiva = 'text-brand max-[650px]:text-gold';
   const [menuAberto, setMenuAberto] = useState(false);
   const { escuro, alternar } = useTema();
   const botaoMenu = useRef<HTMLButtonElement>(null);
@@ -60,16 +59,15 @@ export default function LayoutPublico() {
         {menuAberto && <button type="button" aria-label="Fechar menu" onClick={() => fecharMenu()} className="fixed inset-0 z-[4] hidden cursor-default border-0 bg-navy/60 p-0 max-[650px]:block" />}
         <div className="ml-auto flex shrink-0 items-center gap-4">
           <nav id="public-navigation" aria-label="Principal"
-            className={`flex items-center gap-[30px] text-[15px] max-[900px]:gap-3 max-[900px]:text-sm max-[650px]:absolute max-[650px]:inset-x-0 max-[650px]:top-[84px] max-[650px]:z-[5] max-[650px]:flex-col max-[650px]:items-stretch max-[650px]:gap-1 max-[650px]:border-b-[3px] max-[650px]:border-b-gold max-[650px]:bg-navy max-[650px]:p-6 max-[650px]:text-white max-[650px]:shadow-[0_12px_16px_#0001] ${menuAberto ? 'max-[650px]:flex' : 'max-[650px]:hidden'} max-[650px]:[&_a]:flex max-[650px]:[&_a]:min-h-12 max-[650px]:[&_a]:items-center max-[650px]:[&_a]:font-display max-[650px]:[&_a]:text-[19px] [&_a]:no-underline [&_a:hover]:underline`}>
-            <Link ref={primeiroLink} to={rotas.inicio} className={encontrarAtivo ? classeAtiva : undefined} aria-current={encontrarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Encontrar um imóvel</Link>
-            <Link to={urlCatalogo({ finalidade: 'locacao' })} className={alugarAtivo ? classeAtiva : undefined} aria-current={alugarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Alugar</Link>
-            <Link to={urlCatalogo({ finalidade: 'venda' })} className={comprarAtivo ? classeAtiva : undefined} aria-current={comprarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Comprar</Link>
-            <Link to={rotas.painel} onClick={() => fecharMenu(false)} className="flex items-center gap-[14px] border-l border-line py-3 pl-8 max-[900px]:pl-3 max-[650px]:min-h-12 max-[650px]:border-l-0 max-[650px]:border-t max-[650px]:border-t-white/20 max-[650px]:pl-0 max-[650px]:font-sans max-[650px]:text-base">Área do corretor <IconeSetaExterna size={16} /></Link>
+            className={`flex items-center gap-[30px] text-[15px] max-[900px]:gap-3 max-[900px]:text-sm max-[650px]:absolute max-[650px]:inset-x-0 max-[650px]:top-[84px] max-[650px]:z-[5] max-[650px]:flex-col max-[650px]:items-stretch max-[650px]:gap-1 max-[650px]:border-b-[3px] max-[650px]:border-b-gold max-[650px]:bg-navy max-[650px]:p-6 max-[650px]:text-white max-[650px]:shadow-[0_12px_16px_#0001] ${menuAberto ? 'max-[650px]:flex' : 'max-[650px]:hidden'} max-[650px]:[&_a]:flex max-[650px]:[&_a]:min-h-12 max-[650px]:[&_a]:w-fit max-[650px]:[&_a]:items-center max-[650px]:[&_a]:text-[19px] [&_a]:[--linha-y:-6px] max-[650px]:[&_a]:[--linha-y:4px]`}>
+            <Link ref={primeiroLink} to={urlCatalogo({ finalidade: 'locacao' })} className={`linha-nav ${alugarAtivo ? classeAtiva : ''}`} aria-current={alugarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Alugar</Link>
+            <Link to={urlCatalogo({ finalidade: 'venda' })} className={`linha-nav ${comprarAtivo ? classeAtiva : ''}`} aria-current={comprarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Comprar</Link>
+            <span className="flex items-center border-l border-line py-3 pl-8 max-[900px]:pl-3 max-[650px]:border-l-0 max-[650px]:border-t max-[650px]:border-t-white/20 max-[650px]:py-0 max-[650px]:pl-0"><Link to={rotas.painel} onClick={() => fecharMenu(false)} className="linha-nav inline-flex items-center gap-[14px]">Área do corretor <IconeSetaExterna size={16} /></Link></span>
             <p aria-hidden="true" className="m-0 hidden pt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold max-[650px]:block">CRECI {brand.creci}</p>
           </nav>
           <div className="relative z-[6] flex items-center gap-2">
-            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className="buttonGhost inline-flex min-h-11 min-w-11 items-center justify-center">{escuro ? <IconeModoClaro size={18} /> : <IconeModoEscuro size={18} />}</button>
-            <button ref={botaoMenu} className="hidden min-h-11 min-w-11 items-center justify-center rounded border border-transparent bg-transparent p-2.5 font-semibold hover:bg-soft max-[650px]:inline-flex" aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuAberto} aria-controls="public-navigation" onClick={() => (menuAberto ? fecharMenu() : setMenuAberto(true))}>{menuAberto ? <IconeFechar /> : <IconeMenu />}</button>
+            <button type="button" onClick={alternar} aria-label={rotuloTema} aria-pressed={escuro} className="linha-nav inline-flex min-h-11 min-w-11 items-center justify-center rounded border-0 bg-transparent p-2.5 [--linha-x:12px] [--linha-y:6px]">{escuro ? <IconeModoClaro size={18} /> : <IconeModoEscuro size={18} />}</button>
+            <button ref={botaoMenu} className="linha-nav hidden min-h-11 min-w-11 items-center justify-center rounded border-0 bg-transparent p-2.5 [--linha-x:12px] [--linha-y:6px] max-[650px]:inline-flex" aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuAberto} aria-controls="public-navigation" onClick={() => (menuAberto ? fecharMenu() : setMenuAberto(true))}>{menuAberto ? <IconeFechar /> : <IconeMenu />}</button>
           </div>
         </div>
       </div>

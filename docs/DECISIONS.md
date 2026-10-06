@@ -1,5 +1,19 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-06 — Cabeçalhos no estilo de "Encontrar um imóvel" (pedido do dono)
+
+- Todos os botões dos cabeçalhos, no site e no painel, usam `.linha-nav` (`global.css`): negrito e linha dourada
+  de 2px que cresce no hover/foco e fica fixa no destino atual (`aria-current`). Hover só em `@media (hover:hover)`.
+- "Encontrar um imóvel" saiu do cabeçalho: levava a `/`, o mesmo destino do logo. O foco inicial do menu mobile
+  passa para "Alugar". O rodapé continua com "Imóveis comerciais".
+- O botão de tema (site) e os botões do topo da sidebar (Buscar, Menu, Sair da conta, tema) ficaram sem borda.
+- Painel: o destino ativo deixa a pílula de fundo e passa à linha dourada sob o nome, com todos os itens em negrito.
+  A base dourada do ícone ativo continua. Isso substitui esse ponto da especificação visual de 06/10, por escolha
+  expressa do dono.
+- Links dentro de texto usam `.link-texto` (sublinhado discreto, dourado no hover). Páginas de erro montam
+  Alugar/Comprar com `urlCatalogo`, sem caminhos fixos.
+
+
 ## 2026-10-06 — Conclusão autorizada das specs completas do painel
 
 - O novo pedido autoriza as etapas posteriores a Contatos e todos os comportamentos aprovados.

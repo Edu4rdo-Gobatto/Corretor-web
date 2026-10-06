@@ -1,5 +1,18 @@
 # Tarefas — corretor-web
 
+## CABECALHOS-20261006 — Botões dos cabeçalhos no estilo de "Encontrar um imóvel"
+
+- **Responsável:** Claude.
+- **Status:** concluída (implementação e validação local).
+- [x] `.linha-nav` compartilhada: negrito, linha dourada no hover/foco e no destino atual.
+- [x] Cabeçalho público: remover "Encontrar um imóvel"; Alugar/Comprar/Área do corretor e tema sem borda.
+- [x] Painel: sidebar e menu mobile com linha dourada; botões do topo sem borda.
+- [x] Consistência: `.link-texto`, `urlCatalogo` nas páginas de erro, eyebrows do login, tracking dos selects.
+- [x] Typecheck, lint, 21 testes, build, smoke SSR, curl e QA efêmero com capturas.
+- [ ] Pendências relatadas ao dono, fora do pedido: chips do catálogo, raios variados (2–12px), cinco valores de
+  tracking em maiúsculas e o X do `Dialogo` com borda.
+
+
 ## AREA-CORRETOR-20261006-CONCLUSAO — Specs completas do painel
 
 - **Responsável:** Codex; implementação/revisão delegadas em arquivos separados.

@@ -76,7 +76,7 @@ export default function DetalheImovel() {
       <Link className="inline-flex items-center gap-2 text-sm text-muted no-underline transition duration-150 hover:-translate-x-[3px] hover:text-brand motion-reduce:transform-none motion-reduce:transition-none" to="/"><IconeSetaEsquerda size={16} /> Voltar aos imóveis</Link>
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={tentarNovamente} esqueleto="detalhe" />
       {!carregando && !erro && imovel && <>
-        <nav aria-label="Navegação estrutural" className="my-5 text-sm text-muted"><Link to="/">Imóveis comerciais</Link> / <span aria-current="page">{imovel.titulo}</span></nav>
+        <nav aria-label="Navegação estrutural" className="my-5 text-sm text-muted"><Link to="/" className="link-texto">Imóveis comerciais</Link> / <span aria-current="page">{imovel.titulo}</span></nav>
         <div className="py-[30px] max-[760px]:pt-6">
           <p className="mb-3 inline-flex rounded-full border border-line bg-soft px-3 py-1 text-sm text-muted">{rotulosStatusImovel[imovel.status]}</p>
           <p className="eyebrow mb-[14px]">{imovel.tipo?.nome || 'Imóvel'} · {imovel.finalidade?.nome || 'Imóvel comercial'} · Ref. {codigoImovel(imovel.id)}</p>

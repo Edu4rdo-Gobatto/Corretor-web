@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IconePausar, IconeReproduzir } from './Icones';
 import { Link, useLocation } from 'react-router-dom';
+import { urlCatalogo } from '../servicos/urls';
 import { useRecuperacaoPagina } from '../hooks/useRecuperacaoPagina';
 import { Seo } from '../seo/context';
 import AcaoIcone from './AcaoIcone';
@@ -27,8 +28,8 @@ export default function PaginaIndisponivel({ status }: { status: number }) {
         <div className="flex flex-wrap gap-3">
           <a href={location.pathname + location.search} className="button" onClick={(evento) => { evento.preventDefault(); tentarNovamente(); }}>Tentar novamente</a>
           <Link to="/" className="buttonSecondary">Voltar ao catálogo</Link>
-          <Link to="/imoveis/para-alugar" className="buttonSecondary">Alugar</Link>
-          <Link to="/imoveis/para-comprar" className="buttonSecondary">Comprar</Link>
+          <Link to={urlCatalogo({ finalidade: 'locacao' })} className="buttonSecondary">Alugar</Link>
+          <Link to={urlCatalogo({ finalidade: 'venda' })} className="buttonSecondary">Comprar</Link>
         </div>
       </div>
       <div className="min-w-0">

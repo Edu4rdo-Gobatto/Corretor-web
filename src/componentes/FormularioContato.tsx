@@ -68,13 +68,13 @@ export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel
             <div>
               <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-[13px] font-normal [&_input]:mt-1">
                 <input type="checkbox" {...register('consentimento')} aria-invalid={Boolean(errors.consentimento)} aria-describedby={errors.consentimento ? 'contato-consentimento-erro' : undefined} />
-                <span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank">Política de Privacidade</Link>.</span>
+                <span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank" className="link-texto">Política de Privacidade</Link>.</span>
               </label>
               {errors.consentimento && <span id="contato-consentimento-erro" className="error">{errors.consentimento.message}</span>}
             </div>
             {falha && <Aviso tom="erro">{falha}</Aviso>}
             <button className="button" type="submit" disabled={enviando}>{enviando ? 'Registrando contato…' : falha ? 'Tentar registrar novamente' : 'Falar com corretor'}<IconeSetaExterna size={17} /></button>
-            {whatsappAberto && <a href={urlContato} target="_blank" rel="noopener noreferrer" className="text-center text-sm">Se o WhatsApp não abriu, clique aqui</a>}
+            {whatsappAberto && <a href={urlContato} target="_blank" rel="noopener noreferrer" className="link-texto text-center text-sm">Se o WhatsApp não abriu, clique aqui</a>}
           </form>
         </>
       )}
