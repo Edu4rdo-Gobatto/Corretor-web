@@ -17,6 +17,10 @@ const Entrar = lazy(() => import('./paginas/painel/Entrar'));
 const VisaoGeral = lazy(() => import('./paginas/painel/VisaoGeral'));
 const Imoveis = lazy(() => import('./paginas/painel/Imoveis'));
 const FormularioImovel = lazy(() => import('./paginas/painel/FormularioImovel'));
+const FichaImovel = lazy(() => import('./paginas/painel/DetalheImovel'));
+const FichaCorretor = lazy(() => import('./paginas/painel/FichaCorretor'));
+const FichaClassificacao = lazy(() => import('./paginas/painel/FichaClassificacao'));
+const DetalheComissao = lazy(() => import('./paginas/painel/DetalheComissao'));
 const Contatos = lazy(() => import('./paginas/painel/Contatos'));
 const Pessoas = lazy(() => import('./paginas/painel/Pessoas'));
 const FichaPessoa = lazy(() => import('./paginas/painel/FichaPessoa'));
@@ -148,13 +152,17 @@ export function AppRoutes() {
             <Route index element={<VisaoGeral />} />
             <Route path="imoveis" element={<Imoveis />} />
             <Route path="imoveis/novo" element={<FormularioImovel />} />
+            <Route path="imoveis/:id" element={<FichaImovel key={location.pathname} />} />
             <Route path="imoveis/:id/editar" element={<FormularioImovel />} />
             <Route path="contatos" element={<Contatos />} />
             <Route path="pessoas" element={<Pessoas />} />
             <Route path="pessoas/:id" element={<FichaPessoa key={location.pathname} />} />
             <Route path="corretores" element={<Corretores />} />
+            <Route path="corretores/:id" element={<FichaCorretor key={location.pathname} />} />
             <Route path="cadastros" element={<Cadastros />} />
+            <Route path="cadastros/:categoria/:id" element={<FichaClassificacao key={location.pathname} />} />
             <Route path="comissoes" element={<Comissoes />} />
+            <Route path="comissoes/:id" element={<DetalheComissao key={location.pathname} />} />
             <Route path="contratos" element={<Contratos />} />
             <Route path="contratos/:id" element={<DetalheContrato key={location.pathname} />} />
             <Route path="perfil" element={<Perfil />} />

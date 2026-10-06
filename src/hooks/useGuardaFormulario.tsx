@@ -2,12 +2,12 @@ import { useContext, useEffect, useRef } from 'react';
 import { UNSAFE_DataRouterContext, useBlocker } from 'react-router-dom';
 import ConfirmarAcao from '../componentes/ConfirmarAcao';
 
-type Propriedades = { alterado: boolean; liberado: React.MutableRefObject<boolean> };
+type Propriedades = { alterado: boolean; liberado: React.MutableRefObject<boolean>; descricao?: string };
 
-function GuardaNavegacao({ alterado, liberado }: Propriedades) {
+function GuardaNavegacao({ alterado, liberado, descricao }: Propriedades) {
   const bloqueio = useBlocker(({ currentLocation, nextLocation }) => alterado && !liberado.current && (currentLocation.pathname !== nextLocation.pathname || currentLocation.search !== nextLocation.search));
   if (bloqueio.state !== 'blocked') return null;
-  return <ConfirmarAcao titulo="Sair sem salvar?" descricao="Há alterações não salvas nesta edição. Sair não salva o imóvel; fotos e vídeos ainda não enviados precisarão ser selecionados novamente." confirmar="Sair desta edição" aoConfirmar={() => bloqueio.proceed()} aoFechar={() => bloqueio.reset()} />;
+  return <ConfirmarAcao titulo="Sair sem salvar?" descricao={descricao ?? 'Há alterações não salvas nesta edição. Sair não salva o imóvel; fotos e vídeos ainda não enviados precisarão ser selecionados novamente.'} confirmar="Sair desta edição" aoConfirmar={() => bloqueio.proceed()} aoFechar={() => bloqueio.reset()} />;
 }
 
 /** Só funciona dentro de um data router; fora dele (SSR, testes com MemoryRouter) não faz nada. */

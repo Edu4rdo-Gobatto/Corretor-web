@@ -66,7 +66,9 @@ const aliasesPainel: Record<string, string> = {
   '/admin/login': rotas.entrar, '/admin/leads': rotas.contatos, '/admin/clientes': rotas.pessoas,
   '/admin/proprietarios': rotas.pessoas, '/admin/inquilinos': rotas.pessoas,
 };
-const caminhoPainel = /^\/admin(?:\/(?:entrar|contatos|corretores|perfil|cadastros|comissoes|pessoas(?:\/\d+)?|imoveis(?:\/(?:novo|\d+\/editar))?|contratos(?:\/\d+)?))?$/;
+const caminhoPainel = /^\/admin(?:\/(?:entrar|contatos|perfil|corretores(?:\/\d+)?|cadastros(?:\/(?:tipos-imovel|finalidades-imovel|caracteristicas)\/\d+)?|comissoes(?:\/\d+)?|pessoas(?:\/\d+)?|imoveis(?:\/(?:novo|\d+(?:\/editar)?))?|contratos(?:\/\d+)?))?$/;
+
+export const urlFichaCorretor = (id: number, proprioId?: number) => id === proprioId ? rotas.perfil : `/admin/corretores/${id}`;
 
 /** URL canônica: catálogo em português, aliases antigos do painel e sem barra final. */
 export function urlNormalizada(caminho: string): string {

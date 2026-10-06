@@ -99,6 +99,7 @@ export const api = {
   ...locacoesApi,
   classificacoes,
   listarClassificacoes: (categoria: CategoriaClassificacao, pagina = 1) => http<Pagina<Classificacao>>(`/admin/${categoria}?pagina=${pagina}&limite=20`),
+  obterClassificacao: (categoria: CategoriaClassificacao, id: number) => http<Classificacao>(`/admin/${categoria}/${id}`),
   salvarClassificacao: (categoria: CategoriaClassificacao, dados: { nome?: string; slug?: string; icone?: string | null; ativo?: boolean }, id?: number) =>
     http<Classificacao>(`/admin/${categoria}${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', dados)),
 
@@ -134,6 +135,7 @@ export const api = {
   desativarPessoa: (id: number) => http<void>(`/admin/pessoas/${id}`, json('DELETE')),
 
   listarCorretores: (pagina = 1, limite = 20, busca?: string) => http<Pagina<Corretor>>(`/admin/corretores?${montarParametros({ pagina, limite, busca })}`),
+  obterCorretor: (id: number) => http<Corretor>(`/admin/corretores/${id}`),
   salvarCorretor: (dados: DadosCorretor, id?: number) => http<Corretor>(`/admin/corretores${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', dados)),
 
   enviarMidias: (imovelId: number, arquivos: File[]) => {

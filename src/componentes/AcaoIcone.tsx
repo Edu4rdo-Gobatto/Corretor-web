@@ -27,28 +27,58 @@ export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, de
   const [deslocamentoDica, setDeslocamentoDica] = useState(0);
   const [dicaAtiva, setDicaAtiva] = useState(false);
   const grupo = useRef<HTMLSpanElement>(null);
+  const dica = useRef<HTMLSpanElement>(null);
   const bloqueado = desabilitado || ocupado;
   const classe = `acao-icone ${tom === 'perigo' ? 'acao-perigo' : ''}`;
   const conteudo = ocupado ? <IconeCarregando size={20} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Icone size={20} aria-hidden="true" />;
   const atributos = { className: classe, 'aria-label': contexto ? `${rotulo} ${contexto}` : rotulo, 'aria-describedby': contexto ? undefined : id, 'aria-busy': ocupado || undefined };
   useEffect(() => {
     if (!dicaAtiva || dicaOculta) return;
+    const elementoDica = dica.current;
+    const painel = Boolean(grupo.current?.closest('.painel-ui'));
+    const usaCamada = painel && elementoDica && typeof elementoDica.showPopover === 'function';
+    function posicionar() {
+      const caixa = grupo.current?.getBoundingClientRect();
+      if (!caixa || !elementoDica) return;
+      const largura = elementoDica.getBoundingClientRect().width;
+      const altura = elementoDica.getBoundingClientRect().height;
+      const limiteX = Math.max(8, document.documentElement.clientWidth - largura - 8);
+      const limiteY = Math.max(8, window.innerHeight - altura - 8);
+      elementoDica.style.left = `${Math.max(8, Math.min(caixa.right - largura, limiteX))}px`;
+      elementoDica.style.top = `${Math.max(8, Math.min(caixa.top - altura - 6 >= 8 ? caixa.top - altura - 6 : caixa.bottom + 6, limiteY))}px`;
+      elementoDica.style.transform = 'none';
+    }
+    if (usaCamada) {
+      elementoDica.setAttribute('popover', 'manual');
+      elementoDica.classList.add('dica-painel');
+      elementoDica.showPopover();
+      posicionar();
+      window.addEventListener('resize', posicionar);
+      window.addEventListener('scroll', posicionar, true);
+    }
     function fecharDica(evento: KeyboardEvent) {
       if (evento.key !== 'Escape') return;
       setDicaOculta(true);
       evento.preventDefault();
       evento.stopPropagation();
+      if (painel) evento.stopImmediatePropagation();
     }
-    document.addEventListener('keydown', fecharDica);
-    return () => document.removeEventListener('keydown', fecharDica);
-  }, [dicaAtiva, dicaOculta]);
+    document.addEventListener('keydown', fecharDica, painel);
+    return () => {
+      document.removeEventListener('keydown', fecharDica, painel);
+      window.removeEventListener('resize', posicionar);
+      window.removeEventListener('scroll', posicionar, true);
+      if (usaCamada && elementoDica.isConnected && elementoDica.matches(':popover-open')) elementoDica.hidePopover();
+    };
+  }, [dicaAtiva, dicaOculta, ocupado]);
   function mostrarDica() {
     setDicaOculta(false);
     setDicaAtiva(true);
+    if (grupo.current?.closest('.painel-ui') && typeof dica.current?.showPopover === 'function') return;
     const caixa = grupo.current?.getBoundingClientRect();
-    const dica = grupo.current?.querySelector<HTMLElement>('[role="tooltip"]');
-    if (!caixa || !dica) return;
-    const largura = dica.getBoundingClientRect().width;
+    const elementoDica = dica.current;
+    if (!caixa || !elementoDica) return;
+    const largura = elementoDica.getBoundingClientRect().width;
     const esquerda = caixa.right - largura;
     const limite = document.documentElement.clientWidth - largura - 8;
     setDeslocamentoDica(Math.max(8, Math.min(esquerda, limite)) - esquerda);
@@ -59,6 +89,6 @@ export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, de
     {to ? <Link {...atributos} to={to} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</Link>
       : href ? <a {...atributos} href={href} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</a>
       : <button {...atributos} type={tipo} disabled={bloqueado} onClick={aoClicar}>{conteudo}</button>}
-    <span id={id} role="tooltip" aria-hidden={contexto ? true : undefined} className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
+    <span ref={dica} id={id} role="tooltip" aria-hidden={contexto ? true : undefined} className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
   </span>;
 }

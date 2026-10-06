@@ -341,3 +341,71 @@ Os atalhos `/`, `?` e Ctrl+Enter foram **descartados** pelo dono.
 - Regras do painel fora de `.painel-ui`.
 - Correção visual isolada numa tela quando o problema é do componente compartilhado.
 - Suítes de teste novas sem pedido do dono (a suíte mínima de 03–04/10 continua valendo).
+
+## 11. Registro de execução — primeiro marco (Codex, 06/10/2026)
+
+Este adendo atualiza o estado da seção 1 sem apagar o snapshot original: a base do parceiro já
+foi commitada em `a2a9f81` (`[NEW] Front style and Icons`); o "Nada foi commitado" acima se referia
+à redação anterior. A implementação deste marco permanece local, sem commit/push/deploy.
+
+| Parte | Estado atual |
+|---|---|
+| Base/Pessoas do parceiro | Preservadas; correções compartilhadas de tooltip, dica/erro e espaçamento de modal no painel |
+| Contatos (6.2) | Implementado; em revisão do dono, antes de seguir o item 2 da seção 8 |
+| Registro documental | Atualizado em AGENTS, PROJECT_STATUS, TASKS, DECISIONS, CHANGELOG_AI, INDICE e plano histórico |
+| Demais telas, fichas próprias, CampoNumero, guarda de modal, Esc sem modal e Ctrl+K | Pendentes |
+
+Contatos usa Pendentes/Atendidos e filtro Finalizados. Paginação de cada fila, CSV da página,
+filtros de imóvel/período inclusivo UTC-04, mensagem e WhatsApp foram preservados. Transições só
+movem após sucesso; falha mantém fila/diálogo e permite retry. A página é ajustada quando perde
+o último registro. `IconeFinalizar` já contém o SVG oficial `task_alt`, Outlined/FILL 1.
+Permissão de edição/reabertura é compartilhada com Pessoas/EditorPessoa; CORRETOR não consegue
+reabrir pelo select, inclusive ao adulterar seu valor. **Essa regra continua só no frontend.**
+
+QA final: typecheck, lint, 21 testes existentes, build e smoke SSR aprovados. Chrome/API simulada:
+24 cenários e 38 capturas, com a matriz de Contatos/editor 390/768/1440 claro/escuro em ADMIN/CORRETOR,
+navegação, transições, falhas/retry, filtros/CSV e público. Amostras inspecionadas visualmente;
+evidências em pasta ignorada `artifacts/area-corretor-2026-10-06/`. A verificação temporária usa
+script sem sufixo `.test`/`.spec`, para não entrar no Vitest; scripts temporários retirados ao finalizar,
+com resultados/capturas preservados. Nenhuma suíte rastreada foi ampliada.
+Integração real e Safari/iOS/dispositivo físico permanecem sem homologação.
+
+Próximo marco exige a conferência visual de Contatos pelo dono, como definido no item 1 da seção 8.
+Consultas novas seguirão o plano aprovado com telas próprias e serviços/permissões existentes;
+não aplicar a proposta histórica de fichas em modal nem os atalhos descartados.
+
+## 12. Ajustes aprovados pelo dono após revisão — 06/10/2026
+
+O novo pedido e as escolhas explícitas estão em `2026-10-06-ajustes-painel.md`, aprovados para
+implementação. Este adendo substitui requisitos conflitantes anteriores: Esc volta à página
+anterior interna (fallback lista/Visão geral); seletores dos filtros têm listas estilizadas;
+cards mantêm nome à esquerda e valores/ações à direita; menu mobile em tela inteira; origem e
+consentimento somente na ficha; filtro sem foto removido. Atendido conserva checkbox e regras.
+
+Essa revisão autoriza os ajustes indicados nas telas existentes e na base compartilhada.
+Não equivale à aprovação/conclusão de todas as próximas fases da seção 8.
+
+Implementação/validação local desta revisão concluídas: typecheck, lint, 21 testes, build,
+smoke SSR e QA simulado com 63 cenários/59 capturas. Limites e evidência na documentação
+da etapa; integração real e Safari/iOS/dispositivo físico continuam sem homologação.
+
+## 13. Conclusão autorizada das specs completas — 06/10/2026
+
+Após o pedido para aplicar as specs ao restante da Área do Corretor, o dono autorizou a
+implementação completa, inclusive comportamentos. Isso permite continuar após o checkpoint
+de Contatos da seção 8. O estado pendente das seções 1/6/7/11 é histórico e fica substituído:
+
+| Frente | Estado atual |
+|---|---|
+| Imóveis, Contratos, Comissões, Cadastros, Corretores, Visão geral, Perfil e editores/mídias | Implementados e validados localmente |
+| Consultas próprias de imóvel/comissão/classificação/corretor e vínculos de pessoa | Implementadas, conforme serviços e cargo |
+| CampoNumero, guarda dirty/busy e Ctrl/⌘+K | Implementados; apenas o atalho aprovado |
+| Ajustes do adendo 12 e histórico interno por Esc | Preservados |
+| Contexto, decisões, tarefas e changelog | Atualizados preservando snapshots anteriores |
+| Integração real, Safari/iOS e dispositivo físico | Sem homologação nesta etapa |
+
+Registro detalhado: `2026-10-06-conclusao-area-corretor.md`. Typecheck, lint, 3 arquivos/21
+testes existentes, build e smoke SSR aprovados. QA Chrome/API simulada: 320 cenários,
+140 capturas, 320/390/768/1440 claro/escuro ADMIN/CORRETOR, sem erros JS, chamadas inesperadas
+ou overflow horizontal. Revisões estáticas e correções verificadas. Índice staged preservado;
+sem suite rastreada nova, dependências, backend/dados/migrations ou commit/push/deploy.

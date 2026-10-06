@@ -8,7 +8,7 @@ const celula = 'px-4 py-3.5 align-middle wrap-anywhere first:pl-5 last:pr-5';
 // Linhas alternadas em todas as listagens do painel; o hover passa por cima da cor da linha.
 const linha = 'odd:bg-linha-a even:bg-linha-b hover:bg-linha-foco';
 // Cliques nestes elementos executam só a própria ação, nunca a abertura da linha.
-const interativos = 'a, button, input, select, textarea, label, summary, [role="button"], [role="tooltip"], [role="checkbox"]';
+const interativos = 'a, button, input, select, textarea, label, summary, [role="button"], [role="tooltip"], [role="checkbox"], [data-nao-abrir-linha]';
 
 /**
  * Mesmos dados em tabela ampla e blocos quando o próprio container é estreito. Com `linkLinha`, a linha inteira
@@ -42,20 +42,20 @@ export default function Tabela<T>({ colunas, itens, chave, vazio, rotulo, linkLi
           <tbody>
             {itens.map((item) => (
               <tr key={chave(item)} className={`${linha} ${linkLinha ? 'cursor-pointer' : ''}`} {...clicavel(item)}>
-                {colunas.map((coluna) => <td key={coluna.titulo} className={`${celula} ${coluna.acoes ? 'w-px whitespace-nowrap' : ''} ${coluna.classe ?? ''}`}>{coluna.acoes ? <div className="acoes-linha flex items-center justify-end gap-1">{coluna.celula(item)}</div> : coluna.celula(item)}</td>)}
+                {colunas.map((coluna) => <td key={coluna.titulo} className={`${celula} ${coluna.acoes ? 'w-px' : ''} ${coluna.classe ?? ''}`}>{coluna.acoes ? <div className="acoes-linha flex flex-wrap items-center justify-end gap-2">{coluna.celula(item)}</div> : coluna.celula(item)}</td>)}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <ul aria-label={rotulo} className="m-0 grid list-none overflow-hidden rounded-xl border border-line p-0 @min-[40rem]/tabela:hidden">
-        {itens.map((item) => <li key={chave(item)} className={`min-w-0 px-4 py-4 ${linha} ${linkLinha ? 'cursor-pointer' : ''}`} {...clicavel(item)}>
+      <ul aria-label={rotulo} className="m-0 grid list-none gap-3 p-0 @min-[40rem]/tabela:hidden">
+        {itens.map((item) => <li key={chave(item)} className={`cartao-tabela min-w-0 rounded-xl border border-line px-4 py-4 ${linha} ${linkLinha ? 'cursor-pointer' : ''}`} {...clicavel(item)}>
           <dl className="m-0 grid gap-3">
             {colunas.map((coluna, indice) => coluna.acoes
-              ? <div key={`${coluna.titulo}-${indice}`} className="acoes-linha flex flex-wrap items-center justify-end gap-1">{coluna.celula(item)}</div>
-              : <div key={`${coluna.titulo}-${indice}`} className={`min-w-0 ${indice === 0 ? '' : 'flex flex-wrap items-center justify-between gap-x-4 gap-y-1'}`}>
+              ? <div key={`${coluna.titulo}-${indice}`} className="acoes-linha col-span-full mt-1 flex flex-wrap items-center justify-end gap-2 border-t border-line pt-3">{coluna.celula(item)}</div>
+              : <div key={`${coluna.titulo}-${indice}`} className={`min-w-0 ${indice === 0 ? '' : 'grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-x-3 gap-y-1'}`}>
                 <dt className={indice === 0 ? 'sr-only' : 'text-base font-semibold text-muted'}>{coluna.titulo}</dt>
-                <dd className="m-0 min-w-0 max-w-full wrap-anywhere [&_small]:wrap-anywhere">{coluna.celula(item)}</dd>
+                <dd className={`m-0 min-w-0 max-w-full wrap-anywhere [&_small]:wrap-anywhere ${indice === 0 ? '' : 'text-right [&_div]:justify-end [&_small.flex]:justify-end'}`}>{coluna.celula(item)}</dd>
               </div>)}
           </dl>
         </li>)}

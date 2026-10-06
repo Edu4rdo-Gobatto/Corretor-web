@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { mensagemErro } from '../servicos/formato';
 
 /** Carrega dados autenticados do painel com recarga explícita; respostas de consultas antigas são descartadas. */
-export function useDadosPainel<T>(carregar: () => Promise<T>) {
+export function useDadosPainel<T>(carregar: () => Promise<T>, revisaoExterna = 0) {
   const [dados, setDados] = useState<T>();
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
@@ -19,6 +19,6 @@ export function useDadosPainel<T>(carregar: () => Promise<T>) {
       .catch((motivo) => { if (ativo && sequencia.current === atual) setErro(mensagemErro(motivo)); })
       .finally(() => { if (ativo && sequencia.current === atual) setCarregando(false); });
     return () => { ativo = false; };
-  }, [carregar, versao]);
+  }, [carregar, versao, revisaoExterna]);
   return { dados, carregando, erro, recarregar };
 }

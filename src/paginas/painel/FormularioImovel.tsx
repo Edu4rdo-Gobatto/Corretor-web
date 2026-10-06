@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconeCopiar, IconeExcluir } from '../../componentes/Icones';
+import { IconeCopiar, IconeExcluir, IconeSalvar, IconeAbrirFora } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { GuardaFormulario, useGuardaFormulario } from '../../hooks/useGuardaFormulario';
@@ -15,6 +15,7 @@ import GerenciadorMidia from '../../componentes/GerenciadorMidia';
 import SelecaoMidia from '../../componentes/SelecaoMidia';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Campo from '../../componentes/Campo';
+import EntradaNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import Aviso from '../../componentes/Aviso';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
@@ -189,7 +190,7 @@ function InstanciaFormulario() {
     <Campo rotulo={rotulo.replace(' *', '')} obrigatorio={rotulo.endsWith(' *')} dica={extra} erro={errors[nome]?.message}><input {...register(nome)} /></Campo>
   );
   const campoNumero = (nome: CampoNumero, rotulo: string, opcional = false) => (
-    <Campo rotulo={rotulo.replace(' *', '')} obrigatorio={!opcional} erro={errors[nome]?.message}><input type="number" min={nome.includes('area') ? '0.01' : '0'} step="0.01" {...register(nome, { setValueAs: (valor: string | number | null) => (valor === '' || valor === null || valor === undefined ? (opcional ? null : NaN) : Number(valor)) })} /></Campo>
+    <Campo rotulo={rotulo.replace(' *', '').replace(/ \((?:R\$|m²)\)$/, '')} obrigatorio={!opcional} erro={errors[nome]?.message}><EntradaNumero unidade={nome.includes('area') ? 'm²' : 'R$'} min={nome.includes('area') ? '0.01' : '0'} {...register(nome, { setValueAs: (valor: string | number | null) => (valor === '' || valor === null || valor === undefined ? (opcional ? null : NaN) : numeroDoCampo(valor)) })} /></Campo>
   );
   const campoData = (nome: 'exclusividade_ate' | 'data_captacao', rotulo: string) => (
     <Campo rotulo={rotulo} erro={errors[nome]?.message}><input type="date" {...register(nome)} /></Campo>
@@ -202,12 +203,12 @@ function InstanciaFormulario() {
   return <>
     <GuardaFormulario alterado={alterado} liberado={navegacaoLiberada} />
     <CabecalhoPagina
-      voltar={<Link to="/admin/imoveis" className="inline-flex min-h-11 items-center">← Imóveis</Link>}
+      voltar={<Link to={imovel ? `/admin/imoveis/${imovel.id}` : '/admin/imoveis'} className="inline-flex min-h-11 items-center">{imovel ? 'Ficha do imóvel' : 'Imóveis'}</Link>}
       titulo={imovel ? `Editar imóvel ${codigoImovel(imovel.id)}` : 'Novo imóvel'}
       descricao="Conte o que torna este imóvel uma boa oportunidade."
       acoes={imovel && <>
-        <Link to={urlImovel(imovel.slug)} target="_blank" rel="noopener noreferrer" className="buttonSecondary">Pré-visualizar público ↗</Link>
-        {podeEditar && <AcaoIcone icone={IconeCopiar} rotulo="Duplicar imóvel" desabilitado={duplicando || isSubmitting} aoClicar={() => duplicar()} />}
+        <Link to={urlImovel(imovel.slug)} target="_blank" rel="noopener noreferrer" className="buttonSecondary">Ver anúncio <IconeAbrirFora aria-hidden="true" /></Link>
+        {podeEditar && <AcaoIcone icone={IconeCopiar} rotulo="Duplicar" contexto={imovel.titulo} desabilitado={duplicando || isSubmitting} aoClicar={() => duplicar()} />}
       </>}
     />
     <EstadoCarregamento carregando={carregando} erro={erroCarga} tentarNovamente={() => void carregar()} />
@@ -244,7 +245,7 @@ function InstanciaFormulario() {
             <div key={campo.id} className="my-3 grid grid-cols-[minmax(0,1fr)_auto] gap-3 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <Campo classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica" erro={errors.caracteristicas?.[indice]?.caracteristica_id?.message}><select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
               <Campo rotulo="Valor" erro={errors.caracteristicas?.[indice]?.valor?.message}><input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></Campo>
-              <div className="flex items-end pb-1"><AcaoIcone icone={IconeExcluir} rotulo={`Remover característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
+              <div className="flex items-end pb-1"><AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={`característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
             </div>
           ))}
           {errors.caracteristicas && <p className="error">Revise as características: selecione cada uma apenas uma vez e use até 500 caracteres no valor.</p>}
@@ -268,7 +269,7 @@ function InstanciaFormulario() {
         {erro && <Aviso tom="erro" classe="mb-5">{erro}</Aviso>}
         <div className="sticky bottom-0 z-10 mt-7 flex flex-wrap items-center justify-between gap-4 rounded border border-line bg-paper px-5 py-4 shadow-lg">
           <p role="status" className="m-0 min-w-0 flex-1 text-sm text-muted">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
-          <div className="flex flex-wrap items-center gap-3"><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-3"><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
           <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link></div>
         </div>
       </form>

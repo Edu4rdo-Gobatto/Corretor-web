@@ -3,6 +3,22 @@
 Uma página para achar o estado real do produto sem reler ~250 KB de histórico.
 Atualize este índice quando um documento mudar de papel.
 
+## Estado vigente do painel (06/10/2026)
+
+**Atualização mais recente:** specs completas implementadas e validadas localmente.
+[`2026-10-06-conclusao-area-corretor.md`](2026-10-06-conclusao-area-corretor.md) reúne telas,
+fichas próprias, CampoNumero, guarda e Ctrl/⌘+K, revisões, 320 cenários/140 capturas e limites.
+Typecheck/lint/21 testes/build/smoke SSR aprovados. Homologação real pendente; sem publicação.
+O parágrafo abaixo permanece como snapshot do primeiro marco, substituído por esta conclusão.
+
+Retomada autorizada pelo dono com a especificação do parceiro `a2a9f81`.
+Contatos foi implementado localmente e aguarda revisão visual antes das demais telas. O plano
+`PLANO-AREA-CORRETOR.md` permanece como histórico da reversão; a direção vigente é
+[`2026-10-06-painel-especificacao-visual.md`](2026-10-06-painel-especificacao-visual.md), com adendo de execução.
+Detalhes/limites nas entradas de 06/10 de PROJECT_STATUS, TASKS, DECISIONS e CHANGELOG_AI.
+Typecheck, lint, 21 testes, build, smoke SSR e QA simulado (24 cenários/38 capturas) aprovados;
+integração real pendente. As fases posteriores do plano não estão concluídas.
+
 ## Comece por aqui
 
 | Preciso saber… | Leia | Observação |
@@ -33,3 +49,5 @@ Atualize este índice quando um documento mudar de papel.
 
 Entradas de `PROJECT_STATUS.md` com mais de duas semanas e concluídas podem ser movidas para
 `docs/arquivo/` (sem apagar), mantendo aqui o ponteiro. Decisão ainda não aplicada: exige confirmação do dono.
+
+- [Ajustes aprovados do painel em 06/10/2026](2026-10-06-ajustes-painel.md): seletores, Esc, menu mobile, cards e atendimento.

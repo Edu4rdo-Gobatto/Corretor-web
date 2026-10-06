@@ -5,6 +5,7 @@ import { api } from '../servicos/api';
 import { mensagemErro } from '../servicos/formato';
 import { urlEmbed } from '../servicos/videoEmbed';
 import AcaoIcone from './AcaoIcone';
+import { IconeAbrirFora } from './Icones';
 import Aviso from './Aviso';
 import Campo from './Campo';
 import ConfirmarAcao from './ConfirmarAcao';
@@ -92,12 +93,12 @@ export default function GerenciadorMidia({ imovel, aoAlterar }: { imovel: Pick<F
             <article className="border border-line bg-paper" key={item.id}>
               {item.tipo === 'IMAGEM' ? <img className="h-[150px] w-full bg-soft object-cover" src={item.url} alt={`Foto ${indice + 1} do imóvel`} loading="lazy" decoding="async" />
                 : item.tipo === 'VIDEO_ARQUIVO' ? <video className="h-[150px] w-full bg-soft object-cover" src={item.url} controls preload="metadata" aria-label={`Vídeo ${indice + 1} do imóvel`} />
-                  : <div className="grid h-[150px] place-items-center wrap-anywhere bg-soft p-4 text-ink">{urlSegura ? <a href={urlSegura} target="_blank" rel="noopener noreferrer">Assistir ao vídeo ↗</a> : <span>Vídeo indisponível</span>}</div>}
-              <div className="flex flex-wrap items-center gap-[10px] p-3 [&>button]:min-h-11 [&>button]:px-3 [&>button]:py-2 [&>button]:text-[13px]">
-                {item.capa ? <span className="inline-flex min-h-11 items-center gap-1.5 rounded bg-soft px-2 text-xs font-semibold text-brand"><IconeEstrela size={15} aria-hidden="true" />Capa</span> : item.tipo === 'IMAGEM' && <AcaoIcone icone={IconeEstrela} rotulo={`Definir foto ${indice + 1} como capa`} desabilitado={ocupado} aoClicar={() => void executar(() => api.definirCapa(imovel.id, item.id), 'Capa atualizada.')} />}
-                <AcaoIcone icone={IconeSetaCima} rotulo={`Mover mídia ${indice + 1} para cima`} desabilitado={ocupado || indice === 0} aoClicar={() => void executar(() => reordenar(indice, indice - 1), 'Ordem atualizada.')} />
-                <AcaoIcone icone={IconeSetaBaixo} rotulo={`Mover mídia ${indice + 1} para baixo`} desabilitado={ocupado || indice === midias.length - 1} aoClicar={() => void executar(() => reordenar(indice, indice + 1), 'Ordem atualizada.')} />
-                <AcaoIcone icone={IconeExcluir} rotulo={`Excluir mídia ${indice + 1}`} tom="perigo" desabilitado={ocupado} aoClicar={() => { setErro(''); setExcluindo(item.id); }} />
+                  : <div className="grid h-[150px] place-items-center wrap-anywhere bg-soft p-4 text-ink">{urlSegura ? <a className="inline-flex items-center gap-2" href={urlSegura} target="_blank" rel="noopener noreferrer">Assistir ao vídeo <IconeAbrirFora size={20} aria-hidden="true" /></a> : <span>Vídeo indisponível</span>}</div>}
+              <div className="acoes-linha flex flex-wrap items-center justify-end gap-1 p-3">
+                {item.capa ? <span className="mr-auto inline-flex min-h-11 items-center gap-1.5 rounded bg-soft px-2 text-[14px] font-semibold text-brand"><IconeEstrela size={15} aria-hidden="true" />Capa</span> : item.tipo === 'IMAGEM' && <AcaoIcone icone={IconeEstrela} rotulo="Definir capa" contexto={`foto ${indice + 1}`} desabilitado={ocupado} aoClicar={() => void executar(() => api.definirCapa(imovel.id, item.id), 'Capa atualizada.')} />}
+                <AcaoIcone icone={IconeSetaCima} rotulo="Mover para cima" contexto={`mídia ${indice + 1}`} desabilitado={ocupado || indice === 0} aoClicar={() => void executar(() => reordenar(indice, indice - 1), 'Ordem atualizada.')} />
+                <AcaoIcone icone={IconeSetaBaixo} rotulo="Mover para baixo" contexto={`mídia ${indice + 1}`} desabilitado={ocupado || indice === midias.length - 1} aoClicar={() => void executar(() => reordenar(indice, indice + 1), 'Ordem atualizada.')} />
+                <AcaoIcone icone={IconeExcluir} rotulo="Excluir" contexto={`mídia ${indice + 1}`} tom="perigo" desabilitado={ocupado} aoClicar={() => { setErro(''); setExcluindo(item.id); }} />
               </div>
             </article>
           );

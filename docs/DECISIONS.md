@@ -1,5 +1,61 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-06 — Conclusão autorizada das specs completas do painel
+
+- O novo pedido autoriza as etapas posteriores a Contatos e todos os comportamentos aprovados.
+  Estado corrente em `2026-10-06-conclusao-area-corretor.md`; snapshots anteriores preservados.
+- Fichas próprias usam rotas e serviços existentes. ADMIN consulta corretor/classificação;
+  CORRETOR usa somente campos públicos do responsável já disponíveis em fichas autorizadas.
+  403/404 vira indisponível; demais falhas mantêm retry. Não ampliar contratos/endpoints.
+- CampoNumero mantém texto e remove só separadores de milhar da colagem para permitir editar;
+  conversão/validação/decimal da API permanecem nos adaptadores e esquemas atuais.
+- Dialogo recebe dirty/busy opt-in e mantém defaults públicos. Descarte arma Esc/Enter,
+  outras teclas desarmam mesmo se rejeitadas, somente topo fecha, envio bloqueia fechamento.
+  Cancelar de editor usa data-fechar-dialogo; descarte não reverte operações persistidas.
+- Perfil agrega dirty dos dois formulários e reseta só o salvo; falha de refresh após PATCH
+  informa persistência. Restaurar imóvel da pessoa compara id e reutiliza referência inicial.
+- Só Ctrl/⌘+K: paleta com destinos/ações permitidos; execução após desmontagem preserva foco.
+  Não reintroduzir `/`, `?`, Ctrl/⌘+Enter, fichas em modal ou regras CSS fora de `.painel-ui`.
+- Manter main, índice e trabalhos anteriores; QA somente efêmero/simulado, sem suíte nova,
+  backend, dados, dependências ou publicação. Homologação real permanece explicitamente separada.
+
+## 2026-10-06 — Revisão de usabilidade aprovada pelo dono
+
+- Esc retorna à página anterior do painel, conforme escolha expressa do dono; detalhes sem
+  histórico vão à lista e telas principais à Visão geral. Não usar histórico externo nem ignorar
+  camadas/foco de edição. Substitui a decisão anterior de retorno sempre à lista/Visão geral.
+- “Gavetas” significa seletores dos filtros. SeletorFiltro tem valores/opções/callback tipados,
+  sem dependência nova; selects dos editores permanecem. Menu mobile usa tela inteira apenas
+  nessa variante de Dialogo. Campo/label continuam ligados ao controle acessível.
+- Cards mantêm identificação à esquerda e valores/ações à direita. Ações das listagens têm
+  alvos de 44px; grupos curtos de ícones não quebram dentro da coluna desktop.
+- Atendido preserva checkbox e regras atuais. Remover filtro sem foto e detalhes de origem das
+  listas não remove dados; origem/consentimento permanecem na ficha da pessoa.
+- Esta aprovação autoriza os ajustes pedidos nas telas e base compartilhada. Não antecipa
+  fichas novas, CampoNumero, guarda adicional de modais, Ctrl+K ou backend/publicação.
+
+## 2026-10-06 — Retomada pelo padrão do parceiro e primeiro marco de Contatos
+
+- O pedido atual autoriza continuar a implementação do plano com a base `a2a9f81`. A especificação
+  visual de 06/10 substitui `PLANO-AREA-CORRETOR.md`; requisitos históricos conflitantes ficam como histórico.
+- Respeitar a ordem explícita: implementar e validar Contatos, apresentar ao dono e aguardar essa
+  revisão antes das outras telas. Não registrar o plano inteiro como concluído neste marco.
+- Contatos usa duas filas paginadas e histórico separado. Checkbox alterna PENDENTE/RESPONDIDO;
+  finalizar exige confirmação e só remove da fila após sucesso. Erro mantém o estado e permite retry.
+- Compartilhar as permissões de pessoa entre Contatos, Pessoas e EditorPessoa: ADMIN ou responsável
+  edita; só ADMIN sai de FINALIZADO. O bloqueio de reabertura é do frontend; não substitui autorização
+  do backend nem homologa essa regra na API atual.
+- Reutilizar Tabela, Campo, AcaoIcone e ConfirmarAcao. Mensagem expansível não abre a linha; links
+  reais preservam teclado e atalhos de guia. IconeFinalizar usa o SVG oficial Material Symbols
+  Outlined/FILL 1 (`task_alt`), embutido, sem fonte ou dependência nova.
+- Tooltip usa a camada popover apenas em `.painel-ui`, limitado à janela; Esc consome a dica primeiro.
+  Correção do espaçamento mobile do cabeçalho de Dialogo também fica restrita ao painel.
+- Após a revisão, consultas novas serão telas próprias, conforme o plano aprovado, usando os serviços
+  atuais e somente dados autorizados. CampoNumero, guardas e Ctrl/⌘+K ficam para as próximas fases;
+  `/`, `?` e Ctrl/⌘+Enter não serão reintroduzidos.
+- Evidência efêmera em `artifacts/area-corretor-2026-10-06/`, ignorada pelo Git. Preservar os 3 arquivos
+  e 21 testes existentes; sem API/dados/migrations, novas dependências ou publicação.
+
 ## 2026-10-04 — Centralização de documentação em estrutura plana na pasta docs/ (Antigravity)
 
 - **Decisão:** Todos os arquivos de documentação em markdown (`.md`), incluindo instruções de agentes (`AGENTS.md`, `CLAUDE.md`), histórico (`CHANGELOG_AI.md`), decisões (`DECISIONS.md`), status (`PROJECT_STATUS.md`), tarefas (`TASKS.md`), plano do projeto (`PLANO-PROJETO-CORRETOR.md`), README e auditorias devem residir exclusivamente dentro da pasta `docs/`.
@@ -870,3 +926,28 @@ só para os logos GitHub/Instagram de `Devs.tsx`, porque o Material não tem mar
 
 Não fazer: carregar a fonte Material Symbols do Google Fonts (requisição externa e arquivo grande); misturar ícones de
 contorno do lucide com os preenchidos; adicionar ícone novo sem baixar o SVG oficial do mesmo estilo.
+
+## 2026-10-05 — Refinamento da Área do Corretor
+
+- Navegação desktop em trilho de ícones, nomes em tooltip acessível; menu mobile conserva ícone e nome. Seções por espaçamento/divisórias substituem caixas decorativas. Identidade azul/dourado e fontes existentes preservadas; sem dependências novas.
+- Tooltip central na camada superior nativa popover, tanto por foco quanto mouse, com limites da janela e reposicionamento ao rolar/redimensionar. Esc consome apenas o tooltip antes das demais ações. AcaoIcone mantém comportamento público anterior fora do painel.
+- Dois Esc para descartar mudanças no modal, pedido explícito do dono: primeiro avisa, segundo descarta somente pendências; sem timeout. Tecla diferente, edição e clique desarmam. Sem alterações, um Esc fecha após eventuais tooltip/seleção. Fechar com botão/clique externo usa confirmação explícita. Ocupado não fecha; nada já persistido é revertido.
+- Detecção por isDirty/defaultValues e shouldDirty nas seleções, incluindo restauração ao valor original. Modal superior é a única sobreposição fechada e a pilha mantém trava de rolagem/foco. Guarda de edição permanece no imóvel e cobre perfil/senha na página.
+- Menu de comandos pesquisa destinos e ações permitidos. / e ? ignoram digitação; Ctrl/Command+Enter só envia formulário marcado da área ativa. Pagamentos e criação financeira exigem botão. Enter do atalho é consumido mesmo em confirmação sem formulário seguro.
+- EntradaNumero aceita inteiros ou decimais até duas casas, vírgula/ponto, colagem PT-BR, sem símbolos/letras/sinal/exponente; unidades ficam fora. Schemas e payloads atuais continuam validando limites e formatos. Características e números de endereço continuam texto livre conforme o domínio.
+- Consulta de imóvel e corretor em modal reutiliza serviços e dados atuais. Perfil só expõe informações administrativas já disponíveis e autorizadas; edição permanece separada. Linhas de contratos navegam pelo fundo, controles internos não disparam a linha e links reais preservam navegação nativa.
+- Não fazer: mudar API/banco, introduzir endpoint de perfil, gravar fixture no produto, recriar suítes fonte, commit/push/deploy sem novo pedido.
+
+## 2026-10-06 — Clareza, conforto e elegância no painel
+
+A simplificação anterior retirou identificação e reduziu a legibilidade. Por pedido do dono, restauramos nomes na navegação, textos maiores e destaque das ações, mantendo simplicidade por espaçamento e hierarquia. Sidebar 260px; tipografia 18/16/20px; contatos em blocos com fundo discreto.
+
+A cor de ação do painel é #b3892d, hover #b18424: desenho branco, texto azul #0a2042. Contrastes calculados da cor base: branco 3,21:1 para desenho e azul 5,03:1 para texto; hover 3,39:1 / 4,77:1. Vermelho das ações destrutivas permanece separado. Tokens e componentes compartilhados, sem alterações globais ao site público ou novas dependências.
+
+CabecalhoPagina aproxima a ação do título, com descrição na linha seguinte. Responder contatos ganha ícone/texto e espaçamento da divisória. AcaoIcone mantém texto opcional sem alterar controles públicos. Tabela é usada somente no painel; limiar 52rem evita colunas comprimidas com fontes maiores. Funcionalidade e contratos atuais da API preservados.
+
+## 2026-10-06 — Refatoração da Área do Corretor revertida pelo dono
+
+Pedido explícito: “reverta tudo, e me dê um plano e um resumo do que foi pedido”. Revertidas integralmente as duas etapas desta conversa: mudanças visuais, sidebar, fontes, botões/inputs, tooltips centralizados, entradas numéricas, fichas em modal, contratos clicáveis, atalhos e fechamento com dois Esc. Arquivos fonte rastreados restaurados ao estado anterior da refatoração; cinco componentes/hooks novos retirados do código ativo. API, banco, dependências e trabalho anterior preservados. Nenhum commit, push ou deploy.
+
+Os registros de implementação/validação de 05 e 06/10 acima são históricos e NÃO descrevem o produto atual. As orientações específicas dessa refatoração ficam canceladas como instruções de implementação vigente. O novo documento PLANO-AREA-CORRETOR.md contém apenas o pedido consolidado e a proposta de execução futura; não autoriza reimplementar. Preservar o restante das orientações do repositório. Backup local ignorado em artifacts/reversao-area-corretor-2026-10-06.

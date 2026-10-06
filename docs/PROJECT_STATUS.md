@@ -1,5 +1,74 @@
 # Estado atual — corretor-web
 
+## 2026-10-06 — Codex: Área do Corretor concluída e validada localmente
+
+Plano completo autorizado e implementado: Imóveis/Contratos/Comissões/Cadastros/Corretores/
+Visão geral/Perfil, fichas próprias, formulário e mídias, CampoNumero, guarda de modais e
+paleta Ctrl/⌘+K. Ajustes anteriores do dono e permissões preservados. Detalhes e limites em
+`2026-10-06-conclusao-area-corretor.md`; entradas anteriores são snapshots da execução.
+
+Validação final: typecheck, lint, 3 arquivos/21 testes, build e smoke SSR aprovados.
+Chrome/API simulada: 320 cenários, 140 capturas, ADMIN/CORRETOR, 320/390/768/1440 claro/escuro;
+sem erros JS, chamadas inesperadas ou overflow horizontal. Revisão estática concluída e
+achados corrigidos/reverificados. Amostras visuais inspecionadas. Diff-check e índice preservado.
+Evidências: artifacts/conclusao-area-corretor-2026-10-06/. Nenhuma suíte rastreada ampliada.
+
+Prévia Wi-Fi verificada no host: http://192.168.0.20:5173/admin/entrar; sondagem sem credenciais
+chega à validação de campos sem rejeitar origem. Celular físico, Safari/iOS, login e integrações
+reais permanecem sem homologação. Somente frontend/main; sem API/dados/dependências/publicação.
+
+## 2026-10-06 — Codex: conclusão da Área do Corretor em andamento
+
+O dono aprovou o plano completo para as telas restantes, fichas próprias, CampoNumero,
+guardas de alterações e Ctrl/⌘+K. Esta autorização permite seguir após a revisão de Contatos.
+Execução na main, preservando alterações locais e índice; frontend apenas, sem publicação.
+Componentes compartilhados, integração e QA: Codex principal. Telas financeiras e cadastros:
+implementador delegado com arquivos separados. Evidências em artifacts/conclusao-area-corretor-2026-10-06/.
+Validação desta continuação ainda pendente; resultados anteriores não validam a nova entrega.
+
+## 2026-10-06 — Codex: ajustes da revisão do dono
+
+Plano aprovado e implementado: seletores de filtros compartilhados, tooltip sem rolagem,
+retorno por Esc ao histórico interno, menu mobile em tela inteira, cards/ações alinhados,
+Atendido estilizado, remoção do filtro sem foto e origem/consentimento reservados à ficha.
+Implementação e validação local concluídas; fonte desta etapa: `2026-10-06-ajustes-painel.md`.
+Etapas restantes do plano anterior continuam pendentes. Alterações locais/índice preservados,
+sem backend, banco, novas dependências ou publicação.
+
+**Validação final:** typecheck, lint, 3 arquivos/21 testes existentes, build e smoke SSR
+aprovados. Chrome/API simulada: 63 cenários, 59 capturas, sem erros JavaScript,
+requisições API inesperadas ou overflow horizontal. Matriz 320/390/768/1440 claro/escuro
+para Pessoas, Contatos, Corretores, Imóveis, ficha, seletor e menu. Inclui teclado,
+tooltip sem rolagem, histórico/POP/entrada direta, guarda de edição, seletores das demais
+listagens, atendimento erro/retry/transições e permissões ADMIN/CORRETOR; regressão pública
+de catálogo, detalhe e menu. Capturas representativas inspecionadas visualmente.
+`git diff --check` aprovado; diff staged antes/depois com SHA-256 idêntico.
+Evidência ignorada: `artifacts/ajustes-painel-2026-10-06/`.
+
+API/banco/serviços reais, Safari/iOS e dispositivo físico continuam sem homologação.
+QA simulado não altera dados reais. Nenhuma suíte rastreada foi criada ou ampliada.
+
+## 2026-10-06 — Codex: Contatos implementado, em revisão do dono
+
+Retomada autorizada a partir de `a2a9f81` (parceiro), usando a especificação
+`2026-10-06-painel-especificacao-visual.md`, que prevalece sobre o plano anterior revertido.
+Primeiro marco entregue: Pendentes/Atendidos, checkbox de ida e volta, finalização confirmada,
+histórico separado e reabertura somente por ADMIN no frontend. Filtros, paginação por fila,
+CSV da página, mensagem e WhatsApp preservados; Pessoas/EditorPessoa compartilham a permissão.
+Tooltips do painel usam popover sem cortar nas listagens; erros/dicas seguem a escala auxiliar
+e o cabeçalho de modal recebe o espaçamento mobile somente em `.painel-ui`.
+
+Validação final: typecheck, lint, 21/21 testes existentes, build e smoke SSR aprovados.
+Chrome com API simulada: 24 cenários e 38 capturas, incluindo ADMIN/CORRETOR, 390/768/1440,
+claro/escuro, navegação, falhas/retry e regressão pública; sem erro JS ou overflow horizontal.
+Evidências locais ignoradas: `artifacts/area-corretor-2026-10-06/`. Integração real e Safari/iOS
+continuam sem homologação; a exclusividade ADMIN para reabrir não é imposta pela API nesta etapa.
+
+**Próximo passo:** o dono revisar Contatos, conforme seção 8 da especificação: "Parar para o dono
+conferir." Depois seguem Imóveis/Contratos, demais telas, fichas próprias, números, guardas e Ctrl+K.
+Nenhuma dessas fases posteriores foi implementada nesta entrega. Main, histórico e alterações
+preexistentes preservados; sem novas dependências, alterações de API/dados, migration ou publicação.
+
 ## 2026-10-04 — Antigravity: consolidação de todos os arquivos .md em docs/
 
 A pedido explícito do dono, todos os arquivos markdown (.md) do projeto foram movidos para a pasta `docs/`.
@@ -589,3 +658,45 @@ O servidor `npm run dev` agora escuta em `0.0.0.0` por padrão, permitindo confe
 Servidor local iniciado nesta sessão em `http://0.0.0.0:5173`; endereço de acesso no Wi-Fi: `http://192.168.0.20:5173`.
 
 ## 2026-10-03 — Codex: refinamento do frontend concluído localmente
+
+
+## 2026-10-05 — Codex: refinamento da Área do Corretor em andamento
+
+Plano autorizado em conversa: seções abertas, ícones/tooltips por foco e mouse, inputs numéricos, fichas de consulta em modal, contratos clicáveis e atalhos com menu de comandos. Esc trata uma sobreposição por vez; edição pendente no modal exige dois Esc consecutivos. Codex integra base/layout/QA; agentes fichas e numeros trabalham em arquivos distintos, QA prepara verificação efêmera. Somente frontend na main, sem novos testes fonte, dependências, API/dados, commit, push ou deploy.
+
+
+## 2026-10-05 — Codex: Área do Corretor concluída localmente
+
+Implementado o plano autorizado: seções abertas, ícones/tooltips em foco e hover, inputs refinados/numéricos, fichas de consulta em modal, contratos clicáveis e atalhos com menu Ctrl/Command+K. Modal alterado exige dois Esc consecutivos após tratar tooltip/seleção; outra interação desarma, ocupado bloqueia. Guarda de edição de imóvel preservada e perfil/senha protegidos.
+
+Typecheck/lint/build/smoke SSR/diff-check aprovados; 21/21 testes da suíte mínima atual. QA final Chrome com API simulada: 28/28 checks, 72 capturas, 390/768/1440 claro/escuro. Revisão independente realizada e achados corrigidos; sem erros JS, overflow ou falhas de alvos/fonte observados. Ver CHANGELOG_AI para comandos/cobertura. QA próprio encerrado.
+
+Pendentes somente homologação em serviços reais e Safari/iOS/dispositivo físico. Sem dependências novas, API/dados/migration ou publicação; histórico dos documentos preservado e trabalho preexistente da API intocado.
+
+## 2026-10-06 — Área do Corretor: clareza, conforto e elegância concluídos localmente
+
+Sidebar com nomes e bases douradas, textos 18/16/20px, ações arredondadas com ícone/texto, campos outlined e contatos em blocos suaves. Cabeçalhos e Responder contatos alinhados; tabelas com espaçamento e limiar mobile antecipado. Funcionalidades anteriores preservadas.
+
+Validação desta revisão: npm run typecheck, npm run lint, 21/21 testes existentes (3 arquivos), npm run build, node scripts/seo-smoke.mjs e git diff --check aprovados. Build com avisos conhecidos de annotations da dependência Zod; sem falha. Chrome com API simulada: 28 cenários aprovados no resultado consolidado; primeira execução final 27/28 e um timeout de estabilidade ao clicar em Editar, repetido isoladamente e aprovado. Seis matrizes de layout e 72 capturas das dez telas e dois modais em 390/768/1440 nos temas claro/escuro, sem overflow, campos abaixo de 18px ou alvos de AcaoIcone abaixo de 48px. Conferidos título 20px, token dourado e sidebar 260px. Evidências ignoradas em artifacts/refino-conforto/resultados-consolidados.json; nenhum teste fonte ampliado.
+
+Inspeção de capturas de Contatos, Visão geral, Imóveis, Contratos e formulários/modais verificou legibilidade, alinhamento, quebra, foco e aparência. Regressão cobre tooltips/aria/Tab/ShiftTab/hover/Esc, modais intactos/alterados/valores restaurados/desarme/ocupado/sobreposição, fichas/retry/404/foco, contratos e controles internos, campos numéricos, atalhos e ADMIN/CORRETOR. As primeiras medições intermediárias de cor foram corrigidas para ler o token durante animação de hover; uma execução intermediária com preview anterior ao rebuild foi descartada após reiniciar o preview. Resultados finais acima são do build atualizado.
+
+Validação simulada não homologa API/banco/Drive/R2 reais, Safari/iOS ou dispositivo físico. Site público preservado pelo escopo de CSS; smoke SSR público aprovado. Sem novas dependências, API/dados/migrations, commit/push/deploy. Os cinco documentos foram atualizados por acréscimo, mantendo o histórico. Preview QA próprio encerrado ao finalizar; desenvolvimento existente em localhost:5173 permanece disponível ao dono.
+
+## 2026-10-06 — Refatoração da Área do Corretor revertida pelo dono
+
+Pedido explícito: “reverta tudo, e me dê um plano e um resumo do que foi pedido”. Revertidas integralmente as duas etapas desta conversa: mudanças visuais, sidebar, fontes, botões/inputs, tooltips centralizados, entradas numéricas, fichas em modal, contratos clicáveis, atalhos e fechamento com dois Esc. Arquivos fonte rastreados restaurados ao estado anterior da refatoração; cinco componentes/hooks novos retirados do código ativo. API, banco, dependências e trabalho anterior preservados. Nenhum commit, push ou deploy.
+
+Os registros de implementação/validação de 05 e 06/10 acima são históricos e NÃO descrevem o produto atual. As orientações específicas dessa refatoração ficam canceladas como instruções de implementação vigente. O novo documento PLANO-AREA-CORRETOR.md contém apenas o pedido consolidado e a proposta de execução futura; não autoriza reimplementar. Preservar o restante das orientações do repositório. Backup local ignorado em artifacts/reversao-area-corretor-2026-10-06.
+
+Verificação da reversão: todos os arquivos rastreados de src comparados por hash ao HEAD, sem diferenças; componentes novos ausentes e referências removidas. npm run build e node scripts/seo-smoke.mjs aprovados após a reversão, assim como git diff --check. A suíte de testes não foi repetida nesta reversão. Plano entregue em docs/PLANO-AREA-CORRETOR.md.
+
+## 2026-10-06 — Codex: retomada da Área do Corretor, primeiro checkpoint
+
+Pedido atual do dono: implementar o plano proposto a partir do commit a2a9f81 do parceiro.
+Área assumida por Codex: base compartilhada e Contatos; revisão visual de Contatos é o primeiro
+marco antes de propagar às telas restantes, conforme a especificação de 06/10. Pessoas e a base
+visual do parceiro permanecem como referência. Histórico e alterações locais preservados.
+Somente frontend na main, sem novas dependências, API/dados reais/migration ou publicação.
+Validação prevista: verificações efêmeras com API simulada, typecheck, lint, 21 testes existentes,
+build e smoke SSR. O restante do plano inclui fichas próprias, padronização, números e teclado.

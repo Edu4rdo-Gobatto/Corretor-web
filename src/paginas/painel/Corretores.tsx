@@ -1,98 +1,24 @@
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Navigate } from 'react-router-dom';
-import { IconeArquivar, IconeDesarquivar, IconeChave, IconeEditar } from '../../componentes/Icones';
-import { api } from '../../servicos/api';
-import { useSessao } from '../../hooks/useSessao';
-import { useDadosPainel } from '../../hooks/useDadosPainel';
-import type { Corretor } from '../../tipos';
-import { mensagemErro } from '../../servicos/formato';
-import CabecalhoPagina from '../../componentes/CabecalhoPagina';
-import Dialogo from '../../componentes/Dialogo';
-import EstadoCarregamento from '../../componentes/EstadoCarregamento';
-import Etiqueta from '../../componentes/Etiqueta';
-import Paginacao from '../../componentes/Paginacao';
-import Tabela from '../../componentes/Tabela';
+import { useCallback, useMemo, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import Aviso from '../../componentes/Aviso';
-import Campo from '../../componentes/Campo';
+import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
+import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import { estilos } from '../../componentes/estilosPainel';
+import Etiqueta from '../../componentes/Etiqueta';
+import { IconeAdicionar, IconeArquivar, IconeChave, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
+import Paginacao from '../../componentes/Paginacao';
+import Tabela from '../../componentes/Tabela';
+import { useAcoesPainel } from '../../hooks/useComandosPainel';
+import { useDadosPainel } from '../../hooks/useDadosPainel';
+import { useSessao } from '../../hooks/useSessao';
+import { api } from '../../servicos/api';
+import { mensagemErro } from '../../servicos/formato';
+import { urlFichaCorretor } from '../../servicos/urls';
+import type { Corretor } from '../../tipos';
 
-export const esquemaCorretor = z.object({
-  nome: z.string().trim().min(2, 'Use pelo menos 2 caracteres.').max(100),
-  cpf: z.string().regex(/^\d{11}$/, 'Informe os 11 dígitos do CPF.'),
-  email: z.email('Informe um e-mail válido.').max(254),
-  whatsapp: z.string().regex(/^[1-9]\d{9,14}$/, 'Use DDI e DDD, somente números. Ex.: 5565999999999.'),
-  creci: z.string().max(50),
-  cargo: z.enum(['ADMIN', 'CORRETOR']),
-  url_foto: z.string().max(2048).refine((valor) => !valor || (/^https:\/\//.test(valor) && URL.canParse(valor)), 'Use uma URL HTTPS válida.'),
-  senha: z.string().refine((valor) => valor === '' || (valor.length >= 12 && valor.length <= 128 && /\S/.test(valor)), 'Use entre 12 e 128 caracteres.'),
-});
-type Valores = z.infer<typeof esquemaCorretor>;
-const esquemaSenha = z.object({
-  nova_senha: z.string().min(12, 'Use entre 12 e 128 caracteres.').max(128).refine((valor) => /\S/.test(valor), 'Use entre 12 e 128 caracteres.'),
-  confirmacao: z.string(),
-}).refine((valores) => valores.nova_senha === valores.confirmacao, { message: 'A confirmação não confere.', path: ['confirmacao'] });
-
-const dadosBase = (corretor: Corretor) => ({ nome: corretor.nome, cpf: corretor.cpf, email: corretor.email, whatsapp: corretor.whatsapp, cargo: corretor.cargo, creci: corretor.creci, url_foto: corretor.url_foto });
-
-function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Corretor | null; aoFechar: () => void; aoSalvar: () => void }) {
-  const [erro, setErro] = useState('');
-  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<Valores>({
-    resolver: zodResolver(esquemaCorretor),
-    defaultValues: { nome: corretor?.nome ?? '', cpf: corretor?.cpf ?? '', email: corretor?.email ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', cargo: corretor?.cargo ?? 'CORRETOR', url_foto: corretor?.url_foto ?? '', senha: '' },
-  });
-  async function salvar(valores: Valores) {
-    if (!corretor && !valores.senha) { setError('senha', { message: 'Defina uma senha de pelo menos 12 caracteres.' }); return; }
-    setErro('');
-    try {
-      await api.salvarCorretor({ ...valores, creci: valores.creci || null, url_foto: valores.url_foto || null, senha: valores.senha || undefined }, corretor?.id);
-      aoSalvar();
-      aoFechar();
-    } catch (causa) { setErro(mensagemErro(causa)); }
-  }
-  // Ordem pensada para a grade de 2 colunas não deixar célula vazia: Nome / CPF+E-mail / WhatsApp+CRECI / Permissão+Foto / Senha.
-  const campos: [keyof Valores, string, string, string?][] = [['nome', 'Nome', 'text', 'col-span-full'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsapp', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text']];
-  const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <Campo key={nome} classe={classe} rotulo={rotulo} obrigatorio={nome === 'nome' || nome === 'cpf' || nome === 'email' || nome === 'whatsapp'} erro={errors[nome]?.message}><input type={tipo} {...register(nome)} /></Campo>;
-  return (
-    <Dialogo titulo={corretor ? 'Editar corretor' : 'Novo corretor'} tamanho="largo" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
-      <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
-        <div className={estilos.grade}>
-          {campos.map((item) => campo(item))}
-          <Campo rotulo="Permissão" erro={errors.cargo?.message} obrigatorio><select {...register('cargo')}><option value="CORRETOR">Corretor</option><option value="ADMIN">Administrador</option></select></Campo>
-          {campo(['url_foto', 'URL da foto (HTTPS)', 'url'])}
-          <Campo classe="col-span-full" rotulo={corretor ? 'Nova senha (opcional)' : 'Senha'} obrigatorio={!corretor} erro={errors.senha?.message} dica={`${corretor ? 'Deixe em branco para manter a senha atual. ' : ''}Mínimo de 12 caracteres.`}><input type="password" autoComplete="new-password" {...register('senha')} /></Campo>
-        </div>
-        {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Salvar corretor'}</button><button className="buttonGhost" type="button" onClick={aoFechar} disabled={isSubmitting}>Cancelar</button></div>
-      </form>
-    </Dialogo>
-  );
-}
-
-function DialogoSenha({ corretor, aoFechar, aoSalvar }: { corretor: Corretor; aoFechar: () => void; aoSalvar: () => void }) {
-  const [erro, setErro] = useState('');
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof esquemaSenha>>({ resolver: zodResolver(esquemaSenha), defaultValues: { nova_senha: '', confirmacao: '' } });
-  async function redefinir(valores: z.infer<typeof esquemaSenha>) {
-    setErro('');
-    try { await api.salvarCorretor({ ...dadosBase(corretor), senha: valores.nova_senha }, corretor.id); aoSalvar(); aoFechar(); }
-    catch (causa) { setErro(mensagemErro(causa)); }
-  }
-  return (
-    <Dialogo titulo={`Redefinir senha de ${corretor.nome}`} tamanho="estreito" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
-      <p className="muted">Escolha a nova senha na hora e avise a pessoa: as sessões abertas dela são encerradas.</p>
-      <form className="grid grid-cols-1 gap-[22px]" onSubmit={handleSubmit(redefinir)} noValidate>
-        <Campo rotulo="Nova senha" obrigatorio erro={errors.nova_senha?.message} dica="Mínimo de 12 caracteres."><input type="password" autoComplete="new-password" {...register('nova_senha')} /></Campo>
-        <Campo rotulo="Confirmar nova senha" obrigatorio erro={errors.confirmacao?.message}><input type="password" autoComplete="new-password" {...register('confirmacao')} /></Campo>
-        {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Salvando…' : 'Definir nova senha'}</button><button className="buttonGhost" type="button" onClick={aoFechar} disabled={isSubmitting}>Cancelar</button></div>
-      </form>
-    </Dialogo>
-  );
-}
+import { DialogoSenha, EditorCorretor, dadosBase } from './EditorCorretor';
 
 export default function Corretores() {
   const { corretor: sessao } = useSessao();
@@ -104,6 +30,7 @@ export default function Corretores() {
   const [confirmando, setConfirmando] = useState<Corretor>();
   const admin = sessao?.cargo === 'ADMIN';
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => admin ? api.listarCorretores(pagina, 15) : Promise.resolve({ itens: [], total: 0, pagina: 1, limite: 15, total_paginas: 0 }), [pagina, admin]));
+  useAcoesPainel(useMemo(() => admin ? [{ id: 'novo-corretor', rotulo: 'Novo corretor', executar: () => setEditando(null), palavrasChave: 'equipe conta' }] : [], [admin]));
   if (!admin) return <Navigate to="/admin" replace />;
   async function alternar(corretor: Corretor) {
     setOcupado(corretor.id);
@@ -113,16 +40,16 @@ export default function Corretores() {
     finally { setOcupado(0); }
   }
   return <>
-    <CabecalhoPagina rotulo="NOSSA EQUIPE" titulo="Corretores" descricao="Pessoas que conectam espaços e negócios." acoes={<button className="button" onClick={() => setEditando(null)}>+ Novo corretor</button>} />
+    <CabecalhoPagina titulo="Corretores" descricao="Pessoas que conectam espaços e negócios." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo" contexto="corretor" aoClicar={() => setEditando(null)} />} />
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && !carregando && (
-      <section className={estilos.painel}>
-        <Tabela<Corretor> itens={dados.itens} chave={(corretor) => corretor.id} vazio="Nenhum corretor cadastrado." rotulo="Corretores" colunas={[
-          { titulo: 'Corretor', celula: (corretor) => <><strong>{corretor.nome}</strong><small className="mt-1 block wrap-anywhere text-muted">{corretor.email}</small><small className="mt-1 block text-muted">{corretor.creci ? `CRECI ${corretor.creci}` : corretor.whatsapp}</small></> },
+      <section>
+        <Tabela<Corretor> itens={dados.itens} chave={(corretor) => corretor.id} vazio="Nenhum corretor cadastrado." rotulo="Corretores" linkLinha={(corretor) => urlFichaCorretor(corretor.id, sessao?.id)} colunas={[
+          { titulo: 'Corretor', celula: (corretor) => <><Link to={urlFichaCorretor(corretor.id, sessao?.id)}><strong>{corretor.nome}</strong></Link><small className="mt-1 block wrap-anywhere text-muted">{corretor.email}</small><small className="mt-1 block text-muted">{corretor.creci ? `CRECI ${corretor.creci}` : corretor.whatsapp}</small></> },
           { titulo: 'Permissão', celula: (corretor) => corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor' },
           { titulo: 'Situação', celula: (corretor) => <Etiqueta tom={corretor.ativo ? 'neutro' : 'alerta'}>{corretor.ativo ? 'Ativo' : 'Inativo'}</Etiqueta> },
-          { titulo: 'Ações', celula: (corretor) => <div className={estilos.acoes}><AcaoIcone icone={IconeEditar} rotulo={`Editar ${corretor.nome}`} desabilitado={!!ocupado} aoClicar={() => setEditando(corretor)} /><AcaoIcone icone={IconeChave} rotulo={`Redefinir senha de ${corretor.nome}`} desabilitado={!!ocupado} aoClicar={() => setRedefinindo(corretor)} /><AcaoIcone icone={corretor.ativo ? IconeArquivar : IconeDesarquivar} rotulo={`${corretor.ativo ? 'Desativar' : 'Reativar'} ${corretor.nome}`} tom={corretor.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === corretor.id} aoClicar={() => { setErroMutacao(''); setConfirmando(corretor); }} /></div> },
+          { titulo: 'Ações', acoes: true, celula: (corretor) => <div className={estilos.acoes}><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={corretor.nome} desabilitado={!!ocupado} aoClicar={() => setEditando(corretor)} /><AcaoIcone icone={IconeChave} rotulo="Redefinir senha" contexto={corretor.nome} desabilitado={!!ocupado} aoClicar={() => setRedefinindo(corretor)} /><AcaoIcone icone={corretor.ativo ? IconeArquivar : IconeDesarquivar} rotulo={corretor.ativo ? 'Desativar' : 'Reativar'} contexto={corretor.nome} tom={corretor.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === corretor.id} aoClicar={() => { setErroMutacao(''); setConfirmando(corretor); }} /></div> },
         ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
       </section>

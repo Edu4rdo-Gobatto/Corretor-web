@@ -77,7 +77,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
     if (evento.key === 'ArrowDown') { evento.preventDefault(); setAberto(true); if (!carregando && !erroBusca) setAtiva((indice) => Math.min(indice + 1, opcoes.length - 1)); }
     if (evento.key === 'ArrowUp') { evento.preventDefault(); if (!carregando && !erroBusca) setAtiva((indice) => Math.max(indice - 1, 0)); }
     if (evento.key === 'Enter' && aberto) { evento.preventDefault(); if (!carregando && !erroBusca && ativa >= 0 && opcoes[ativa]) escolher(opcoes[ativa]); }
-    if (evento.key === 'Escape') setAberto(false);
+    if (evento.key === 'Escape' && aberto) { evento.preventDefault(); evento.stopPropagation(); setAberto(false); }
   }
 
   return (
@@ -99,7 +99,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
           )}
         </div>
       {aberto && (
-        <ul id={idLista} role="listbox" data-direcao={paraCima ? 'acima' : 'abaixo'} style={{ maxHeight: alturaMaxima }} className={`absolute z-20 m-0 w-full list-none overflow-auto rounded border border-line bg-paper p-1 shadow-lg ${paraCima ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
+        <ul id={idLista} role="listbox" data-esc-camada data-direcao={paraCima ? 'acima' : 'abaixo'} style={{ maxHeight: alturaMaxima }} className={`lista-registro absolute z-20 m-0 w-full list-none overflow-auto rounded border border-line bg-paper p-1 shadow-lg ${paraCima ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
           {carregando && <li className="px-3 py-2 text-sm text-muted">Buscando…</li>}
           {erroBusca && <li className="px-3 py-2 text-sm text-error" role="alert">{erroBusca}</li>}
           {!carregando && !erroBusca && !opcoes.length && <li className="px-3 py-2 text-sm text-muted">Nenhum registro encontrado.</li>}

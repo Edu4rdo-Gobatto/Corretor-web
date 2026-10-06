@@ -51,16 +51,16 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
           {previas.map((previa, indice) => (
             <li key={`${previa.arquivo.name}-${indice}`} className="border border-line bg-paper">
               {previa.url ? <img className="h-[150px] w-full object-cover" src={previa.url} alt={`Prévia ${indice + 1}: ${previa.arquivo.name}`} /> : <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm">{previa.arquivo.name}</div>}
-              <div className="flex items-center justify-between gap-2 p-3 text-[13px]">
-                <span className="truncate">{indice === 0 && previa.url ? 'Capa · ' : ''}{previa.arquivo.name}</span>
-                <AcaoIcone icone={IconeExcluir} rotulo={`Remover ${previa.arquivo.name}`} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos.filter((_, posicao) => posicao !== indice), videos)} />
+              <div className="acoes-linha flex items-center justify-between gap-2 p-3 text-base">
+                <span className="min-w-0 truncate">{indice === 0 && previa.url ? 'Capa ' : ''}{previa.arquivo.name}</span>
+                <AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={previa.arquivo.name} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos.filter((_, posicao) => posicao !== indice), videos)} />
               </div>
             </li>
           ))}
           {videos.map((video, indice) => (
             <li key={`${video}-${indice}`} className="border border-line bg-paper">
               <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm wrap-anywhere">Vídeo: {video}</div>
-              <div className="flex justify-end p-3"><AcaoIcone icone={IconeExcluir} rotulo={`Remover vídeo ${indice + 1}`} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos, videos.filter((_, posicao) => posicao !== indice))} /></div>
+              <div className="acoes-linha flex justify-end p-3"><AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={`vídeo ${indice + 1}`} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos, videos.filter((_, posicao) => posicao !== indice))} /></div>
             </li>
           ))}
         </ul>

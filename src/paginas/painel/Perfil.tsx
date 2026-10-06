@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
+import CabecalhoPagina from '../../componentes/CabecalhoPagina';
+import { IconeSalvar } from '../../componentes/Icones';
+import { GuardaFormulario, useGuardaFormulario } from '../../hooks/useGuardaFormulario';
+import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
@@ -28,7 +32,7 @@ type ValoresPerfil = z.infer<typeof esquemaPerfil>;
 type ValoresSenha = z.infer<typeof esquemaSenha>;
 
 function cartao(titulo: string, valor: string | number, detalhe?: string) {
-  return <div className="rounded border border-line bg-paper p-[18px] lg:p-7"><span>{titulo}</span><strong className="m-0 my-[18px] mb-2 block font-display text-[28px] text-ink lg:text-[38px]">{valor}</strong>{detalhe && <small className="text-muted">{detalhe}</small>}</div>;
+  return <div className="rounded border border-line bg-paper p-[18px] lg:p-7"><span>{titulo}</span><strong className="m-0 my-[18px] mb-2 block font-display text-[28px] text-ink">{valor}</strong>{detalhe && <small className="text-[16px] text-muted">{detalhe}</small>}</div>;
 }
 
 export default function Perfil() {
@@ -49,15 +53,17 @@ export default function Perfil() {
     return { imoveis, disponiveis, reservados, vendidos, alugados, pessoas, pendentes, ultimoMes };
   }, []));
   const formularioPerfil = useForm<ValoresPerfil>({ resolver: zodResolver(esquemaPerfil), defaultValues: { nome: corretor?.nome ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', url_foto: corretor?.url_foto ?? '' } });
-  useEffect(() => { if (corretor) formularioPerfil.reset({ nome: corretor.nome, whatsapp: corretor.whatsapp, creci: corretor.creci ?? '', url_foto: corretor.url_foto ?? '' }); }, [corretor, formularioPerfil]);
+  const perfilInicializado = useRef(corretor?.id);
+  useEffect(() => { if (corretor && (perfilInicializado.current !== corretor.id || !formularioPerfil.formState.isDirty)) { formularioPerfil.reset({ nome: corretor.nome, whatsapp: corretor.whatsapp, creci: corretor.creci ?? '', url_foto: corretor.url_foto ?? '' }); perfilInicializado.current = corretor.id; } }, [corretor, formularioPerfil]);
   async function salvarPerfil(valores: ValoresPerfil) {
     setErroPerfil('');
     setPerfilSalvo(false);
     try {
-      await api.atualizarPerfil({ nome: valores.nome.trim(), whatsapp: valores.whatsapp, creci: valores.creci.trim() || null, url_foto: valores.url_foto.trim() || null });
-      await atualizar();
-      recarregar();
+      const salvo = await api.atualizarPerfil({ nome: valores.nome.trim(), whatsapp: valores.whatsapp, creci: valores.creci.trim() || null, url_foto: valores.url_foto.trim() || null });
+      formularioPerfil.reset({ nome: salvo.nome, whatsapp: salvo.whatsapp, creci: salvo.creci ?? '', url_foto: salvo.url_foto ?? '' });
       setPerfilSalvo(true);
+      try { await atualizar(); } catch (causa) { setErroPerfil(`O perfil foi salvo, mas não foi possível atualizar a sessão. ${mensagemErro(causa)}`); }
+      recarregar();
     } catch (causa) { setErroPerfil(mensagemErro(causa)); }
   }
   const formularioSenha = useForm<ValoresSenha>({ resolver: zodResolver(esquemaSenha), defaultValues: { senha_atual: '', nova_senha: '', confirmacao: '' } });
@@ -67,49 +73,54 @@ export default function Perfil() {
     try { await api.alterarSenha({ senha_atual: valores.senha_atual, nova_senha: valores.nova_senha }); formularioSenha.reset(); setSenhaSalva(true); }
     catch (causa) { setErroSenha(mensagemErro(causa)); }
   }
+  const alterado = formularioPerfil.formState.isDirty || formularioSenha.formState.isDirty;
+  const liberado = useGuardaFormulario(alterado);
+  const ocupado = formularioPerfil.formState.isSubmitting || formularioSenha.formState.isSubmitting;
+  useAcoesPainel(useMemo(() => [{ id: 'editar-perfil', rotulo: 'Editar meu perfil', executar: () => document.querySelector<HTMLInputElement>('[data-editar-perfil]')?.focus() }], []));
   if (!corretor) return null;
   const mostrarFoto = Boolean(corretor.url_foto) && !fotoQuebrada;
   const errosPerfil = formularioPerfil.formState.errors;
   const errosSenha = formularioSenha.formState.errors;
   return <>
-    <header className="mb-8 flex flex-wrap items-center gap-5">
-      <span aria-hidden="true" className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-3xl font-semibold text-ink">{mostrarFoto ? <img src={corretor.url_foto ?? ''} alt="" onError={() => setFotoQuebrada(true)} className="h-full w-full object-cover" /> : corretor.nome.charAt(0).toUpperCase()}</span>
-      <div><p className="eyebrow">MEU PERFIL</p><h1 className="my-2 text-[clamp(26px,3vw,38px)] text-ink">{corretor.nome}</h1><p className="muted">{corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'}{corretor.creci ? ` · CRECI ${corretor.creci}` : ''} · na equipe desde {data(corretor.criado_em)}</p></div>
-    </header>
+    <GuardaFormulario alterado={alterado} liberado={liberado} descricao="Há alterações não salvas no perfil ou na senha. Sair descarta somente estas edições." />
+    <CabecalhoPagina titulo="Meu perfil" descricao={corretor.nome} />
+    <div className="mb-6 flex items-center gap-5"><Link to="/admin/perfil" aria-label={`Perfil de ${corretor.nome}`} className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[28px] font-semibold text-ink">{mostrarFoto ? <img src={corretor.url_foto ?? ''} alt="" onError={() => setFotoQuebrada(true)} className="h-full w-full object-cover" /> : corretor.nome.charAt(0).toUpperCase()}</Link><p className="m-0 text-muted">{corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'}{corretor.creci ? `, CRECI ${corretor.creci}` : ''}, na equipe desde {data(corretor.criado_em)}</p></div>
     <section className={estilos.painel} aria-label="Dados da conta">
       <h2 className={estilos.tituloPainel}>Dados da conta</h2>
-      <dl className="m-0 grid grid-cols-1 gap-3 @min-[38rem]:grid-cols-2">
-        <div><dt className="text-[13px] uppercase tracking-[0.08em] text-muted">E-mail</dt><dd className="m-0 mt-1">{corretor.email} <small className="text-muted">(só o admin altera)</small></dd></div>
-        <div><dt className="text-[13px] uppercase tracking-[0.08em] text-muted">WhatsApp</dt><dd className="m-0 mt-1">{corretor.whatsapp}</dd></div>
+      <dl className="ficha-dados">
+        <div><dt className="text-[16px] text-muted">E-mail</dt><dd className="m-0 mt-1">{corretor.email} <small className="text-muted">(só o admin altera)</small></dd></div>
+        <div><dt className="text-[16px] text-muted">WhatsApp</dt><dd className="m-0 mt-1">{corretor.whatsapp}</dd></div>
       </dl>
     </section>
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && (
-      <section className="mb-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3 lg:gap-5" aria-label="Métricas">
-        {cartao('Imóveis', dados.imoveis.total, `${dados.disponiveis.total} disponíveis · ${dados.reservados.total} reservados · ${dados.vendidos.total} vendidos · ${dados.alugados.total} alugados`)}
+      <section className="indicadores-painel mb-6" aria-label="Métricas">
+        {cartao('Imóveis', dados.imoveis.total, `${dados.disponiveis.total} disponíveis, ${dados.reservados.total} reservados, ${dados.vendidos.total} vendidos, ${dados.alugados.total} alugados`)}
         {cartao('Pessoas', dados.pessoas.total, `${dados.ultimoMes.total} nos últimos 30 dias`)}
-        <div className="rounded border border-line bg-paper p-[18px] lg:p-7"><span>Contatos pendentes</span><strong className="m-0 my-[18px] mb-2 block font-display text-[28px] text-ink lg:text-[38px]">{dados.pendentes.total}</strong><Link to={rotas.contatos}>Responder →</Link></div>
+        <div className="rounded border border-line bg-paper p-[18px] lg:p-7"><span>Contatos pendentes</span><strong className="m-0 my-[18px] mb-2 block font-display text-[28px] text-ink">{dados.pendentes.total}</strong><Link to={rotas.contatos}>Responder</Link></div>
       </section>
     )}
     <section className={estilos.painel} aria-label="Editar perfil">
       <h2 className={estilos.tituloPainel}>Editar perfil</h2>
-      <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate>
-        <Campo rotulo="Nome" erro={errosPerfil.nome?.message}><input type="text" autoComplete="name" {...formularioPerfil.register('nome')} /></Campo>
+      <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate data-atalho-salvar>
+        <fieldset disabled={ocupado} className="contents"><Campo rotulo="Nome" erro={errosPerfil.nome?.message}><input data-editar-perfil type="text" autoComplete="name" {...formularioPerfil.register('nome')} /></Campo>
         <Campo rotulo="WhatsApp com DDI e DDD" erro={errosPerfil.whatsapp?.message} dica="Somente números. Ex.: 5565999999999."><input type="tel" autoComplete="tel" {...formularioPerfil.register('whatsapp')} /></Campo>
         <Campo rotulo="CRECI" erro={errosPerfil.creci?.message}><input type="text" {...formularioPerfil.register('creci')} /></Campo>
         <Campo rotulo="URL da foto (HTTPS)" erro={errosPerfil.url_foto?.message}><input type="url" {...formularioPerfil.register('url_foto')} /></Campo>
-        <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioPerfil.formState.isSubmitting}>{formularioPerfil.formState.isSubmitting ? 'Salvando…' : 'Salvar perfil'}</button></div>
+        <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={ocupado}><IconeSalvar size={20} aria-hidden="true" />{formularioPerfil.formState.isSubmitting ? 'Salvando…' : 'Salvar perfil'}</button></div>
+        </fieldset>
       </form>
       {erroPerfil && <Aviso tom="erro" classe="mt-4">{erroPerfil}</Aviso>}
       {perfilSalvo && <Aviso tom="sucesso" classe="mt-4">Perfil atualizado.</Aviso>}
     </section>
     <section className={estilos.painel} aria-label="Trocar senha">
       <h2 className={estilos.tituloPainel}>Trocar senha</h2>
-      <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioSenha.handleSubmit(salvarSenha)} noValidate>
-        <Campo classe="col-span-full" rotulo="Senha atual" erro={errosSenha.senha_atual?.message}><input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} /></Campo>
+      <form className="grid grid-cols-1 gap-[22px] @min-[38rem]:grid-cols-2" onSubmit={formularioSenha.handleSubmit(salvarSenha)} noValidate data-atalho-salvar>
+        <fieldset disabled={ocupado} className="contents"><Campo classe="col-span-full" rotulo="Senha atual" erro={errosSenha.senha_atual?.message}><input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} /></Campo>
         <Campo rotulo="Nova senha" erro={errosSenha.nova_senha?.message} dica="Use entre 12 e 128 caracteres."><input type="password" autoComplete="new-password" {...formularioSenha.register('nova_senha')} /></Campo>
         <Campo rotulo="Confirmar nova senha" erro={errosSenha.confirmacao?.message}><input type="password" autoComplete="new-password" {...formularioSenha.register('confirmacao')} /></Campo>
-        <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={formularioSenha.formState.isSubmitting}>{formularioSenha.formState.isSubmitting ? 'Salvando…' : 'Trocar senha'}</button></div>
+        <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={ocupado}><IconeSalvar size={20} aria-hidden="true" />{formularioSenha.formState.isSubmitting ? 'Salvando…' : 'Trocar senha'}</button></div>
+        </fieldset>
       </form>
       {erroSenha && <Aviso tom="erro" classe="mt-4">{erroSenha}</Aviso>}
       {senhaSalva && <Aviso tom="sucesso" classe="mt-4">Senha atualizada.</Aviso>}

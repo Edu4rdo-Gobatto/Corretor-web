@@ -1,8 +1,10 @@
-import { useCallback, useState, type FormEvent } from 'react';
+import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { IconeEditar, IconeAdicionar, IconeBuscar, IconeFechar } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
+import { useSessao } from '../../hooks/useSessao';
+import { podeEditarPessoa } from '../../servicos/pessoas';
 import { data, rotulosStatusContato } from '../../servicos/formato';
 import type { Pessoa, StatusContato } from '../../tipos';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
@@ -10,9 +12,11 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
 import Tabela from '../../componentes/Tabela';
+import SeletorFiltro from '../../componentes/SeletorFiltro';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
+import { useAcoesPainel } from '../../hooks/useComandosPainel';
 
 interface Filtros { busca: string; status: '' | StatusContato; ativo: 'true' | 'false' }
 const filtrosIniciais: Filtros = { busca: '', status: '', ativo: 'true' };
@@ -25,10 +29,12 @@ export const formatarDocumento = (valor: string | null) => {
 };
 
 export default function Pessoas() {
+  const { corretor } = useSessao();
   const [pagina, setPagina] = useState(1);
   const [rascunho, setRascunho] = useState(filtrosIniciais);
   const [filtros, setFiltros] = useState(filtrosIniciais);
   const [editando, setEditando] = useState<Pessoa | null | undefined>();
+  useAcoesPainel(useMemo(() => [{ id: 'nova-pessoa', rotulo: 'Nova pessoa', executar: () => setEditando(null) }], []));
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarPessoas({ pagina, limite: 15, busca: filtros.busca || undefined, status_contato: filtros.status || undefined, ativo: filtros.ativo === 'true' }), [pagina, filtros]));
   function aplicar(evento: FormEvent) {
     evento.preventDefault();
@@ -50,9 +56,9 @@ export default function Pessoas() {
     <CabecalhoPagina titulo="Pessoas" descricao="Clientes, proprietários e inquilinos: uma pessoa, um cadastro." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Nova pessoa" aoClicar={() => setEditando(null)} />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
       <label className="min-w-[min(100%,22rem)] flex-1">Buscar<input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou CPF/CNPJ" /></label>
-      <label>Situação do contato<select value={rascunho.status} onChange={(evento) => setRascunho({ ...rascunho, status: evento.target.value as Filtros['status'] })}><option value="">Todas</option>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
-      <label>Cadastro<select value={rascunho.ativo} onChange={(evento) => setRascunho({ ...rascunho, ativo: evento.target.value as Filtros['ativo'] })}><option value="true">Ativos</option><option value="false">Inativos</option></select></label>
-      <div className="flex items-center gap-3">
+      <SeletorFiltro rotulo="Situação do contato" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusContato).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor })} />
+      <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor })} />
+      <div className={estilos.acoesFiltros}>
         <AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" />
         {filtrando && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setPagina(1); }}>Limpar</button>}
       </div>
@@ -66,8 +72,8 @@ export default function Pessoas() {
           { titulo: 'Pessoa', celula: (pessoa) => <><Link to={`/admin/pessoas/${pessoa.id}`} className="font-semibold no-underline hover:underline">{pessoa.nome}</Link><small className="mt-1 flex flex-wrap gap-x-3 text-base text-muted"><span>#{pessoa.id}</span>{pessoa.tipo_pessoa && <span>{pessoa.tipo_pessoa}</span>}{pessoa.cpf_cnpj && <span>{formatarDocumento(pessoa.cpf_cnpj)}</span>}</small></> },
           { titulo: 'Contato', celula: (pessoa) => <>{pessoa.telefone || '—'}{pessoa.email && <small className="mt-1 block wrap-anywhere text-base text-muted">{pessoa.email}</small>}</> },
           { titulo: 'Situação', celula: (pessoa) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={pessoa.status_contato === 'PENDENTE' ? 'atencao' : 'neutro'}>{rotulosStatusContato[pessoa.status_contato]}</Etiqueta>{!pessoa.ativo && <Etiqueta tom="alerta">Inativa</Etiqueta>}</div> },
-          { titulo: 'Cadastro', celula: (pessoa) => <>{data(pessoa.criado_em)}<small className="mt-1 block text-base text-muted">{pessoa.origem === 'SITE' ? 'Pelo site' : 'Manual'}{pessoa.consentimento ? ', com consentimento' : ''}</small></> },
-          { titulo: 'Ações', acoes: true, celula: (pessoa) => <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={pessoa.nome} aoClicar={() => setEditando(pessoa)} /> },
+          { titulo: 'Cadastro', celula: (pessoa) => <>{data(pessoa.criado_em)}</> },
+          { titulo: 'Ações', acoes: true, celula: (pessoa) => podeEditarPessoa(corretor, pessoa) ? <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={pessoa.nome} aoClicar={() => setEditando(pessoa)} /> : null },
         ]} />
         <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
       </section>

@@ -1,5 +1,44 @@
 # Instruções do projeto — corretor-web
 
+## 2026-10-06 — Orientação vigente após conclusão local da Área do Corretor
+
+O dono autorizou as specs completas, incluindo as etapas posteriores a Contatos. Implementação
+e validação local concluídas: `2026-10-06-conclusao-area-corretor.md`. Esse estado substitui as
+pendências e o checkpoint de revisão dos registros anteriores, que permanecem como histórico.
+Fichas novas são telas próprias; CampoNumero, guarda dirty/busy e Ctrl/⌘+K estão ativos.
+Preservar `.painel-ui`, escala 28/22/18/16/14, selects dos editores, histórico interno por Esc,
+permissões e DTOs. CORRETOR não consulta endpoints administrativos de corretores/classificações.
+Guardar id/referência inicial ao restaurar seleções; Cancelar de editores usa data-fechar-dialogo.
+Somente Ctrl/⌘+K; não reintroduzir atalhos descartados ou fichas em modal. Integrações reais
+e Safari/iOS/celular continuam sem homologação. Manter main, índice, escopo frontend e ausência
+de publicação/suítes novas sem pedido. QA efêmero e prints ficam ignorados em artifacts/.
+
+## 2026-10-06 — Ajustes aprovados após a revisão de Contatos
+
+O dono aprovou `2026-10-06-ajustes-painel.md`. Esc agora retorna à página anterior do painel,
+com fallback para lista/Visão geral e prioridade das camadas abertas; substitui a regra anterior
+de retorno sempre hierárquico. Usar SeletorFiltro nas listas dos filtros, mantendo selects dos
+editores. Cards: nome à esquerda, valores e ações à direita. Menu mobile ocupa a tela inteira;
+origem/consentimento somente na ficha e filtro “Só sem foto” removido. Preservar histórico,
+main, índice preexistente e escopo frontend. Não ampliar suítes ou publicar sem pedido.
+
+## 2026-10-06 — Orientação vigente para a retomada do painel
+
+O dono autorizou implementar o plano a partir de `a2a9f81`. Ler
+`2026-10-06-painel-especificacao-visual.md`: ela substitui o plano anterior revertido e os padrões
+conflitantes das entradas históricas abaixo. Pessoas continua como referência; escopo `.painel-ui`,
+escala 28/22/18/16/14, tabelas/cartões por container de 40rem e apenas Ctrl/⌘+K nas próximas fases.
+
+Primeiro marco implementado: Contatos, agora em revisão do dono antes das demais telas (seção 8).
+`src/servicos/pessoas.ts` centraliza edição por responsável/ADMIN e reabertura só por ADMIN no
+frontend; preservar isso no editor e em novas ações. Não afirmar que a regra de reabertura está
+garantida pela API. Dicas do painel usam popover; mudanças compartilhadas devem preservar o público.
+
+Fichas próprias, CampoNumero e guardas/atalhos permanecem pendentes. Não reutilizar as antigas
+implementações revertidas nem ampliar os 3 arquivos/21 testes sem pedido. QA efêmero e capturas
+ficam em pasta ignorada; resultados simulados e homologação real devem ser registrados separadamente.
+Main e restrições a dependências/API/dados/migrations/publicação continuam vigentes.
+
 ## Contexto
 
 Front do sistema de corretor de imóveis comerciais: catálogo público, detalhe de imóvel, captação de leads com
@@ -183,3 +222,24 @@ Depois da revisão externa,
 pm test voltou a ter 3 arquivos em src/servicos/ (contato/LGPD, URL de filtro, valores e catálogo de exemplo). Não ampliar nem recriar as demais suítes sem novo pedido; 
 pm run visual segue sem specs. Dados de demonstração: catalogoExemplo() em src/seo/fixture.ts. Índice da documentação: docs/INDICE.md.
 
+
+
+## 2026-10-05 — Área do Corretor: ícones, teclado e fichas
+
+O painel usa navegação compacta por ícones e seções abertas. Ações auxiliares devem reutilizar AcaoIcone (tipo submit nos filtros); confirmações, salvar e operações financeiras conservam texto. DicasPainel fornece tooltip por foco/hover a botões e destinos dentro de data-area-corretor, com aria-describedby, camada popover e posicionamento limitado à janela. Não depender de title nem adicionar outro listener global de Esc aos controles do painel.
+
+Dialogo aceita alterado e ocupado: derivar alterado do isDirty do react-hook-form, marcar shouldDirty em seleções programáticas e guardar valores iniciais no defaultValues. Esc intacto fecha; alterado arma aviso e segundo Esc consecutivo descarta, sem prazo. Outra tecla, input ou clique desarma. Botões Cancelar de editores usam data-fechar-dialogo; fechar/clique externo pedem confirmação quando alterado. Ocupado bloqueia fechamento. Prioridade: tooltip, seleção aberta, modal superior, navegação. Não reverter operações já persistidas.
+
+useAtalhosPainel controla Ctrl/Command+K, /, ?, Ctrl/Command+Enter e retorno com Esc. Somente formulários de edição seguros usam data-atalho-salvar; jamais marcar recebimentos ou criação financeira. Buscas de filtro usam data-busca-painel. O atalho consome Enter também quando a ação não é permitida. FichasPainel consulta dados disponíveis pela API atual; não completar perfil com chamadas privilegiadas. EntradaNumero preserva decimal textual durante edição e conversão no esquema de cada tela; não usar valueAsNumber em input text. Perfil e imóvel mantêm guarda de edição.
+
+## 2026-10-06 — Conforto visual da Área do Corretor
+
+Esta revisão substitui a direção anterior de sidebar sem nomes: usar sidebar de 260px com ícone e nome, inclusive no menu mobile. Textos principais 18px, auxiliares 16px, títulos principais/modal 20px e subtítulos 18px. Preservar fontes e catálogo público. Estilos compartilhados ficam no escopo data-area-corretor; tokens de ação #b3892d / hover #b18424, desenho branco e texto azul #0a2042. Ações destrutivas conservam vermelho com contraste.
+
+Novo/Filtrar/WhatsApp/Responder usam ícone e texto; AcaoIcone aceita texto opcional. Editar/ver ficha mantêm tooltip. Botões com raio 12px, alvo mínimo 48px, ícones 23px; campos outlined, rótulos acima e fonte 18px. Contatos usam blocos suaves; tabelas passam à apresentação mobile abaixo de 52rem do container. Preservar as regras de teclado, dirty state, permissões e fichas registradas anteriormente.
+
+## 2026-10-06 — Refatoração da Área do Corretor revertida pelo dono
+
+Pedido explícito: “reverta tudo, e me dê um plano e um resumo do que foi pedido”. Revertidas integralmente as duas etapas desta conversa: mudanças visuais, sidebar, fontes, botões/inputs, tooltips centralizados, entradas numéricas, fichas em modal, contratos clicáveis, atalhos e fechamento com dois Esc. Arquivos fonte rastreados restaurados ao estado anterior da refatoração; cinco componentes/hooks novos retirados do código ativo. API, banco, dependências e trabalho anterior preservados. Nenhum commit, push ou deploy.
+
+Os registros de implementação/validação de 05 e 06/10 acima são históricos e NÃO descrevem o produto atual. As orientações específicas dessa refatoração ficam canceladas como instruções de implementação vigente. O novo documento PLANO-AREA-CORRETOR.md contém apenas o pedido consolidado e a proposta de execução futura; não autoriza reimplementar. Preservar o restante das orientações do repositório. Backup local ignorado em artifacts/reversao-area-corretor-2026-10-06.

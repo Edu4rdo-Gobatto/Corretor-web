@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +8,7 @@ import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { documentoValido, somenteDigitos, telefoneValido } from '../../servicos/validacao';
 import { mensagemErro, rotulosStatusContato } from '../../servicos/formato';
+import { podeAlterarStatusContato, podeEditarPessoa } from '../../servicos/pessoas';
 import type { Pessoa, Referencia } from '../../tipos';
 import Dialogo from '../../componentes/Dialogo';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
@@ -55,23 +56,33 @@ export function dadosPessoaParaApi(valores: ValoresPessoa, corretorId?: number, 
 export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar }: { pessoa: Pessoa | null; imovelInicial?: Referencia | null; aoFechar: () => void; aoSalvar: (pessoa: Pessoa) => void }) {
   const { corretor } = useSessao();
   const [erro, setErro] = useState('');
-  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<ValoresPessoa>({
+  const imovelOriginal = useRef(imovelInicial ?? (pessoa?.imovel_id ? { id: pessoa.imovel_id, nome: `Imóvel #${pessoa.imovel_id}` } : null));
+  const { register, handleSubmit, setValue, setError, watch, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresPessoa>({
     resolver: zodResolver(esquemaPessoa),
     defaultValues: {
       nome: pessoa?.nome ?? '', telefone: pessoa?.telefone ?? '', email: pessoa?.email ?? '', tipo_pessoa: pessoa?.tipo_pessoa ?? '', cpf_cnpj: pessoa?.cpf_cnpj ?? '',
       data_nascimento: pessoa?.data_nascimento ?? '', endereco: pessoa?.endereco ?? '', banco_nome: pessoa?.banco_nome ?? '', banco_agencia: pessoa?.banco_agencia ?? '',
       banco_conta: pessoa?.banco_conta ?? '', chave_pix: pessoa?.chave_pix ?? '', observacoes: pessoa?.observacoes ?? '', mensagem: pessoa?.mensagem ?? '',
-      imovel: imovelInicial ?? (pessoa?.imovel_id ? { id: pessoa.imovel_id, nome: `Imóvel #${pessoa.imovel_id}` } : null),
+      imovel: imovelOriginal.current,
       corretor_id: pessoa ? String(pessoa.corretor_id) : '', status_contato: pessoa?.status_contato ?? 'RESPONDIDO', ativo: pessoa?.ativo ?? true,
     },
   });
   const tipoPessoa = watch('tipo_pessoa');
   const imovel = watch('imovel');
+  const finalizadoBloqueado = pessoa?.status_contato === 'FINALIZADO' && corretor?.cargo !== 'ADMIN';
   const corretores = useDadosPainel(useCallback(() => corretor?.cargo === 'ADMIN' ? api.listarCorretores(1, 100) : Promise.resolve(null), [corretor?.cargo]));
   const buscarImoveis = useCallback(async (termo: string): Promise<Referencia[]> => (await api.listarFichas({ busca: termo || undefined, limite: 10, ativo: true })).itens.map((item) => ({ id: item.id, nome: item.titulo })), []);
 
   async function salvar(valores: ValoresPessoa) {
     setErro('');
+    if (pessoa && !podeEditarPessoa(corretor, pessoa)) {
+      setErro('Você não tem permissão para editar esta pessoa.');
+      return;
+    }
+    if (pessoa && !podeAlterarStatusContato(corretor, pessoa, valores.status_contato)) {
+      setError('status_contato', { message: 'Somente um administrador pode reabrir um atendimento finalizado.' });
+      return;
+    }
     try {
       const corretorId = corretor?.cargo === 'ADMIN' ? Number(valores.corretor_id) || corretor.id : undefined;
       const salva = await api.salvarPessoa(dadosPessoaParaApi(valores, corretorId, !!pessoa), pessoa?.id, pessoa ?? undefined);
@@ -86,7 +97,7 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
   );
 
   return (
-    <Dialogo titulo={pessoa ? `Editar ${pessoa.nome}` : 'Nova pessoa'} tamanho="largo" aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
+    <Dialogo titulo={pessoa ? 'Editar pessoa' : 'Nova pessoa'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting} fecharAoClicarFora aoFechar={aoFechar}>
       <form noValidate onSubmit={handleSubmit(salvar)} className={estilos.formulario}>
         <fieldset disabled={isSubmitting} className="m-0 border-0 p-0">
           <div className={estilos.grade}>
@@ -98,8 +109,8 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
             <div className={tipoPessoa === 'PJ' ? 'col-span-full' : ''}>{campo('cpf_cnpj', 'CPF / CNPJ')}</div>
             {tipoPessoa !== 'PJ' && campo('data_nascimento', 'Data de nascimento', 'date')}
             <div className="col-span-full">{campo('endereco', 'Endereço completo')}</div>
-            <div className="col-span-full"><SeletorRegistro rotulo="Imóvel de interesse" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => setValue('imovel', valor, { shouldDirty: true })} dica="Opcional. Vincula a pessoa ao imóvel que ela procura." /></div>
-            <Campo classe={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'} rotulo="Situação do contato" erro={errors.status_contato?.message}><select {...register('status_contato')}>{Object.entries(rotulosStatusContato).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
+            <div className="col-span-full"><SeletorRegistro rotulo="Imóvel de interesse" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => setValue('imovel', valor?.id === imovelOriginal.current?.id ? imovelOriginal.current : valor, { shouldDirty: true })} dica="Opcional. Vincula a pessoa ao imóvel que ela procura." /></div>
+            <Campo classe={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'} rotulo="Situação do contato" erro={errors.status_contato?.message} dica={finalizadoBloqueado ? 'Somente um administrador pode reabrir este atendimento.' : undefined}><select {...register('status_contato')}>{Object.entries(rotulosStatusContato).filter(([valor]) => !finalizadoBloqueado || valor === 'FINALIZADO').map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
             {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></Campo>}
           </div>
           <details className="mt-5">
@@ -114,7 +125,7 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
         </fieldset>
         <p className={estilos.dica}>O cadastro manual não registra consentimento do site.</p>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} onClick={aoFechar}>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : 'Salvar pessoa'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} data-fechar-dialogo>Cancelar</button></div>
       </form>
     </Dialogo>
   );

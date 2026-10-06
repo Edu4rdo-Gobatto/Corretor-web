@@ -16,7 +16,7 @@ export default function ConfirmarAcao({ titulo, descricao, confirmar, aoConfirma
     catch (causa) { setErro(mensagemErro(causa)); }
     finally { setExecutando(false); }
   }
-  return <Dialogo titulo={titulo} tamanho="estreito" aoFechar={() => { if (!bloqueado) aoFechar(); }}>
+  return <Dialogo titulo={titulo} tamanho="estreito" ocupado={bloqueado} aoFechar={() => { if (!bloqueado) aoFechar(); }}>
     <div className="text-muted">{descricao}</div>
     {erro && <Aviso tom="erro">{erro}</Aviso>}
     <div className="mt-6 flex flex-wrap justify-end gap-3">
