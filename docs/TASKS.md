@@ -1,5 +1,19 @@
 # Tarefas — corretor-web
 
+## REFINAMENTOS-20261006 — Contatos, perfil e filtros
+
+- **Responsável:** Codex.
+- **Status:** concluída localmente; homologação real do perfil e aceite visual separados.
+- [x] Seletor por conteúdo/viewport, teclado e ações com ícone WhatsApp.
+- [x] Contatos em Pendentes/Atendidos/Finalizados; paginação por aba, CSV e permissões preservadas.
+- [x] Perfil compacto, arquivo/URL pendentes, prévia, guarda e senha independente.
+- [x] JSON/multipart, leitura por id e compensação no R2 pela API irmã; sem schema/migration.
+- [x] Filtros automáticos existentes, debounce 350 ms, validação, replace/SSR e respostas antigas.
+- [x] Comandos, QA efêmero, revisão independente e System Design renderizado.
+- [x] Contexto, especificações e índices atualizados sem apagar snapshots anteriores.
+- [ ] Homologar um perfil real com login, R2 e Neon juntos; Safari/iOS e celular físico.
+- [ ] Aceite do dono e eventual autorização de publicação (fora da entrega local).
+
 ## CABECALHOS-20261006 — Botões dos cabeçalhos no estilo de "Encontrar um imóvel"
 
 - **Responsável:** Claude.

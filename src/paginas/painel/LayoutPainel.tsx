@@ -1,3 +1,4 @@
+import { urlFotoCorretor } from '../../servicos/fotos';
 import { useEffect, useRef, useState } from 'react';
 import { IconeComissoes, IconeCorretores, IconeEdificio, IconeAbrirFora, IconeContrato, IconeVisaoGeral, IconeCadastros, IconeMenu, IconeContatos, IconeModoEscuro, IconeModoClaro, IconePessoa, IconePessoas, IconeProximo, type Icone } from '../../componentes/Icones';
 import { NavLink, Navigate, Outlet, Link, useLocation } from 'react-router-dom';
@@ -101,7 +102,7 @@ function EstruturaPainel() {
   const inicial = corretor.nome.charAt(0).toUpperCase();
   const cargo = corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor';
   const rotuloTema = escuro ? 'Ativar modo claro' : 'Ativar modo escuro';
-  const foto = (classe: string) => mostrarFoto ? <img src={corretor.url_foto ?? ''} alt="" onError={() => setFotoQuebrada(true)} className={classe} /> : inicial;
+  const foto = (classe: string) => mostrarFoto ? <img src={urlFotoCorretor(corretor)} alt="" onError={() => setFotoQuebrada(true)} className={classe} /> : inicial;
   const visiveis = destinos.filter((destino) => !destino.admin || corretor.cargo === 'ADMIN');
   const itensMenu = visiveis.length + 1; // + "Ver site"
   const navegacao = (mobile = false) => {

@@ -1,6 +1,7 @@
 import type { Sessao } from '../tipos';
 
 const urlBase = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+export const urlApi = (caminho: string) => `${urlBase}${caminho}`;
 let tokenAcesso: string | null = null;
 let renovacaoPendente: Promise<Sessao> | null = null;
 let versaoSessao = 0;

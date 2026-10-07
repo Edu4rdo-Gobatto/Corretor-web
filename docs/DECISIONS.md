@@ -1,5 +1,23 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-06 — Refinamento de contatos, perfil e filtros
+
+- O plano explicitamente aprovado autoriza frontend e API; sem commit/push/deploy/migrations.
+- Seletores medem conteúdo e limitam largura à janela; rótulos quebram entre palavras. Mantidos popover,
+  foco, Esc e posicionamento. Contatos tem uma lista e três abas, com páginas independentes.
+- Perfil usa dois cards a partir de 58rem do container principal e três métricas a partir de 38rem.
+  Os formulários são independentes. Seleção de arquivo entra na guarda e no bloqueio de salvamento.
+- `useFiltrosAutomaticos` centraliza debounce, cancelamento, normalização, erro e deduplicação. Seleções,
+  datas e chips aplicam imediatamente; inválidos preservam resultados. Limpar também trata página isolada.
+- Catalogo mantém a mesma montagem entre URLs; consultas automáticas usam replace, paginação mantém
+  histórico. Validação usa valores candidatos e estado de badInput, sem consultar o DOM anterior ao render.
+- url_foto não editada é omitida; a API rejeita restauração de URL gerenciada antiga. Exibição por id/hash
+  usa `urlFotoCorretor` no perfil, sidebar, ficha e detalhe, respeitando base e proxy.
+- Bucket permanece privado. JSON compatível, multipart e leitura por id sem chaves arbitrárias;
+  storage/quota compartilhados, Put antes da transação e limpeza compensatória/após commit.
+- Não acrescentar suíte rastreada. R2 temporário real e banco simulado são evidências diferentes;
+  não declarar homologação de avatar no Neon. System Design preserva o pacote visual do template.
+
 ## 2026-10-06 — Cabeçalhos no estilo de "Encontrar um imóvel" (pedido do dono)
 
 - Todos os botões dos cabeçalhos, no site e no painel, usam `.linha-nav` (`global.css`): negrito e linha dourada

@@ -1,5 +1,27 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-06 — Codex: refinamento de contatos, perfil e filtros
+
+Implementado o plano aprovado: seletor por conteúdo; lista de Contatos em abas e ações compactas com SVG;
+perfil em cards, prévia de arquivo/URL, guarda/busy, compressão existente; filtros automáticos compartilhados.
+Catalogo controlado e sincronizado com URL, replace automático, histórico explícito, SSR e foco preservados.
+`urlFotoCorretor` centraliza exibição da foto; adaptador PATCH admite multipart. API irmã implementa
+storage/quota compartilhados, foto por id, envio e compensação sem migration.
+
+Revisão final independente encontrou três falhas: limpar somente paginação, limpar número inválido e
+restaurar foto antiga por outra aba. Reproduções efêmeras antes/depois; corrigidas. A inspeção visual
+também alinhou campos do perfil ao topo e deixou ações de Contatos na mesma linha em containers amplos.
+
+Validação: typecheck/lint/build ambos; 21 testes existentes e smoke SSR frontend. Jest API sem fontes.
+HTTP simulado 22 cenários + foto concorrente; navegador simulado 23 cenários/32 capturas, sem overflow,
+JS ou rotas inesperadas. Falhas iniciais de QA por nomes acessíveis, origem ausente da fixture CSV e PNG
+inválido do próprio script foram corrigidas; não contam como validação. R2 real Put/Get/Delete, com
+GET 404 após limpeza, aprovado sem banco. Perfil real/Neon e dispositivos reais continuam sem homologação.
+
+Documentação e especificações atualizadas por registros adicionais; System Design em DOCX, seis páginas
+inspecionadas e referência original intacta. Trabalho prévio staged/untracked da API preservado.
+Sem novas dependências, suites rastreadas, alterações de schema, commit, push, deploy ou migrations.
+
 ## 2026-10-06 — Claude: cabeçalhos no estilo de "Encontrar um imóvel"
 
 Pedido: todos os botões dos cabeçalhos com negrito e linha dourada no hover; remover "Encontrar um imóvel";

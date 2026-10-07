@@ -159,6 +159,11 @@ export const api = {
     definirTokenAcesso(null);
   },
   eu: () => http<Corretor>('/autenticacao/eu'),
-  atualizarPerfil: (dados: { nome: string; whatsapp: string; creci: string | null; url_foto: string | null }) => http<Corretor>('/autenticacao/eu', json('PATCH', dados)),
+  atualizarPerfil: (dados: { nome: string; whatsapp: string; creci: string | null; url_foto?: string | null }, foto?: File) => {
+    if (!foto) return http<Corretor>('/autenticacao/eu', json('PATCH', dados));
+    const corpo = new FormData();
+    corpo.set('nome', dados.nome); corpo.set('whatsapp', dados.whatsapp); corpo.set('creci', dados.creci ?? ''); corpo.set('foto', foto);
+    return http<Corretor>('/autenticacao/eu', { method: 'PATCH', body: corpo });
+  },
   alterarSenha: (dados: { senha_atual: string; nova_senha: string }) => http<Corretor>('/autenticacao/eu/senha', json('PATCH', dados)),
 };

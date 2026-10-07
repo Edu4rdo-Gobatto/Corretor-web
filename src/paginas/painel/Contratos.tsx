@@ -1,3 +1,4 @@
+import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -82,18 +83,21 @@ const filtrosIniciais: Filtros = { busca: '', status: '', ativo: 'true' };
 export default function Contratos() {
   const navigate = useNavigate();
   const [pagina, setPagina] = useState(1);
-  const [rascunho, setRascunho] = useState(filtrosIniciais);
   const [filtros, setFiltros] = useState(filtrosIniciais);
+  const { rascunho, definir: setRascunho, aplicarAgora } = useFiltrosAutomaticos({
+    iniciais: filtrosIniciais, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    aoAplicar: (valor) => { setPagina(1); setFiltros(valor); },
+  });
   const [criando, setCriando] = useState(false);
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarContratos({ pagina, limite: 15, busca: filtros.busca || undefined, status: filtros.status || undefined, ativo: filtros.ativo === 'true' }), [pagina, filtros]));
   useAcoesPainel(useMemo(() => [{ id: 'novo-contrato', rotulo: 'Novo contrato', executar: () => setCriando(true), palavrasChave: 'locação aluguel' }], []));
-  function aplicar(evento: FormEvent) { evento.preventDefault(); setPagina(1); setFiltros({ ...rascunho, busca: rascunho.busca.trim() }); }
+  function aplicar(evento: FormEvent) { evento.preventDefault(); aplicarAgora(); }
   return <>
     <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<button className="button" onClick={() => setCriando(true)}>Novo contrato</button>} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
       <label>Buscar<input data-busca-painel value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Número, imóvel ou inquilino" /></label>
-      <SeletorFiltro rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor })} />
-      <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor })} />
+      <SeletorFiltro rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
+      <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
       <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" /></div>
     </form>
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />

@@ -1,3 +1,4 @@
+import { urlFotoCorretor } from '../../servicos/fotos';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { IconeSetaEsquerda, IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeMapa } from '../../componentes/Icones';
@@ -104,7 +105,7 @@ export default function DetalheImovel() {
               </div>
               {linkCopiado && <p className="-mt-3 mb-4 text-center text-[13px] text-brand" role="status">Link copiado.</p>}
               {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
-                <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={imovel.corretor.url_foto} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
+                <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={urlFotoCorretor(imovel.corretor)} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
                 <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
               </div>}
               <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><IconeProtegido size={16} /> Seus dados são usados apenas para o atendimento.</p>

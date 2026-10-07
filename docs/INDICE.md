@@ -1,5 +1,13 @@
 # Índice da documentação — corretor-web
 
+## Refinamento vigente de 06/10/2026
+
+[Contatos, perfil com upload e filtros automáticos](2026-10-06-refinamentos-sistema.md) registra o plano,
+implementação, revisão e validação. [System Design](2026-10-06-system-design.docx) descreve arquitetura,
+contratos e limites. Este marco atualiza os snapshots abaixo: agora há trabalho autorizado também na API.
+R2 temporário real aprovado; perfil no Neon e dispositivo físico ainda sem homologação.
+Sem commit, push, deploy ou migrations.
+
 Uma página para achar o estado real do produto sem reler ~250 KB de histórico.
 Atualize este índice quando um documento mudar de papel.
 

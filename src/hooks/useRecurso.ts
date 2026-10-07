@@ -10,7 +10,10 @@ export function useRecurso<T>(carregar: () => Promise<T>, valorInicial?: T) {
   const [tentativa, setTentativa] = useState(0);
   const tentarNovamente = useCallback(() => setTentativa((atual) => atual + 1), []);
   useEffect(() => {
-    if (valorInicial !== undefined && tentativa === 0) return;
+    if (valorInicial !== undefined && tentativa === 0) {
+      setValor(valorInicial); setCarregando(false); setErro(''); setStatusErro(0);
+      return;
+    }
     let ativo = true;
     setCarregando(true); setErro(''); setStatusErro(0);
     carregar()

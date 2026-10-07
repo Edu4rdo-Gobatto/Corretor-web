@@ -1,3 +1,4 @@
+import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IconeArquivar, IconeDesarquivar, IconeAdicionar, IconeBuscar, IconeEditar, IconeFechar } from '../../componentes/Icones';
@@ -28,7 +29,10 @@ export default function Imoveis() {
   const { corretor } = useSessao();
   const [pagina, setPagina] = useState(1);
   const [filtros, setFiltros] = useState(filtrosIniciais);
-  const [rascunho, setRascunho] = useState(filtrosIniciais);
+  const { rascunho, definir: setRascunho, aplicarAgora } = useFiltrosAutomaticos({
+    iniciais: filtrosIniciais, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    aoAplicar: (valor) => { setPagina(1); setFiltros(valor); },
+  });
   const [erroMutacao, setErroMutacao] = useState('');
   const [ocupado, setOcupado] = useState(0);
   const [confirmando, setConfirmando] = useState<FichaImovel>();
@@ -36,15 +40,9 @@ export default function Imoveis() {
   const itens = dados?.itens ?? [];
   const podeEditar = (imovel: FichaImovel) => corretor?.cargo === 'ADMIN' || corretor?.id === imovel.corretor_id;
 
-  function aplicar(evento: FormEvent) {
-    evento.preventDefault();
-    setPagina(1);
-    setFiltros({ ...rascunho, busca: rascunho.busca.trim() });
-  }
+  function aplicar(evento: FormEvent) { evento.preventDefault(); aplicarAgora(); }
   function removerFiltro(campo: keyof Filtros) {
-    setFiltros((atual) => ({ ...atual, [campo]: filtrosIniciais[campo] }));
-    setRascunho((atual) => ({ ...atual, [campo]: filtrosIniciais[campo] }));
-    setPagina(1);
+    setRascunho({ ...rascunho, [campo]: filtrosIniciais[campo] }, true);
   }
   const resumo: { campo: keyof Filtros; rotulo: string }[] = [
     ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
@@ -70,10 +68,10 @@ export default function Imoveis() {
     <CabecalhoPagina titulo="Imóveis" descricao="Espaços bem apresentados, novas possibilidades." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
       <label>Buscar<input value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Título, bairro, cidade ou #código" /></label>
-      <SeletorFiltro rotulo="Situação do anúncio" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor })} />
-      <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor })} />
+      <SeletorFiltro rotulo="Situação do anúncio" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
+      <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
       <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" />
-      {(resumo.length > 0 || rascunho.busca || rascunho.status || rascunho.ativo === 'false') && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais); setFiltros(filtrosIniciais); setPagina(1); }}>Limpar</button>}</div>
+      {(resumo.length > 0 || rascunho.busca || rascunho.status || rascunho.ativo === 'false') && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais, true); }}>Limpar</button>}</div>
     </form>
     {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}

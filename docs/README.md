@@ -130,3 +130,12 @@ No painel: Proprietários → Novo cadastro; Inquilinos → Novo cadastro; Contr
 Pré-requisitos novos na API: aplicar a migration `1789257600000-create-rental-administration` após backup do Neon e configurar `R2_DOCUMENTS_BUCKET` com bucket **privado**, separado de `corretor-midia`, e permissão S3 de leitura/escrita no token existente. Sem bucket configurado, os anexos retornam 503; não há fallback público. Não aplicar migrations sem revisar o histórico existente. Não publicar arquivos .env nem dados pessoais.
 
 Verificações: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` em cada repositório. No front, `node scripts/seo-smoke.mjs` confere SSR, proxy e discovery após o build. Node suportado: >=24 <25.
+
+## Refinamentos locais de 06/10/2026
+
+Contatos usa abas; perfil aceita upload e URL; filtros existentes atualizam automaticamente. Leia
+[o registro do refinamento](2026-10-06-refinamentos-sistema.md) e [o System Design](2026-10-06-system-design.docx).
+Para executar: `npm ci`, `npm run dev` no frontend e `npm run start:dev` na API irmã configurada.
+Acesse http://127.0.0.1:5173; entre com conta real já cadastrada, sem conta/senha de demonstração criada
+por esta entrega. O backend atualizado é necessário para o upload e a leitura de fotos gerenciadas.
+As evidências simuladas não homologam gravação de perfil no banco real.

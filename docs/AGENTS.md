@@ -1,5 +1,19 @@
 # Instruções do projeto — corretor-web
 
+## 2026-10-06 — Refinamento autorizado de contatos, perfil e filtros
+
+Estado vigente em `2026-10-06-refinamentos-sistema.md`; System Design em `2026-10-06-system-design.docx`.
+Este pedido autoriza os dois repositórios e amplia o PATCH do perfil, substituindo a restrição frontend
+dos snapshots abaixo somente neste escopo. Entrega local: sem commit, push, deploy ou migrations.
+Preservar fontes, azul/dourado, escala de texto, permissões, Esc e Ctrl/⌘+K. Contatos agora usa abas;
+reabertura de finalizados continua exclusiva de ADMIN na interface, sem nova restrição na API.
+Filtros usam `useFiltrosAutomaticos`: 350 ms para texto, seleção imediata, normalização e validação.
+Manter Catalogo montado entre mudanças de filtro; usar replace automático e histórico na paginação.
+Foto: prévia/arquivo são pendentes até Salvar perfil; não reenviar url_foto não editada. Exibir por
+`urlFotoCorretor`, respeitando base/proxy. Não resetar o formulário de senha ao salvar dados.
+Não recriar suítes: QA novo efêmero/ignorado. Distinguir simulação de banco de homologação real.
+R2 real foi verificado com objeto isolado temporário; nenhum avatar foi gravado no Neon.
+
 ## 2026-10-06 — Orientação vigente após conclusão local da Área do Corretor
 
 O dono autorizou as specs completas, incluindo as etapas posteriores a Contatos. Implementação

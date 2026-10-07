@@ -30,9 +30,12 @@ export default function SeletorFiltro<T extends string>({ rotulo, valor, opcoes,
       const acima = caixa.top - 12;
       const subir = abaixo < 240 && acima > abaixo;
       const altura = Math.max(0, Math.min(320, subir ? acima : abaixo));
-      elemento.style.width = `${Math.min(caixa.width, document.documentElement.clientWidth - 16)}px`;
+      elemento.style.width = 'max-content';
+      elemento.style.maxWidth = `${document.documentElement.clientWidth - 16}px`;
+      const largura = Math.min(Math.max(caixa.width, elemento.scrollWidth, 220), document.documentElement.clientWidth - 16);
+      elemento.style.width = `${largura}px`;
       elemento.style.maxHeight = `${altura}px`;
-      elemento.style.left = `${Math.max(8, Math.min(caixa.left, document.documentElement.clientWidth - caixa.width - 8))}px`;
+      elemento.style.left = `${Math.max(8, Math.min(caixa.left, document.documentElement.clientWidth - largura - 8))}px`;
       elemento.style.top = `${subir ? Math.max(8, caixa.top - Math.min(elemento.scrollHeight, altura) - 6) : caixa.bottom + 6}px`;
     }
     function fora(evento: PointerEvent) {
@@ -90,14 +93,14 @@ export default function SeletorFiltro<T extends string>({ rotulo, valor, opcoes,
         aria-activedescendant={aberto && !desabilitado ? `${id}-opcao-${ativa}` : undefined}
         onKeyDown={teclado} onBlur={() => setAberto(false)}
         onClick={() => { setAtiva(selecionada); setAberto(!aberto); }}>
-        <span className="min-w-0 flex-1 text-left wrap-anywhere">{opcoes.find((opcao) => opcao.valor === valor)?.rotulo ?? 'Selecione'}</span>
+        <span className="min-w-0 flex-1 text-left break-normal">{opcoes.find((opcao) => opcao.valor === valor)?.rotulo ?? 'Selecione'}</span>
         <IconeProximo size={20} aria-hidden="true" className={`shrink-0 ${aberto ? '-rotate-90' : 'rotate-90'}`} />
       </button>
     </Campo>
     {aberto && !desabilitado && <ul ref={lista} id={`${id}-lista`} role="listbox" aria-label={rotulo} className="lista-filtro" data-esc-camada>
       {opcoes.map((opcao, indice) => <li key={opcao.valor} id={`${id}-opcao-${indice}`} role="option" aria-selected={opcao.valor === valor}
         data-ativa={indice === ativa || undefined} onPointerDown={(evento) => evento.preventDefault()} onClick={() => escolher(indice)}>
-        <span className="min-w-0 flex-1 wrap-anywhere">{opcao.rotulo}</span>
+        <span className="min-w-0 flex-1 break-normal">{opcao.rotulo}</span>
         {opcao.valor === valor && <IconeSucesso size={20} aria-hidden="true" className="shrink-0" />}
       </li>)}
     </ul>}

@@ -1,5 +1,25 @@
 # Estado atual — corretor-web
 
+## 2026-10-06 — Codex: contatos, perfil com upload e filtros automáticos
+
+Plano autorizado implementado localmente nos dois repositórios. Contatos em abas com paginação própria,
+seletor sem partir palavras, WhatsApp com SVG e ações compactas; perfil com dois cards e faixa de métricas.
+Arquivo/URL, prévia, substituição e remoção só persistem em Salvar perfil. API JSON/multipart e leitura
+da foto pelo id funcionam com bucket privado. Filtros do catálogo/Imóveis/Pessoas/Contatos/Contratos
+aplicam seleções imediatamente e texto após 350 ms, sem perder foco ou resultados válidos.
+
+Typecheck, lint e build aprovados nos dois projetos; frontend 3 arquivos/21 testes e smoke SSR aprovados.
+API não possui testes fonte: Jest com passWithNoTests confirma ausência, não cobertura.
+QA HTTP: 22 cenários simulados e reprodução de foto concorrente corrigida. QA Chrome: 23 cenários e
+32 capturas em 320/390/768/1440, claro/escuro, sem overflow/erros JS/chamadas inesperadas.
+Revisão independente: limpeza de página/valor inválido e referência antiga de foto corrigidas/reverificadas.
+R2 real: envio, leitura e exclusão (GET posterior 404) de objeto temporário isolado aprovados. Sem
+gravação de perfil no Neon; login real, fluxo ponta a ponta e Safari/iOS/celular físico sem homologação.
+
+Detalhes: `2026-10-06-refinamentos-sistema.md`. System Design clonado do template, original preservado,
+seis páginas renderizadas e inspecionadas. Evidências ignoradas em artifacts/refinamentos-2026-10-06/.
+Alterações anteriores da API preservadas, inclusive índice staged. Sem publicação ou migrations.
+
 ## 2026-10-06 — Claude: cabeçalhos padronizados e ajustes de consistência
 
 Pedido do dono: botões dos cabeçalhos no estilo de "Encontrar um imóvel", remover esse link e tirar a borda do

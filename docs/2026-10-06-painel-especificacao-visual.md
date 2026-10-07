@@ -409,3 +409,26 @@ testes existentes, build e smoke SSR aprovados. QA Chrome/API simulada: 320 cen�
 140 capturas, 320/390/768/1440 claro/escuro ADMIN/CORRETOR, sem erros JS, chamadas inesperadas
 ou overflow horizontal. Revisões estáticas e correções verificadas. Índice staged preservado;
 sem suite rastreada nova, dependências, backend/dados/migrations ou commit/push/deploy.
+
+## 14. Refinamento autorizado de contatos, perfil e filtros — 06/10/2026
+
+O plano aprovado em `2026-10-06-refinamentos-sistema.md` substitui, neste escopo, as restrições e layouts
+dos snapshots anteriores. API também autorizada; identidade azul/dourado, fontes e escala preservadas.
+
+- Seletor: lista por conteúdo limitada à janela; largura base 220px. Não partir palavras; conteúdo longo
+  quebra entre palavras. Preservar teclado, foco, Esc e posicionamento acima/abaixo.
+- Contatos: lista de largura inteira, abas Pendentes (inicial), Atendidos e Finalizados. Filtros comuns;
+  páginas independentes, CSV da página, mensagens e fichas. WhatsApp com SVG/texto; edição/atendimento
+  em grupo compacto, na mesma linha em containers amplos. Sem nomes de ação partidos.
+- Perfil: Dados e foto / Segurança em duas colunas quando principal >=58rem, uma coluna abaixo.
+  Métricas em faixa de três itens a partir de 38rem. Dados unificados, foto 80px e formulários independentes.
+- Enviar foto / Usar URL, prévia/substituição/remoção pendentes até Salvar perfil; guarda/busy incluem
+  arquivo. JPG/PNG/WebP até 30 MiB antes de compressão; API limita a 10 MiB e valida assinatura/origem.
+- Filtros existentes: seleções/datas/registros/abas imediatos; digitação após 350 ms. Buscar/Enter
+  antecipam sem duplicar. Erros conservam último resultado válido; chips/limpeza são imediatos.
+  Público: rascunho controlado, URL/SSR, replace automático, histórico da paginação e foco/scroll estáveis.
+
+Typecheck, lint, builds, 21 testes e smoke SSR aprovados; QA Chrome simulado 23 cenários/32 capturas
+em 320/390/768/1440, claro/escuro, sem overflow. Upload HTTP simulado e R2 temporário real verificados
+separadamente; perfil real no Neon, Safari/iOS e aparelho físico ainda sem homologação.
+System Design: seis páginas verificadas, original do template preservado. Sem publicação/migrations.

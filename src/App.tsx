@@ -141,8 +141,8 @@ export function AppRoutes() {
       <Suspense fallback={<EstadoCarregamento carregando />}>
         <Routes>
           <Route element={<LayoutPublico />}>
-            <Route index element={publica(<Catalogo key={location.pathname + location.search} />)} />
-            {caminhosCatalogo.filter((caminho) => caminho !== '/').map((caminho) => <Route key={caminho} path={caminho} element={publica(<Catalogo key={location.pathname + location.search} />)} />)}
+            <Route index element={publica(<Catalogo />)} />
+            {caminhosCatalogo.filter((caminho) => caminho !== '/').map((caminho) => <Route key={caminho} path={caminho} element={publica(<Catalogo />)} />)}
             <Route path="imoveis/:slug" element={publica(<DetalheImovel key={location.pathname} />)} />
             <Route path="privacidade" element={publica(<Privacidade />)} />
             <Route path="devs" element={publica(<Devs />)} />

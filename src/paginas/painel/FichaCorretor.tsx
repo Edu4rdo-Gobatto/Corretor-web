@@ -1,3 +1,4 @@
+import { urlFotoCorretor } from '../../servicos/fotos';
 import { useCallback, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { api } from '../../servicos/api';
@@ -62,7 +63,7 @@ export default function FichaCorretor() {
     {!consulta.carregando && !consulta.erro && !item && <Aviso>Corretor indisponível.</Aviso>}
     {item && !consulta.carregando && !consulta.erro && <section className={estilos.painel}>
       <h2 className={estilos.tituloPainel}>Dados do corretor</h2>
-      {item.url_foto && item.url_foto !== fotoQuebrada && <img src={item.url_foto} alt={`Foto de ${item.nome}`} className="mb-5 h-24 w-24 rounded-full object-cover" onError={() => setFotoQuebrada(item.url_foto ?? undefined)} />}
+      {item.url_foto && item.url_foto !== fotoQuebrada && <img src={urlFotoCorretor(item)} alt={`Foto de ${item.nome}`} className="mb-5 h-24 w-24 rounded-full object-cover" onError={() => setFotoQuebrada(item.url_foto ?? undefined)} />}
       <dl className="ficha-dados"><div><dt>Nome</dt><dd>{item.nome}</dd></div><div><dt>WhatsApp</dt><dd>{item.whatsapp}</dd></div><div><dt>CRECI</dt><dd>{item.creci || 'Não informado'}</dd></div>
         {completo && <><div><dt>E-mail</dt><dd>{completo.email}</dd></div><div><dt>CPF</dt><dd>{completo.cpf || 'Não informado'}</dd></div><div><dt>Permissão</dt><dd>{completo.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'}</dd></div><div><dt>Situação</dt><dd>{completo.ativo ? 'Ativo' : 'Inativo'}</dd></div></>}
       </dl>
