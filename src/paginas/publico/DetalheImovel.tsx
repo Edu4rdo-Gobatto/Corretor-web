@@ -25,7 +25,7 @@ function Semelhantes({ atual }: { atual: Imovel }) {
       if (cancelado) return;
       const proximos = semAtual(pagina.itens);
       if (proximos.length >= 3) { setItens(proximos.slice(0, 3)); return; }
-      api.listarImoveis({ pagina: 1, limite: 4, tipo })
+      api.listarImoveis({ pagina: 1, limite: 4, tipos: tipo ? [tipo] : undefined })
         .then((reserva) => { if (!cancelado) setItens([...proximos, ...semAtual(reserva.itens).filter((item) => !proximos.some((existente) => existente.id === item.id))].slice(0, 3)); })
         .catch(() => { if (!cancelado) setItens(proximos.slice(0, 3)); });
     }).catch(() => undefined);

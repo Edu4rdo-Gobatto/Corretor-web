@@ -104,7 +104,7 @@ export default function Dialogo({ titulo, aoFechar, children, tamanho = 'medio',
         if (evento.clientX < area.left || evento.clientX > area.right || evento.clientY < area.top || evento.clientY > area.bottom) solicitarFechamento();
       }}>
       <div className={`flex flex-col ${telaInteira ? 'h-full' : 'max-h-[min(90dvh,960px)]'}`}>
-        <div className="flex shrink-0 items-start justify-between gap-4 px-8 pb-4 pt-7 max-[520px]:[.painel-ui_&]:px-[22px] max-[520px]:[.painel-ui_&]:pt-5">
+        <div className="flex shrink-0 items-start justify-between gap-4 px-8 pb-4 pt-7 max-[520px]:px-[22px] max-[520px]:[.painel-ui_&]:pt-5">
           <h2 id={idTitulo} className="dialogo-titulo">{titulo}</h2>
           <button type="button" className="buttonGhost dialogo-fechar" aria-label="Fechar" disabled={ocupado} onClick={solicitarFechamento}><IconeFechar size={22} /></button>
         </div>

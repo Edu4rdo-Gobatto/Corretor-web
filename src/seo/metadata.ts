@@ -19,7 +19,7 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
   const url = new URL(path, 'http://local');
   const catalogo = lerUrlCatalogo(path);
   const consulta = catalogo || { pagina: 1, limite: 9 };
-  const filtrado = Boolean(consulta.tipo || consulta.finalidade || consulta.cidade || consulta.bairro || consulta.valor_min !== undefined || consulta.valor_max !== undefined || consulta.area_min !== undefined || consulta.area_max !== undefined || consulta.ordenar);
+  const filtrado = Boolean(consulta.tipos?.length || consulta.finalidade || consulta.cidade || consulta.bairro || consulta.valor_min !== undefined || consulta.valor_max !== undefined || consulta.area_min !== undefined || consulta.area_max !== undefined || consulta.ordenar);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
   const caminhoCanonico = catalogo ? urlCatalogo(consulta) : url.pathname;
   let title = `Imóveis comerciais em ${brand.region.name} | ${brand.name}`;
@@ -32,7 +32,8 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
     { '@type': 'WebSite', '@id': `${config.siteUrl}/#website`, name: brand.name, url: config.siteUrl, inLanguage: 'pt-BR', publisher: { '@id': `${config.siteUrl}/#organization` } },
   );
   if (catalogo && filtrado) {
-    const tipo = consulta.tipo ? data.classificacoes?.tipos.find((item) => item.slug === consulta.tipo || String(item.id) === consulta.tipo)?.nome || 'Imóveis comerciais' : 'Imóveis comerciais';
+    const nomesTipos = (consulta.tipos ?? []).map((slug) => data.classificacoes?.tipos.find((item) => item.slug === slug || String(item.id) === slug)?.nome);
+    const tipo = nomesTipos.length && nomesTipos.every(Boolean) ? new Intl.ListFormat('pt-BR', { type: 'conjunction' }).format(nomesTipos as string[]) : 'Imóveis comerciais';
     const lugar = consulta.bairro && consulta.cidade ? `${consulta.bairro}, ${consulta.cidade}` : consulta.cidade || consulta.bairro || brand.region.name;
     title = `${tipo}${textoFinalidade(consulta.finalidade)} em ${lugar} | ${brand.name}`;
     description = `Confira ${tipo.toLowerCase()}${textoFinalidade(consulta.finalidade)} em ${lugar} e consulte valores e disponibilidade com o corretor.`;

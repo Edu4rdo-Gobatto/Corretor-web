@@ -124,7 +124,7 @@ export interface Sessao { token_acesso: string; tipo_token: 'Bearer'; corretor: 
 export interface ConsultaCatalogo {
   pagina: number;
   limite: number;
-  tipo?: string;
+  tipos?: string[];
   finalidade?: string;
   cidade?: string;
   bairro?: string;

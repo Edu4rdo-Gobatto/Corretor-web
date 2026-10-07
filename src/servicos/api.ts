@@ -105,13 +105,13 @@ export const api = {
 
   /** Catálogo público: tipo e finalidade chegam como slug e são resolvidos pelas classificações. */
   listarImoveis: async (consulta: ConsultaCatalogo): Promise<Pagina<Imovel>> => {
-    const codificada = consultaParaApi(consulta, consulta.tipo || consulta.finalidade ? await classificacoes() : { tipos: [], finalidades: [], caracteristicas: [] });
+    const codificada = consultaParaApi(consulta, consulta.tipos?.length || consulta.finalidade ? await classificacoes() : { tipos: [], finalidades: [], caracteristicas: [] });
     if (codificada === null) return { itens: [], total: 0, pagina: consulta.pagina, limite: consulta.limite, total_paginas: 0 };
     return http<Pagina<Imovel>>(`/imoveis?${codificada}`, {}, false);
   },
   listarFichas: (filtros: FiltrosImoveis) => {
-    const { tipo, finalidade, ...resto } = filtros;
-    return http<Pagina<FichaImovel>>(`/admin/imoveis?${montarParametros({ ...resto, tipo_id: tipo, finalidade_id: finalidade })}`);
+    const { tipos, finalidade, ...resto } = filtros;
+    return http<Pagina<FichaImovel>>(`/admin/imoveis?${montarParametros({ ...resto, tipo_id: tipos?.join(','), finalidade_id: finalidade })}`);
   },
   obterImovel: async (slug: string) => {
     if (!slugImovelValido(slug)) throw new ErroApi('Registro não encontrado.', 404);

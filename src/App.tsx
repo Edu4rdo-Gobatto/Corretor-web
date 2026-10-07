@@ -141,6 +141,7 @@ export function AppRoutes() {
       <Suspense fallback={<EstadoCarregamento carregando />}>
         <Routes>
           <Route element={<LayoutPublico />}>
+            {/* Sem key: trocar filtro não remonta o catálogo, então o foco e os seletores abertos continuam onde estão. */}
             <Route index element={publica(<Catalogo />)} />
             {caminhosCatalogo.filter((caminho) => caminho !== '/').map((caminho) => <Route key={caminho} path={caminho} element={publica(<Catalogo />)} />)}
             <Route path="imoveis/:slug" element={publica(<DetalheImovel key={location.pathname} />)} />

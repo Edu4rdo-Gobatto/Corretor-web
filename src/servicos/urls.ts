@@ -8,7 +8,7 @@ export const segmentosFinalidade: Record<string, string> = { locacao: 'para-alug
 const chavesLegadas: Record<string, string> = { SALA: 'sala-comercial', LOJA: 'loja', GALPAO: 'galpao', PREDIO: 'predio', TERRENO: 'terreno', LOCACAO: 'locacao', VENDA: 'venda' };
 const aliasesLegados: Record<string, string> = { type: 'tipo', purpose: 'finalidade', city: 'cidade', minPrice: 'preco-minimo', maxPrice: 'preco-maximo', page: 'pagina' };
 const parametrosCatalogo: Record<keyof Omit<ConsultaCatalogo, 'limite'>, string> = {
-  tipo: 'tipo', finalidade: 'finalidade', cidade: 'cidade', bairro: 'bairro', valor_min: 'preco-minimo', valor_max: 'preco-maximo',
+  tipos: 'tipo', finalidade: 'finalidade', cidade: 'cidade', bairro: 'bairro', valor_min: 'preco-minimo', valor_max: 'preco-maximo',
   area_min: 'area-minima', area_max: 'area-maxima', ordenar: 'ordenar', pagina: 'pagina',
 };
 const chavesInternas = new Set([...Object.keys(aliasesLegados), ...Object.values(parametrosCatalogo), 'limit', 'limite']);
@@ -34,10 +34,11 @@ export function lerUrlCatalogo(caminho: string): ConsultaCatalogo | null {
   for (const [antigo, novo] of Object.entries(aliasesLegados)) {
     if (parametros.has(antigo) && !parametros.has(novo)) parametros.set(novo, parametros.get(antigo)!);
   }
-  for (const campo of ['tipo', 'finalidade']) {
-    const valor = parametros.get(campo);
-    if (valor && chavesLegadas[valor]) parametros.set(campo, chavesLegadas[valor]);
-  }
+  const finalidadeLegada = parametros.get('finalidade');
+  if (finalidadeLegada && chavesLegadas[finalidadeLegada]) parametros.set('finalidade', chavesLegadas[finalidadeLegada]);
+  const tipos = parametros.getAll('tipo').flatMap((valor) => valor.split(',')).map((valor) => chavesLegadas[valor.trim()] ?? valor.trim());
+  parametros.delete('tipo');
+  for (const tipo of tipos) parametros.append('tipo', tipo);
   for (const segmento of pathname.split('/')) {
     const tipo = slugPorSegmento(segmentosTipo, segmento);
     const finalidade = slugPorSegmento(segmentosFinalidade, segmento);
@@ -48,11 +49,18 @@ export function lerUrlCatalogo(caminho: string): ConsultaCatalogo | null {
 }
 
 export function urlCatalogo(consulta: Partial<ConsultaCatalogo> = {}, extras = new URLSearchParams()): string {
-  const segmentos = [consulta.finalidade && segmentosFinalidade[consulta.finalidade], consulta.tipo && segmentosTipo[consulta.tipo]].filter(Boolean);
+  // Só um tipo com nome amigável vira segmento; vários tipos seguem como ?tipo=a&tipo=b.
+  // Ordenados como na leitura: uma URL fora de ordem seria normalizada por redirecionamento e remontaria a página.
+  const tipos = [...new Set(consulta.tipos ?? [])].sort();
+  const tipoSegmento = tipos.length === 1 ? segmentosTipo[tipos[0]] : undefined;
+  const segmentos = [consulta.finalidade && segmentosFinalidade[consulta.finalidade], tipoSegmento].filter(Boolean);
   const caminho = segmentos.length ? `/imoveis/${segmentos.join('/')}` : '/';
   const parametros = new URLSearchParams();
   for (const [campo, nome] of Object.entries(parametrosCatalogo) as [keyof typeof parametrosCatalogo, string][]) {
-    if (campo === 'tipo' && consulta.tipo && segmentosTipo[consulta.tipo]) continue;
+    if (campo === 'tipos') {
+      if (!tipoSegmento) for (const tipo of tipos) parametros.append(nome, tipo);
+      continue;
+    }
     if (campo === 'finalidade' && consulta.finalidade && segmentosFinalidade[consulta.finalidade]) continue;
     const valor = consulta[campo];
     if (valor === undefined || valor === '' || (campo === 'pagina' && valor === 1) || (campo === 'ordenar' && valor === 'recentes')) continue;
