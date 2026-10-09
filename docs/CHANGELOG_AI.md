@@ -1,5 +1,44 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-09 — Codex: ações de tabela sem quebra no desktop
+
+- Corrigido `Tabela.tsx`: células de ações desktop agora usam largura baseada no conteúdo, `whitespace-nowrap`, `flex-nowrap` e `min-w-max` a partir de 40rem; cartões mobile continuam flexíveis.
+- Removida a largura fixa `@min-[58rem]/tabela:min-w-[12rem]` da coluna de ações de `Contatos.tsx`, que fazia a quarta ação cair para uma segunda linha.
+- Validação: quatro ícones em uma linha a 1440px, sem overflow; cartões mobile conferidos a 390px. `npm run typecheck`, `npm run lint`, `npm test` (3 arquivos/23 testes) e `npm run build` aprovados. Avisos existentes de PURE do Zod e chunk cliente acima de 500kB permanecem.
+- Sem alterações de API, dados, permissões, dependências, commit, push ou deploy.
+
+## 2026-10-09 — Codex: padronização integral do painel
+
+- Plano autorizado pelo dono: todas as telas existentes como referências, acabamento comum no painel inteiro e entrega local. Alterações anteriores da ficha de imóvel/documentação preservadas; implementação delegada por arquivos, integração e QA pelo agente principal.
+- Novo `src/componentes/BlocosPainel.tsx`: seções com títulos externos associados, superfícies, grades alinhadas por subgrid e pares de dados/links. `global.css` e `estilosPainel.ts`: espaçamento 16px, padding 16–20px, grades de container 44/70rem, borda dourada/sombra discreta e classes de busca/chips/contagens/estados. `Tabela`, `Aviso`, `EstadoCarregamento`, `Paginacao`: acabamento comum com escopo administrativo.
+- Visão geral, Imóveis, Contatos, Pessoas, Contratos, Comissões e Cadastros: cabeçalhos/indicadores/filtros coerentes e ações rápidas com ícones. Corretores já usa os componentes compartilhados; não precisou de alteração local. Fichas Pessoa/Corretor/Classificação/Contrato/Comissão e Imóvel usam blocos externos preservando campos, links, tabelas e permissões.
+- Perfil, FormularioImovel e editores Pessoa/Corretor/Classificação/Comissão: títulos externos e espaçamento, preservando âncoras, guardas, grupos recolhíveis, schemas, seleções e forms de perfil/senha independentes. Entrar recebeu escala/controles do painel na área do formulário. Título do diálogo e ações financeiras conservam texto e comportamento.
+- Revisão independente levou a preservar alvo 44px dos chips e unificar a grade das métricas do Perfil. Conferência visual corrigiu a especificidade para remover divisórias/padding desigual em dados com duas colunas e eliminou ouro/sombra duplicados nas tabelas dentro de superfícies. Guardas das ações de Pessoa/Contrato conferidas: dados derivados já ficam nulos em carga/erro, sem exposição de registros antigos.
+- Typecheck, lint, build e 23 testes existentes (3 arquivos) aprovados no estado final; `git diff --check` aprovado. Avisos conhecidos de PURE do Zod e chunk cliente de 505,56kB acima de 500kB mantidos, sem impedir geração. Smoke SSR efêmero aprovado: metadados, paginação, 404, discovery, proxy streaming/cookies, runtime Vercel e indisponibilidade/recuperação pública; expectativa de h1 atualizada somente na cópia ignorada, sem alterar suíte rastreada.
+- QA final Chromium/API simulada: 270 cenários de listas/fichas/grades (ADMIN/CORRETOR, claro/escuro, 320/390/1024/1440/1920 e textos longos/arquivado/quebra de títulos), 49 de formulários/login/estados e 5 fluxos de vazio/erro/recuperação/Esc/paleta/menu. Regressão da ficha aprovada: 28 cenários + 2 fluxos novamente aprovados, topos/bases com desvio 0px, título externo, galeria compacta e consulta sem permissão. Sem overflow, erros JS ou chamadas inesperadas. Capturas selecionadas claras/escuras e mobile/desktop inspecionadas.
+- Falhas iniciais de QA eram expectativas do harness: estados vazios diferentes com/sem filtro, mensagem genérica para erro500, redirecionamento ao editar após criação e campos/checkbox exigidos pelas validações existentes. Harness ignorado corrigido e fluxos repetidos; diagnósticos preservados. Evidência consolidada em `artifacts/painel-padrao-2026-10-09/resultados-finais.json`; regressão do imóvel em `artifacts/imovel-alinhamento-2026-10-09`. Nenhuma suíte nova rastreada.
+- AGENTS, PROJECT_STATUS, TASKS, DECISIONS, CHANGELOG_AI e índice atualizados sem apagar histórico; entrega detalhada em `2026-10-09-padronizacao-painel.md`. Sem dependências, API/tipos/banco, commit/push/deploy ou gravação real. API simulada não homologa login, Drive/R2/pagamentos reais, vídeo real, Safari/iOS ou dispositivo físico.
+
+## 2026-10-09 — Codex: títulos acima e alinhamento dos cards de imóvel
+
+- Plano autorizado após revisão visual do dono: títulos externos e mesma altura por linha, substituindo a apresentação da primeira versão sem remover seu histórico.
+- `FichaImovel.tsx`: seção externa `.imovel-bloco`, h2 associado por `useId`/`aria-labelledby` e superfície `.imovel-nota` apenas para conteúdo.
+- `global.css`: stretch/subgrid para compartilhar linhas de títulos e superfícies; seletores da galeria adaptados. Mantidos containers, larguras, descrição e escala tipográfica, sem alturas fixas/cortes nos cards.
+- Ficha interna movida antes da Descrição no DOM para preencher a linha de Pessoas em duas colunas, sem CSS dense ou divergência da ordem de leitura/teclado. QA inicial identificou que as utilities do componente compartilhado venciam as dimensões locais da galeria; apenas seus dois seletores locais passaram a `@layer utilities`, com foto até 380px e miniaturas 80×56.
+- AGENTS, PROJECT_STATUS, TASKS e DECISIONS atualizados, preservando o histórico. Typecheck, lint, build e 23 testes existentes aprovados após o ajuste da ordem; build novamente aprovado após a correção de camada CSS. Avisos existentes de PURE do Zod e chunk acima de 500kB não impediram geração.
+- QA final Chromium/API simulada: 28 cenários (24 de normal/textos longos e arquivado/campos ausentes, em 390/1000/1440/1920px e dois temas; 4 de quebra de título forçada apenas no DOM) e 2 fluxos de consulta sem permissão/Esc aprovados. Títulos externos e associados, topos/bases alinhados com desvio 0px, ausência de overflow e células vazias intermediárias; galeria até 380px e miniaturas 80×56 confirmadas. Ampliação/Esc, seleção/renderização de vídeo, links e ausência de ações de edição/arquivamento de outro corretor verificadas; sem erros JavaScript. Capturas desktop/mobile revisadas; resultados e harness ignorados em `artifacts/imovel-alinhamento-2026-10-09`. Primeira rodada preservada apenas como diagnóstico em resultados-primeira.json.
+- Limites: API/dados simulados; vídeo conferido por seleção/renderização, sem reprodução de arquivo real. Integração real e Safari/iOS não homologados.
+- Sem novas suítes, dependências, API/banco, commit, push ou deploy.
+
+## 2026-10-09 — Codex: ficha do imóvel estilo post-it
+
+- Plano autorizado implementado em `src/paginas/painel/FichaImovel.tsx`: galeria e resumo, notas de características com ícones/áreas, localização, pessoas, descrição, ficha interna e observações. Campos e valores originais preservados, incluindo nomes/valores exatos das características destacadas.
+- `src/styles/global.css`: estilos exclusivos `.imovel-*`, espaçamento de 16px, padding 16–20px, containers nomeados e galeria compacta sem alterar o componente compartilhado. Descrição ocupa duas colunas quando possível; ficha interna adapta os campos à largura da nota.
+- AGENTS, PROJECT_STATUS, TASKS e DECISIONS atualizados, preservando os registros anteriores.
+- Validação: typecheck, lint, build e testes existentes aprovados (3 arquivos/23 testes). Build manteve avisos de anotação PURE do Zod e chunk acima de 500 kB, sem impedir geração.
+- QA efêmero Chrome/Chromium com API simulada: 24 cenários (390/1000/1440/1920px, claro/escuro, normal/textos longos e imóvel arquivado/campos ausentes e sem fotos). Grades de 1/2/3 colunas sem transbordamento nos cards; ampliação/Esc, seleção de vídeo, links e consulta sem permissão verificadas. Capturas/resultados em `artifacts/imovel-notas-2026-10-09` (ignorado). Ajuste final de compactação da ficha interna seguido de novo build e QA: todos os 24 cenários aprovados novamente; capturas desktop/mobile revisadas. Reinício do QA com Chromium foi necessário após demora na abertura do Chrome; sem alteração no produto para esse contorno.
+- Sem novas suítes, dependências, API, banco, commit, push ou deploy. Integração real, reprodução de vídeo real e Safari/iOS não homologados.
+
 ## 2026-10-09 — Ações de lista padronizadas só com ícone (pedido do dono)
 
 - `src/paginas/painel/FichaPessoa.tsx`: WhatsApp da ficha virou `AcaoIcone` (href `wa.me`, `target _blank`,

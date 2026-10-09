@@ -18,7 +18,7 @@ import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
 import AcaoIcone from '../../componentes/AcaoIcone';
-import { IconeBuscar, IconeSalvar } from '../../componentes/Icones';
+import { IconeAdicionar, IconeBuscar, IconeSalvar } from '../../componentes/Icones';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import Campo from '../../componentes/Campo';
@@ -93,14 +93,14 @@ export default function Contratos() {
   useAcoesPainel(useMemo(() => [{ id: 'novo-contrato', rotulo: 'Novo contrato', executar: () => setCriando(true), palavrasChave: 'locação aluguel' }], []));
   function aplicar(evento: FormEvent) { evento.preventDefault(); aplicarAgora(); }
   return <>
-    <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<button className="button" onClick={() => setCriando(true)}>Novo contrato</button>} />
+    <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo contrato" aoClicar={() => setCriando(true)} />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
-      <label>Buscar<input data-busca-painel value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Número, imóvel ou inquilino" /></label>
+      <label className="busca-painel">Buscar<input data-busca-painel value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Número, imóvel ou inquilino" /></label>
       <SeletorFiltro rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
       <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" /></div>
     </form>
-    <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
+    <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && (
       <section>
         <Tabela<Contrato> itens={dados.itens} chave={(contrato) => contrato.id} vazio="Nenhum contrato encontrado." rotulo="Contratos" linkLinha={(contrato) => `/admin/contratos/${contrato.id}`} colunas={[

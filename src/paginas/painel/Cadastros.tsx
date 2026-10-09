@@ -41,7 +41,7 @@ export default function Cadastros() {
   if (!admin) return <Navigate to="/admin" replace />;
   return <>
     <CabecalhoPagina titulo="Cadastros de imóveis" descricao="Tipos, finalidades e características usados nos anúncios." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo" contexto="cadastro" aoClicar={() => setEditando(null)} />} />
-    <SeletorFiltro classe="mb-6 max-w-xs" rotulo="Categoria" valor={categoria} opcoes={Object.entries(CATEGORIAS).map(([valor, rotulo]) => ({ valor: valor as CategoriaClassificacao, rotulo }))} aoMudar={(valor) => { setCategoria(valor); setPagina(1); }} />
+    <div className={estilos.barraFiltros}><SeletorFiltro rotulo="Categoria" valor={categoria} opcoes={Object.entries(CATEGORIAS).map(([valor, rotulo]) => ({ valor: valor as CategoriaClassificacao, rotulo }))} aoMudar={(valor) => { setCategoria(valor); setPagina(1); }} /></div>
     <EstadoCarregamento compacto carregando={carregando} erro={erroCarga} tentarNovamente={recarregar} />
     {erro && !confirmando && <Aviso tom="erro">{erro}</Aviso>}
     {dados && !erroCarga && !carregando && (

@@ -14,6 +14,7 @@ import Dialogo from '../../componentes/Dialogo';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Campo from '../../componentes/Campo';
 import Aviso from '../../componentes/Aviso';
+import { SecaoPainel } from '../../componentes/BlocosPainel';
 import { estilos } from '../../componentes/estilosPainel';
 
 const texto = (maximo: number) => z.string().trim().max(maximo, `Use no máximo ${maximo} caracteres.`);
@@ -99,7 +100,8 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
   return (
     <Dialogo titulo={pessoa ? 'Editar pessoa' : 'Nova pessoa'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting} fecharAoClicarFora aoFechar={aoFechar}>
       <form noValidate onSubmit={handleSubmit(salvar)} className={estilos.formulario}>
-        <fieldset disabled={isSubmitting} className="m-0 border-0 p-0">
+        <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
+          <SecaoPainel titulo="Dados e atendimento" classeConteudo="@container">
           <div className={estilos.grade}>
             {campo('nome', 'Nome / razão social *')}
             {campo('telefone', 'Telefone com DDD *', 'tel')}
@@ -113,15 +115,18 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
             <Campo classe={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'} rotulo="Situação do contato" erro={errors.status_contato?.message} dica={finalizadoBloqueado ? 'Somente um administrador pode reabrir este atendimento.' : undefined}><select {...register('status_contato')}>{Object.entries(rotulosStatusContato).filter(([valor]) => !finalizadoBloqueado || valor === 'FINALIZADO').map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
             {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></Campo>}
           </div>
-          <details className="mt-5">
-            <summary className="cursor-pointer font-semibold">Dados bancários (proprietários)</summary>
-            <div className={`${estilos.grade} mt-3`}>{campo('banco_nome', 'Banco')}{campo('banco_agencia', 'Agência')}{campo('banco_conta', 'Conta')}{campo('chave_pix', 'Chave Pix')}</div>
+          </SecaoPainel>
+          <details className="min-w-0">
+            <summary className="cursor-pointer font-display text-[22px] leading-[1.3]">Dados bancários (proprietários)</summary>
+            <div className="superficie-painel @container mt-4"><div className={estilos.grade}>{campo('banco_nome', 'Banco')}{campo('banco_agencia', 'Agência')}{campo('banco_conta', 'Conta')}{campo('chave_pix', 'Chave Pix')}</div></div>
           </details>
-          <div className={`${estilos.grade} mt-5`}>
+          <SecaoPainel titulo="Anotações do atendimento" classeConteudo="@container">
+          <div className={estilos.grade}>
             <Campo classe="col-span-full" rotulo="Mensagem do primeiro contato" erro={errors.mensagem?.message}><textarea rows={2} {...register('mensagem')} /></Campo>
             <Campo classe="col-span-full" rotulo="Observações" erro={errors.observacoes?.message}><textarea rows={3} {...register('observacoes')} placeholder="Anotações do atendimento, preferências, próximos passos." /></Campo>
             {pessoa && <label className="col-span-full flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Cadastro ativo</label>}
           </div>
+          </SecaoPainel>
         </fieldset>
         <p className={estilos.dica}>O cadastro manual não registra consentimento do site.</p>
         {erro && <Aviso tom="erro">{erro}</Aviso>}

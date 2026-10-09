@@ -138,6 +138,70 @@ label input, label select, label textarea { margin-top: 6px; }
 .painel-ui .ficha-dados dt { margin-bottom: 5px; font-size: 16px; color: var(--color-muted); font-weight: 600; }
 .painel-ui .ficha-dados dd { margin: 0; overflow-wrap: anywhere; }
 .painel-ui .ficha-acoes { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 12px; }
+/* Vocabulário visual do painel: títulos externos e superfícies, sem afetar o público. */
+.painel-ui .grade-painel-container { container: grade-painel / inline-size; min-width: 0; }
+.painel-ui .grade-painel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.painel-ui .bloco-painel { display: grid; grid-template-rows: auto 1fr; gap: 16px; min-width: 0; }
+.painel-ui .grade-painel > .bloco-painel { grid-row: span 2; grid-template-rows: subgrid; }
+.painel-ui .bloco-painel-cabecalho { display: flex; flex-wrap: wrap; align-items: start; gap: 12px; min-width: 0; }
+.painel-ui .bloco-painel-cabecalho h2 { margin: 0; font-size: 22px; line-height: 1.3; overflow-wrap: anywhere; }
+.painel-ui .superficie-painel { container: superficie-painel / inline-size; min-width: 0; padding: 16px; border: 1px solid var(--color-line); border-top: 3px solid var(--color-gold); border-radius: 5px; background: var(--color-paper); box-shadow: 0 3px 10px color-mix(in srgb, var(--color-navy-deep) 10%, transparent); overflow-wrap: anywhere; }
+.painel-ui .dados-ficha-painel { display: grid; gap: 12px; margin: 0; }
+.painel-ui .dados-ficha-painel > div + div { border-top: 1px solid var(--color-line); padding-top: 10px; }
+.painel-ui .dados-ficha-painel dt { margin: 0; color: var(--color-muted); font-size: 16px; font-weight: 600; }
+.painel-ui .dados-ficha-painel dd { min-width: 0; margin: 3px 0 0; overflow-wrap: anywhere; }
+.painel-ui .indicador-painel { min-width: 0; }
+.painel-ui .indicador-painel strong { font-size: 22px; color: var(--color-ink); }
+.painel-ui .indicador-painel p { margin-bottom: 0; }
+.painel-ui .contagem-painel { margin: 0 0 16px; font-size: 16px; color: var(--color-muted); }
+.painel-ui .busca-painel { flex: 1 1 22rem; min-width: 0; }
+.painel-ui .chip-filtro-painel { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; max-width: 100%; border: 1px solid var(--color-line); border-radius: 10px; background: var(--color-soft); padding: 6px 10px; color: var(--color-ink); font-size: 16px; overflow-wrap: anywhere; }
+.painel-ui .chip-filtro-painel svg { width: 16px; height: 16px; flex-shrink: 0; }
+@container principal (min-width: 44rem) {
+  .painel-ui .superficie-painel { padding: 20px; }
+}
+@container grade-painel (min-width: 44rem) {
+  .painel-ui .grade-painel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .painel-ui .bloco-painel-amplo { grid-column: span 2; }
+}
+@container grade-painel (min-width: 70rem) {
+  .painel-ui .grade-painel:not(.grade-painel-dupla) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container superficie-painel (min-width: 24rem) {
+  .painel-ui .dados-ficha-painel-dupla { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .painel-ui .dados-ficha-painel-dupla > div, .painel-ui .dados-ficha-painel-dupla > div + div { border-top: 0; padding-top: 0; }
+}
+/* Notas da ficha de imóvel: container próprio, sem alterar as demais fichas. */
+.painel-ui .imovel-ficha { container: ficha-imovel / inline-size; min-width: 0; }
+.painel-ui .imovel-ficha-topo, .painel-ui .imovel-ficha-notas { display: grid; grid-template-columns: minmax(0, 1fr); align-items: stretch; gap: 16px; }
+.painel-ui .imovel-ficha-notas { margin-top: 16px; }
+.painel-ui .imovel-bloco { display: grid; grid-template-rows: subgrid; grid-row: span 2; min-width: 0; }
+.painel-ui .imovel-bloco > h2 { align-self: start; min-width: 0; margin: 0; font-size: 22px; line-height: 1.3; overflow-wrap: anywhere; }
+.painel-ui .imovel-nota { container: nota-imovel / inline-size; min-width: 0; padding: 16px; border: 1px solid var(--color-line); border-top: 3px solid var(--color-gold); border-radius: 5px; background: var(--color-paper); box-shadow: 0 3px 10px color-mix(in srgb, var(--color-navy-deep) 10%, transparent); overflow-wrap: anywhere; }
+.painel-ui .imovel-nota-dados { display: grid; gap: 12px; margin-bottom: 0; }
+.painel-ui .imovel-nota-dados > div + div { border-top: 1px solid var(--color-line); padding-top: 10px; }
+.painel-ui .imovel-nota :is(dt, dd) { margin: 0; min-width: 0; }
+.painel-ui .imovel-nota dt { color: var(--color-muted); font-size: 16px; font-weight: 600; }
+.painel-ui .imovel-nota-dados dd { margin-top: 3px; }
+.painel-ui .imovel-nota-valores > div:nth-child(3) dd, .painel-ui .imovel-nota-valores > div:nth-child(4) dd { font-size: 22px; font-weight: 600; color: var(--color-ink); }
+.painel-ui .imovel-nota-destaques { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.painel-ui .imovel-nota-destaques > div { min-width: 0; padding: 12px; border-radius: 3px; background: var(--color-soft); }
+.painel-ui .imovel-nota-destaques svg { width: 22px; height: 22px; margin-bottom: 6px; color: var(--color-ink); }
+.painel-ui .imovel-nota-destaques dd { font-size: 22px; font-weight: 600; }
+.painel-ui .imovel-nota-texto { margin: 0; white-space: pre-wrap; }
+@container ficha-imovel (min-width: 44rem) {
+  .painel-ui .imovel-ficha-topo { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .painel-ui .imovel-ficha-notas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .painel-ui .imovel-nota { padding: 20px; }
+  .painel-ui .imovel-nota-descricao { grid-column: span 2; }
+}
+@container ficha-imovel (min-width: 70rem) {
+  .painel-ui .imovel-ficha-notas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container nota-imovel (min-width: 20rem) {
+  .painel-ui .imovel-nota-interna .imovel-nota-dados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .painel-ui .imovel-nota-interna .imovel-nota-dados > div { border-top: 0; padding-top: 0; }
+}
 .painel-ui .indicadores-painel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 @container (min-width: 38rem) {
   .painel-ui .ficha-dados, .painel-ui .indicadores-painel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -146,6 +210,17 @@ label input, label select, label textarea { margin-top: 6px; }
 .painel-ui .paleta-opcoes [role=option] { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--color-ink); font-size: 18px; text-align: left; cursor: pointer; }
 .painel-ui .paleta-opcoes [aria-selected=true], .painel-ui .paleta-opcoes [role=option]:hover { background: var(--color-soft); }
 
+}
+
+/* Na mesma camada das classes de GaleriaMidia, para o tamanho local prevalecer. */
+@layer utilities {
+  .painel-ui .estado-painel { margin-block: 16px; border: 1px solid var(--color-line); border-radius: 5px; background: var(--color-paper); padding: 24px 16px; }
+  .painel-ui .aviso-painel { border-radius: 5px; font-size: 16px; }
+  .painel-ui .paginacao-painel { margin-top: 16px; font-size: 16px; }
+  .painel-ui .superficie-painel > .tabela-painel > .superficie-tabela-painel,
+  .painel-ui .superficie-painel > .tabela-painel > ul > .cartao-tabela { border-top-width: 1px; border-top-color: var(--color-line); box-shadow: none; }
+  .painel-ui .imovel-nota-galeria > .imovel-nota > div > [role=region] { height: clamp(220px, 52cqi, 380px); }
+  .painel-ui .imovel-nota-galeria > .imovel-nota > div > div:not([role=region]) > button[aria-pressed] { width: 80px; height: 56px; }
 }
 
 /* Preserve the site grid against Tailwind native container widths. */

@@ -21,11 +21,11 @@ export default function EstadoCarregamento({ carregando, erro, tentarNovamente, 
         </div>
       );
     }
-    return <div className={`${espaco} text-center text-muted [&_svg]:mx-auto [&_svg]:mb-3`} role="status"><IconeCarregando aria-hidden="true" className="animate-spin motion-reduce:animate-none" /><p className="mb-0">Carregando…</p></div>;
+    return <div className={`estado-painel ${espaco} text-center text-muted [&_svg]:mx-auto [&_svg]:mb-3`} role="status"><IconeCarregando aria-hidden="true" className="animate-spin motion-reduce:animate-none" /><p className="mb-0">Carregando…</p></div>;
   }
   if (erro) {
     return (
-      <div className={`${espaco} text-center text-muted [&_svg]:mx-auto [&_svg]:mb-3`} role="alert">
+      <div className={`estado-painel ${espaco} text-center text-muted [&_svg]:mx-auto [&_svg]:mb-3`} role="alert">
         <IconeErro aria-hidden="true" /><p>{erro}</p>
         {tentarNovamente && <button className="buttonSecondary" onClick={tentarNovamente}>Tentar novamente</button>}
       </div>

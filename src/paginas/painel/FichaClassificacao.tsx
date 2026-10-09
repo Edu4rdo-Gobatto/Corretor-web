@@ -13,7 +13,7 @@ import Aviso from '../../componentes/Aviso';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
-import { estilos } from '../../componentes/estilosPainel';
+import { DadosFicha, DadoFicha, SecaoPainel } from '../../componentes/BlocosPainel';
 import { CATEGORIAS, EditorClassificacao } from './EditorClassificacao';
 
 export default function FichaClassificacao() {
@@ -44,9 +44,9 @@ export default function FichaClassificacao() {
     <CabecalhoPagina voltar={{ to: '/admin/cadastros', rotulo: 'Voltar para cadastros' }} titulo={item?.nome ?? 'Cadastro'} descricao={categoria ? CATEGORIAS[categoria] : undefined} acoes={item && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={item.nome} desabilitado={ocupado} aoClicar={() => setEditando(true)} /><AcaoIcone icone={item.ativo ? IconeArquivar : IconeDesarquivar} rotulo={item.ativo ? 'Desativar' : 'Reativar'} contexto={item.nome} tom={item.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>} />
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !item && <Aviso>Cadastro indisponível.</Aviso>}
-    {item && !consulta.carregando && !consulta.erro && <section className={estilos.painel}><h2 className={estilos.tituloPainel}>Dados do cadastro</h2><dl className="ficha-dados">
-      <div><dt>Categoria</dt><dd>{categoria && CATEGORIAS[categoria]}</dd></div><div><dt>Nome</dt><dd>{item.nome}</dd></div><div><dt>Identificador no endereço</dt><dd>{item.slug || 'Não informado'}</dd></div><div><dt>Ícone</dt><dd>{item.icone || 'Não informado'}</dd></div><div><dt>Situação</dt><dd>{item.ativo ? 'Ativo' : 'Inativo'}</dd></div>
-    </dl></section>}
+    {item && !consulta.carregando && !consulta.erro && <SecaoPainel titulo="Dados do cadastro"><DadosFicha colunas={2}>
+      <DadoFicha rotulo="Categoria">{categoria && CATEGORIAS[categoria]}</DadoFicha><DadoFicha rotulo="Nome">{item.nome}</DadoFicha><DadoFicha rotulo="Identificador no endereço">{item.slug}</DadoFicha><DadoFicha rotulo="Ícone">{item.icone}</DadoFicha><DadoFicha rotulo="Situação">{item.ativo ? 'Ativo' : 'Inativo'}</DadoFicha>
+    </DadosFicha></SecaoPainel>}
     {item && categoria && editando && <EditorClassificacao key={`${categoria}-${item.id}`} categoria={categoria} item={item} aoFechar={() => setEditando(false)} aoSalvar={consulta.recarregar} />}
     {item && confirmando && <ConfirmarAcao titulo={`${item.ativo ? 'Desativar' : 'Reativar'} cadastro`} descricao={<><p>{item.nome}. {item.ativo ? 'Os vínculos existentes serão preservados.' : 'O cadastro voltará a aparecer nas seleções.'}</p>{erroAcao && <Aviso tom="erro">{erroAcao}</Aviso>}</>} confirmar={item.ativo ? 'Desativar cadastro' : 'Reativar cadastro'} perigo={item.ativo} ocupado={ocupado} aoConfirmar={alternar} aoFechar={() => setConfirmando(false)} />}
   </>;

@@ -11,7 +11,7 @@ const aparencias = {
 
 export default function Aviso({ tom = 'informacao', children, classe = '' }: { tom?: Tom; children: ReactNode; classe?: string }) {
   const { icone: Icone, classe: aparencia } = aparencias[tom];
-  return <div role={tom === 'erro' ? 'alert' : 'status'} className={`my-4 flex items-start gap-3 rounded-md border px-4 py-3 text-sm ${aparencia} ${classe}`}>
+  return <div role={tom === 'erro' ? 'alert' : 'status'} className={`aviso-painel my-4 flex items-start gap-3 rounded-md border px-4 py-3 text-sm ${aparencia} ${classe}`}>
     <Icone size={19} className="mt-0.5 shrink-0" aria-hidden="true" />
     <div className="min-w-0 flex-1 wrap-anywhere [&_p]:mb-0">{children}</div>
   </div>;

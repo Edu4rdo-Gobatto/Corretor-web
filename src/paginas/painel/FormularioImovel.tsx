@@ -21,6 +21,7 @@ import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { estilos } from '../../componentes/estilosPainel';
 import { prepararEnvio } from '../../componentes/prepararMidia';
+import { SecaoPainel } from '../../componentes/BlocosPainel';
 import FichaImovel from './FichaImovel';
 import { comClassificacoesDaFicha, dadosParaApi, esquemaImovel, estados, imovelVazio, valoresDaFicha, type ValoresImovel } from './esquemaImovel';
 import { chaveRascunho, gravarRascunho, lerRascunho, limparRascunho } from './rascunhoImovel';
@@ -196,7 +197,7 @@ function InstanciaFormulario() {
     <Campo rotulo={rotulo} erro={errors[nome]?.message}><input type="date" {...register(nome)} /></Campo>
   );
   const secao = (numero: string, titulo: string, conteudo: React.ReactNode, descricao?: string) => (
-    <section id={`imovel-secao-${numero}`} aria-labelledby={`imovel-titulo-${numero}`} className={`${estilos.painel} scroll-mt-28`}><h2 id={`imovel-titulo-${numero}`} className={estilos.tituloPainel}><span className="mr-2 text-sm font-sans font-semibold text-muted">{numero}</span>{titulo}</h2>{descricao && <p className="muted">{descricao}</p>}{conteudo}</section>
+    <SecaoPainel id={`imovel-secao-${numero}`} classe="scroll-mt-28" classeConteudo="@container" titulo={<><span className="mr-2 text-sm font-sans font-semibold text-muted">{numero}</span>{titulo}</>} descricao={descricao}>{conteudo}</SecaoPainel>
   );
   const avisoNavegacao = (typeof window !== 'undefined' ? (window.history.state as { usr?: { aviso?: string } } | null)?.usr?.aviso : undefined) ?? '';
 
@@ -217,8 +218,8 @@ function InstanciaFormulario() {
         {avisoNavegacao && !sucesso && <Aviso tom={avisoNavegacao.includes('falhou') ? 'atencao' : 'sucesso'} classe="mb-5">{avisoNavegacao}</Aviso>}
         {rascunhoRestaurado && <Aviso classe="mb-5">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</Aviso>}
         {avisoRascunho && <Aviso tom="atencao" classe="mb-5">{avisoRascunho}</Aviso>}
-        <nav aria-label="Seções do imóvel" className="mb-6 flex flex-wrap gap-2 border-b border-line pb-4">{['Apresentação', 'Valores e dimensões', 'Localização', 'Características', 'Fotos e vídeos', 'Ficha interna'].map((titulo, indice) => <a key={titulo} href={`#imovel-secao-${String(indice + 1).padStart(2, '0')}`} className="inline-flex min-h-11 items-center gap-2 rounded px-3 text-sm no-underline hover:bg-soft"><span className="text-xs text-muted">{String(indice + 1).padStart(2, '0')}</span>{titulo}</a>)}</nav>
-        <fieldset disabled={isSubmitting} className="m-0 min-w-0 border-0 p-0">
+        <nav aria-label="Seções do imóvel" className="mb-4 flex flex-wrap gap-2 border-b border-line pb-4">{['Apresentação', 'Valores e dimensões', 'Localização', 'Características', 'Fotos e vídeos', 'Ficha interna'].map((titulo, indice) => <a key={titulo} href={`#imovel-secao-${String(indice + 1).padStart(2, '0')}`} className="inline-flex min-h-11 items-center gap-2 rounded px-3 text-sm no-underline hover:bg-soft"><span className="text-xs text-muted">{String(indice + 1).padStart(2, '0')}</span>{titulo}</a>)}</nav>
+        <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
         {secao('01', 'Apresentação', <div className={estilos.grade}>
           <div className="col-span-full">{campoTexto('titulo', 'Título do anúncio *')}</div>
           <Campo rotulo="Tipo de imóvel" obrigatorio erro={errors.tipo_id?.message}><select {...register('tipo_id')}><option value="">Selecione</option>{classificacoes.tipos.filter((item) => item.ativo || item.id === imovel?.tipo_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
@@ -242,7 +243,7 @@ function InstanciaFormulario() {
         </div>)}
         {secao('04', 'Características', <>
           {caracteristicas.map((campo, indice) => (
-            <div key={campo.id} className="my-3 grid grid-cols-[minmax(0,1fr)_auto] gap-3 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+            <div key={campo.id} className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-4 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <Campo classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica" erro={errors.caracteristicas?.[indice]?.caracteristica_id?.message}><select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
               <Campo rotulo="Valor" erro={errors.caracteristicas?.[indice]?.valor?.message}><input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></Campo>
               <div className="flex items-end pb-1"><AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={`característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
@@ -267,7 +268,7 @@ function InstanciaFormulario() {
         </div>, 'Nada desta seção aparece no site.')}
         </fieldset>
         {erro && <Aviso tom="erro" classe="mb-5">{erro}</Aviso>}
-        <div className="sticky bottom-0 z-10 mt-7 flex flex-wrap items-center justify-between gap-4 rounded border border-line bg-paper px-5 py-4 shadow-lg">
+        <div className="superficie-painel sticky bottom-0 z-10 mt-4 flex flex-wrap items-center justify-between gap-4">
           <p role="status" className="m-0 min-w-0 flex-1 text-sm text-muted">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
           <div className="ml-auto flex flex-wrap items-center justify-end gap-3"><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
           <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link></div>

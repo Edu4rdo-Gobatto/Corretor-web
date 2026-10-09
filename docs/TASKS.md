@@ -1,5 +1,40 @@
 # Tarefas — corretor-web
 
+## TABELA-ACOES-DESKTOP-20261009 — Ícones de ações sem quebra
+
+- [x] Remover a largura fixa insuficiente da coluna de Contatos.
+- [x] Travar a linha de ações apenas na tabela desktop e manter cartões mobile flexíveis.
+- [x] Conferir Contatos com quatro ações, demais listas, 1440px e mobile 390px sem overflow.
+- [x] Executar typecheck, lint, testes e build.
+- Escopo local, visual e sem alterações de API, permissões, dados ou publicação.
+
+## PAINEL-PADRAO-20261009 — Acabamento comum em todas as telas
+
+- Responsável: Codex, com implementadores/revisão em arquivos separados. Plano autorizado pelo dono; implementação e validação local concluídas.
+- [x] Componentes de seção/superfície/grade/dados, títulos externos e alinhamento por linha; 44/70rem por container.
+- [x] Entrada, Visão geral, listas, todas as fichas, Perfil, formulários e diálogos adaptados preservando composições e controles existentes.
+- [x] Ícones de ações rápidas, texto nas confirmações/finanças, busca/chips/contagens/estados e tabelas/cartões coerentes.
+- [x] Esc, paleta, menu mobile, permissões, guardas dirty/busy, validação, banco recolhível e independência de perfil/senha conferidos com API simulada.
+- [x] Typecheck, lint, build, 23 testes existentes, smoke SSR e diff-check aprovados; QA efêmero sem suítes novas.
+- [x] 270 cenários de layout + 49 de formulários/login/estados + 5 fluxos; regressão do imóvel aprovado em 28 cenários + 2 fluxos. Histórico/contexto/índice atualizados.
+- Entrega local: sem commit/push/deploy, dependências ou alterações na API/banco. Homologação de integrações reais/Safari/iOS/dispositivo físico fora desta validação.
+
+## IMOVEL-ALINHAMENTO-20261009 — Revisão dos cards pelo dono
+
+- Responsável: Codex. Plano autorizado; implementação e validação local concluídas.
+- Títulos fora das superfícies; cards da mesma linha compartilham topo/base e altura, inclusive quando o título quebra.
+- Subgrid de título/conteúdo, estrutura acessível e seletores adaptados da galeria. Mantidos containers, descrição larga e consulta sem permissão.
+- Typecheck, lint, build e 23 testes existentes aprovados. QA efêmero em `artifacts/imovel-alinhamento-2026-10-09`: 28 cenários e 2 fluxos sem permissão/Esc aprovados; topo/base com desvio 0px, sem overflow. Títulos externos, quebra de títulos, galeria compacta e grade sem células vazias intermediárias conferidos; sem novas suítes.
+- Sem publicação, dependências ou alterações de API/dados; histórico da versão anterior preservado.
+
+## IMOVEL-NOTAS-20261009 — Ficha compacta estilo post-it
+
+- Responsável: Codex. Plano autorizado pelo dono; implementação local concluída.
+- Galeria com resumo ao lado; notas por assunto, descrição mais larga e campos internos compactos.
+- Preservados campos, links, ações, permissões e Esc; consulta na edição sem permissão incluída.
+- Typecheck, lint, build e testes existentes aprovados (3 arquivos/23 testes). QA visual efêmero com API simulada; sem novas suítes.
+- Sem publicação, dependências, mudanças de contrato, API ou dados. Homologação real e Safari/iOS não executados.
+
 ## 2026-10-08 — Codex: 404 da foto corrigido na implantação
 
 O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.

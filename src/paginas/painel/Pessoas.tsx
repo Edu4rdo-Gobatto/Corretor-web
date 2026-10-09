@@ -53,7 +53,7 @@ export default function Pessoas() {
   return <>
     <CabecalhoPagina titulo="Pessoas" descricao="Clientes, proprietários e inquilinos: uma pessoa, um cadastro." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Nova pessoa" aoClicar={() => setEditando(null)} />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
-      <label className="min-w-[min(100%,22rem)] flex-1">Buscar<input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou CPF/CNPJ" /></label>
+      <label className="busca-painel">Buscar<input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou CPF/CNPJ" /></label>
       <SeletorFiltro rotulo="Situação do contato" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusContato).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
       <div className={estilos.acoesFiltros}>
@@ -61,11 +61,11 @@ export default function Pessoas() {
         {filtrando && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais, true); }}>Limpar</button>}
       </div>
     </form>
-    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl border border-line bg-paper px-3 text-base text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={16} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="chip-filtro-painel" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={16} className="shrink-0" aria-hidden="true" /></button>)}</div>}
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && !carregando && (
       <section aria-label="Lista de pessoas">
-        <p role="status" className="mb-3 mt-0 text-base text-muted">{dados.total} {dados.total === 1 ? 'pessoa encontrada' : 'pessoas encontradas'}</p>
+        <p role="status" className="contagem-painel">{dados.total} {dados.total === 1 ? 'pessoa encontrada' : 'pessoas encontradas'}</p>
         <Tabela<Pessoa> itens={dados.itens} chave={(pessoa) => pessoa.id} vazio="Nenhuma pessoa encontrada. Ajuste a busca ou cadastre uma nova pessoa." rotulo="Pessoas" linkLinha={(pessoa) => `/admin/pessoas/${pessoa.id}`} colunas={[
           { titulo: 'Pessoa', celula: (pessoa) => <><Link to={`/admin/pessoas/${pessoa.id}`} className="font-semibold no-underline hover:underline">{pessoa.nome}</Link><small className="mt-1 flex flex-wrap gap-x-3 text-base text-muted"><span>#{pessoa.id}</span>{pessoa.tipo_pessoa && <span>{pessoa.tipo_pessoa}</span>}{pessoa.cpf_cnpj && <span>{formatarDocumento(pessoa.cpf_cnpj)}</span>}</small></> },
           { titulo: 'Contato', celula: (pessoa) => <>{pessoa.telefone || '—'}{pessoa.email && <small className="mt-1 block wrap-anywhere text-base text-muted">{pessoa.email}</small>}</> },

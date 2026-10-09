@@ -67,20 +67,20 @@ export default function Imoveis() {
   return <>
     <CabecalhoPagina titulo="Imóveis" descricao="Espaços bem apresentados, novas possibilidades." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
-      <label>Buscar<input value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Título, bairro, cidade ou #código" /></label>
+      <label className="busca-painel">Buscar<input value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Título, bairro, cidade ou #código" /></label>
       <SeletorFiltro rotulo="Situação do anúncio" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
       <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" />
       {(resumo.length > 0 || rascunho.busca || rascunho.status || rascunho.ativo === 'false') && <button type="button" className="buttonGhost" onClick={() => { setRascunho(filtrosIniciais, true); }}>Limpar</button>}</div>
     </form>
-    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded border border-line bg-paper px-3 text-sm text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={14} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="chip-filtro-painel" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={16} className="shrink-0" aria-hidden="true" /></button>)}</div>}
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && !carregando && (
       <section>
-        <p role="status" className="mb-4 mt-0 text-sm text-muted">{`${dados.total} ${dados.total === 1 ? 'imóvel encontrado' : 'imóveis encontrados'}`}</p>
+        <p role="status" className="contagem-painel">{`${dados.total} ${dados.total === 1 ? 'imóvel encontrado' : 'imóveis encontrados'}`}</p>
         {!dados.itens.length && !filtros.busca && !filtros.status && filtros.ativo === 'true'
-          ? <div className="px-5 py-10 text-center text-muted"><h2>Seu portfólio começa aqui.</h2><p>Cadastre o primeiro imóvel para apresentá-lo no site.</p><Link to="/admin/imoveis/novo" className="button">Cadastrar imóvel</Link></div>
+          ? <div className="estado-painel text-center text-muted"><h2 className="mb-3 text-[22px]">Seu portfólio começa aqui.</h2><p>Cadastre o primeiro imóvel para apresentá-lo no site.</p><Link to="/admin/imoveis/novo" className="button"><IconeAdicionar size={20} aria-hidden="true" />Cadastrar imóvel</Link></div>
           : <>
             <Tabela<FichaImovel> itens={itens} chave={(imovel) => imovel.id} linkLinha={(imovel) => `/admin/imoveis/${imovel.id}`} vazio="Nenhum imóvel encontrado com esses filtros." rotulo="Imóveis" colunas={[
               { titulo: 'Imóvel', celula: (imovel) => {

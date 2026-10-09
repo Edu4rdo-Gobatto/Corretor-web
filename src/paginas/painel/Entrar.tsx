@@ -11,6 +11,7 @@ import { brand } from '../../config/brand';
 import { mensagemErro } from '../../servicos/formato';
 import Campo from '../../componentes/Campo';
 import Aviso from '../../componentes/Aviso';
+import { IconeChave } from '../../componentes/Icones';
 
 const esquema = z.object({ email: z.email('Informe um e-mail válido.'), senha: z.string().min(1, 'Informe sua senha.') });
 
@@ -40,14 +41,14 @@ export default function Entrar() {
         <Link to={rotas.inicio} className="relative z-[2] font-display text-[21px] leading-[1.5] text-inherit no-underline">{brand.name}</Link>
         <div className="relative z-[2]"><p className="eyebrow text-white">Seu painel de trabalho</p><h2 className="mb-4 max-w-[500px] font-display text-[30px] leading-[1.3] lg:text-[clamp(34px,4vw,52px)]">Imóveis, contatos e negócios em um só lugar.</h2><p className="mb-0 text-white/80">Organize seu portfólio e acompanhe cada atendimento.</p></div>
       </section>
-      <main className="flex items-center justify-center px-6 py-9 lg:p-12">
+      <main className="painel-ui flex items-center justify-center px-6 py-9 lg:p-12">
         <div className="w-full max-w-[400px]">
           <CabecalhoPagina rotulo="Área do corretor" titulo="Entrar no painel" descricao="Acesse sua conta para continuar o trabalho." voltar={{ to: rotas.inicio, rotulo: 'Voltar ao site' }} />
-          <form onSubmit={handleSubmit((valores) => acessar(valores.email, valores.senha))} noValidate className="grid gap-[22px] [&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold">
+          <form onSubmit={handleSubmit((valores) => acessar(valores.email, valores.senha))} noValidate className="grid gap-4 [&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold">
             <Campo rotulo="E-mail" obrigatorio erro={errors.email?.message}><input type="email" autoComplete="username" {...register('email')} /></Campo>
             <Campo rotulo="Senha" obrigatorio erro={errors.senha?.message}><input type="password" autoComplete="current-password" {...register('senha')} /></Campo>
             {erro && <Aviso tom="erro">{erro}</Aviso>}
-            <button className="button" disabled={isSubmitting || carregando}>{isSubmitting ? 'Entrando…' : 'Entrar na conta'}</button>
+            <button className="button" disabled={isSubmitting || carregando}><IconeChave aria-hidden="true" />{isSubmitting ? 'Entrando…' : 'Entrar na conta'}</button>
           </form>
         </div>
       </main>

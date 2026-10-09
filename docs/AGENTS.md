@@ -1,5 +1,27 @@
 # Instruções do projeto — corretor-web
 
+## 2026-10-09 — Ações de tabela sem quebra no desktop
+
+Na tabela desktop, a coluna de ações deve manter ícones de 44px na mesma linha, com largura determinada pelo conteúdo. `Tabela.tsx` usa `flex-nowrap`/`min-w-max` apenas a partir de 40rem; os cartões mobile continuam com `flex-wrap` e sem overflow horizontal. Não usar largura fixa insuficiente na coluna de Contatos. Preservar tooltips, permissões, callbacks, linha clicável e ações financeiras com texto.
+
+## 2026-10-09 — Padronização visual de todo o painel
+
+Plano integral autorizado pelo dono, tomando todas as telas existentes como referências. A orientação de limitar as notas apenas ao imóvel abaixo permanece histórica: agora o acabamento comum vale para listas, fichas, Visão geral, Perfil, formulários, diálogos e entrada administrativa. Usar `BlocosPainel.tsx`: `SecaoPainel` associa título externo à seção; `GradePainel` compartilha alturas de título/superfície por subgrid; `DadosFicha`/`DadoFicha` preservam conteúdo e links. Classes próprias sempre em `.painel-ui`. Manter fontes/escala 28/22/18/16/14, azul/dourado, gaps 16px, superfícies com padding 16–20px e altura determinada pelo conteúdo.
+
+Grade por container: 1 coluna abaixo de 44rem, 2 a partir de 44rem, até 3 a partir de 70rem. Composições de duas colunas usam `colunas={2}`; formulários longos mantêm suas seções, âncoras e grades de campos. Não transformar título do diálogo em título externo, adicionar filtros/controles ausentes, recolher dados de ficha ou cortar conteúdo. Novo/Editar/Buscar continuam só ícone com dica acessível; Salvar/Cancelar/confirmações/ações financeiras conservam texto. Chips têm alvo mínimo de 44px. Tabelas preservam linhas alternadas e cartões com ações à direita; quando dentro de outra superfície, apenas a superfície externa recebe detalhe dourado/sombra.
+
+`FichaImovel` usa o mesmo `SecaoPainel`, mantendo modificadores locais, ordem, subgrid aprovado e dimensões exclusivas da galeria em utilities. Preservar Esc, Ctrl/⌘+K, guardas dirty/busy, permissões, seleções, formulários independentes de perfil/senha e consultas em edição sem permissão. Não alterar API, tipos, banco, dependências, site público ou suítes rastreadas. Entrega local em main; sem commit, push ou deploy. Resultado e validação: `2026-10-09-padronizacao-painel.md`; QA novo efêmero/ignorado.
+
+## 2026-10-09 — Títulos externos e cards alinhados por linha
+
+Correção pedida e plano autorizado pelo dono após revisão visual: títulos acima das superfícies, mesma altura dos cards dentro de cada linha. Esta orientação substitui a altura independente e os títulos internos da primeira versão abaixo. `Nota` usa seção `.imovel-bloco`, título associado por `aria-labelledby` e superfície `.imovel-nota`. Os grids compartilham linhas de título/conteúdo por subgrid; preservar quebras de título, leitura integral dos dados, containers e layout mobile. Não impor alturas fixas ou cortes nos cards. Modificadores da galeria/descrição/ficha interna permanecem na seção; seletores da galeria respeitam a superfície intermediária. Sem alterações de API/dados ou publicação; QA novo permanece efêmero/ignorado.
+
+Ficha interna vem antes da Descrição, preenchendo a grade sem reordenar pelo CSS. Regras locais de dimensão da galeria devem continuar em `@layer utilities`: em components perderiam para as classes de altura/largura de `GaleriaMidia`. Preservar seu escopo exclusivo da ficha.
+
+## 2026-10-09 — Ficha do imóvel em notas compactas
+
+Plano autorizado pelo dono: `FichaImovel` usa galeria/resumo no topo e notas separadas em azul/dourado. Preservar todos os campos, links, permissões, ações, Esc e consulta na edição sem permissão. Estilos `.imovel-*` são exclusivos da ficha dentro de `.painel-ui`; não alterar `GaleriaMidia`, estilos gerais das fichas ou detalhe público para reproduzir esse layout. Grades seguem containers nomeados: 44rem para duas colunas e 70rem para três; ficha interna distribui campos conforme o espaço da própria nota. Sem dependências, API, banco ou publicação. QA efêmero em `artifacts/imovel-notas-2026-10-09`, sem novas suítes.
+
 ## 2026-10-08 — Codex: 404 da foto corrigido na implantação
 
 O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.

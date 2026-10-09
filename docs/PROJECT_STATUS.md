@@ -1,5 +1,29 @@
 # Estado atual — corretor-web
 
+## 2026-10-09 — Codex: ações desktop corrigidas
+
+Correção local concluída após revisão no celular/desktop: a coluna de ações da tabela agora permanece em uma linha no desktop, incluindo quatro ações em Contatos. O mobile mantém quebra controlada nos cartões. Typecheck, lint, testes e build aprovados; conferência simulada de Contatos confirmou quatro botões em 44px, sem overflow em 1440px, e cartões mobile sem overflow em 390px. Sem API, dados ou publicação.
+
+## 2026-10-09 — Codex: painel padronizado e validado localmente
+
+Plano integral concluído: acabamento comum da entrada, listas, Visão geral, Perfil, fichas, formulários e diálogos. Seções com títulos externos, superfícies alinhadas por linha, grade por container, espaçamento/padding compactos, tabelas/cartões e filtros coerentes. Ficha de imóvel aprovada preservada; ações rápidas com ícone/dica e confirmações/finanças com texto. Detalhes em `2026-10-09-padronizacao-painel.md`.
+
+Typecheck, lint, build, 23 testes existentes e smoke SSR de produção aprovados após ajustes finais. QA Chromium/API simulada: 270 cenários de listas/fichas/grades em 320/390/1024/1440/1920px, claro/escuro e ADMIN/CORRETOR; 49 cenários de formulários/login/estados; 5 fluxos de lista/Esc/paleta/menu. Regressão da ficha aprovada: 28 cenários e 2 fluxos novamente aprovados. Sem overflow, erros JS ou desalinhamento de superfícies; capturas selecionadas inspecionadas. Evidências ignoradas em `artifacts/painel-padrao-2026-10-09` e `artifacts/imovel-alinhamento-2026-10-09`.
+
+Documentos de contexto e índice atualizados sem apagar histórico. API/dados, Safari/iOS, dispositivo físico, login/integradores reais e reprodução de vídeo real não homologados. Sem novas suítes, dependências, API/banco, commit, push ou deploy; alterações anteriores e índice Git preservados.
+
+## 2026-10-09 — Codex: padronização visual integral em andamento
+
+Plano autorizado pelo dono: todas as telas são referências; consolidar acabamento comum do painel inteiro, incluindo entrada, sem impor um único layout. Base/estilos compartilhados, fichas, listas, Perfil, formulários e diálogos serão adaptados. Preservar o resultado aprovado da ficha de imóvel, as funcionalidades, fontes/identidade, dados e permissões. Trabalho local em main, sem publicação, dependências, API/banco ou novas suítes. Alterações locais anteriores preservadas; agentes com arquivos separados para fichas, formulários/Perfil e listas. Validação e documentação finais pendentes.
+
+## 2026-10-09 — Codex: alinhamento da ficha após revisão do dono
+
+Entrega local concluída: títulos acima das superfícies e cards com topos/bases alinhados por linha, inclusive galeria/resumo e títulos quebrados. Estrutura e subgrid aplicados sem alturas fixas nos cards, mantendo as notas anteriores, campos, ações e permissões. Ficha interna precede Descrição para preencher a grade; dimensões locais da galeria prevalecem sobre as utilities compartilhadas. Typecheck, lint, build e 23 testes existentes aprovados. QA efêmero com API simulada: 28 cenários de layout e 2 fluxos de consulta sem permissão/Esc aprovados nos dois temas; desvio de topo/base 0px, sem overflow ou erros JavaScript. Foto até 380px e miniaturas 80×56 confirmadas. Sem commit, push, deploy ou mudança na API/banco; sem homologação real de dados, vídeo ou Safari/iOS.
+
+## 2026-10-09 — Codex: ficha do imóvel em notas compactas
+
+Implementado o plano autorizado: galeria/resumo em proporção 2:1 e notas de Características, Localização, Pessoas vinculadas, Descrição, Ficha interna e Observações internas. Identidade azul/dourado, sombras leves, grade por container, todos os dados acessíveis. Mesma apresentação na consulta da edição sem permissão. Typecheck, lint, build e 23 testes existentes aprovados. QA com API simulada cobre quatro larguras e dois temas; não equivale a homologação no banco real ou Safari/iOS. Entrega local, sem commit, push, deploy ou mudanças na API/banco.
+
 ## 2026-10-08 — Codex: 404 da foto corrigido na implantação
 
 O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.

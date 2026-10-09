@@ -1,5 +1,36 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-09 — Ações de tabela alinhadas no desktop
+
+- A coluna de ações do componente compartilhado não usa mais `w-px`/flex wrap no layout desktop. A largura segue o conteúdo e `min-w-max` mantém os ícones na mesma linha; a partir de 40rem, o wrapper usa `flex-nowrap`.
+- A tabela mobile continua usando cartões e `flex-wrap`, permitindo que ações ocupem mais de uma linha quando a largura não comportar todos os botões. Essa separação evita overflow horizontal sem sacrificar o alvo de toque de 44px.
+- Contatos deixou de impor `min-w-[12rem]`, que era menor que quatro ícones mais os espaçamentos. Permissões, tooltips, links e callbacks permanecem sem alteração.
+
+## 2026-10-09 — Vocabulário comum para o painel inteiro
+
+- O dono aprovou a ficha de imóvel e pediu padronizar o painel, definindo todas as telas como referências. Consolidar acabamento e componentes sem impor a composição de uma única tela às demais. Esta decisão amplia o escopo visual das notas registrado abaixo; comportamento e contratos permanecem iguais.
+- `SecaoPainel`, `GradePainel`, `DadosFicha` e `DadoFicha` centralizam a apresentação. Título externo associado por `useId`/`aria-labelledby`, superfície separada e subgrid garantem topo/base iguais por linha, mesmo com títulos quebrados; sem altura fixa ou corte de conteúdo. Superfícies em azul/dourado, raio 5px, borda superior 3px, sombra leve, gaps 16px e padding 16–20px.
+- Container `grade-painel`: duas colunas em 44rem e até três em 70rem. Grade dupla permanece em duas; grids de campos/formulários têm os limites próprios existentes. Ficha de imóvel conserva container/galeria e a ordem aprovados, usando a seção compartilhada.
+- Formulários mantêm âncoras, grupos recolhíveis, selects, rodapés e guardas. Cabeçalho de diálogo continua dentro dele. Perfil/senha ficam em seções distintas sem unir os formulários. Rótulos de indicadores continuam junto dos valores; títulos dos grupos de indicadores ficam externos.
+- Novo/Editar/Buscar usam ícone e dica acessível; Salvar/Cancelar, confirmações, CTAs de seção e ações financeiras mantêm texto. Não criar filtros/controles para preencher espaços. Chips preservam alvo de toque de 44px. Tabelas mantêm alternância/ações à direita; se aninhadas numa superfície, não repetem borda dourada ou sombra interna.
+- Estados e paginação compartilhados recebem classes com regras restritas a `.painel-ui`. Na entrada, o escopo vale apenas para o formulário, preservando a composição de marca. Site público, APIs, tipos, schemas, permissões e dados não entram no escopo.
+- Validação efêmera com API simulada e revisão independente; nenhuma nova suíte/dependência. Entrega local em main, preservando histórico e índice Git, sem publicação. Documento de entrega: `2026-10-09-padronizacao-painel.md`.
+
+## 2026-10-09 — Ficha com títulos externos e alturas uniformes por linha
+
+- O dono rejeitou o desalinhamento da primeira composição e escolheu mesma altura por linha. Esta decisão substitui a altura independente dos cards e os títulos dentro da superfície registrados abaixo.
+- Cada seção usa título externo associado por `useId`/`aria-labelledby` e superfície independente. Subgrid compartilha as linhas de título e conteúdo, incluindo títulos quebrados; stretch alinha as bases sem alturas fixas, max-height, cortes ou rolagem interna.
+- A altura continua determinada pelo conteúdo maior daquela linha. Cards menores têm espaço livre para cumprir o alinhamento solicitado. No celular, cada seção ocupa sua própria linha.
+- Preservar a proporção 2:1 do topo, limites de 44/70rem, descrição em duas colunas e container da própria superfície para os campos internos. Ajustar apenas os seletores locais da galeria à estrutura nova.
+- Ficha interna precede Descrição no DOM para preencher a segunda coluna ao lado de Pessoas, evitando célula vazia intermediária sem `grid-auto-flow: dense` ou divergência da ordem visual/teclado. Apenas as duas regras de dimensão da galeria ficam em `@layer utilities`, no mesmo nível das classes do componente compartilhado; a especificidade local garante foto até 380px e miniaturas 80×56 exclusivamente nesta ficha.
+
+## 2026-10-09 — Notas compactas somente na ficha administrativa de imóvel
+
+- `FichaImovel` concentra a nova composição, incluindo a consulta em `FormularioImovel` sem permissão. Não duplicar componentes nem alterar contratos.
+- Post-its discretos: superfícies dos tokens existentes, borda superior dourada, sombra leve, sem rotação ou cores adicionais. Altura acompanha o conteúdo, sem recolher dados.
+- Container `ficha-imovel`: topo 2:1 e grade de duas colunas a partir de 44rem, três a partir de 70rem. Container da nota permite duas colunas nos campos internos a partir de 20rem. Manter a escala de fontes do painel.
+- Estilos específicos `.painel-ui .imovel-*`; galeria compartilhada permanece intacta. Não propagar esses estilos ao site público ou a outras fichas.
+
 ## 2026-10-09 — Ações de lista só com ícone; texto só fora das listas (pedido do dono)
 
 - Colunas de Ações das listas do painel usam só `AcaoIcone` (44px, tooltip, sem texto visível): WhatsApp,

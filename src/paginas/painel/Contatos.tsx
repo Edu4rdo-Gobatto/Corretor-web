@@ -54,7 +54,7 @@ function ListaContatos({ status, titulo, descricao, filtros, versao, ocupado, pa
   }, [dados, carregando, erro, pagina, aoPaginar]);
   return <section id="contatos-lista" role="tabpanel" aria-labelledby={`aba-${status}`} className="min-w-0">
     <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-      <h2 className="m-0 text-[22px] text-ink">{titulo}{dados && !carregando && !erro && <span className="ml-2 text-base font-normal text-muted">({dados.total})</span>}</h2>
+      <h2 className="m-0 text-[22px] text-ink">{titulo}{dados && !carregando && !erro && <span className="contagem-painel ml-2 font-normal">({dados.total})</span>}</h2>
       <button type="button" className="buttonGhost" aria-label={`Exportar a página ${pagina} de ${titulo.toLowerCase()} em CSV`} disabled={!dados?.itens.length || carregando || Boolean(erro)} onClick={() => dados && !erro && !carregando && baixarCsvContatos(dados.itens, `${status.toLowerCase()}-pagina-${pagina}`)}>CSV desta página</button>
     </div>
     <p className="mb-4 mt-0 text-base text-muted">{descricao}</p>
@@ -71,7 +71,7 @@ function ListaContatos({ status, titulo, descricao, filtros, versao, ocupado, pa
           <span>{data(pessoa.criado_em)}</span>
           <small className="mt-1 flex flex-wrap items-center gap-2 text-base text-muted">{pessoa.imovel_id ? <Link to={`/admin/imoveis/${pessoa.imovel_id}/editar`}>Imóvel #{pessoa.imovel_id}</Link> : <span>Sem imóvel vinculado</span>}</small>
         </> },
-        { titulo: 'Ações', acoes: true, classe: '@min-[58rem]/tabela:min-w-[12rem]', celula: (pessoa) => <>
+        { titulo: 'Ações', acoes: true, celula: (pessoa) => <>
           {pessoa.telefone && <AcaoIcone icone={IconeWhatsapp} rotulo="WhatsApp" contexto={pessoa.nome} href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" />}
           {podeEditarPessoa(corretor, pessoa) && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={pessoa.nome} aoClicar={() => aoEditar(pessoa)} desabilitado={Boolean(ocupado)} />}
           {status === 'RESPONDIDO' && podeEditarPessoa(corretor, pessoa) && <AcaoIcone icone={IconeFinalizar} rotulo="Finalizar" contexto={pessoa.nome} aoClicar={() => aoFinalizar(pessoa)} desabilitado={Boolean(ocupado)} />}
@@ -134,13 +134,13 @@ export default function Contatos() {
   return <>
     <CabecalhoPagina titulo="Contatos" descricao="Organize seus retornos e acompanhe cada atendimento." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Nova pessoa" aoClicar={() => setEditando(null)} desabilitado={Boolean(ocupado)} />} />
     <form noValidate className={estilos.barraFiltros} onSubmit={aplicar}>
-      <Campo rotulo="Buscar" classe="min-w-[min(100%,20rem)] flex-1"><input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou documento" /></Campo>
+      <Campo rotulo="Buscar" classe="busca-painel"><input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou documento" /></Campo>
       <div className="w-full min-w-0 @min-[38rem]/principal:w-[260px]"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor }, true)} /></div>
       <Campo rotulo="De"><input type="date" value={rascunho.desde} onChange={(evento) => setRascunho({ ...rascunho, desde: evento.target.value }, true)} /></Campo>
       <Campo rotulo="Até" erro={erroFiltro || undefined}><input type="date" value={rascunho.ate} onChange={(evento) => setRascunho({ ...rascunho, ate: evento.target.value }, true)} /></Campo>
       <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" />{filtrando && <button type="button" className="buttonGhost" onClick={limpar}>Limpar</button>}</div>
     </form>
-    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl border border-line bg-paper px-3 text-base text-ink" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={16} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="chip-filtro-painel" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={16} className="shrink-0" aria-hidden="true" /></button>)}</div>}
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <div role="tablist" aria-label="Situação dos contatos" className="mb-5 flex flex-wrap gap-2 border-b border-line pb-3">
       {abas.map((lista, indice) => <button key={lista.status} id={`aba-${lista.status}`} role="tab" type="button" aria-selected={aba === lista.status} aria-controls="contatos-lista" tabIndex={aba === lista.status ? 0 : -1} className={`min-h-12 rounded-xl border px-4 py-2 font-semibold ${aba === lista.status ? 'border-gold bg-soft text-ink' : 'border-transparent bg-transparent text-muted'}`} onClick={() => { aplicarAgora(); setAba(lista.status); }} onKeyDown={(evento) => {

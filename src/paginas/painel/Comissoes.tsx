@@ -6,6 +6,7 @@ import { estilos } from '../../componentes/estilosPainel';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
 import Tabela from '../../componentes/Tabela';
+import { IconeAdicionar } from '../../componentes/Icones';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { api } from '../../servicos/api';
@@ -24,13 +25,13 @@ export default function Comissoes({ contrato }: { contrato?: Contrato }) {
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarComissoes({ pagina, limite: 15, ativo: ativas, tipo_operacao: operacao || undefined, contrato_id: contratoId }), [pagina, ativas, operacao, contratoId]));
   return <>
     {contrato
-      ? <div className="mb-6 flex flex-wrap items-center justify-between gap-5"><div><h2 className={estilos.tituloPainel}>Comissões deste contrato</h2><p>Receita de intermediação da imobiliária.</p></div>{contrato.ativo && <button className="button" onClick={() => setCriando(true)}>Registrar comissão</button>}</div>
-      : <CabecalhoPagina titulo="Comissões" descricao="Receita de intermediação da imobiliária." acoes={<button className="button" onClick={() => setCriando(true)}>Registrar comissão</button>} />}
+      ? <div className="bloco-painel-cabecalho mb-4"><div className="min-w-0"><h2 className="m-0 text-[22px]">Comissões deste contrato</h2><p className="mb-0 mt-1 text-base text-muted">Receita de intermediação da imobiliária.</p></div>{contrato.ativo && <button className="button ml-auto" onClick={() => setCriando(true)}><IconeAdicionar size={20} aria-hidden="true" />Registrar comissão</button>}</div>
+      : <CabecalhoPagina titulo="Comissões" descricao="Receita de intermediação da imobiliária." acoes={<button className="button" onClick={() => setCriando(true)}><IconeAdicionar size={20} aria-hidden="true" />Registrar comissão</button>} />}
     <div className={estilos.barraFiltros}>
       {!contrato && <SeletorFiltro rotulo="Operação" valor={operacao} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'LOCACAO' as const, rotulo: 'Locação' }, { valor: 'VENDA' as const, rotulo: 'Venda' }]} aoMudar={(valor) => { setOperacao(valor); setPagina(1); }} />}
       <SeletorFiltro rotulo="Situação" valor={ativas ? 'true' : 'false'} opcoes={[{ valor: 'true' as const, rotulo: 'Ativas' }, { valor: 'false' as const, rotulo: 'Arquivadas' }]} aoMudar={(valor) => { setAtivas(valor === 'true'); setPagina(1); }} />
     </div>
-    <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
+    <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !carregando && !erro && (
       <section>
         <Tabela<Comissao> itens={dados.itens} chave={(comissao) => comissao.id} vazio="Nenhuma comissão registrada." rotulo="Comissões" linkLinha={(comissao) => `/admin/comissoes/${comissao.id}`} colunas={[

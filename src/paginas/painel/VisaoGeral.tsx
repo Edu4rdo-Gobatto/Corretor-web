@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { IconeAdicionar, IconeContatos } from '../../componentes/Icones';
 import { Link } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
@@ -9,6 +10,8 @@ import type { StatusImovel } from '../../tipos';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Tabela from '../../componentes/Tabela';
+import AcaoIcone from '../../componentes/AcaoIcone';
+import { GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 import { estilos } from '../../componentes/estilosPainel';
 
 const STATUS: StatusImovel[] = ['DISPONIVEL', 'RESERVADO', 'VENDIDO', 'ALUGADO'];
@@ -52,40 +55,39 @@ async function carregarComissoes() {
 function Indicador<T>({ rotulo, carregar, children }: { rotulo: string; carregar: () => Promise<T>; children: (dados: T) => ReactNode }) {
   const { dados, carregando, erro, recarregar } = useDadosPainel(carregar);
   return (
-    <section aria-label={rotulo} className="rounded border border-line bg-paper p-5">
+    <section aria-label={rotulo} className="superficie-painel indicador-painel">
       <span className="text-[16px] text-muted">{rotulo}</span>
       <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
       {!carregando && !erro && dados !== undefined && children(dados)}
     </section>
   );
 }
-const numeroGrande = (valor: ReactNode) => <strong className="my-3 block text-[28px] text-ink">{valor}</strong>;
+const numeroGrande = (valor: ReactNode) => <strong className="my-3 block text-[22px] font-semibold text-ink">{valor}</strong>;
 
 export default function VisaoGeral() {
   const { corretor } = useSessao();
   const pendentes = useDadosPainel(carregadores.pendentes);
   return <>
-    <CabecalhoPagina titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." />
-    <section className={`${estilos.painel} border-t-4 border-t-gold`}>
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-4"><div><h2 className="mb-1 text-[22px]">Contatos aguardando resposta</h2><p className="m-0 text-[16px] text-muted">Comece por quem ainda espera seu retorno.</p></div><Link className="buttonSecondary" to={rotas.contatos}>Responder contatos</Link></div>
+    <CabecalhoPagina titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
+    <SecaoPainel titulo="Contatos aguardando resposta" descricao="Comece por quem ainda espera seu retorno." classe="mb-4" acoes={<Link className="buttonSecondary" to={rotas.contatos}><IconeContatos size={20} aria-hidden="true" />Responder contatos</Link>}>
       <EstadoCarregamento compacto carregando={pendentes.carregando} erro={pendentes.erro} tentarNovamente={pendentes.recarregar} />
       {!pendentes.carregando && !pendentes.erro && pendentes.dados && <>
-        <p className="mb-5 mt-0 text-muted"><strong className="mr-2 font-sans text-[28px] text-ink">{pendentes.dados.total}</strong>{pendentes.dados.total === 1 ? 'contato pendente' : 'contatos pendentes'}{pendentes.dados.total > 5 ? ', exibindo os primeiros 5' : ''}</p>
+        <p className="contagem-painel"><strong className="mr-2 font-sans text-[22px] text-ink">{pendentes.dados.total}</strong>{pendentes.dados.total === 1 ? 'contato pendente' : 'contatos pendentes'}{pendentes.dados.total > 5 ? ', exibindo os primeiros 5' : ''}</p>
         <Tabela itens={pendentes.dados.itens} chave={(pessoa) => pessoa.id} rotulo="Contatos aguardando resposta" linkLinha={(pessoa) => `/admin/pessoas/${pessoa.id}`} vazio="Nenhum contato pendente. Bom trabalho." colunas={[
           { titulo: 'Contato', celula: (pessoa) => <><Link to={`/admin/pessoas/${pessoa.id}`}><strong>{pessoa.nome}</strong></Link><small className="mt-1 block text-muted">{pessoa.email}</small></> },
           { titulo: 'Telefone', celula: (pessoa) => pessoa.telefone },
           { titulo: 'Recebido em', celula: (pessoa) => data(pessoa.criado_em) },
         ]} />
       </>}
-    </section>
-    <section aria-labelledby="titulo-portfolio" className="mb-8"><h2 id="titulo-portfolio" className={estilos.tituloPainel}>Seu portfólio</h2><div className="grid grid-cols-1 gap-3 @min-[32rem]/principal:grid-cols-2 @min-[60rem]/principal:grid-cols-3">
+    </SecaoPainel>
+    <section aria-labelledby="titulo-portfolio" className="mb-4"><h2 id="titulo-portfolio" className={estilos.tituloPainel}>Seu portfólio</h2><GradePainel>
       <Indicador rotulo="Imóveis no portfólio" carregar={carregadores.imoveis}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.imoveis}>Gerenciar imóveis</Link></>}</Indicador>
       {STATUS.map((status) => <Indicador key={status} rotulo={rotulosStatusImovelPlural[status]} carregar={carregadores.porStatus[status]}>{(dados) => numeroGrande(dados.total)}</Indicador>)}
       <Indicador rotulo="Contatos recebidos nos últimos 30 dias" carregar={carregadores.recentes}>{(dados) => <>{numeroGrande(dados.total)}<Link to={rotas.pessoas}>Ver pessoas</Link></>}</Indicador>
-    </div></section>
-    <section aria-labelledby="titulo-financeiro"><h2 id="titulo-financeiro" className={estilos.tituloPainel}>Contratos e comissões</h2><div className="grid grid-cols-1 gap-3 @min-[38rem]/principal:grid-cols-2">
+    </GradePainel></section>
+    <section aria-labelledby="titulo-financeiro"><h2 id="titulo-financeiro" className={estilos.tituloPainel}>Contratos e comissões</h2><GradePainel colunas={2}>
       <Indicador rotulo="Contratos ativos" carregar={carregadores.contratos}>{(dados) => <>{numeroGrande(dados.total)}<Link to="/admin/contratos">Ver contratos</Link></>}</Indicador>
       <Indicador rotulo="Comissões" carregar={carregarComissoes}>{(dados) => <><p className="mb-1 text-[16px] text-muted">Valor pendente</p>{numeroGrande(moeda(dados.pendente))}<p className="text-[16px] text-muted">Valor recebido: <strong className="text-ink">{moeda(dados.recebido)}</strong></p><Link to="/admin/comissoes">Ver financeiro</Link></>}</Indicador>
-    </div></section>
+    </GradePainel></section>
   </>;
 }

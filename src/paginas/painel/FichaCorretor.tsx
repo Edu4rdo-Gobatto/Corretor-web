@@ -14,7 +14,7 @@ import Aviso from '../../componentes/Aviso';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { IconeArquivar, IconeDesarquivar, IconeEditar, IconeChave } from '../../componentes/Icones';
-import { estilos } from '../../componentes/estilosPainel';
+import { DadosFicha, DadoFicha, SecaoPainel } from '../../componentes/BlocosPainel';
 import { EditorCorretor, DialogoSenha, dadosBase } from './EditorCorretor';
 
 type RegistroCorretor = { publico: CorretorPublico; completo?: Corretor };
@@ -61,14 +61,13 @@ export default function FichaCorretor() {
     <CabecalhoPagina voltar={admin ? { to: '/admin/corretores', rotulo: 'Voltar para corretores' } : { to: '/admin/imoveis', rotulo: 'Voltar para imóveis' }} titulo={item?.nome ?? 'Corretor'} acoes={admin && completo && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={completo.nome} desabilitado={ocupado} aoClicar={() => setEditando(true)} /><AcaoIcone icone={IconeChave} rotulo="Redefinir senha" contexto={completo.nome} desabilitado={ocupado} aoClicar={() => setSenha(true)} /><AcaoIcone icone={completo.ativo ? IconeArquivar : IconeDesarquivar} rotulo={completo.ativo ? 'Desativar' : 'Reativar'} contexto={completo.nome} tom={completo.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>} />
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !item && <Aviso>Corretor indisponível.</Aviso>}
-    {item && !consulta.carregando && !consulta.erro && <section className={estilos.painel}>
-      <h2 className={estilos.tituloPainel}>Dados do corretor</h2>
+    {item && !consulta.carregando && !consulta.erro && <SecaoPainel titulo="Dados do corretor">
       {item.url_foto && item.url_foto !== fotoQuebrada && <img src={urlFotoCorretor(item)} alt={`Foto de ${item.nome}`} className="mb-5 h-24 w-24 rounded-full object-cover" onError={() => setFotoQuebrada(item.url_foto ?? undefined)} />}
-      <dl className="ficha-dados"><div><dt>Nome</dt><dd>{item.nome}</dd></div><div><dt>WhatsApp</dt><dd>{item.whatsapp}</dd></div><div><dt>CRECI</dt><dd>{item.creci || 'Não informado'}</dd></div>
-        {completo && <><div><dt>E-mail</dt><dd>{completo.email}</dd></div><div><dt>CPF</dt><dd>{completo.cpf || 'Não informado'}</dd></div><div><dt>Permissão</dt><dd>{completo.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'}</dd></div><div><dt>Situação</dt><dd>{completo.ativo ? 'Ativo' : 'Inativo'}</dd></div></>}
-      </dl>
-      {/^[1-9]\d{9,14}$/.test(item.whatsapp) && <div className="ficha-acoes"><a className="button" href={`https://wa.me/${item.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></div>}
-    </section>}
+      <DadosFicha colunas={2}><DadoFicha rotulo="Nome">{item.nome}</DadoFicha><DadoFicha rotulo="WhatsApp">{item.whatsapp}</DadoFicha><DadoFicha rotulo="CRECI">{item.creci}</DadoFicha>
+        {completo && <><DadoFicha rotulo="E-mail">{completo.email}</DadoFicha><DadoFicha rotulo="CPF">{completo.cpf}</DadoFicha><DadoFicha rotulo="Permissão">{completo.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'}</DadoFicha><DadoFicha rotulo="Situação">{completo.ativo ? 'Ativo' : 'Inativo'}</DadoFicha></>}
+      </DadosFicha>
+      {/^[1-9]\d{9,14}$/.test(item.whatsapp) && <div className="ficha-acoes mt-4"><a className="button" href={`https://wa.me/${item.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></div>}
+    </SecaoPainel>}
     {admin && completo && editando && <EditorCorretor key={completo.id} corretor={completo} aoFechar={() => setEditando(false)} aoSalvar={consulta.recarregar} />}
     {admin && completo && senha && <DialogoSenha key={completo.id} corretor={completo} aoFechar={() => setSenha(false)} aoSalvar={consulta.recarregar} />}
     {admin && completo && confirmando && <ConfirmarAcao titulo={`${completo.ativo ? 'Desativar' : 'Reativar'} conta`} descricao={<><p>{completo.nome}. Os vínculos com imóveis e contatos serão preservados.</p>{erroAcao && <Aviso tom="erro">{erroAcao}</Aviso>}</>} confirmar={completo.ativo ? 'Desativar conta' : 'Reativar conta'} perigo={completo.ativo} ocupado={ocupado} aoConfirmar={alternar} aoFechar={() => setConfirmando(false)} />}

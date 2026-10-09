@@ -6,7 +6,8 @@ import Campo from '../../componentes/Campo';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import Dialogo from '../../componentes/Dialogo';
 import { estilos } from '../../componentes/estilosPainel';
-import { IconeSalvar } from '../../componentes/Icones';
+import { IconeComissoes, IconeSalvar } from '../../componentes/Icones';
+import { SecaoPainel } from '../../componentes/BlocosPainel';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import { api } from '../../servicos/api';
 import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
@@ -63,7 +64,7 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   return (
     <Dialogo titulo="Registrar comissão" tamanho="largo" alterado={isDirty} ocupado={isSubmitting || resolvendoContrato} aoFechar={() => { if (!isSubmitting && !resolvendoContrato) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
-        <fieldset disabled={isSubmitting || resolvendoContrato} className="m-0 grid gap-4 border-0 p-0">
+        <fieldset disabled={isSubmitting || resolvendoContrato} className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <p className="m-0">Informe a receita devida pela intermediação do negócio.</p>
           {!contrato && <Campo rotulo="Operação" erro={errors.tipo_operacao?.message}><select {...register('tipo_operacao', { onChange: () => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null, { shouldDirty: true }); setValue('imovel_id', 0, { shouldDirty: true }); setValue('pessoa_id', 0, { shouldDirty: true }); setContratoEscolhido(null); setImovel(null); setPessoa(null); setErro(''); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></Campo>}
           {contrato ? <p className="m-0">Contrato: {contrato.numero_contrato}; {contrato.imovel_titulo}</p>
@@ -76,10 +77,10 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
             <Campo rotulo="Primeiro vencimento" erro={errors.primeiro_vencimento?.message}><input type="date" {...register('primeiro_vencimento')} /></Campo>
             <Campo classe="col-span-full" rotulo="Observações" erro={errors.observacoes?.message}><textarea {...register('observacoes')} /></Campo>
           </div>
-          {previa.length > 0 && <section className="rounded border border-line p-4" aria-label="Prévia das parcelas"><h3 className="mt-0">Prévia do parcelamento</h3><ul>{previa.slice(0, 4).map((item, indice) => <li key={indice}>Parcela {indice + 1}: {dinheiroExato(item.valor)} em {dataCivil(item.data)}</li>)}</ul>{previa.length > 4 && <p>Mais {previa.length - 4} parcelas. Último vencimento: {dataCivil(previa.at(-1)!.data)}.</p>}<p className={estilos.dica}>Os centavos são distribuídos entre as parcelas. Dias 29–31 são ajustados ao fim do mês.</p></section>}
+          {previa.length > 0 && <SecaoPainel titulo="Prévia do parcelamento"><ul className="m-0 pl-5">{previa.slice(0, 4).map((item, indice) => <li key={indice}>Parcela {indice + 1}: {dinheiroExato(item.valor)} em {dataCivil(item.data)}</li>)}</ul>{previa.length > 4 && <p>Mais {previa.length - 4} parcelas. Último vencimento: {dataCivil(previa.at(-1)!.data)}.</p>}<p className={`${estilos.dica} mb-0`}>Os centavos são distribuídos entre as parcelas. Dias 29–31 são ajustados ao fim do mês.</p></SecaoPainel>}
         </fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting || resolvendoContrato}>{isSubmitting ? 'Registrando…' : resolvendoContrato ? 'Buscando imóvel…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting || resolvendoContrato} data-fechar-dialogo>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting || resolvendoContrato}><IconeComissoes size={20} aria-hidden="true" />{isSubmitting ? 'Registrando…' : resolvendoContrato ? 'Buscando imóvel…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting || resolvendoContrato} data-fechar-dialogo>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -97,12 +98,12 @@ export function DialogoPagamento({ parcela, aoFechar, aoSalvar }: { parcela: Par
     <Dialogo titulo={`Receber parcela ${parcela.numero_parcela}`} alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
         <p>{dinheiroExato(parcela.valor)}; Vencimento {dataCivil(parcela.data_vencimento)}</p>
-        <fieldset disabled={isSubmitting} className="m-0 border-0 p-0">
+        <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <Campo rotulo="Referência do comprovante" erro={errors.observacao_pagamento?.message}><textarea placeholder="Ex.: PIX recebido em 14/09, comprovante nº…" {...register('observacao_pagamento')} /></Campo>
-          <Campo classe="mt-4 grid-cols-[auto_1fr] gap-x-3 [&_label]:col-start-2 [&_label]:row-start-1 [&_input]:col-start-1 [&_input]:row-start-1 [&_input]:mt-1 [&_span]:col-span-full" rotulo="Confirmo que a imobiliária recebeu este pagamento." erro={errors.confirmar_pagamento?.message}><input className="w-auto!" type="checkbox" {...register('confirmar_pagamento')} /></Campo>
+          <Campo classe="grid-cols-[auto_1fr] gap-x-3 [&_label]:col-start-2 [&_label]:row-start-1 [&_input]:col-start-1 [&_input]:row-start-1 [&_input]:mt-1 [&_span]:col-span-full" rotulo="Confirmo que a imobiliária recebeu este pagamento." erro={errors.confirmar_pagamento?.message}><input className="w-auto!" type="checkbox" {...register('confirmar_pagamento')} /></Campo>
         </fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}>{isSubmitting ? 'Confirmando…' : 'Confirmar recebimento'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} data-fechar-dialogo>Cancelar</button></div>
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeComissoes size={20} aria-hidden="true" />{isSubmitting ? 'Confirmando…' : 'Confirmar recebimento'}</button><button className="buttonGhost" type="button" disabled={isSubmitting} data-fechar-dialogo>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -120,9 +121,9 @@ export function EdicaoComissao({ comissao, aoFechar, aoSalvar }: { comissao: Com
     <Dialogo titulo="Editar comissão" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>
         <p>O valor total e as parcelas preservam o registro original. Ao desativar, novas baixas ficam bloqueadas e o histórico é mantido.</p>
-        <fieldset disabled={isSubmitting} className="m-0 border-0 p-0">
+        <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <Campo rotulo="Observações" erro={errors.observacoes?.message}><textarea {...register('observacoes')} /></Campo>
-          <label className="mt-4 flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Comissão ativa</label>
+          <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Comissão ativa</label>
         </fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
         <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeSalvar size={20} aria-hidden="true" />{isSubmitting ? 'Salvando…' : 'Salvar alterações'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} data-fechar-dialogo>Cancelar</button></div>

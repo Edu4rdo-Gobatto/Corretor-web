@@ -17,6 +17,7 @@ import { rotas } from '../../servicos/urls';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Campo from '../../componentes/Campo';
 import Aviso from '../../componentes/Aviso';
+import { GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 
 const esquemaPerfil = z.object({
   nome: z.string().trim().min(2, 'Use pelo menos 2 caracteres.').max(100),
@@ -105,9 +106,8 @@ export default function Perfil() {
   return <>
     <GuardaFormulario alterado={alterado} liberado={liberado} descricao="Há alterações não salvas no perfil ou na senha. Sair descarta somente estas edições." />
     <CabecalhoPagina titulo="Meu perfil" descricao={corretor.nome} />
-    <div className="grid items-start gap-4 @min-[58rem]/principal:grid-cols-2">
-    <section className="@container rounded-xl border border-line bg-paper p-5" aria-label="Dados e foto">
-      <h2 className="mb-4 text-[22px]">Dados e foto</h2>
+    <GradePainel colunas={2}>
+    <SecaoPainel titulo="Dados e foto" classeConteudo="@container">
       <form className="grid grid-cols-1 items-start gap-4 @min-[28rem]:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate data-atalho-salvar>
         <fieldset disabled={ocupado} className="contents">
         <div className="col-span-full flex flex-wrap items-center gap-4">
@@ -130,9 +130,8 @@ export default function Perfil() {
       </form>
       {erroPerfil && <Aviso tom="erro" classe="mt-4">{erroPerfil}</Aviso>}
       {perfilSalvo && <Aviso tom="sucesso" classe="mt-4">Perfil atualizado.</Aviso>}
-    </section>
-    <section className="@container rounded-xl border border-line bg-paper p-5" aria-label="Segurança">
-      <h2 className="mb-4 text-[22px]">Segurança</h2>
+    </SecaoPainel>
+    <SecaoPainel titulo="Segurança" classeConteudo="@container">
       <form className="grid grid-cols-1 items-start gap-4 @min-[28rem]:grid-cols-2" onSubmit={formularioSenha.handleSubmit(salvarSenha)} noValidate data-atalho-salvar>
         <fieldset disabled={ocupado} className="contents"><Campo classe="col-span-full" rotulo="Senha atual" erro={errosSenha.senha_atual?.message}><input type="password" autoComplete="current-password" {...formularioSenha.register('senha_atual')} /></Campo>
         <Campo rotulo="Nova senha" erro={errosSenha.nova_senha?.message} dica="Use entre 12 e 128 caracteres."><input type="password" autoComplete="new-password" {...formularioSenha.register('nova_senha')} /></Campo>
@@ -142,13 +141,13 @@ export default function Perfil() {
       </form>
       {erroSenha && <Aviso tom="erro" classe="mt-4">{erroSenha}</Aviso>}
       {senhaSalva && <Aviso tom="sucesso" classe="mt-4">Senha atualizada.</Aviso>}
-    </section>
-    </div>
+    </SecaoPainel>
+    </GradePainel>
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
-    {dados && !erro && <section className="mt-4 grid gap-3 @min-[38rem]/principal:grid-cols-3" aria-label="Métricas">
-      <div className="rounded-xl border border-line bg-paper p-4"><strong className="mr-2 text-[22px]">{dados.imoveis.total}</strong>Imóveis<p className="mb-0 mt-1 text-base text-muted">{dados.disponiveis.total} disponíveis · {dados.reservados.total} reservados · {dados.vendidos.total} vendidos · {dados.alugados.total} alugados</p></div>
-      <div className="rounded-xl border border-line bg-paper p-4"><strong className="mr-2 text-[22px]">{dados.pessoas.total}</strong>Pessoas<p className="mb-0 mt-1 text-base text-muted">{dados.ultimoMes.total} nos últimos 30 dias</p></div>
-      <div className="rounded-xl border border-line bg-paper p-4"><strong className="mr-2 text-[22px]">{dados.pendentes.total}</strong>Contatos pendentes<p className="mb-0 mt-1 text-base"><Link to={rotas.contatos} className="link-texto">Responder contatos</Link></p></div>
-    </section>}
+    {dados && !erro && <section className="mt-4" aria-label="Métricas"><GradePainel>
+      <div className="superficie-painel"><strong className="mr-2 text-[22px]">{dados.imoveis.total}</strong>Imóveis<p className="mb-0 mt-1 text-base text-muted">{dados.disponiveis.total} disponíveis · {dados.reservados.total} reservados · {dados.vendidos.total} vendidos · {dados.alugados.total} alugados</p></div>
+      <div className="superficie-painel"><strong className="mr-2 text-[22px]">{dados.pessoas.total}</strong>Pessoas<p className="mb-0 mt-1 text-base text-muted">{dados.ultimoMes.total} nos últimos 30 dias</p></div>
+      <div className="superficie-painel"><strong className="mr-2 text-[22px]">{dados.pendentes.total}</strong>Contatos pendentes<p className="mb-0 mt-1 text-base"><Link to={rotas.contatos} className="link-texto">Responder contatos</Link></p></div>
+    </GradePainel></section>}
   </>;
 }

@@ -33,7 +33,7 @@ export function EditorClassificacao({ categoria, item, aoFechar, aoSalvar }: { c
   return (
     <Dialogo titulo={item ? 'Editar cadastro' : 'Novo cadastro'} tamanho="estreito" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar className={`${estilos.formulario} grid gap-4`}>
-        <fieldset disabled={isSubmitting} className="m-0 grid gap-4 border-0 p-0"><Campo rotulo="Nome" obrigatorio erro={errors.nome?.message}><input {...register('nome')} /></Campo>
+        <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0"><Campo rotulo="Nome" obrigatorio erro={errors.nome?.message}><input {...register('nome')} /></Campo>
         {categoria === 'caracteristicas' ? <Campo rotulo="Ícone (opcional)" erro={errors.icone?.message}><input {...register('icone')} /></Campo> : <Campo rotulo="Identificador no endereço (opcional)" erro={errors.slug?.message} dica="Letras minúsculas, números e hífens."><input {...register('slug')} /></Campo>}
         </fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}

@@ -1,5 +1,9 @@
 # Índice da documentação — corretor-web
 
+## Padronização vigente do painel (09/10/2026)
+
+[`2026-10-09-padronizacao-painel.md`](2026-10-09-padronizacao-painel.md) registra o acabamento comum de todas as telas administrativas, incluindo a entrada, preservando a ficha de imóvel aprovada e os comportamentos de 06/10. Títulos externos, alinhamento por linha, superfícies compactas, listas/filtros/formulários/diálogos coerentes. Typecheck, lint, 23 testes, build, smoke SSR e QA efêmero aprovados. Escopo frontend/local, sem publicação ou alteração de API/banco; os marcos abaixo permanecem como histórico.
+
 ## Refinamento vigente de 06/10/2026
 
 [Contatos, perfil com upload e filtros automáticos](2026-10-06-refinamentos-sistema.md) registra o plano,

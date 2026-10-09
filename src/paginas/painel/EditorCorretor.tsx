@@ -50,7 +50,7 @@ export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Cor
   return (
     <Dialogo titulo={corretor ? 'Editar corretor' : 'Novo corretor'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>
-        <fieldset disabled={isSubmitting} className="m-0 border-0 p-0"><div className={estilos.grade}>
+        <fieldset disabled={isSubmitting} className="m-0 min-w-0 border-0 p-0"><div className={estilos.grade}>
           {campos.map((item) => campo(item))}
           <Campo rotulo="Permissão" erro={errors.cargo?.message} obrigatorio><select {...register('cargo')}><option value="CORRETOR">Corretor</option><option value="ADMIN">Administrador</option></select></Campo>
           {campo(['url_foto', 'URL da foto (HTTPS)', 'url'])}
@@ -74,8 +74,8 @@ export function DialogoSenha({ corretor, aoFechar, aoSalvar }: { corretor: Corre
   return (
     <Dialogo titulo={`Redefinir senha de ${corretor.nome}`} tamanho="estreito" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <p className="muted">Escolha a nova senha na hora e avise a pessoa: as sessões abertas dela são encerradas.</p>
-      <form className="grid grid-cols-1 gap-[22px]" onSubmit={handleSubmit(redefinir)} noValidate data-atalho-salvar>
-        <fieldset disabled={isSubmitting} className="m-0 grid gap-4 border-0 p-0"><Campo rotulo="Nova senha" obrigatorio erro={errors.nova_senha?.message} dica="Mínimo de 12 caracteres."><input type="password" autoComplete="new-password" {...register('nova_senha')} /></Campo>
+      <form className={`${estilos.formulario} grid grid-cols-1 gap-4`} onSubmit={handleSubmit(redefinir)} noValidate data-atalho-salvar>
+        <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0"><Campo rotulo="Nova senha" obrigatorio erro={errors.nova_senha?.message} dica="Mínimo de 12 caracteres."><input type="password" autoComplete="new-password" {...register('nova_senha')} /></Campo>
         <Campo rotulo="Confirmar nova senha" obrigatorio erro={errors.confirmacao?.message}><input type="password" autoComplete="new-password" {...register('confirmacao')} /></Campo></fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
         <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeSalvar size={20} aria-hidden="true" />{isSubmitting ? 'Salvando…' : 'Definir nova senha'}</button><button className="buttonGhost" type="button" data-fechar-dialogo disabled={isSubmitting}>Cancelar</button></div>
