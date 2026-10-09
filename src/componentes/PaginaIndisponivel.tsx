@@ -35,7 +35,7 @@ export default function PaginaIndisponivel({ status }: { status: number }) {
       <div className="min-w-0">
         <CenaReparo animada={estado !== 'inicial' && !pausada} rotulo="Operário ajustando o quadro de energia de uma casa com as luzes apagadas" />
         {estado !== 'inicial' && <div className="reparo-controle flex items-center justify-center gap-2">
-          <AcaoIcone icone={pausada ? IconeReproduzir : IconePausar} rotulo={pausada ? 'Retomar animação' : 'Pausar animação'} aoClicar={() => setPausada((atual) => !atual)} />
+          <AcaoIcone id="acao-animacao" icone={pausada ? IconeReproduzir : IconePausar} rotulo={pausada ? 'Retomar animação' : 'Pausar animação'} aoClicar={() => setPausada((atual) => !atual)} />
           <span className="text-sm text-muted">{pausada ? 'Animação pausada' : 'Pausar animação'}</span>
         </div>}
       </div>

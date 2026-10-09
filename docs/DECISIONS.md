@@ -1,5 +1,15 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-09 — Ações de lista só com ícone; texto só fora das listas (pedido do dono)
+
+- Colunas de Ações das listas do painel usam só `AcaoIcone` (44px, tooltip, sem texto visível): WhatsApp,
+  Editar, transições de atendimento e arquivar/reativar. Contatos e ficha de pessoa seguem esse padrão.
+- Exceção à regra "WhatsApp conserva texto": ela continua valendo para fichas (`FichaCorretor`), site
+  público e CTAs de seção; nas listas o ícone com `aria-label` + tooltip basta e evita pill destoante.
+- `Registrar recebimento` (parcelas) conserva `buttonGhost` com texto: ação financeira com confirmação
+  não vira ícone. Formulários/diálogos (Salvar/Cancelar/Registrar/Entrar) e CTAs primários de ficha
+  (`Ver anúncio`, `Abrir pasta no Drive`) também conservam texto. Não aplicar o padrão só-ícone no site público.
+
 ## 2026-10-09 — Botão único de voltar e Esc em todas as telas (pedido do dono)
 
 - Toda tela com retorno usa `BotaoVoltar` (seta em círculo de 44px, fundo `soft`, hover dourado com
