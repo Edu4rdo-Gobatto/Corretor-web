@@ -1,5 +1,16 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-09 — Ações de lista padronizadas só com ícone (pedido do dono)
+
+- `src/paginas/painel/FichaPessoa.tsx`: WhatsApp da ficha virou `AcaoIcone` (href `wa.me`, `target _blank`,
+  `rel` automático), igual à lista de Contatos; cabeçalho da ficha com 3 ícones uniformes.
+- `src/paginas/painel/DetalheComissao.tsx`: `Registrar recebimento` mantido com texto (ação financeira).
+- `docs/DECISIONS.md`: registrada a exceção só-ícone para colunas de Ações das listas.
+- Listas Imóveis/Pessoas/Corretores/Cadastros já eram 100% ícone; fichas primárias, formulários e site
+  público conservam texto.
+
+Validação: typecheck, lint, build e testes existentes.
+
 ## 2026-10-09 — Claude: botão de voltar unificado e Esc global
 
 - `src/componentes/BotaoVoltar.tsx` novo; aplicado no detalhe público, Privacidade, Devs, Entrar e nas

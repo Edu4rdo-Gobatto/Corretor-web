@@ -10,7 +10,7 @@ import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import Aviso from '../../componentes/Aviso';
 import Tabela from '../../componentes/Tabela';
-import { IconeEditar, IconeArquivar, IconeDesarquivar } from '../../componentes/Icones';
+import { IconeEditar, IconeArquivar, IconeDesarquivar, IconeWhatsapp } from '../../componentes/Icones';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { idRegistro, consultarRegistroDisponivel } from '../../servicos/registros';
 import { podeEditarPessoa } from '../../servicos/pessoas';
@@ -61,7 +61,7 @@ export default function FichaPessoa() {
     {pessoa && !erro && <>
       <CabecalhoPagina voltar={{ to: '/admin/pessoas', rotulo: 'Voltar para pessoas' }} titulo={pessoa.nome} descricao={`Pessoa #${pessoa.id} ${pessoa.origem === 'SITE' ? 'chegou pelo site' : 'cadastro manual'} em ${data(pessoa.criado_em)}`}
         acoes={<>
-          {pessoa.telefone && <a className="buttonSecondary" href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" rel="noreferrer">WhatsApp</a>}
+          {pessoa.telefone && <AcaoIcone icone={IconeWhatsapp} rotulo="WhatsApp" contexto={pessoa.nome} href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" />}
           {podeEditar && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={pessoa.nome} aoClicar={() => setEditando(true)} /><AcaoIcone icone={pessoa.ativo ? IconeArquivar : IconeDesarquivar} rotulo={pessoa.ativo ? 'Desativar' : 'Reativar'} contexto={pessoa.nome} tom={pessoa.ativo ? 'perigo' : 'neutro'} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>}
         </>} />
       <section className={estilos.painel}>

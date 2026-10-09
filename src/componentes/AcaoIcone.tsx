@@ -1,10 +1,17 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IconeCarregando, type Icone } from './Icones';
 import { Link } from 'react-router-dom';
+
+function slugificar(texto: string): string {
+  const base = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return base || 'acao';
+}
 
 type Propriedades = {
   icone: Icone;
   rotulo: string;
+  /** Fixo e estável entre SSR e cliente. Obrigatório em rota pública; no painel o padrão deriva de `rotulo`+`contexto`. */
+  id?: string;
   to?: string;
   href?: string;
   aoClicar?: () => void;
@@ -20,9 +27,13 @@ type Propriedades = {
 /**
  * Ação só com ícone. A dica visível mostra o verbo curto ("Editar"); `contexto` entra apenas no nome acessível
  * ("Editar Fulano"), para o leitor de tela distinguir as linhas sem alongar a dica.
+ *
+ * O id da dica é estável entre SSR e cliente (não usa `useId`, cuja árvore difere nos dois lados):
+ * usa `id` quando informado, senão `acao-<rotulo>[-<contexto>]`. Em rota pública prefira `id` explícito,
+ * sobretudo quando `rotulo` muda com o estado (ex.: Pausar/Retomar).
  */
-export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, desabilitado = false, ocupado = false, tom = 'neutro', target, tipo = 'button', contexto }: Propriedades) {
-  const id = useId();
+export default function AcaoIcone({ icone: Icone, rotulo, id, to, href, aoClicar, desabilitado = false, ocupado = false, tom = 'neutro', target, tipo = 'button', contexto }: Propriedades) {
+  const idDica = id ?? `acao-${slugificar(rotulo)}${contexto ? `-${slugificar(contexto).slice(0, 32)}` : ''}`;
   const [dicaOculta, setDicaOculta] = useState(false);
   const [deslocamentoDica, setDeslocamentoDica] = useState(0);
   const [dicaAtiva, setDicaAtiva] = useState(false);
@@ -31,7 +42,7 @@ export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, de
   const bloqueado = desabilitado || ocupado;
   const classe = `acao-icone ${tom === 'perigo' ? 'acao-perigo' : ''}`;
   const conteudo = ocupado ? <IconeCarregando size={20} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Icone size={20} aria-hidden="true" />;
-  const atributos = { className: classe, 'aria-label': contexto ? `${rotulo} ${contexto}` : rotulo, 'aria-describedby': contexto ? undefined : id, 'aria-busy': ocupado || undefined };
+  const atributos = { className: classe, 'aria-label': contexto ? `${rotulo} ${contexto}` : rotulo, 'aria-describedby': contexto ? undefined : idDica, 'aria-busy': ocupado || undefined };
   useEffect(() => {
     if (!dicaAtiva || dicaOculta) return;
     const elementoDica = dica.current;
@@ -89,6 +100,6 @@ export default function AcaoIcone({ icone: Icone, rotulo, to, href, aoClicar, de
     {to ? <Link {...atributos} to={to} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</Link>
       : href ? <a {...atributos} href={href} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} aria-disabled={bloqueado || undefined} tabIndex={bloqueado ? -1 : undefined} onClick={(evento) => { if (bloqueado) evento.preventDefault(); else aoClicar?.(); }}>{conteudo}</a>
       : <button {...atributos} type={tipo} disabled={bloqueado} onClick={aoClicar}>{conteudo}</button>}
-    <span ref={dica} id={id} role="tooltip" aria-hidden={contexto ? true : undefined} className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
+    <span ref={dica} id={idDica} role="tooltip" aria-hidden={contexto ? true : undefined} className="dica-acao" style={{ transform: `translateX(${deslocamentoDica}px)` }}>{ocupado ? 'Aguarde…' : rotulo}</span>
   </span>;
 }
