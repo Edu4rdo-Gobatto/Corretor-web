@@ -97,6 +97,12 @@ const contratos: Contrato[] = [5, 6].map((id) => ({
   garantia_locaticia: 'Caução',
   indice_reajuste: 'IGP-M',
   cobranca_iptu_condominio: 'Locatário',
+  tipo_contrato_id: 1,
+  tipo_contrato_nome: 'Comercial',
+  indice_reajuste_id: 1,
+  indice_reajuste_nome: 'IGP-M',
+  indice_reajuste_periodicidade_meses: 12,
+  indice_reajuste_regra: null,
   url_pasta_drive: null,
   status_pasta_drive: 'PENDENTE',
   status: 'ATIVO',
@@ -109,7 +115,7 @@ const contratos: Contrato[] = [5, 6].map((id) => ({
 
 const comissoes: Comissao[] = [
   {
-    id: 3, tipo_operacao: 'LOCACAO', contrato_id: 5, imovel_id: 42, pessoa_id: 7, valor_total: '2500.00', quantidade_parcelas: 2, observacoes: null, ativo: true, valor_pago: '1250.00', saldo_pendente: '1250.00',
+    id: 3, tipo_operacao: 'LOCACAO', contrato_id: 5, imovel_id: 42, pessoa_id: 7, valor_total: '2500.00', quantidade_parcelas: 2, observacoes: null, ativo: true, versao_plano: 1, versao_registro: 2, possui_recebimento: true, primeiro_vencimento: '2026-08-10', valor_pago: '1250.00', saldo_pendente: '1250.00',
     parcelas: [
       { id: 31, numero_parcela: 1, data_vencimento: '2026-08-10', valor: '1250.00', status: 'PAGO', pago_em: '2026-08-10', observacao_pagamento: null, ativo: true },
       { id: 32, numero_parcela: 2, data_vencimento: '2026-10-10', valor: '1250.00', status: 'PENDENTE', pago_em: null, observacao_pagamento: null, ativo: true },

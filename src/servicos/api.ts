@@ -1,4 +1,4 @@
-import type { CategoriaClassificacao, Classificacao, Classificacoes, ConsultaCatalogo, Corretor, DadosCorretor, FichaImovel, Imovel, Midia, Pagina, Pessoa, Sessao, StatusContato, StatusImovel } from '../tipos';
+import type { CadastroContrato, CategoriaClassificacao, CategoriaContrato, Classificacao, DadosCadastroContrato, Classificacoes, ConsultaCatalogo, Corretor, DadosCorretor, FichaImovel, Imovel, Midia, Pagina, Pessoa, Sessao, StatusContato, StatusImovel } from '../tipos';
 import { ErroApi, http, definirTokenAcesso, renovarSessao } from './http';
 import { consultaParaApi, montarParametros } from './catalogo';
 import { locacoesApi } from './locacoes';
@@ -102,6 +102,19 @@ export const api = {
   obterClassificacao: (categoria: CategoriaClassificacao, id: number) => http<Classificacao>(`/admin/${categoria}/${id}`),
   salvarClassificacao: (categoria: CategoriaClassificacao, dados: { nome?: string; slug?: string; icone?: string | null; ativo?: boolean }, id?: number) =>
     http<Classificacao>(`/admin/${categoria}${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', dados)),
+  listarCadastrosContrato: (categoria: CategoriaContrato, pagina = 1) => http<Pagina<CadastroContrato>>(`/admin/${categoria}?pagina=${pagina}&limite=20`),
+  obterCadastroContrato: (categoria: CategoriaContrato, id: number) => http<CadastroContrato>(`/admin/${categoria}/${id}`),
+  salvarCadastroContrato: (categoria: CategoriaContrato, dados: DadosCadastroContrato, id?: number) =>
+    http<CadastroContrato>(`/admin/${categoria}${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', dados)),
+  /** Opções ativas para o formulário de contrato (ADMIN e CORRETOR). */
+  opcoesContrato: async (categoria: CategoriaContrato): Promise<CadastroContrato[]> => {
+    const itens: CadastroContrato[] = [];
+    for (let pagina = 1; ; pagina++) {
+      const resultado = await http<Pagina<CadastroContrato>>(`/cadastros/${categoria}?pagina=${pagina}&limite=100`);
+      itens.push(...resultado.itens);
+      if (pagina >= resultado.total_paginas) return itens;
+    }
+  },
 
   /** Catálogo público: tipo e finalidade chegam como slug e são resolvidos pelas classificações. */
   listarImoveis: async (consulta: ConsultaCatalogo): Promise<Pagina<Imovel>> => {

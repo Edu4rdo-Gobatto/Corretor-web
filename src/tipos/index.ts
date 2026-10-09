@@ -31,6 +31,11 @@ export interface DadosCorretor {
 export interface Classificacao { id: number; nome: string; slug?: string; icone?: string | null; ativo: boolean }
 export interface Classificacoes { tipos: Classificacao[]; finalidades: Classificacao[]; caracteristicas: Classificacao[] }
 export type CategoriaClassificacao = 'tipos-imovel' | 'finalidades-imovel' | 'caracteristicas';
+/** Cadastros de contratos de locação: fora do catálogo público e do SSR. */
+export type CategoriaContrato = 'tipos-contrato' | 'indices-reajuste';
+export type CategoriaCadastro = CategoriaClassificacao | CategoriaContrato;
+export interface CadastroContrato { id: number; nome: string; ativo: boolean; periodicidade_meses?: number; regra?: string | null; descricao?: string | null }
+export interface DadosCadastroContrato { nome?: string; periodicidade_meses?: number; regra?: string | null; descricao?: string | null; ativo?: boolean }
 
 export type StatusImovel = 'DISPONIVEL' | 'RESERVADO' | 'VENDIDO' | 'ALUGADO' | 'RETIRADO';
 export type Ordenacao = 'recentes' | 'valor_asc' | 'valor_desc' | 'area_asc' | 'area_desc';

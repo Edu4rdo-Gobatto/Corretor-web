@@ -19,8 +19,15 @@ export interface Contrato {
   dia_vencimento: number;
   taxa_administracao: string;
   garantia_locaticia: string;
+  /** Texto exibido: livre nos contratos legados, nome do índice nos classificados. */
   indice_reajuste: string;
   cobranca_iptu_condominio: string;
+  tipo_contrato_id: number | null;
+  tipo_contrato_nome: string | null;
+  indice_reajuste_id: number | null;
+  indice_reajuste_nome: string | null;
+  indice_reajuste_periodicidade_meses: number | null;
+  indice_reajuste_regra: string | null;
   url_pasta_drive: string | null;
   status_pasta_drive: StatusPastaDrive;
   status: StatusContrato;
@@ -42,7 +49,8 @@ export interface DadosContrato {
   dia_vencimento: number;
   taxa_administracao: string;
   garantia_locaticia: string;
-  indice_reajuste: string;
+  tipo_contrato_id: number;
+  indice_reajuste_id: number;
   cobranca_iptu_condominio: string;
   status: StatusContrato;
   observacoes: string;
@@ -69,9 +77,33 @@ export interface Comissao {
   quantidade_parcelas: number;
   observacoes: string | null;
   ativo: boolean;
+  /** Plano de parcelas vigente; as parcelas retornadas são só deste plano. */
+  versao_plano: number;
+  /** Versão lida, enviada em toda alteração; divergente responde 409. */
+  versao_registro: number;
+  possui_recebimento: boolean;
+  primeiro_vencimento?: string | null;
   parcelas: ParcelaComissao[];
   valor_pago?: string;
   saldo_pendente?: string;
+}
+export interface RevisaoComissao {
+  id: number;
+  versao_plano: number;
+  tipo_operacao: TipoOperacao;
+  contrato_id: number | null;
+  numero_contrato: string | null;
+  imovel_id: number;
+  imovel_titulo: string;
+  pessoa_id: number;
+  pessoa_nome: string;
+  valor_total: string;
+  quantidade_parcelas: number;
+  primeiro_vencimento: string;
+  autor_id: number | null;
+  autor_nome: string | null;
+  origem: 'CRIACAO' | 'EDICAO' | 'MIGRACAO';
+  criado_em: string;
 }
 export interface DadosComissao {
   tipo_operacao: TipoOperacao;
@@ -105,7 +137,13 @@ export const locacoesApi = {
   obterComissao: (id: number) => http<Comissao>(`/admin/comissoes/${id}`),
   criarComissao: (dados: DadosComissao) =>
     http<Comissao>('/admin/comissoes', json('POST', { ...dados, contrato_id: dados.tipo_operacao === 'LOCACAO' ? dados.contrato_id : null, observacoes: dados.observacoes || null })),
-  atualizarComissao: (id: number, dados: { ativo: boolean; observacoes: string }) =>
-    http<Comissao>(`/admin/comissoes/${id}`, json('PATCH', { ...dados, observacoes: dados.observacoes || null })),
+  /** Edição, arquivamento e reativação. A API só considera o que mudou de fato. */
+  atualizarComissao: (id: number, versao_registro: number, dados: Partial<DadosComissao> & { ativo?: boolean }) =>
+    http<Comissao>(`/admin/comissoes/${id}`, json('PATCH', {
+      ...dados, versao_registro,
+      ...(dados.tipo_operacao ? { contrato_id: dados.tipo_operacao === 'LOCACAO' ? dados.contrato_id : null } : {}),
+      ...(dados.observacoes !== undefined ? { observacoes: dados.observacoes || null } : {}),
+    })),
+  revisoesComissao: (id: number) => http<{ itens: RevisaoComissao[] }>(`/admin/comissoes/${id}/revisoes`),
   pagarParcela: (id: number, dados: DadosPagamento) => http<ParcelaComissao>(`/admin/comissoes/parcelas/${id}/pagamento`, json('PATCH', dados)),
 };

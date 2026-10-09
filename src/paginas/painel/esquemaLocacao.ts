@@ -15,7 +15,7 @@ export const esquemaContrato = z.object({
   imovel_id: id('Selecione um imóvel.'), locador_id: id('Selecione o proprietário.'), locatario_id: id('Selecione o inquilino.'), corretor_id: id('Selecione o intermediador.'),
   data_inicio: dataCivil, data_fim: dataCivil, valor_aluguel: dinheiroPositivo, dia_vencimento: z.number().int().min(1).max(31),
   taxa_administracao: dinheiro.refine((valor) => /^\d+\.\d{2}$/.test(valor) && BigInt(valor.replace('.', '')) <= 10000n, 'A taxa deve estar entre 0 e 100%.'),
-  garantia_locaticia: texto(1000).min(2, 'Informe a garantia.'), indice_reajuste: texto(150).min(2, 'Informe o índice.'), cobranca_iptu_condominio: texto(1000).min(2, 'Informe a forma de pagamento.'),
+  garantia_locaticia: texto(1000).min(2, 'Informe a garantia.'), tipo_contrato_id: id('Selecione o tipo de contrato.'), indice_reajuste_id: id('Selecione o índice de reajuste.'), cobranca_iptu_condominio: texto(1000).min(2, 'Informe a forma de pagamento.'),
   status: z.enum(['ATIVO', 'INATIVO']), ativo: z.boolean(), observacoes: texto(10000),
 }).refine((valores) => valores.data_fim >= valores.data_inicio, { path: ['data_fim'], message: 'A data final deve ser igual ou posterior ao início.' });
 export type ValoresContrato = z.infer<typeof esquemaContrato>;
@@ -31,7 +31,7 @@ export const esquemaComissao = z.object({
 export type ValoresComissao = z.infer<typeof esquemaComissao>;
 
 export const esquemaPagamento = z.object({ confirmar_pagamento: z.boolean().refine((valor) => valor, 'Confirme que o pagamento foi recebido.'), observacao_pagamento: texto(2000).min(5, 'Informe a referência do comprovante, com pelo menos 5 caracteres.') });
-export const esquemaEdicaoComissao = z.object({ ativo: z.boolean(), observacoes: texto(10000) });
+export const esquemaEdicaoComissao = z.object({ observacoes: texto(10000) });
 
 /** Prévia das parcelas com centavos distribuídos nas primeiras e vencimento mensal ajustado ao fim do mês. */
 export function previaParcelas(total: string, quantidade: number, primeira: string): { valor: string; data: string }[] {

@@ -17,7 +17,6 @@ const esquema = z.object({
   icone: z.string().max(100),
 });
 type Valores = z.infer<typeof esquema>;
-export const CATEGORIAS: Record<CategoriaClassificacao, string> = { 'tipos-imovel': 'Tipos de imóvel', 'finalidades-imovel': 'Finalidades', caracteristicas: 'Características' };
 
 export function EditorClassificacao({ categoria, item, aoFechar, aoSalvar }: { categoria: CategoriaClassificacao; item: Classificacao | null; aoFechar: () => void; aoSalvar: () => void }) {
   const [erro, setErro] = useState('');

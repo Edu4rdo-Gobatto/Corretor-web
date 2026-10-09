@@ -165,7 +165,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
   const contador = (total: number) => total > 0 && <><span aria-hidden="true" className="inline-grid h-6 min-w-6 place-items-center rounded-full bg-gold px-1.5 text-xs font-bold text-navy-deep">{total}</span><span className="sr-only">({total} {total === 1 ? 'ativo' : 'ativos'})</span></>;
   const mensagemErro = erro && <p className="error mb-0 mt-4" role="alert">{erro}</p>;
 
-  return <div role="search" aria-label="Filtrar imóveis" className="rounded-lg border border-line bg-paper px-7 pb-4 pt-6 shadow-sm max-[560px]:px-[18px] max-[560px]:pt-5">
+  return <div role="search" aria-label="Filtrar imóveis" className="rounded-lg border border-line border-t-[3px] border-t-gold bg-paper px-7 pb-4 pt-6 shadow-sm max-[560px]:px-[18px] max-[560px]:pt-5">
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] items-end gap-5 max-[1100px]:gap-3 max-[960px]:grid-cols-2 max-[960px]:gap-y-4 max-[800px]:hidden">
       <FiltroSuspenso id="filtro-finalidade" rotulo="Alugar ou comprar" resumo={finalidades.find((item) => item.chave === consulta.finalidade)?.nome}
         opcoes={finalidades.map((item) => ({ valor: item.chave, rotulo: item.nome }))}

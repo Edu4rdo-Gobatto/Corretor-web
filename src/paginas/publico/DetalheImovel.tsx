@@ -15,7 +15,9 @@ import FormularioContato from '../../componentes/FormularioContato';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import { Seo, useDadosIniciais } from '../../seo/context';
 
-const classeCard = 'rounded-[5px] border border-line bg-paper p-6 max-[480px]:p-5';
+const classeCaixa = 'rounded-[5px] border border-line bg-paper p-6 max-[480px]:p-5';
+// Mesmo acabamento dos cards do painel: filete dourado no topo.
+const classeCard = `${classeCaixa} border-t-[3px] border-t-gold shadow-sm`;
 const iconesDestaque: Record<ChaveDestaque, Icone> = { quartos: IconeCama, banheiros: IconeGota, salas: IconeSofa, pisos: IconeAndares, vagas: IconeCarro, piscina: IconePiscina, solar: IconeModoClaro, lazer: IconeTerreno };
 
 /** Indicador visual em formato de chave: verde quando disponível, amarelo nos demais casos (igual nos dois temas). */
@@ -51,7 +53,7 @@ function Semelhantes({ atual }: { atual: Imovel }) {
   return (
     <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="similares">
       <h2 id="similares">Você também pode gostar</h2>
-      <div className={`${classeCard} grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[760px]:grid-cols-1`}>{itens.map((item) => <CartaoImovel key={item.id} imovel={item} />)}</div>
+      <div className={`${classeCaixa} grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[760px]:grid-cols-1`}>{itens.map((item) => <CartaoImovel key={item.id} imovel={item} />)}</div>
     </section>
   );
 }

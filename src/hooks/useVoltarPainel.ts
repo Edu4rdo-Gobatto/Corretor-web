@@ -3,6 +3,9 @@ import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { escPodeVoltar } from './useEscVoltar';
 
 function destinoInicial(caminho: string) {
+  // Cadastros: a ficha volta para a lista da sua categoria; a lista da categoria, para o início do painel.
+  const cadastro = caminho.match(/^\/admin\/cadastros\/([^/]+)(\/.+)?$/);
+  if (cadastro) return cadastro[2] ? `/admin/cadastros/${cadastro[1]}` : '/admin';
   const secao = caminho.match(/^\/admin\/(pessoas|imoveis|contratos|corretores|cadastros|comissoes)\/.+/)?.[1];
   return secao ? `/admin/${secao}` : '/admin';
 }

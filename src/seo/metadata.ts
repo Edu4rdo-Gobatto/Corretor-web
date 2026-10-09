@@ -22,7 +22,7 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
   const filtrado = Boolean(consulta.tipos?.length || consulta.finalidade || consulta.cidade || consulta.bairro || consulta.valor_min !== undefined || consulta.valor_max !== undefined || consulta.area_min !== undefined || consulta.area_max !== undefined || consulta.ordenar);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
   const caminhoCanonico = catalogo ? urlCatalogo(consulta) : url.pathname;
-  let title = `Imóveis comerciais em ${brand.region.name} | ${brand.name}`;
+  let title = `${brand.tagline} | ${brand.name}`;
   let description = `Encontre salas comerciais, lojas, galpões, prédios e terrenos para alugar ou comprar em ${brand.region.name}. Consulte os imóveis e fale com o corretor responsável.`;
   let image = absolute(IMAGEM_PADRAO, config);
   const canonical = absolute(caminhoCanonico, config);

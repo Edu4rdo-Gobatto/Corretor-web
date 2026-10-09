@@ -22,16 +22,30 @@ const buscarContratos = async (termo: string): Promise<(Referencia & { imovel_id
 
 const PESSOA_INCOMPATIVEL = 'Esta pessoa não pode mais receber a comissão deste imóvel. Escolha outro cliente.';
 
-export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato; aoFechar: () => void; aoSalvar: () => void }) {
+/** Nomes já carregados pela ficha, para o formulário de edição não exibir só ids. */
+export interface NomesComissao { imovel?: string; pessoa?: string; contrato?: string }
+
+/** Edição aberta com versão antiga: o servidor recusa e a ficha precisa ser recarregada. */
+function AvisoConflito({ mensagem, aoRecarregar }: { mensagem: string; aoRecarregar: () => void }) {
+  return <Aviso tom="erro">{mensagem} <button type="button" className="buttonGhost mt-2" onClick={aoRecarregar}>Recarregar ficha</button></Aviso>;
+}
+
+/** Registro (sem `comissao`) ou edição completa de comissão ainda sem recebimento. */
+export function EditorComissao({ contrato, comissao, nomes, aoFechar, aoSalvar }: { contrato?: Contrato; comissao?: Comissao; nomes?: NomesComissao; aoFechar: () => void; aoSalvar: () => void }) {
   const [erro, setErro] = useState('');
-  const [imovel, setImovel] = useState<Referencia | null>(contrato ? { id: contrato.imovel_id, nome: contrato.imovel_titulo ?? `#${contrato.imovel_id}` } : null);
-  const [pessoa, setPessoa] = useState<Referencia | null>(null);
-  const [contratoEscolhido, setContratoEscolhido] = useState<Referencia | null>(contrato ? { id: contrato.id, nome: contrato.numero_contrato } : null);
+  const [conflito, setConflito] = useState('');
+  const [imovel, setImovel] = useState<Referencia | null>(contrato ? { id: contrato.imovel_id, nome: contrato.imovel_titulo ?? `#${contrato.imovel_id}` }
+    : comissao ? { id: comissao.imovel_id, nome: nomes?.imovel ?? `Imóvel #${comissao.imovel_id}` } : null);
+  const [pessoa, setPessoa] = useState<Referencia | null>(comissao ? { id: comissao.pessoa_id, nome: nomes?.pessoa ?? `Pessoa #${comissao.pessoa_id}` } : null);
+  const [contratoEscolhido, setContratoEscolhido] = useState<Referencia | null>(contrato ? { id: contrato.id, nome: contrato.numero_contrato }
+    : comissao?.contrato_id ? { id: comissao.contrato_id, nome: nomes?.contrato ?? `Contrato #${comissao.contrato_id}` } : null);
   const [resolvendoContrato, setResolvendoContrato] = useState(false);
   const sequenciaContrato = useRef(0);
   const { register, setValue, setError, clearErrors, watch, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresComissao>({
     resolver: zodResolver(esquemaComissao),
-    defaultValues: { tipo_operacao: contrato ? 'LOCACAO' : 'VENDA', contrato_id: contrato?.id ?? null, imovel_id: contrato?.imovel_id ?? 0, pessoa_id: 0, valor_total: '', quantidade_parcelas: 1, primeiro_vencimento: '', observacoes: '' },
+    defaultValues: comissao
+      ? { tipo_operacao: comissao.tipo_operacao, contrato_id: comissao.contrato_id, imovel_id: comissao.imovel_id, pessoa_id: comissao.pessoa_id, valor_total: comissao.valor_total, quantidade_parcelas: comissao.quantidade_parcelas, primeiro_vencimento: comissao.primeiro_vencimento ?? '', observacoes: comissao.observacoes ?? '' }
+      : { tipo_operacao: contrato ? 'LOCACAO' : 'VENDA', contrato_id: contrato?.id ?? null, imovel_id: contrato?.imovel_id ?? 0, pessoa_id: 0, valor_total: '', quantidade_parcelas: 1, primeiro_vencimento: '', observacoes: '' },
   });
   const operacao = watch('tipo_operacao');
   // Só clientes que o POST aceitaria; a busca muda de identidade com o imóvel e o seletor é remontado por `key`.
@@ -69,22 +83,28 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   };
   async function salvar(valores: ValoresComissao) {
     if (resolvendoContrato) return;
-    setErro('');
+    setErro(''); setConflito('');
     try {
       // O vínculo da pessoa pode ter mudado desde a escolha; receita, parcelas e vencimento ficam como estão.
-      const compativel = await api.listarPessoasElegiveis({ imovel_id: valores.imovel_id, pessoa_id: valores.pessoa_id, limite: 1 });
-      if (!compativel.itens.some((item) => item.id === valores.pessoa_id)) { setError('pessoa_id', { message: PESSOA_INCOMPATIVEL }, { shouldFocus: true }); return; }
-      await api.criarComissao(valores); aoSalvar(); aoFechar();
+      // Na edição, só revalida quando o cliente ou o imóvel mudou: o servidor ignora valores reenviados iguais.
+      if (!comissao || valores.pessoa_id !== comissao.pessoa_id || valores.imovel_id !== comissao.imovel_id) {
+        const compativel = await api.listarPessoasElegiveis({ imovel_id: valores.imovel_id, pessoa_id: valores.pessoa_id, limite: 1 });
+        if (!compativel.itens.some((item) => item.id === valores.pessoa_id)) { setError('pessoa_id', { message: PESSOA_INCOMPATIVEL }, { shouldFocus: true }); return; }
+      }
+      if (comissao) await api.atualizarComissao(comissao.id, comissao.versao_registro, valores);
+      else await api.criarComissao(valores);
+      aoSalvar(); aoFechar();
     } catch (falha) {
       if (falha instanceof ErroApi && falha.status === 400 && /^Pessoa /.test(falha.message)) setError('pessoa_id', { message: falha.message }, { shouldFocus: true });
+      else if (comissao && falha instanceof ErroApi && falha.status === 409) setConflito(falha.message);
       else setErro(mensagemErro(falha));
     }
   }
   return (
-    <Dialogo titulo="Registrar comissão" tamanho="largo" alterado={isDirty} ocupado={isSubmitting || resolvendoContrato} aoFechar={() => { if (!isSubmitting && !resolvendoContrato) aoFechar(); }}>
-      <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
+    <Dialogo titulo={comissao ? 'Editar comissão' : 'Registrar comissão'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting || resolvendoContrato} aoFechar={() => { if (!isSubmitting && !resolvendoContrato) aoFechar(); }}>
+      <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar={comissao ? true : undefined}>
         <fieldset disabled={isSubmitting || resolvendoContrato} className="m-0 grid min-w-0 gap-4 border-0 p-0">
-          <p className="m-0">Informe a receita devida pela intermediação do negócio.</p>
+          <p className="m-0">{comissao ? 'Mudar operação, vínculos, receita, parcelas ou vencimento gera um novo plano de parcelas. O plano anterior fica guardado no histórico.' : 'Informe a receita devida pela intermediação do negócio.'}</p>
           {!contrato && <Campo rotulo="Operação" erro={errors.tipo_operacao?.message}><select {...register('tipo_operacao', { onChange: () => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null, { shouldDirty: true }); setContratoEscolhido(null); escolherImovel(null, false); setErro(''); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></Campo>}
           {contrato ? <p className="m-0">Contrato: {contrato.numero_contrato}; {contrato.imovel_titulo}</p>
             : operacao === 'LOCACAO' ? <SeletorRegistro rotulo="Contrato de locação" valor={contratoEscolhido} buscar={buscarContratos} aoEscolher={(valor) => void escolherContrato(valor)} erro={errors.contrato_id?.message} dica={resolvendoContrato ? 'Buscando imóvel do contrato…' : imovel ? `Imóvel: ${imovel.nome}` : undefined} />
@@ -98,10 +118,11 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
             <Campo rotulo="Primeiro vencimento" erro={errors.primeiro_vencimento?.message}><input type="date" {...register('primeiro_vencimento')} /></Campo>
             <Campo classe="col-span-full" rotulo="Observações" erro={errors.observacoes?.message}><textarea {...register('observacoes')} /></Campo>
           </div>
-          {previa.length > 0 && <SecaoPainel titulo="Prévia do parcelamento"><ul className="m-0 pl-5">{previa.slice(0, 4).map((item, indice) => <li key={indice}>Parcela {indice + 1}: {dinheiroExato(item.valor)} em {dataCivil(item.data)}</li>)}</ul>{previa.length > 4 && <p>Mais {previa.length - 4} parcelas. Último vencimento: {dataCivil(previa.at(-1)!.data)}.</p>}<p className={`${estilos.dica} mb-0`}>Os centavos são distribuídos entre as parcelas. Dias 29–31 são ajustados ao fim do mês.</p></SecaoPainel>}
+          {previa.length > 0 && <SecaoPainel titulo={comissao ? 'Prévia do plano' : 'Prévia do parcelamento'}><ul className="m-0 pl-5">{previa.slice(0, 4).map((item, indice) => <li key={indice}>Parcela {indice + 1}: {dinheiroExato(item.valor)} em {dataCivil(item.data)}</li>)}</ul>{previa.length > 4 && <p>Mais {previa.length - 4} parcelas. Último vencimento: {dataCivil(previa.at(-1)!.data)}.</p>}<p className={`${estilos.dica} mb-0`}>Os centavos são distribuídos entre as parcelas. Dias 29–31 são ajustados ao fim do mês.</p></SecaoPainel>}
         </fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
-        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting || resolvendoContrato}><IconeComissoes size={20} aria-hidden="true" />{isSubmitting ? 'Registrando…' : resolvendoContrato ? 'Buscando imóvel…' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting || resolvendoContrato} data-fechar-dialogo>Cancelar</button></div>
+        {conflito && <AvisoConflito mensagem={conflito} aoRecarregar={() => { aoSalvar(); aoFechar(); }} />}
+        <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting || resolvendoContrato}>{comissao ? <IconeSalvar size={20} aria-hidden="true" /> : <IconeComissoes size={20} aria-hidden="true" />}{isSubmitting ? (comissao ? 'Salvando…' : 'Registrando…') : resolvendoContrato ? 'Buscando imóvel…' : comissao ? 'Salvar alterações' : 'Registrar comissão'}</button><button type="button" className="buttonGhost" disabled={isSubmitting || resolvendoContrato} data-fechar-dialogo>Cancelar</button></div>
       </form>
     </Dialogo>
   );
@@ -130,26 +151,37 @@ export function DialogoPagamento({ parcela, aoFechar, aoSalvar }: { parcela: Par
   );
 }
 
-export function EdicaoComissao({ comissao, aoFechar, aoSalvar }: { comissao: Comissao; aoFechar: () => void; aoSalvar: () => void }) {
+/**
+ * Com recebimento registrado ou arquivada, só observações; o restante usa o formulário completo.
+ * Arquivar e reativar ficam na ficha, com confirmação.
+ */
+export function EdicaoComissao({ comissao, nomes, aoFechar, aoSalvar }: { comissao: Comissao; nomes?: NomesComissao; aoFechar: () => void; aoSalvar: () => void }) {
+  if (!comissao.possui_recebimento && comissao.ativo) return <EditorComissao comissao={comissao} nomes={nomes} aoFechar={aoFechar} aoSalvar={aoSalvar} />;
+  return <EdicaoObservacoes comissao={comissao} aoFechar={aoFechar} aoSalvar={aoSalvar} />;
+}
+
+function EdicaoObservacoes({ comissao, aoFechar, aoSalvar }: { comissao: Comissao; aoFechar: () => void; aoSalvar: () => void }) {
   const [erro, setErro] = useState('');
-  const { register, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<{ ativo: boolean; observacoes: string }>({ resolver: zodResolver(esquemaEdicaoComissao), defaultValues: { ativo: comissao.ativo, observacoes: comissao.observacoes ?? '' } });
-  async function salvar(valores: { ativo: boolean; observacoes: string }) {
-    setErro('');
-    try { await api.atualizarComissao(comissao.id, valores); aoSalvar(); aoFechar(); }
-    catch (falha) { setErro(mensagemErro(falha)); }
+  const [conflito, setConflito] = useState('');
+  const { register, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<{ observacoes: string }>({ resolver: zodResolver(esquemaEdicaoComissao), defaultValues: { observacoes: comissao.observacoes ?? '' } });
+  async function salvar(valores: { observacoes: string }) {
+    setErro(''); setConflito('');
+    try { await api.atualizarComissao(comissao.id, comissao.versao_registro, valores); aoSalvar(); aoFechar(); }
+    catch (falha) { if (falha instanceof ErroApi && falha.status === 409) setConflito(falha.message); else setErro(mensagemErro(falha)); }
   }
   return (
     <Dialogo titulo="Editar comissão" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>
-        <p>O valor total e as parcelas preservam o registro original. Ao desativar, novas baixas ficam bloqueadas e o histórico é mantido.</p>
+        <p>{comissao.possui_recebimento
+          ? 'Esta comissão já tem recebimento registrado. Operação, vínculos, receita, parcelas e vencimento não podem mais ser alterados; as observações continuam editáveis.'
+          : 'Comissão arquivada: reative-a na ficha para alterar operação, vínculos, receita, parcelas ou vencimento.'}</p>
         <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <Campo rotulo="Observações" erro={errors.observacoes?.message}><textarea {...register('observacoes')} /></Campo>
-          <label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Comissão ativa</label>
         </fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}
+        {conflito && <AvisoConflito mensagem={conflito} aoRecarregar={() => { aoSalvar(); aoFechar(); }} />}
         <div className={estilos.rodapeDialogo}><button className="button" disabled={isSubmitting}><IconeSalvar size={20} aria-hidden="true" />{isSubmitting ? 'Salvando…' : 'Salvar alterações'}</button><button type="button" className="buttonGhost" disabled={isSubmitting} data-fechar-dialogo>Cancelar</button></div>
       </form>
     </Dialogo>
   );
 }
-

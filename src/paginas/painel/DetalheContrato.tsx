@@ -62,7 +62,11 @@ export default function DetalheContrato() {
         <DadoFicha rotulo="Período">{dataCivil(dados.data_inicio)} a {dataCivil(dados.data_fim)}</DadoFicha>
         <DadoFicha rotulo="Aluguel">{dinheiroExato(dados.valor_aluguel)}</DadoFicha><DadoFicha rotulo="Vencimento">Dia {dados.dia_vencimento}</DadoFicha>
         <DadoFicha rotulo="Taxa de administração">{dados.taxa_administracao}%</DadoFicha><DadoFicha rotulo="Garantia">{dados.garantia_locaticia}</DadoFicha>
-        <DadoFicha rotulo="Reajuste">{dados.indice_reajuste}</DadoFicha><DadoFicha rotulo="IPTU e condomínio">{dados.cobranca_iptu_condominio}</DadoFicha>
+        <DadoFicha rotulo="Tipo de contrato">{dados.tipo_contrato_nome ?? 'Não classificado'}</DadoFicha>
+        <DadoFicha rotulo="Reajuste">{dados.indice_reajuste_nome
+          ? <>{dados.indice_reajuste_nome}{dados.indice_reajuste_periodicidade_meses && <small className="mt-1 block text-muted">A cada {dados.indice_reajuste_periodicidade_meses} {dados.indice_reajuste_periodicidade_meses === 1 ? 'mês' : 'meses'}</small>}{dados.indice_reajuste_regra && <small className="mt-1 block whitespace-pre-wrap text-muted">{dados.indice_reajuste_regra}</small>}</>
+          : <>{dados.indice_reajuste}<small className="mt-1 block text-muted">Registro anterior aos cadastros de índice.</small></>}</DadoFicha>
+        <DadoFicha rotulo="IPTU e condomínio">{dados.cobranca_iptu_condominio}</DadoFicha>
       </DadosFicha></SecaoPainel>
       <SecaoPainel titulo="Documentos do contrato" ampla={!dados.observacoes}>
         {urlDrive && <a href={urlDrive} target="_blank" rel="noopener noreferrer" className="buttonGhost"><IconeAbrirFora size={20} aria-hidden="true" />Abrir pasta no Google Drive</a>}

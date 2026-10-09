@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { catalogoExemplo, classificacoesExemplo } from '../src/seo/fixture.ts';
+import { brand } from '../src/config/brand.ts';
 
 const properties = catalogoExemplo();
 let dadosIndisponiveis = false;
@@ -37,7 +38,11 @@ preview.stdout.pipe(process.stdout); preview.stderr.pipe(process.stderr);
 await new Promise((resolve, reject) => { preview.stdout.once('data', resolve); preview.once('error', reject); preview.once('exit', code => reject(new Error(`Preview exited: ${code}`))); });
 try {
   const catalog = await fetch('http://127.0.0.1:4180/'); const html = await catalog.text();
-  assert.equal(catalog.status, 200); assert.match(html, /<h1[^>]*>Imóveis comerciais/); assert.match(html, /Sala comercial no Centro/);
+  assert.equal(catalog.status, 200);
+  // h1 e <title> da página inicial usam o slogan padrão de brand.ts.
+  const texto = (trecho) => trecho.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  assert.equal(texto(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? ''), brand.tagline);
+  assert.equal(html.match(/<title>([^<]*)<\/title>/)?.[1], `${brand.tagline} | ${brand.name}`); assert.match(html, /Sala comercial no Centro/);
   assert.match(html, /href="\/\?pagina=2"/); assert.match(html, /application\/ld\+json/);
   const redirected = await fetch('http://127.0.0.1:4180/?purpose=VENDA&type=GALPAO', { redirect: 'manual' });
   assert.equal(redirected.status, 301);

@@ -162,7 +162,8 @@ export function AppRoutes() {
             <Route path="pessoas/:id" element={<FichaPessoa key={location.pathname} />} />
             <Route path="corretores" element={<Corretores />} />
             <Route path="corretores/:id" element={<FichaCorretor key={location.pathname} />} />
-            <Route path="cadastros" element={<Cadastros />} />
+            <Route path="cadastros" element={<Navigate to="/admin/cadastros/tipos-imovel" replace />} />
+            <Route path="cadastros/:categoria" element={<Cadastros />} />
             <Route path="cadastros/:categoria/:id" element={<FichaClassificacao key={location.pathname} />} />
             <Route path="comissoes" element={<Comissoes />} />
             <Route path="comissoes/:id" element={<DetalheComissao key={location.pathname} />} />

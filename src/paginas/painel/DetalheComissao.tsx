@@ -5,13 +5,15 @@ import { consultarRegistroDisponivel, idRegistro } from '../../servicos/registro
 import { dataCivil, dinheiroExato } from '../../servicos/formato';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
-import type { ParcelaComissao } from '../../servicos/locacoes';
+import type { ParcelaComissao, RevisaoComissao } from '../../servicos/locacoes';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Aviso from '../../componentes/Aviso';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import Tabela from '../../componentes/Tabela';
-import { IconeEditar } from '../../componentes/Icones';
+import { IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
+import ConfirmarAcao from '../../componentes/ConfirmarAcao';
+import Etiqueta from '../../componentes/Etiqueta';
 import { estilos } from '../../componentes/estilosPainel';
 import { DadosFicha, DadoFicha, GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 import { DialogoPagamento, EdicaoComissao } from './EditoresComissao';
@@ -20,18 +22,27 @@ export default function DetalheComissao() {
   const id = idRegistro(useParams().id);
   const [pagando, setPagando] = useState<ParcelaComissao>();
   const [editando, setEditando] = useState(false);
+  const [alternando, setAlternando] = useState(false);
   const consulta = useDadosPainel(useCallback(() => id ? consultarRegistroDisponivel(() => api.obterComissao(id)) : Promise.resolve(null), [id]));
+  const revisoes = useDadosPainel(useCallback(() => id ? consultarRegistroDisponivel(() => api.revisoesComissao(id)) : Promise.resolve(null), [id]));
+  const recarregar = () => { consulta.recarregar(); revisoes.recarregar(); };
   const comissao = !consulta.carregando && !consulta.erro && consulta.dados?.id === id ? consulta.dados : null;
   const imovelId = comissao?.imovel_id;
   const pessoaId = comissao?.pessoa_id;
   const imovel = useDadosPainel(useCallback(() => imovelId ? consultarRegistroDisponivel(() => api.obterFicha(imovelId)) : Promise.resolve(null), [imovelId]));
   const pessoa = useDadosPainel(useCallback(() => pessoaId ? consultarRegistroDisponivel(() => api.obterPessoa(pessoaId)) : Promise.resolve(null), [pessoaId]));
-  useAcoesPainel(useMemo(() => comissao ? [{ id: 'editar-comissao', rotulo: 'Editar comissão', executar: () => setEditando(true) }] : [], [comissao]));
+  useAcoesPainel(useMemo(() => comissao ? [{ id: 'editar-comissao', rotulo: 'Editar comissão', executar: () => setEditando(true) }, { id: 'alternar-comissao', rotulo: comissao.ativo ? 'Arquivar comissão' : 'Reativar comissão', executar: () => setAlternando(true) }] : [], [comissao]));
+  async function alternar() {
+    if (!comissao) return;
+    await api.atualizarComissao(comissao.id, comissao.versao_registro, { ativo: !comissao.ativo });
+    setAlternando(false);
+    recarregar();
+  }
   const pago = comissao ? comissao.parcelas.filter((parcela) => parcela.ativo && parcela.status === 'PAGO').reduce((total, parcela) => total + BigInt(parcela.valor.replace('.', '')), 0n) : 0n;
   const decimal = (centavos: bigint) => `${centavos / 100n}.${String(centavos % 100n).padStart(2, '0')}`;
   const saldo = comissao ? comissao.parcelas.filter((parcela) => parcela.ativo && parcela.status !== 'PAGO').reduce((total, parcela) => total + BigInt(parcela.valor.replace('.', '')), 0n) : 0n;
   return <>
-    <CabecalhoPagina voltar={{ to: '/admin/comissoes', rotulo: 'Voltar para comissões' }} titulo={comissao ? `Comissão #${comissao.id}` : 'Comissão'} descricao={comissao ? `${comissao.tipo_operacao === 'VENDA' ? 'Venda' : 'Locação'}, ${comissao.ativo ? 'ativa' : 'arquivada'}.` : undefined} acoes={comissao && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={`comissão #${comissao.id}`} aoClicar={() => setEditando(true)} />} />
+    <CabecalhoPagina voltar={{ to: '/admin/comissoes', rotulo: 'Voltar para comissões' }} titulo={comissao ? `Comissão #${comissao.id}` : 'Comissão'} descricao={comissao ? `${comissao.tipo_operacao === 'VENDA' ? 'Venda' : 'Locação'}, ${comissao.ativo ? 'ativa' : 'arquivada'}.` : undefined} acoes={comissao && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={`comissão #${comissao.id}`} aoClicar={() => setEditando(true)} /><AcaoIcone icone={comissao.ativo ? IconeArquivar : IconeDesarquivar} rotulo={comissao.ativo ? 'Arquivar' : 'Reativar'} tom={comissao.ativo ? 'perigo' : 'neutro'} contexto={`comissão #${comissao.id}`} aoClicar={() => setAlternando(true)} /></>} />
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !comissao && <Aviso>Comissão indisponível.</Aviso>}
     {comissao && !consulta.carregando && !consulta.erro && <>
@@ -63,8 +74,21 @@ export default function DetalheComissao() {
           { titulo: 'Ações', acoes: true, celula: (parcela) => <div className={estilos.acoes}>{comissao.ativo && parcela.ativo && parcela.status !== 'PAGO' && <button className="buttonGhost" onClick={() => setPagando(parcela)}>Registrar recebimento</button>}</div> },
         ]} />
       </SecaoPainel>
-      {editando && <EdicaoComissao key={comissao.id} comissao={comissao} aoFechar={() => setEditando(false)} aoSalvar={consulta.recarregar} />}
-      {pagando && <DialogoPagamento parcela={pagando} aoFechar={() => setPagando(undefined)} aoSalvar={consulta.recarregar} />}
+      <SecaoPainel titulo="Histórico do plano" classe="mt-4">
+        <EstadoCarregamento compacto carregando={revisoes.carregando} erro={revisoes.erro} tentarNovamente={revisoes.recarregar} />
+        {revisoes.dados && !revisoes.carregando && !revisoes.erro && <Tabela<RevisaoComissao> itens={revisoes.dados.itens} chave={(revisao) => revisao.id} vazio="Sem revisões registradas." rotulo="Histórico do plano" colunas={[
+          { titulo: 'Plano', celula: (revisao) => <>Plano {revisao.versao_plano}{revisao.versao_plano === comissao.versao_plano && <> <Etiqueta tom="neutro">Vigente</Etiqueta></>}</> },
+          { titulo: 'Registro', celula: (revisao) => revisao.origem === 'MIGRACAO' ? 'Registro anterior ao histórico' : <>{new Date(revisao.criado_em).toLocaleString('pt-BR')}<small className="mt-1 block text-muted">{revisao.origem === 'CRIACAO' ? 'Criação' : 'Edição'}{revisao.autor_nome ? ` por ${revisao.autor_nome}` : ''}</small></> },
+          { titulo: 'Vínculos', celula: (revisao) => <>{revisao.tipo_operacao === 'VENDA' ? 'Venda' : `Locação, contrato ${revisao.numero_contrato ?? `#${revisao.contrato_id}`}`}<small className="mt-1 block text-muted">{revisao.imovel_titulo}; {revisao.pessoa_nome}</small></> },
+          { titulo: 'Receita', celula: (revisao) => <>{dinheiroExato(revisao.valor_total)}<small className="mt-1 block text-muted">{revisao.quantidade_parcelas} {revisao.quantidade_parcelas === 1 ? 'parcela' : 'parcelas'} a partir de {dataCivil(revisao.primeiro_vencimento)}</small></> },
+        ]} />}
+      </SecaoPainel>
+      {editando && <EdicaoComissao key={`${comissao.id}-${comissao.versao_registro}`} comissao={comissao} nomes={{ imovel: imovel.dados?.titulo, pessoa: pessoa.dados?.nome, contrato: revisoes.dados?.itens.find((revisao) => revisao.versao_plano === comissao.versao_plano)?.numero_contrato ?? undefined }} aoFechar={() => setEditando(false)} aoSalvar={recarregar} />}
+      {pagando && <DialogoPagamento parcela={pagando} aoFechar={() => setPagando(undefined)} aoSalvar={recarregar} />}
+      {alternando && <ConfirmarAcao titulo={comissao.ativo ? 'Arquivar comissão?' : 'Reativar comissão?'} descricao={<p>{comissao.ativo
+        ? 'A comissão sai da lista de ativas e novas baixas ficam bloqueadas. Recebimentos e histórico são preservados.'
+        : 'A comissão volta à lista de ativas com o plano vigente. Imóvel, cliente e contrato precisam continuar ativos.'}</p>}
+        confirmar={comissao.ativo ? 'Arquivar comissão' : 'Reativar comissão'} perigo={comissao.ativo} aoConfirmar={alternar} aoFechar={() => setAlternando(false)} />}
     </>}
   </>;
 }

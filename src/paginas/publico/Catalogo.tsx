@@ -101,10 +101,8 @@ export default function Catalogo() {
       <section className="hero-anim container grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-5 pb-2 pt-4 max-[800px]:grid-cols-1 max-[800px]:gap-6 max-[800px]:pt-6">
         <div>
           <h1 className="mb-2 mt-2 max-w-[650px] text-balance text-[clamp(30px,3.5vw,48px)] leading-[1.17] tracking-[-0.045em]">
-            Imóveis para alugar e comprar{" "}
-            <em className="font-normal text-brand">
-              em {brand.region.city}-{brand.region.state}
-            </em>
+            {brand.slogan.inicio}{" "}
+            <em className="font-normal text-brand">{brand.slogan.destaque}</em>
           </h1>
           <p className="mb-6 text-[17px] leading-[1.75] text-muted max-[800px]:text-[15px] max-[560px]:text-base max-[560px]:leading-[1.6]">
             Encontre salas comerciais, lojas, galpões, prédios e terrenos.
