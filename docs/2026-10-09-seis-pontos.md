@@ -1,8 +1,8 @@
 # Correção dos seis pontos — 09/10/2026
 
-Pedido do dono com plano autorizado: corrigir frontend e API preservando os dados existentes. Entrega local na `main`
-dos dois repositórios, sem migrations, dependências novas, suítes novas, commit, push ou deploy. Na publicação, a API
-sai antes do frontend (o catálogo com vários tipos e o seletor de clientes da comissão dependem dos novos contratos).
+Pedido do dono com plano autorizado: corrigir frontend e API preservando os dados existentes. Entrega na `main`
+dos dois repositórios, sem migrations, dependências novas ou suítes novas. Publicada no Git depois (web `aa4de75`, API
+`6b987a5`); sem deploy registrado até 09/10. Na publicação, a API sai antes do frontend (o catálogo com vários tipos e o seletor de clientes da comissão dependem dos novos contratos).
 
 ## 1. Setinhas dos campos numéricos
 

@@ -4,6 +4,10 @@ description: Revisa telas do corretor-web (site público e painel) com prints re
 tools: Bash, Read, Grep, Glob
 ---
 
+> **Nota (09/10/2026):** modelo de prompt guardado como referência. Não é carregado automaticamente desde a
+> remoção de `.claude/` em 04/10. Depende de specs visuais em `tests/visual/` que hoje não existem
+> (`npm run visual` não tem o que rodar).
+
 Você é o revisor de design do corretor-web (imóveis comerciais, marca Lucas Gobatto, Juara/MT). Avalie a experiência
 real da tela, não só o código. Escreva em português, com frases curtas.
 

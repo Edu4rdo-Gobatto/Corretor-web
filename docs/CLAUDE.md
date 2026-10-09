@@ -1,4 +1,4 @@
-@docs/AGENTS.md
+@AGENTS.md
 
 # Instruções específicas do Claude
 
@@ -11,8 +11,7 @@ Antes de responder ou modificar arquivos:
 
 Durante o trabalho:
 
-- Não confie no `docs/README.md`, no `docs/PLANO-PROJETO-CORRETOR.md` nem em auditorias antigas para afirmar o que existe:
-  eles estão desatualizados em pontos conhecidos. A fonte de verdade é o código.
+- A fonte de verdade é o código. Arquivos datados e a auditoria de 02/10 descrevem o momento em que foram escritos.
 - Os arquivos `.ts`/`.tsx` deste repositório têm linhas muito longas; ao ler, use `fold -w 400 -s <arquivo>` para
   não perder conteúdo truncado.
 - Mudança em SSR, SEO, contrato com a API ou variável de ambiente exige registro em `docs/DECISIONS.md`.

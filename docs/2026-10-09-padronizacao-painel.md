@@ -2,7 +2,7 @@
 
 ## Pedido e escopo autorizado
 
-Após aprovar a ficha de imóvel com títulos externos e cards alinhados, o dono pediu padronizar o painel inteiro, considerando todas as telas como referências. A entrega harmoniza o acabamento sem substituir suas composições. Abrange entrada, Visão geral, listas, fichas, Perfil, formulários e diálogos. Trabalho somente no frontend, local em main, preservando o trabalho anterior; sem commit, push, deploy, dependências, API, tipos ou banco.
+Após aprovar a ficha de imóvel com títulos externos e cards alinhados, o dono pediu padronizar o painel inteiro, considerando todas as telas como referências. A entrega harmoniza o acabamento sem substituir suas composições. Abrange entrada, Visão geral, listas, fichas, Perfil, formulários e diálogos. Trabalho somente no frontend, em main, preservando o trabalho anterior; sem dependências, API, tipos ou banco. Publicado no Git depois, em `36e73b1`; sem deploy registrado.
 
 ## Padrão aplicado
 
@@ -24,7 +24,7 @@ Todos os estilos novos são restritos a `.painel-ui`. A entrada aplica esse esco
 | `npm run lint` | Aprovado |
 | `npm test` | 3 arquivos / 23 testes aprovados |
 | `npm run build` | Cliente, SSR e Vercel Output gerados |
-| Smoke SSR efêmero | Metadados, paginação, 404, discovery, streaming/cookies, runtime Vercel e 503/recuperação aprovados |
+| Smoke SSR efêmero (cópia do `seo-smoke.mjs` com o h1 atual; o original falha, ver SMOKE-001 em TASKS) | Metadados, paginação, 404, discovery, streaming/cookies, runtime Vercel e 503/recuperação aprovados |
 | `git diff --check` | Aprovado |
 | Layout integrado | 270 cenários aprovados |
 | Formulários/login/estados | 49 cenários aprovados |
@@ -39,4 +39,4 @@ Evidências locais ignoradas: `artifacts/painel-padrao-2026-10-09/resultados-fin
 
 ## Limites da entrega
 
-QA com API simulada e navegador Chromium, sem gravações em serviço real. Login real, Neon, R2, Drive, pagamentos reais, reprodução de vídeo real, Safari/iOS e dispositivo físico não homologados. Nenhuma mudança de contrato, API/banco, dependência, commit, push ou deploy. Documentos de contexto e índice atualizados preservando todo o histórico.
+QA com API simulada e navegador Chromium, sem gravações em serviço real. Login real, Neon, R2, Drive, pagamentos reais, reprodução de vídeo real, Safari/iOS e dispositivo físico não homologados. Nenhuma mudança de contrato, API/banco ou dependência. Documentos de contexto e índice atualizados preservando todo o histórico.

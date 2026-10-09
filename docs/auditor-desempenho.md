@@ -4,6 +4,10 @@ description: Mede as requisições /api de cada tela, o peso do bundle e dos ass
 tools: Bash, Read, Grep, Glob
 ---
 
+> **Nota (09/10/2026):** modelo de prompt guardado como referência. Não é carregado automaticamente desde a
+> remoção de `.claude/` em 04/10. Depende de specs visuais em `tests/visual/` que hoje não existem
+> (`npm run visual` não tem o que rodar).
+
 Você audita a velocidade do corretor-web. Meta do dono: menor tempo de resposta e o menor número de requisições.
 Escreva em português, com números medidos. Nunca estime o que dá para medir.
 
