@@ -48,8 +48,25 @@ function validarExtras(valor: Extras, invalidos: Set<string>) {
   return '';
 }
 
+const POR_LINHA_MOBILE = 3;
+type OpcaoChip = { valor: string; rotulo: string; icone?: Icone };
+
+/** Chips do mobile. No card aparecem só as primeiras opções (uma linha); a tela cheia de "Mais filtros" mostra todas. */
+function GrupoChips({ id, rotulo, opcoes, marcado, aoClicar, limite }: { id: string; rotulo: string; opcoes: OpcaoChip[]; marcado: (valor: string) => boolean; aoClicar: (valor: string) => void; limite?: number }) {
+  return <div role="group" aria-labelledby={id}>
+    <span id={id} className={rotuloGrupo}>{rotulo}</span>
+    <div className={limite ? 'grid grid-cols-3 gap-2' : 'flex flex-wrap gap-2'}>
+      {opcoes.slice(0, limite).map(({ valor, rotulo: nome, icone: IconeOpcao }) => <button key={valor} type="button" aria-pressed={marcado(valor)} onClick={() => aoClicar(valor)}
+        className={`${chipBase} ${limite ? 'min-w-0 justify-center px-2' : ''} ${marcado(valor) ? chipSelecionado : chipInativo}`}>
+        {IconeOpcao && <IconeOpcao size={17} aria-hidden="true" className={`shrink-0 ${limite ? 'max-[380px]:hidden' : ''}`} />}
+        <span className={limite ? 'min-w-0 text-center text-[13px] leading-tight' : ''}>{nome}</span>
+      </button>)}
+    </div>
+  </div>;
+}
+
 function resumoTipos(selecionados: string[], tipos: Classificacao[]) {
-  if (!selecionados.length) return 'Todos';
+  if (!selecionados.length) return '';
   if (selecionados.length > 2) return `${selecionados.length} tipos`;
   const nomes = selecionados.map((chave) => tipos.find((tipo) => tipo.chave === chave)?.nome ?? chave);
   return new Intl.ListFormat('pt-BR', { type: 'conjunction' }).format(nomes);
@@ -79,7 +96,7 @@ function CamposExtras({ rascunho, aoMudar, emColunas }: { rascunho: Extras; aoMu
 
 /**
  * Card único de filtros do catálogo. Desktop: dois seletores (finalidade e tipos) e "Mais filtros" abrindo um painel
- * no próprio card. Mobile: chips e "Mais filtros" em tela cheia. A troca é só por CSS, então o HTML do SSR é o mesmo.
+ * no próprio card. Mobile: uma linha de chips por grupo e "Mais filtros" em tela cheia com todas as opções. A troca é só por CSS, então o HTML do SSR é o mesmo.
  * Seleções aplicam na hora; local, preço e área aplicam sozinhos 350 ms depois da digitação (useFiltrosAutomaticos),
  * substituindo a entrada do histórico, e na hora com Enter.
  */
@@ -114,12 +131,12 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
     ultimaNavegacao.current = aplicar({ ...extrasParaConsulta(normalizado), ...alteracoes });
   }
   function alternarTipo(chave: string) {
-    if (!chave) { selecionar({ tipos: undefined }); return; }
     const proximos = selecionados.includes(chave) ? selecionados.filter((item) => item !== chave) : [...selecionados, chave];
     selecionar({ tipos: proximos.length && proximos.length < tipos.length ? proximos : undefined });
   }
   const ordenar = consulta.ordenar ?? 'recentes';
-  const escolherOrdem = (valor: string) => selecionar({ ordenar: valor === 'recentes' ? undefined : valor as Ordenacao });
+  // Clicar na ordem já marcada volta para a padrão, como desmarcar um filtro.
+  const escolherOrdem = (valor = 'recentes') => selecionar({ ordenar: valor === 'recentes' || valor === ordenar ? undefined : valor as Ordenacao });
   function mudarCampo(campo: HTMLInputElement) {
     if (campo.validity.badInput) numerosInvalidos.current.add(campo.name);
     else numerosInvalidos.current.delete(campo.name);
@@ -134,22 +151,33 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
     sincronizar(extrasDaConsulta({}));
     limpar();
   }
-  const contador = extrasAtivos > 0 && <><span aria-hidden="true" className="inline-grid h-6 min-w-6 place-items-center rounded-full bg-gold px-1.5 text-xs font-bold text-navy-deep">{extrasAtivos}</span><span className="sr-only">({extrasAtivos} {extrasAtivos === 1 ? 'ativo' : 'ativos'})</span></>;
+  const alternarFinalidade = (chave: string) => selecionar({ finalidade: consulta.finalidade === chave ? undefined : chave });
+  const opcoesFinalidade = finalidades.map((item) => ({ valor: item.chave, rotulo: item.nome }));
+  const opcoesTipo = tipos.map((tipo) => ({ valor: tipo.chave, rotulo: tipo.nome, icone: icones[tipo.chave] || IconeEdificio }));
+  const grupos = (limite?: number) => <>
+    <GrupoChips id={`chips-finalidade${limite ? '' : '-todas'}`} rotulo="Alugar ou comprar" opcoes={opcoesFinalidade} limite={limite} marcado={(valor) => consulta.finalidade === valor} aoClicar={alternarFinalidade} />
+    <GrupoChips id={`chips-tipos${limite ? '' : '-todas'}`} rotulo="Tipo de imóvel" opcoes={opcoesTipo} limite={limite} marcado={(valor) => selecionados.includes(valor)} aoClicar={alternarTipo} />
+    <GrupoChips id={`chips-ordem${limite ? '' : '-todas'}`} rotulo="Ordenar por" opcoes={ordenacoes} limite={limite} marcado={(valor) => ordenar === valor} aoClicar={escolherOrdem} />
+  </>;
+  // No mobile o contador soma também as escolhas que ficaram fora da linha do card.
+  const ocultas = (opcoes: { valor: string }[], marcado: (valor: string) => boolean) => opcoes.slice(POR_LINHA_MOBILE).filter((opcao) => marcado(opcao.valor)).length;
+  const ocultasMobile = ocultas(opcoesFinalidade, (valor) => consulta.finalidade === valor) + ocultas(opcoesTipo, (valor) => selecionados.includes(valor)) + ocultas(ordenacoes, (valor) => valor === consulta.ordenar);
+  const contador = (total: number) => total > 0 && <><span aria-hidden="true" className="inline-grid h-6 min-w-6 place-items-center rounded-full bg-gold px-1.5 text-xs font-bold text-navy-deep">{total}</span><span className="sr-only">({total} {total === 1 ? 'ativo' : 'ativos'})</span></>;
   const mensagemErro = erro && <p className="error mb-0 mt-4" role="alert">{erro}</p>;
 
   return <div role="search" aria-label="Filtrar imóveis" className="rounded-lg border border-line bg-paper px-7 pb-4 pt-6 shadow-sm max-[560px]:px-[18px] max-[560px]:pt-5">
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] items-end gap-5 max-[1100px]:gap-3 max-[960px]:grid-cols-2 max-[960px]:gap-y-4 max-[800px]:hidden">
-      <FiltroSuspenso id="filtro-finalidade" rotulo="Alugar ou comprar" resumo={finalidades.find((item) => item.chave === consulta.finalidade)?.nome ?? 'Todos'}
+      <FiltroSuspenso id="filtro-finalidade" rotulo="Alugar ou comprar" resumo={finalidades.find((item) => item.chave === consulta.finalidade)?.nome}
         opcoes={finalidades.map((item) => ({ valor: item.chave, rotulo: item.nome }))}
         selecionados={consulta.finalidade ? [consulta.finalidade] : []} aoMudar={([finalidade]) => selecionar({ finalidade })} />
       <FiltroSuspenso id="filtro-tipos" rotulo="Tipo de imóvel" multiplo resumo={resumoTipos(selecionados, tipos)} selecionados={selecionados}
         opcoes={tipos.map((tipo) => { const Icone = icones[tipo.chave] || IconeEdificio; return { valor: tipo.chave, rotulo: tipo.nome, icone: <Icone size={17} /> }; })}
         aoMudar={(proximos) => selecionar({ tipos: proximos.length ? proximos : undefined })} />
-      <FiltroSuspenso id="filtro-ordem" rotulo="Ordenar por" todos={false} resumo={rotulosOrdenacao[ordenar]} opcoes={ordenacoes}
+      <FiltroSuspenso id="filtro-ordem" rotulo="Ordenar por" filtro={false} resumo={rotulosOrdenacao[ordenar]} opcoes={ordenacoes}
         selecionados={[ordenar]} aoMudar={([valor]) => escolherOrdem(valor)} />
       <button type="button" aria-expanded={painelAberto} aria-controls="filtros-extras" onClick={() => setPainelAberto(!painelAberto)}
         className={`buttonSecondary min-h-12 border-[var(--color-control-line)] px-4 py-0 ${painelAberto ? 'bg-soft' : ''}`}>
-        <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador}
+        <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos)}
         <IconeProximo size={18} aria-hidden="true" className={`text-muted transition-transform ${painelAberto ? '-rotate-90' : 'rotate-90'}`} />
       </button>
     </div>
@@ -158,36 +186,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
       {!telaCheia && mensagemErro}
     </form>}
 
-    <div className="grid gap-5 min-[801px]:hidden">
-      <div role="group" aria-labelledby="filtros-finalidade">
-        <span id="filtros-finalidade" className={rotuloGrupo}>Alugar ou comprar</span>
-        <div className="flex flex-wrap gap-2">
-          {[{ chave: '', nome: 'Todos' }, ...finalidades].map((item) => {
-            const marcado = (consulta.finalidade ?? '') === item.chave;
-            return <button key={item.chave || '-todos'} type="button" aria-pressed={marcado} onClick={() => selecionar({ finalidade: item.chave || undefined })}
-              className={`${chipBase} ${marcado ? chipSelecionado : chipInativo}`}>{item.nome}</button>;
-          })}
-        </div>
-      </div>
-      <div role="group" aria-labelledby="filtros-tipos">
-        <span id="filtros-tipos" className={rotuloGrupo}>Tipo de imóvel</span>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" aria-pressed={!selecionados.length} onClick={() => alternarTipo('')} className={`${chipBase} ${!selecionados.length ? chipSelecionado : chipInativo}`}>Todos</button>
-          {tipos.map((tipo) => {
-            const Icone = icones[tipo.chave] || IconeEdificio;
-            const marcado = selecionados.includes(tipo.chave);
-            return <button key={tipo.chave} type="button" aria-pressed={marcado} onClick={() => alternarTipo(tipo.chave)} className={`${chipBase} ${marcado ? chipSelecionado : chipInativo}`}><Icone size={17} aria-hidden="true" />{tipo.nome}</button>;
-          })}
-        </div>
-      </div>
-      <div role="group" aria-labelledby="filtros-ordem">
-        <span id="filtros-ordem" className={rotuloGrupo}>Ordenar por</span>
-        <div className="flex flex-wrap gap-2">
-          {ordenacoes.map((opcao) => <button key={opcao.valor} type="button" aria-pressed={ordenar === opcao.valor} onClick={() => escolherOrdem(opcao.valor)}
-            className={`${chipBase} ${ordenar === opcao.valor ? chipSelecionado : chipInativo}`}>{opcao.rotulo}</button>)}
-        </div>
-      </div>
-    </div>
+    <div className="grid gap-5 min-[801px]:hidden">{grupos(POR_LINHA_MOBILE)}</div>
 
     <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
       <button type="button" onClick={limparTudo} disabled={!temFiltro}
@@ -195,13 +194,14 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
         <IconeFechar size={16} aria-hidden="true" />Limpar
       </button>
       <button type="button" aria-haspopup="dialog" onClick={() => setTelaCheia(true)} className="buttonSecondary min-h-11 border-[var(--color-control-line)] px-4 min-[801px]:hidden">
-        <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador}
+        <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos + ocultasMobile)}
       </button>
     </div>
     <datalist id="catalogo-cidades">{cidades.map((cidade) => <option value={cidade} key={cidade} />)}</datalist>
 
     {telaCheia && <Dialogo titulo="Mais filtros" telaInteira aoFechar={() => { aplicarAgora(); setTelaCheia(false); }}>
       <form noValidate onSubmit={aplicarExtras} className="flex min-h-full flex-col">
+        <div className="mb-6 grid gap-5 border-b border-line pb-6">{grupos()}</div>
         <CamposExtras rascunho={rascunho} aoMudar={mudarCampo} emColunas={false} />
         {mensagemErro}
         <div className="mt-auto pt-8"><button type="submit" className="button w-full">Ver imóveis</button></div>

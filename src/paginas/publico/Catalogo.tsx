@@ -62,7 +62,8 @@ export default function Catalogo() {
         <img src="/assets/rua-comercial-1200.webp" srcSet="/assets/rua-comercial-640.webp 640w, /assets/rua-comercial-960.webp 960w, /assets/rua-comercial-1200.webp 1200w" sizes="(max-width: 800px) calc(100vw - 36px), 600px" width="1200" height="900" alt="Rua comercial arborizada ao entardecer, com lojas no térreo, salas nos andares superiores e prédio moderno ao fundo" className="h-full w-full rounded-lg object-cover" {...{ fetchpriority: 'high' }} />
       </div>
     </section>
-    <section id="catalogo" className="container scroll-mt-[120px] pt-12 max-[800px]:scroll-mt-[100px] max-[560px]:pt-8" aria-labelledby="catalogo-titulo">
+    {/* Margem de rolagem = altura do cabeçalho (104/84px) + 20px − padding do topo: o título para logo abaixo do cabeçalho. */}
+    <section id="catalogo" className="container scroll-mt-[76px] pt-12 max-[800px]:scroll-mt-[56px] max-[560px]:scroll-mt-[72px] max-[560px]:pt-8" aria-labelledby="catalogo-titulo">
       <div className="mb-6">
         <h2 id="catalogo-titulo" className="mb-2 text-[clamp(26px,2.5vw,35px)]">Imóveis disponíveis</h2>
         <p className="m-0 min-h-[1.55em] text-sm text-muted" aria-live="polite">{!carregando && !erro && plural(imoveis?.total || 0, 'imóvel encontrado', 'imóveis encontrados')}</p>

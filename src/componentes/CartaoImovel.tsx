@@ -11,7 +11,7 @@ export default function CartaoImovel({ imovel }: { imovel: Imovel }) {
   const preco = valorPrincipal(imovel);
   const finalidade = imovel.finalidade?.nome || (preco?.tipo === 'locacao' ? 'Para alugar' : 'À venda');
   return (
-    <article className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-paper shadow-sm transition-[transform,box-shadow] duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.05] [@media(hover:hover)]:hover:shadow-2xl motion-reduce:transform-none motion-reduce:transition-none">
+    <article className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-paper shadow-sm transition-[transform,box-shadow] duration-1000 ease-in-out [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.05] [@media(hover:hover)]:hover:shadow-2xl motion-reduce:transform-none motion-reduce:transition-none">
       <Link to={urlImovel(imovel.slug)} className="group relative block aspect-[1.47/1] overflow-hidden border-b-[3px] border-b-gold bg-soft max-[560px]:aspect-[4/3]" aria-label={`Ver ${imovel.titulo}`}>
         {capa && !imagemFalhou
           ? <img src={capa.url} alt={imovel.titulo} loading="lazy" decoding="async" onError={() => setImagemFalhou(true)} className="h-full w-full object-cover" />

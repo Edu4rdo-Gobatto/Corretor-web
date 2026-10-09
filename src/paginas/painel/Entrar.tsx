@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
-import BotaoVoltar from '../../componentes/BotaoVoltar';
+import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import { useEscVoltar } from '../../hooks/useEscVoltar';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -42,16 +42,13 @@ export default function Entrar() {
       </section>
       <main className="flex items-center justify-center px-6 py-9 lg:p-12">
         <div className="w-full max-w-[400px]">
-          <p className="eyebrow">Área do corretor</p>
-          <h1 className="text-[32px] text-ink">Entrar no painel</h1>
-          <p className="muted">Acesse sua conta para continuar o trabalho.</p>
+          <CabecalhoPagina rotulo="Área do corretor" titulo="Entrar no painel" descricao="Acesse sua conta para continuar o trabalho." voltar={{ to: rotas.inicio, rotulo: 'Voltar ao site' }} />
           <form onSubmit={handleSubmit((valores) => acessar(valores.email, valores.senha))} noValidate className="grid gap-[22px] [&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold">
             <Campo rotulo="E-mail" obrigatorio erro={errors.email?.message}><input type="email" autoComplete="username" {...register('email')} /></Campo>
             <Campo rotulo="Senha" obrigatorio erro={errors.senha?.message}><input type="password" autoComplete="current-password" {...register('senha')} /></Campo>
             {erro && <Aviso tom="erro">{erro}</Aviso>}
             <button className="button" disabled={isSubmitting || carregando}>{isSubmitting ? 'Entrando…' : 'Entrar na conta'}</button>
           </form>
-          <BotaoVoltar to={rotas.inicio} rotulo="Voltar ao site" />
         </div>
       </main>
     </div>

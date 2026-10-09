@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { IconeAdicionar } from '../../componentes/Icones';
 import { Link } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
@@ -66,7 +65,7 @@ export default function VisaoGeral() {
   const { corretor } = useSessao();
   const pendentes = useDadosPainel(carregadores.pendentes);
   return <>
-    <CabecalhoPagina titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." acoes={<Link className="button" to="/admin/imoveis/novo"><IconeAdicionar size={20} aria-hidden="true" />Novo imóvel</Link>} />
+    <CabecalhoPagina titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." />
     <section className={`${estilos.painel} border-t-4 border-t-gold`}>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4"><div><h2 className="mb-1 text-[22px]">Contatos aguardando resposta</h2><p className="m-0 text-[16px] text-muted">Comece por quem ainda espera seu retorno.</p></div><Link className="buttonSecondary" to={rotas.contatos}>Responder contatos</Link></div>
       <EstadoCarregamento compacto carregando={pendentes.carregando} erro={pendentes.erro} tentarNovamente={pendentes.recarregar} />

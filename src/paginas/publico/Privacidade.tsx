@@ -8,9 +8,8 @@ export default function Privacidade() {
     <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_h2]:text-[25px] [&_section]:mt-8 [&_section_p]:text-muted [&_.eyebrow]:mt-[45px]">
       <div className="mx-auto max-w-[800px]">
         <Seo />
-        <BotaoVoltar to="/" rotulo="Voltar ao catálogo" />
         <p className="eyebrow">Transparência e cuidado</p>
-        <h1>Política de privacidade</h1>
+        <div className="mb-4 flex items-center gap-4"><BotaoVoltar to="/" rotulo="Voltar ao catálogo" /><h1 className="mb-0">Política de privacidade</h1></div>
         <p className="muted">Versão {brand.privacy.version}</p>
         {!pronta && <p className="border-l-[3px] border-[#96834C] bg-[#ECE8D8] p-5 text-sm">Conteúdo preparatório: antes da publicação, é necessário informar a razão social ou nome do controlador, seu endereço e o e-mail para solicitações de privacidade.</p>}
         <section><h2>Quem trata seus dados</h2><p>{brand.privacy.controller || brand.name} utiliza os dados fornecidos para encaminhar seu interesse ao corretor responsável pelo imóvel.</p>{pronta && <p>{brand.privacy.address}<br /><a className="link-texto" href={`mailto:${brand.privacy.contactEmail}`}>{brand.privacy.contactEmail}</a></p>}</section>

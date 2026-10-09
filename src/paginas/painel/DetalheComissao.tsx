@@ -34,10 +34,10 @@ export default function DetalheComissao() {
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !comissao && <Aviso>Comissão indisponível.</Aviso>}
     {comissao && !consulta.carregando && !consulta.erro && <>
-      <section className="indicadores-painel mb-6" aria-label="Valores da comissão">
-        <div className="rounded border border-line bg-paper p-5"><span className="text-[16px] text-muted">Receita total</span><strong className="my-3 block text-[28px] text-ink">{dinheiroExato(comissao.valor_total)}</strong></div>
-        <div className="rounded border border-line bg-paper p-5"><span className="text-[16px] text-muted">Recebido</span><strong className="my-3 block text-[28px] text-ink">{dinheiroExato(comissao.valor_pago ?? decimal(pago))}</strong></div>
-        <div className="rounded border border-line bg-paper p-5"><span className="text-[16px] text-muted">Saldo</span><strong className="my-3 block text-[28px] text-ink">{dinheiroExato(comissao.saldo_pendente ?? decimal(saldo))}</strong></div>
+      <section className="mb-6 grid grid-cols-3 gap-3 max-[560px]:gap-2" aria-label="Valores da comissão">
+        <div className="min-w-0 rounded border border-line bg-paper px-4 py-3 max-[560px]:px-3"><span className="text-sm text-muted">Receita total</span><strong className="mt-1 block text-[22px] leading-tight text-ink [overflow-wrap:anywhere] max-[760px]:text-lg max-[560px]:text-sm">{dinheiroExato(comissao.valor_total)}</strong></div>
+        <div className="min-w-0 rounded border border-line bg-paper px-4 py-3 max-[560px]:px-3"><span className="text-sm text-muted">Recebido</span><strong className="mt-1 block text-[22px] leading-tight text-ink [overflow-wrap:anywhere] max-[760px]:text-lg max-[560px]:text-sm">{dinheiroExato(comissao.valor_pago ?? decimal(pago))}</strong></div>
+        <div className="min-w-0 rounded border border-line bg-paper px-4 py-3 max-[560px]:px-3"><span className="text-sm text-muted">Saldo</span><strong className="mt-1 block text-[22px] leading-tight text-ink [overflow-wrap:anywhere] max-[760px]:text-lg max-[560px]:text-sm">{dinheiroExato(comissao.saldo_pendente ?? decimal(saldo))}</strong></div>
       </section>
       <section className={estilos.painel}>
         <h2 className={estilos.tituloPainel}>Vínculos do negócio</h2>
