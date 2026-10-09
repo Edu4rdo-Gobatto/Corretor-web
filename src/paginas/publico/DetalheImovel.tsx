@@ -1,11 +1,11 @@
 import { urlFotoCorretor } from '../../servicos/fotos';
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeMapa, IconeCama, IconeGota, IconeSofa, IconeAndares, IconeCarro, IconePiscina, IconeModoClaro, IconeTerreno, type Icone } from '../../componentes/Icones';
+import { IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeCama, IconeGota, IconeSofa, IconeAndares, IconeCarro, IconePiscina, IconeModoClaro, IconeTerreno, type Icone } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useRecurso } from '../../hooks/useRecurso';
 import { urlImovel } from '../../servicos/urls';
-import { area, codigoImovel, dinheiro, precoPorMetro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal, destaquesImovel, type ChaveDestaque } from '../../servicos/formato';
+import { area, dinheiro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal, destaquesImovel, type ChaveDestaque } from '../../servicos/formato';
 import type { Imovel } from '../../tipos';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import BotaoVoltar from '../../componentes/BotaoVoltar';
@@ -17,6 +17,18 @@ import { Seo, useDadosIniciais } from '../../seo/context';
 
 const classeCard = 'rounded-[5px] border border-line bg-paper p-6 max-[480px]:p-5';
 const iconesDestaque: Record<ChaveDestaque, Icone> = { quartos: IconeCama, banheiros: IconeGota, salas: IconeSofa, pisos: IconeAndares, vagas: IconeCarro, piscina: IconePiscina, solar: IconeModoClaro, lazer: IconeTerreno };
+
+/** Indicador visual em formato de chave: verde quando disponível, amarelo nos demais casos (igual nos dois temas). */
+function IndicadorDisponibilidade({ disponivel }: { disponivel: boolean }) {
+  return (
+    <span className={`inline-flex items-center gap-2 text-sm font-semibold ${disponivel ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+      <span aria-hidden="true" className={`relative inline-block h-5 w-9 rounded-full ${disponivel ? 'bg-emerald-500' : 'bg-amber-400'}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm ${disponivel ? 'right-0.5' : 'left-0.5'}`} />
+      </span>
+      {disponivel ? 'Disponível' : 'Indisponível'}
+    </span>
+  );
+}
 
 function Semelhantes({ atual }: { atual: Imovel }) {
   const [itens, setItens] = useState<Imovel[]>([]);
@@ -79,7 +91,7 @@ export default function DetalheImovel() {
     { chave: 'area_total', icone: IconeEdificio, valor: area(imovel.area_total), rotulo: 'de área total' },
     ...destaques.map(({ chave, quantidade, rotulo }) => ({ chave, icone: iconesDestaque[chave], valor: quantidade, rotulo })),
   ] : [];
-  const precoMetro = imovel && preco ? precoPorMetro(preco.valor, Number(imovel.area_util)) : null;
+  const modalidade = !imovel ? '' : imovel.valor_venda !== null && imovel.valor_locacao !== null ? 'Compra e Locação' : imovel.valor_venda !== null ? 'Compra' : imovel.valor_locacao !== null ? 'Locação' : imovel.finalidade?.nome || 'Sob consulta';
   const condominio = imovel?.valor_condominio === null || imovel?.valor_condominio === undefined ? null : Number(imovel.valor_condominio);
   const iptu = imovel?.valor_iptu === null || imovel?.valor_iptu === undefined ? null : Number(imovel.valor_iptu);
 
@@ -103,26 +115,28 @@ export default function DetalheImovel() {
               {imovel.valor_venda !== null && <><p className="eyebrow">Valor de venda</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_venda)}</p></>}
               {imovel.valor_locacao !== null && <><p className="eyebrow">Valor de locação</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_locacao)}<span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span></p></>}
               {!preco && <><p className="eyebrow">Valor</p><p className="mb-[14px] text-[26px] font-semibold text-brand">Sob consulta</p></>}
-              {precoMetro !== null && <p className="mb-3 text-sm text-muted">{dinheiro(precoMetro)} / m² ({preco?.tipo === 'locacao' ? 'locação' : 'venda'})</p>}
+              <dl className="mb-4 border-y border-line text-sm [&_dd]:m-0 [&_div]:flex [&_div]:items-center [&_div]:justify-between [&_div]:gap-4 [&_div]:py-3 [&_div+div]:border-t [&_div+div]:border-line [&_dt]:text-muted">
+                <div><dt className="sr-only">Metragem</dt><dd className="text-[17px] font-semibold text-brand">{area(imovel.area_util)}</dd><dd><IndicadorDisponibilidade disponivel={imovel.status === 'DISPONIVEL'} /></dd></div>
+                <div><dt>Modalidade</dt><dd className="font-semibold text-brand">{modalidade}</dd></div>
+                <div><dt>Cidade</dt><dd className="text-right font-semibold [overflow-wrap:anywhere]">{imovel.cidade}/{imovel.estado}</dd></div>
+              </dl>
               {imovel.valor_locacao !== null && <><p className="mb-1 text-sm text-muted">Soma dos valores informados{condominio === null || iptu === null ? ' (parcial)' : ''}: {dinheiro(somaMensal(Number(imovel.valor_locacao), condominio, iptu))}</p><p className="mb-3 text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
               <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-[15px] [&_div]:py-[5px] [&_dt]:text-muted">
                 {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
                 {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
               </dl>
               <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <IconeSetaExterna size={18} /></button>
-              <p className="mb-4 mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
-              <div className="mb-[22px] flex flex-wrap items-center justify-center gap-2.5 [&_a]:min-h-11 [&_button]:min-h-11">
-                <AcaoIcone icone={IconeCompartilhar} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
-                <AcaoIcone icone={IconeMapa} rotulo="Ver no mapa" href={urlMaps} target="_blank" />
-              </div>
-              {linkCopiado && <p className="-mt-3 mb-4 text-center text-[13px] text-brand" role="status">Link copiado.</p>}
-              {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
+              <p className="mb-[22px] mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
+              <div className="flex items-center gap-3 border-t border-line pt-[22px] [&_button]:min-h-11">
+                {imovel.corretor && <>
                 <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={urlFotoCorretor(imovel.corretor)} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
                 <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
-              </div>}
+                </>}
+                <div className="ml-auto shrink-0"><AcaoIcone icone={IconeCompartilhar} rotulo="Compartilhar imóvel" aoClicar={compartilhar} /></div>
+              </div>
+              {linkCopiado && <p className="mb-0 mt-2 text-right text-[13px] text-brand" role="status">Link copiado.</p>}
               <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><IconeProtegido size={16} /> Seus dados são usados apenas para o atendimento.</p>
             </div>
-            <p className="px-2 py-[14px] text-[11px] text-muted max-[760px]:hidden">Referência: {codigoImovel(imovel.id)}</p>
           </aside>
             <div className="order-3 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-2">
             <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="caracteristicas">

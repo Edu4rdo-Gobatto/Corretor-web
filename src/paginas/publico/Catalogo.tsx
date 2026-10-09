@@ -81,9 +81,9 @@ export default function Catalogo() {
         </>}
       </div>
     </section>
-    <section className="container mt-[92px] grid grid-cols-2 gap-12 rounded-[3px] border-l-4 border-gold bg-navy px-14 py-[54px] text-white max-[800px]:gap-[30px] max-[800px]:p-8 max-[560px]:mt-[50px] max-[560px]:grid-cols-1 max-[560px]:gap-6 max-[560px]:px-6 max-[560px]:py-[30px]">
-      <div><p className="eyebrow text-white">Atendimento com corretor</p><h2 className="mb-0">Precisa de ajuda para<br />encontrar seu imóvel?</h2></div>
-      <div className="max-w-[400px] self-center"><p className="text-white/80">Conte o que seu negócio precisa. O corretor ajuda você a encontrar opções para alugar ou comprar em {brand.region.name}.</p><a href={`https://wa.me/${telefoneWhatsapp(brand.contact.whatsapp)}`} target="_blank" rel="noopener noreferrer" className="buttonSecondary border-gold text-white hover:bg-white/10">Conversar pelo WhatsApp <IconeSetaExterna size={18} /></a></div>
+    <section className="container mt-[92px] grid items-start gap-12 rounded-[3px] border-l-4 border-gold bg-navy px-14 py-9 text-white min-[561px]:grid-cols-[auto_minmax(0,1fr)] max-[800px]:gap-[30px] max-[800px]:px-8 max-[800px]:py-7 max-[560px]:mt-[50px] max-[560px]:grid-cols-1 max-[560px]:gap-6 max-[560px]:px-6 max-[560px]:py-6">
+      <div><h2 className="mb-0">Precisa de ajuda para<br />encontrar seu imóvel?</h2></div>
+      <div className="flex flex-col items-end max-[560px]:items-stretch"><p className="text-white/80 text-2xl mt-4">Encontrar o seu lar é a nossa missão. Nós ajudamos você a encontrar a opção idela para você e sua família em {brand.region.city} e região.</p><a href={`https://wa.me/${telefoneWhatsapp(brand.contact.whatsapp)}`} target="_blank" rel="noopener noreferrer" className="buttonSecondary border-gold text-white hover:bg-white/10 mt-4">Conversar pelo WhatsApp <IconeSetaExterna size={18} /></a></div>
     </section>
   </>;
 }
