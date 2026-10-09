@@ -1,18 +1,22 @@
 import { urlFotoCorretor } from '../../servicos/fotos';
 import { useCallback, useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
-import { IconeSetaEsquerda, IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeMapa } from '../../componentes/Icones';
+import { Navigate, useParams } from 'react-router-dom';
+import { IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeMapa, IconeCama, IconeGota, IconeSofa, IconeAndares, IconeCarro, IconePiscina, IconeModoClaro, IconeTerreno, type Icone } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useRecurso } from '../../hooks/useRecurso';
 import { urlImovel } from '../../servicos/urls';
-import { area, codigoImovel, dinheiro, precoPorMetro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal, rotulosStatusImovel } from '../../servicos/formato';
+import { area, codigoImovel, dinheiro, precoPorMetro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal, destaquesImovel, type ChaveDestaque } from '../../servicos/formato';
 import type { Imovel } from '../../tipos';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
+import BotaoVoltar from '../../componentes/BotaoVoltar';
 import GaleriaMidia from '../../componentes/GaleriaMidia';
 import CartaoImovel from '../../componentes/CartaoImovel';
 import FormularioContato from '../../componentes/FormularioContato';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import { Seo, useDadosIniciais } from '../../seo/context';
+
+const classeCard = 'rounded-[5px] border border-line bg-paper p-6 max-[480px]:p-5';
+const iconesDestaque: Record<ChaveDestaque, Icone> = { quartos: IconeCama, banheiros: IconeGota, salas: IconeSofa, pisos: IconeAndares, vagas: IconeCarro, piscina: IconePiscina, solar: IconeModoClaro, lazer: IconeTerreno };
 
 function Semelhantes({ atual }: { atual: Imovel }) {
   const [itens, setItens] = useState<Imovel[]>([]);
@@ -33,9 +37,9 @@ function Semelhantes({ atual }: { atual: Imovel }) {
   }, [atual.id, atual.cidade, finalidade, tipo]);
   if (!itens.length) return null;
   return (
-    <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]" aria-labelledby="similares">
+    <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="similares">
       <h2 id="similares">Você também pode gostar</h2>
-      <div className="mt-5 grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[760px]:grid-cols-1">{itens.map((item) => <CartaoImovel key={item.id} imovel={item} />)}</div>
+      <div className={`${classeCard} grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[760px]:grid-cols-1`}>{itens.map((item) => <CartaoImovel key={item.id} imovel={item} />)}</div>
     </section>
   );
 }
@@ -47,7 +51,6 @@ export default function DetalheImovel() {
   const { valor: imovel, carregando, erro, statusErro, tentarNovamente } = useRecurso(carregar, iniciais?.data.imovel);
   const [contatoAberto, setContatoAberto] = useState(false);
   const [linkCopiado, setLinkCopiado] = useState(false);
-  const [mapaCarregado, setMapaCarregado] = useState('');
 
   async function compartilhar() {
     if (!imovel) return;
@@ -65,8 +68,17 @@ export default function DetalheImovel() {
   if (imovel && imovel.slug !== slug) return <Navigate to={urlImovel(imovel.slug)} replace />;
 
   const consultaMapa = imovel ? encodeURIComponent(`${imovel.logradouro}, ${imovel.numero} — ${imovel.bairro}, ${imovel.cidade}/${imovel.estado}`) : '';
+  const urlMaps = `https://www.google.com/maps/search/?api=1&query=${consultaMapa}`;
   const enderecoCompleto = imovel && [imovel.logradouro, imovel.numero, imovel.cidade, imovel.estado].every((valor) => String(valor ?? '').trim().length > 0);
   const preco = imovel ? valorPrincipal(imovel) : null;
+  const destaques = imovel ? destaquesImovel(imovel.caracteristicas) : [];
+  const idsDestacados = new Set(destaques.map((item) => item.caracteristica_id));
+  const demaisCaracteristicas = imovel ? imovel.caracteristicas.filter((item) => !idsDestacados.has(item.caracteristica_id)) : [];
+  const tiles: { chave: string; icone: Icone; valor: string | number | null; rotulo: string }[] = imovel ? [
+    { chave: 'area_util', icone: IconeArea, valor: area(imovel.area_util), rotulo: 'de área útil' },
+    { chave: 'area_total', icone: IconeEdificio, valor: area(imovel.area_total), rotulo: 'de área total' },
+    ...destaques.map(({ chave, quantidade, rotulo }) => ({ chave, icone: iconesDestaque[chave], valor: quantidade, rotulo })),
+  ] : [];
   const precoMetro = imovel && preco ? precoPorMetro(preco.valor, Number(imovel.area_util)) : null;
   const condominio = imovel?.valor_condominio === null || imovel?.valor_condominio === undefined ? null : Number(imovel.valor_condominio);
   const iptu = imovel?.valor_iptu === null || imovel?.valor_iptu === undefined ? null : Number(imovel.valor_iptu);
@@ -74,15 +86,15 @@ export default function DetalheImovel() {
   return (
     <div className="container pb-6 pt-[30px]">
       <Seo dados={{ imovel }} status={statusErro || 200} />
-      <Link className="inline-flex items-center gap-2 text-sm text-muted no-underline transition duration-150 hover:-translate-x-[3px] hover:text-brand motion-reduce:transform-none motion-reduce:transition-none" to="/"><IconeSetaEsquerda size={16} /> Voltar aos imóveis</Link>
+      {!(imovel && !carregando && !erro) && <BotaoVoltar to="/" rotulo="Voltar aos imóveis" />}
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={tentarNovamente} esqueleto="detalhe" />
       {!carregando && !erro && imovel && <>
-        <nav aria-label="Navegação estrutural" className="my-5 text-sm text-muted"><Link to="/" className="link-texto">Imóveis comerciais</Link> / <span aria-current="page">{imovel.titulo}</span></nav>
-        <div className="py-[30px] max-[760px]:pt-6">
-          <p className="mb-3 inline-flex rounded-full border border-line bg-soft px-3 py-1 text-sm text-muted">{rotulosStatusImovel[imovel.status]}</p>
-          <p className="eyebrow mb-[14px]">{imovel.tipo?.nome || 'Imóvel'} · {imovel.finalidade?.nome || 'Imóvel comercial'} · Ref. {codigoImovel(imovel.id)}</p>
-          <h1 className="mb-[15px] max-w-[950px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
-          <p className="mb-0 flex items-start gap-[7px] text-muted"><IconeLocal size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
+        <div className="flex items-start gap-5 pb-[30px] max-[760px]:gap-3">
+          <div className="mt-[3px] max-[760px]:mt-0"><BotaoVoltar to="/" rotulo="Voltar aos imóveis" /></div>
+          <div className="min-w-0 flex-1">
+            <h1 className="mb-[15px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
+            <p className="mb-0 flex items-start gap-[7px] text-muted"><IconeLocal size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
+          </div>
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-[52px] max-[1000px]:grid-cols-[minmax(0,1fr)_300px] max-[1000px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-5">
             <div className="order-1 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-1"><GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} /></div>
@@ -101,7 +113,7 @@ export default function DetalheImovel() {
               <p className="mb-4 mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
               <div className="mb-[22px] flex flex-wrap items-center justify-center gap-2.5 [&_a]:min-h-11 [&_button]:min-h-11">
                 <AcaoIcone icone={IconeCompartilhar} rotulo="Compartilhar imóvel" aoClicar={compartilhar} />
-                <AcaoIcone icone={IconeMapa} rotulo="Ver no mapa" href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`} target="_blank" />
+                <AcaoIcone icone={IconeMapa} rotulo="Ver no mapa" href={urlMaps} target="_blank" />
               </div>
               {linkCopiado && <p className="-mt-3 mb-4 text-center text-[13px] text-brand" role="status">Link copiado.</p>}
               {imovel.corretor && <div className="flex items-center gap-3 border-t border-line pt-[22px]">
@@ -113,25 +125,38 @@ export default function DetalheImovel() {
             <p className="px-2 py-[14px] text-[11px] text-muted max-[760px]:hidden">Referência: {codigoImovel(imovel.id)}</p>
           </aside>
             <div className="order-3 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-2">
-            <div className="grid grid-cols-2 gap-[14px] border-b border-line py-[26px] max-[1000px]:gap-3 max-[480px]:grid-cols-1 [&_span]:flex [&_span]:items-center [&_span]:gap-2 [&_span]:rounded-[3px] [&_span]:bg-soft [&_span]:px-4 [&_span]:py-[14px] [&_span]:text-sm [&_svg]:shrink-0 [&_svg]:text-brand">
-              <span><IconeArea size={20} /><strong>{area(imovel.area_util)}</strong> de área útil</span>
-              <span><IconeEdificio size={20} /><strong>{area(imovel.area_total)}</strong> de área total</span>
-            </div>
-            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]"><h2>Sobre o imóvel</h2><p className="whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></section>
-            {imovel.caracteristicas.length > 0 && (
-              <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]">
-                <h2>Características</h2>
-                <dl className="grid grid-cols-2 gap-x-8 gap-y-[14px] max-[760px]:grid-cols-1 [&_dd]:m-0 [&_dd]:text-right [&_dd]:[overflow-wrap:anywhere] [&_div]:flex [&_div]:justify-between [&_div]:gap-5 [&_div]:border-b [&_div]:border-line [&_div]:pb-[10px] [&_div]:text-sm [&_dt]:[overflow-wrap:anywhere]">
-                  {imovel.caracteristicas.map((item) => <div key={item.caracteristica_id}><dt>{rotuloCaracteristica(item.nome)}</dt><dd>{valorCaracteristica(item.valor)}</dd></div>)}
-                </dl>
-              </section>
-            )}
-            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:text-[26px]">
+            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="caracteristicas">
+              <h2 id="caracteristicas">Características</h2>
+              <div className={classeCard}>
+                <ul className="m-0 grid list-none grid-cols-4 gap-3 p-0 max-[1000px]:grid-cols-3 max-[760px]:grid-cols-2">
+                  {tiles.map(({ chave, icone: IconeTile, valor, rotulo }) => (
+                    <li key={chave} className="flex flex-col gap-2 rounded-[3px] bg-soft px-4 py-[14px]">
+                      <IconeTile size={22} className="text-brand" />
+                      <span className="text-sm leading-tight">{valor !== null && <strong className="mr-1 font-display text-[22px] text-brand">{valor}</strong>}{rotulo}</span>
+                    </li>
+                  ))}
+                </ul>
+                {demaisCaracteristicas.length > 0 && (
+                  <dl className="mb-0 mt-6 grid grid-cols-2 gap-x-8 gap-y-[14px] border-t border-line pt-6 max-[760px]:grid-cols-1 [&_dd]:m-0 [&_dd]:text-right [&_dd]:[overflow-wrap:anywhere] [&_div]:flex [&_div]:justify-between [&_div]:gap-5 [&_div]:border-b [&_div]:border-line [&_div]:pb-[10px] [&_div]:text-sm [&_dt]:[overflow-wrap:anywhere]">
+                    {demaisCaracteristicas.map((item) => <div key={item.caracteristica_id}><dt>{rotuloCaracteristica(item.nome)}</dt><dd>{valorCaracteristica(item.valor)}</dd></div>)}
+                  </dl>
+                )}
+              </div>
+            </section>
+            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]"><h2>Sobre o imóvel</h2><div className={classeCard}><p className="mb-0 whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></div></section>
+            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]">
               <h2>Localização</h2>
-              <p>{imovel.logradouro}, {imovel.numero}<br />{imovel.bairro} · {imovel.cidade}/{imovel.estado}</p>
-              {enderecoCompleto && (mapaCarregado === consultaMapa
-                ? <iframe className="mt-4 min-h-[260px] w-full rounded border-0" loading="lazy" title={`Mapa de ${imovel.titulo}`} referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${consultaMapa}&output=embed`} />
-                : <button type="button" className="buttonSecondary" onClick={() => setMapaCarregado(consultaMapa)}>Carregar mapa</button>)}
+              <div className={`${classeCard} grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] items-start gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-4`}>
+                <p className="mb-0">{imovel.logradouro}, {imovel.numero}<br />{imovel.bairro} · {imovel.cidade}/{imovel.estado}</p>
+                {enderecoCompleto && <div>
+                  {/* O iframe é de outro domínio e captura o clique; o link transparente por cima abre o Maps em nova guia. */}
+                  <div className="relative h-[180px] overflow-hidden rounded-[3px] border border-line max-[760px]:h-auto max-[760px]:aspect-[4/3]">
+                    <iframe className="absolute inset-0 h-full w-full border-0" loading="lazy" tabIndex={-1} aria-hidden="true" title={`Mapa de ${imovel.titulo}`} referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${consultaMapa}&output=embed`} />
+                    <a className="absolute inset-0 transition-colors duration-150 hover:bg-navy/5" href={urlMaps} target="_blank" rel="noopener noreferrer" aria-label="Abrir localização no Google Maps em nova guia" />
+                  </div>
+                  <a className="buttonSecondary mt-4 hidden w-full max-[760px]:flex" href={urlMaps} target="_blank" rel="noopener noreferrer">Abrir no Google Maps <IconeSetaExterna size={18} /></a>
+                </div>}
+              </div>
             </section>
           </div>
         </div>

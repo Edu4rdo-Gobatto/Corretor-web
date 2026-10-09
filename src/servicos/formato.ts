@@ -45,3 +45,34 @@ export function rotuloCaracteristica(chave: string): string {
   return espacado ? espacado.charAt(0).toUpperCase() + espacado.slice(1) : chave;
 }
 export const valorCaracteristica = (valor: string | null) => valor && valor.trim() ? valor : 'Sim';
+
+export type ChaveDestaque = 'quartos' | 'banheiros' | 'salas' | 'pisos' | 'vagas' | 'piscina' | 'solar' | 'lazer';
+export interface DestaqueImovel { chave: ChaveDestaque; caracteristica_id: number; quantidade: number | null; rotulo: string }
+
+// Imóvel não tem campos estruturados para cômodos: os destaques saem das características cadastradas, pelo nome.
+const regrasDestaque: { chave: ChaveDestaque; padrao: RegExp; singular: string; plural: string; contagem: boolean; excluir?: RegExp }[] = [
+  { chave: 'quartos', padrao: /quarto|dormit|suite/, singular: 'Quarto', plural: 'Quartos', contagem: true },
+  { chave: 'banheiros', padrao: /banheiro|lavabo|\bwc\b/, singular: 'Banheiro', plural: 'Banheiros', contagem: true },
+  { chave: 'salas', padrao: /\bsalas?\b/, singular: 'Sala', plural: 'Salas', contagem: true },
+  { chave: 'pisos', padrao: /\bpisos?\b|andar|pavimento/, singular: 'Piso', plural: 'Pisos', contagem: true, excluir: /piso (elevado|vinilico|porcelanato|laminado|ceramico|frio)/ },
+  { chave: 'vagas', padrao: /\bvagas?\b|garagem|estacionamento/, singular: 'Vaga', plural: 'Vagas', contagem: true },
+  { chave: 'piscina', padrao: /piscina/, singular: 'Piscina', plural: 'Piscina', contagem: false },
+  { chave: 'solar', padrao: /solar|fotovolt/, singular: 'Energia solar', plural: 'Energia solar', contagem: false },
+  { chave: 'lazer', padrao: /lazer|churrasq|playground|academia|gourmet/, singular: 'Área de lazer', plural: 'Área de lazer', contagem: false },
+];
+
+const normalizar = (texto: string) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+export function destaquesImovel(caracteristicas: { caracteristica_id: number; nome: string; valor: string | null }[]): DestaqueImovel[] {
+  const itens = caracteristicas.map((item) => ({ id: item.caracteristica_id, nome: normalizar(rotuloCaracteristica(item.nome)), valor: item.valor ?? '' }));
+  return regrasDestaque.flatMap((regra) => {
+    const item = itens.find(({ nome }) => regra.padrao.test(nome) && !regra.excluir?.test(nome));
+    if (!item) return [];
+    if (!regra.contagem) return [{ chave: regra.chave, caracteristica_id: item.id, quantidade: null, rotulo: regra.singular }];
+    const numero = Number(item.valor.match(/\d+/)?.[0] ?? item.nome.match(/\d+/)?.[0]);
+    const quantidade = Number.isFinite(numero) && numero > 0 ? numero : null;
+    // Um único piso não é destaque; só vale quando há mais de um andar.
+    if (regra.chave === 'pisos' && (quantidade === null || quantidade < 2)) return [];
+    return [{ chave: regra.chave, caracteristica_id: item.id, quantidade, rotulo: quantidade === 1 ? regra.singular : regra.plural }];
+  });
+}

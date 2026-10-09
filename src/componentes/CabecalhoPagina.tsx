@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
+import BotaoVoltar from './BotaoVoltar';
 
 /** Cabeçalho padrão das páginas do painel: título à esquerda, ações na borda direita e descrição abaixo. */
-export default function CabecalhoPagina({ rotulo, titulo, descricao, acoes, voltar }: { rotulo?: string; titulo: string; descricao?: string; acoes?: ReactNode; voltar?: ReactNode }) {
+export default function CabecalhoPagina({ rotulo, titulo, descricao, acoes, voltar }: { rotulo?: string; titulo: string; descricao?: string; acoes?: ReactNode; voltar?: { to: string; rotulo: string } }) {
   return (
     <header className="mb-7 grid gap-2">
-      {voltar}
+      {voltar && <BotaoVoltar {...voltar} />}
       {rotulo && <p className="eyebrow mb-0">{rotulo}</p>}
       <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
         <h1 className="m-0 text-[28px] leading-tight text-ink">{titulo}</h1>

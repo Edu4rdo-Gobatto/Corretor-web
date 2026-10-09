@@ -139,3 +139,12 @@ Para executar: `npm ci`, `npm run dev` no frontend e `npm run start:dev` na API 
 Acesse http://127.0.0.1:5173; entre com conta real já cadastrada, sem conta/senha de demonstração criada
 por esta entrega. O backend atualizado é necessário para o upload e a leitura de fotos gerenciadas.
 As evidências simuladas não homologam gravação de perfil no banco real.
+
+## Navegação por teclado
+
+- **Esc volta**: em qualquer tela pública fora do catálogo (detalhe do imóvel, Privacidade, Devs, 404) e
+  no login, Esc leva à tela inicial. No painel, Esc volta à página anterior (sem histórico: lista da seção,
+  depois Visão geral).
+- Esc fecha antes diálogos, menu, dicas e filtros abertos, e é ignorado enquanto o foco está num campo
+  de texto. Regras em `src/hooks/useEscVoltar.ts`; detalhes em [DECISIONS.md](DECISIONS.md).
+- O retorno visual é sempre o `BotaoVoltar` (seta em círculo no topo da tela).

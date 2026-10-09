@@ -1,5 +1,18 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-09 — Claude: botão de voltar unificado e Esc global
+
+- `src/componentes/BotaoVoltar.tsx` novo; aplicado no detalhe público, Privacidade, Devs, Entrar e nas
+  fichas do painel via `CabecalhoPagina` (imóvel, pessoa, contrato, comissão, corretor, cadastro, formulário).
+- Detalhe público: removidos "Voltar aos imóveis", breadcrumb, status e eyebrow; título ao lado da seta,
+  em largura total.
+- `src/hooks/useEscVoltar.ts`: `escPodeVoltar` (regra compartilhada com `useVoltarPainel`) e
+  `useEscVoltar`, ligado em `LayoutPublico` (fora do catálogo) e em `Entrar`. Menu mobile passa a
+  consumir o Esc (`preventDefault`).
+- Header Alugar/Comprar rola até `#catalogo` (estado `rolarCatalogo`, respeitado por `RolarAoTopo`).
+
+Validação: typecheck, lint e testes existentes.
+
 ## 2026-10-06 — Codex: refinamento de contatos, perfil e filtros
 
 Implementado o plano aprovado: seletor por conteúdo; lista de Contatos em abas e ações compactas com SVG;

@@ -32,7 +32,7 @@ const DetalheContrato = lazy(() => import('./paginas/painel/DetalheContrato'));
 const Perfil = lazy(() => import('./paginas/painel/Perfil'));
 
 function RolarAoTopo() {
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const anterior = useRef(pathname);
   useEffect(() => {
     const de = anterior.current.replace(/\/+$/, '') || '/';
@@ -41,8 +41,10 @@ function RolarAoTopo() {
     if (de === para) return;
     // Troca de filtro dentro do catálogo muda o pathname; o visitante fica onde está.
     if (caminhosCatalogo.includes(de) && caminhosCatalogo.includes(para)) return;
+    // O próprio catálogo rola até os imóveis.
+    if ((state as { rolarCatalogo?: boolean } | null)?.rolarCatalogo) return;
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 

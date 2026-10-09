@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import BotaoVoltar from '../../componentes/BotaoVoltar';
 import { Github, Instagram } from 'lucide-react';
 import { Seo } from '../../seo/context';
 import { devs, type Dev } from '../../config/devs';
@@ -45,7 +45,7 @@ export default function Devs() {
       <span aria-live="polite" className="srOnly">{mostrarIntro ? '' : 'Página pronta.'}</span>
       <div className="mx-auto max-w-[800px]">
       <Seo />
-      <Link to="/" className="link-texto">← Voltar ao catálogo</Link>
+      <BotaoVoltar to="/" rotulo="Voltar ao catálogo" />
       <p className="eyebrow">Quem fez</p>
       <h1 ref={titulo} tabIndex={-1}>Desenvolvedores</h1>
       <p className="muted">Quem construiu este site: front-end e back-end.</p>

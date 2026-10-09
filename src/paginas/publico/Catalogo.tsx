@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { IconeSetaBaixo, IconeSetaExterna, IconeBuscar } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
@@ -43,6 +43,12 @@ export default function Catalogo() {
     const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.getElementById('catalogo')?.scrollIntoView({ behavior: reduzMovimento ? 'instant' : 'smooth' });
   }
+
+  // Links Alugar/Comprar do cabeçalho levam direto aos imóveis filtrados.
+  const rolarAoChegar = (location.state as { rolarCatalogo?: boolean } | null)?.rolarCatalogo;
+  useEffect(() => {
+    if (rolarAoChegar) rolarParaCatalogo();
+  }, [location.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <>
     <Seo dados={{ catalogo: imoveis, classificacoes }} status={statusErro || 200} />

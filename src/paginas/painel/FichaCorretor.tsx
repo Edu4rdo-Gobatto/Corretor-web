@@ -1,6 +1,6 @@
 import { urlFotoCorretor } from '../../servicos/fotos';
 import { useCallback, useMemo, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { consultarRegistroDisponivel, idRegistro } from '../../servicos/registros';
 import { mensagemErro } from '../../servicos/formato';
@@ -58,7 +58,7 @@ export default function FichaCorretor() {
     finally { setOcupado(false); }
   }
   return <>
-    <CabecalhoPagina voltar={<Link to={admin ? '/admin/corretores' : '/admin/imoveis'}>{admin ? 'Corretores' : 'Imóveis'}</Link>} titulo={item?.nome ?? 'Corretor'} acoes={admin && completo && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={completo.nome} desabilitado={ocupado} aoClicar={() => setEditando(true)} /><AcaoIcone icone={IconeChave} rotulo="Redefinir senha" contexto={completo.nome} desabilitado={ocupado} aoClicar={() => setSenha(true)} /><AcaoIcone icone={completo.ativo ? IconeArquivar : IconeDesarquivar} rotulo={completo.ativo ? 'Desativar' : 'Reativar'} contexto={completo.nome} tom={completo.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>} />
+    <CabecalhoPagina voltar={admin ? { to: '/admin/corretores', rotulo: 'Voltar para corretores' } : { to: '/admin/imoveis', rotulo: 'Voltar para imóveis' }} titulo={item?.nome ?? 'Corretor'} acoes={admin && completo && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={completo.nome} desabilitado={ocupado} aoClicar={() => setEditando(true)} /><AcaoIcone icone={IconeChave} rotulo="Redefinir senha" contexto={completo.nome} desabilitado={ocupado} aoClicar={() => setSenha(true)} /><AcaoIcone icone={completo.ativo ? IconeArquivar : IconeDesarquivar} rotulo={completo.ativo ? 'Desativar' : 'Reativar'} contexto={completo.nome} tom={completo.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>} />
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !item && <Aviso>Corretor indisponível.</Aviso>}
     {item && !consulta.carregando && !consulta.erro && <section className={estilos.painel}>

@@ -49,7 +49,7 @@ export default function DetalheContrato() {
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {!carregando && !erro && !dados && <Aviso>Contrato indisponível.</Aviso>}
     {dados && !carregando && !erro && <>
-      <CabecalhoPagina voltar={<Link to="/admin/contratos">Contratos</Link>} titulo={dados.numero_contrato} descricao={`${dados.status === 'ATIVO' ? 'Ativo' : 'Encerrado'}${dados.ativo ? '' : ', arquivado'}`}
+      <CabecalhoPagina voltar={{ to: '/admin/contratos', rotulo: 'Voltar para contratos' }} titulo={dados.numero_contrato} descricao={`${dados.status === 'ATIVO' ? 'Ativo' : 'Encerrado'}${dados.ativo ? '' : ', arquivado'}`}
         acoes={<><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setEditando(true)} />{dados.ativo && <AcaoIcone icone={IconeArquivar} rotulo="Arquivar" tom="perigo" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setArquivando(true)} />}</>} />
       <section className={estilos.painel}>
         <h2 className={estilos.tituloPainel}><Link to={`/admin/imoveis/${dados.imovel_id}`}>{dados.imovel_titulo ?? `Imóvel #${dados.imovel_id}`}</Link></h2>

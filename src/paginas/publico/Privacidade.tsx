@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import BotaoVoltar from '../../componentes/BotaoVoltar';
 import { brand } from '../../config/brand';
 import { Seo } from '../../seo/context';
 
@@ -8,7 +8,7 @@ export default function Privacidade() {
     <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_h2]:text-[25px] [&_section]:mt-8 [&_section_p]:text-muted [&_.eyebrow]:mt-[45px]">
       <div className="mx-auto max-w-[800px]">
         <Seo />
-        <Link to="/" className="link-texto">← Voltar ao catálogo</Link>
+        <BotaoVoltar to="/" rotulo="Voltar ao catálogo" />
         <p className="eyebrow">Transparência e cuidado</p>
         <h1>Política de privacidade</h1>
         <p className="muted">Versão {brand.privacy.version}</p>

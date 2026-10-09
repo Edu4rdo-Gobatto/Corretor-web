@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { consultarRegistroDisponivel, idRegistro } from '../../servicos/registros';
 import { urlImovel } from '../../servicos/urls';
@@ -24,7 +24,7 @@ export default function DetalheImovel() {
   const podeEditar = Boolean(imovel && corretor && (corretor.cargo === 'ADMIN' || corretor.id === imovel.corretor_id));
   useAcoesPainel(useMemo(() => imovel && podeEditar ? [{ id: 'editar-imovel', rotulo: 'Editar imóvel', executar: () => navegar(`/admin/imoveis/${imovel.id}/editar`) }] : [], [imovel, podeEditar, navegar]));
   return <>
-    <CabecalhoPagina titulo={imovel?.titulo ?? 'Ficha do imóvel'} voltar={<Link to="/admin/imoveis">Imóveis</Link>} descricao={imovel ? `Imóvel #${imovel.id}` : undefined} acoes={imovel && <>
+    <CabecalhoPagina titulo={imovel?.titulo ?? 'Ficha do imóvel'} voltar={{ to: '/admin/imoveis', rotulo: 'Voltar para imóveis' }} descricao={imovel ? `Imóvel #${imovel.id}` : undefined} acoes={imovel && <>
       <a className="buttonSecondary" href={urlImovel(imovel.slug)} target="_blank" rel="noopener noreferrer">Ver anúncio <IconeAbrirFora aria-hidden="true" /></a>
       {podeEditar && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={imovel.titulo} to={`/admin/imoveis/${imovel.id}/editar`} /><AcaoIcone icone={imovel.ativo ? IconeArquivar : IconeDesarquivar} rotulo={imovel.ativo ? 'Arquivar' : 'Reativar'} contexto={imovel.titulo} tom={imovel.ativo ? 'perigo' : 'neutro'} aoClicar={() => setConfirmando(true)} /></>}
     </>} />

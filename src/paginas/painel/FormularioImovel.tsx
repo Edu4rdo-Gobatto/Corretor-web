@@ -203,7 +203,7 @@ function InstanciaFormulario() {
   return <>
     <GuardaFormulario alterado={alterado} liberado={navegacaoLiberada} />
     <CabecalhoPagina
-      voltar={<Link to={imovel ? `/admin/imoveis/${imovel.id}` : '/admin/imoveis'} className="inline-flex min-h-11 items-center">{imovel ? 'Ficha do imóvel' : 'Imóveis'}</Link>}
+      voltar={imovel ? { to: `/admin/imoveis/${imovel.id}`, rotulo: 'Voltar para a ficha do imóvel' } : { to: '/admin/imoveis', rotulo: 'Voltar para imóveis' }}
       titulo={imovel ? `Editar imóvel ${codigoImovel(imovel.id)}` : 'Novo imóvel'}
       descricao="Conte o que torna este imóvel uma boa oportunidade."
       acoes={imovel && <>

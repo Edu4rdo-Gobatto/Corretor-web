@@ -30,7 +30,7 @@ export default function DetalheComissao() {
   const decimal = (centavos: bigint) => `${centavos / 100n}.${String(centavos % 100n).padStart(2, '0')}`;
   const saldo = comissao ? comissao.parcelas.filter((parcela) => parcela.ativo && parcela.status !== 'PAGO').reduce((total, parcela) => total + BigInt(parcela.valor.replace('.', '')), 0n) : 0n;
   return <>
-    <CabecalhoPagina voltar={<Link to="/admin/comissoes">Comissões</Link>} titulo={comissao ? `Comissão #${comissao.id}` : 'Comissão'} descricao={comissao ? `${comissao.tipo_operacao === 'VENDA' ? 'Venda' : 'Locação'}, ${comissao.ativo ? 'ativa' : 'arquivada'}.` : undefined} acoes={comissao && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={`comissão #${comissao.id}`} aoClicar={() => setEditando(true)} />} />
+    <CabecalhoPagina voltar={{ to: '/admin/comissoes', rotulo: 'Voltar para comissões' }} titulo={comissao ? `Comissão #${comissao.id}` : 'Comissão'} descricao={comissao ? `${comissao.tipo_operacao === 'VENDA' ? 'Venda' : 'Locação'}, ${comissao.ativo ? 'ativa' : 'arquivada'}.` : undefined} acoes={comissao && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={`comissão #${comissao.id}`} aoClicar={() => setEditando(true)} />} />
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !comissao && <Aviso>Comissão indisponível.</Aviso>}
     {comissao && !consulta.carregando && !consulta.erro && <>

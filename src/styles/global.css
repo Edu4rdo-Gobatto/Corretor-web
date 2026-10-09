@@ -88,7 +88,7 @@ label input, label select, label textarea { margin-top: 6px; }
 .painel-ui .campo { gap: 8px; }
 .painel-ui .campo-dica, .painel-ui .campo-erro { font-size: 16px; line-height: 1.45; }
 .painel-ui .button, .painel-ui .buttonSecondary, .painel-ui .buttonGhost { min-height: 48px; padding: 11px 20px; border-radius: 12px; font-size: 18px; }
-.painel-ui .button { border: 0; background: var(--color-acao-painel); color: var(--color-navy-deep); }
+.painel-ui .button { border: 0; background: var(--color-acao-painel); color: var(--color-sobre-acao); }
 .painel-ui .button:hover { background: var(--color-acao-painel-hover); }
 .painel-ui .button svg { color: var(--color-sobre-acao); }
 .painel-ui .buttonPerigo, .painel-ui .buttonPerigo:hover { background: var(--color-error); color: var(--color-paper); }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import BotaoVoltar from '../../componentes/BotaoVoltar';
+import { useEscVoltar } from '../../hooks/useEscVoltar';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +18,7 @@ export default function Entrar() {
   const { corretor, entrar, carregando } = useSessao();
   const navigate = useNavigate();
   const location = useLocation();
+  useEscVoltar(rotas.inicio);
   const [erro, setErro] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof esquema>>({ resolver: zodResolver(esquema) });
   async function acessar(email: string, senha: string) {
@@ -48,7 +51,7 @@ export default function Entrar() {
             {erro && <Aviso tom="erro">{erro}</Aviso>}
             <button className="button" disabled={isSubmitting || carregando}>{isSubmitting ? 'Entrando…' : 'Entrar na conta'}</button>
           </form>
-          <p><Link to={rotas.inicio} className="link-texto inline-flex min-h-11 items-center">← Voltar ao site</Link></p>
+          <BotaoVoltar to={rotas.inicio} rotulo="Voltar ao site" />
         </div>
       </main>
     </div>

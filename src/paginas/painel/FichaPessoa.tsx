@@ -59,7 +59,7 @@ export default function FichaPessoa() {
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {!carregando && !erro && !pessoa && <Aviso>Pessoa indisponível.</Aviso>}
     {pessoa && !erro && <>
-      <CabecalhoPagina voltar={<Link to="/admin/pessoas">Pessoas</Link>} titulo={pessoa.nome} descricao={`Pessoa #${pessoa.id} ${pessoa.origem === 'SITE' ? 'chegou pelo site' : 'cadastro manual'} em ${data(pessoa.criado_em)}`}
+      <CabecalhoPagina voltar={{ to: '/admin/pessoas', rotulo: 'Voltar para pessoas' }} titulo={pessoa.nome} descricao={`Pessoa #${pessoa.id} ${pessoa.origem === 'SITE' ? 'chegou pelo site' : 'cadastro manual'} em ${data(pessoa.criado_em)}`}
         acoes={<>
           {pessoa.telefone && <a className="buttonSecondary" href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" rel="noreferrer">WhatsApp</a>}
           {podeEditar && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={pessoa.nome} aoClicar={() => setEditando(true)} /><AcaoIcone icone={pessoa.ativo ? IconeArquivar : IconeDesarquivar} rotulo={pessoa.ativo ? 'Desativar' : 'Reativar'} contexto={pessoa.nome} tom={pessoa.ativo ? 'perigo' : 'neutro'} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>}

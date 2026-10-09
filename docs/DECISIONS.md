@@ -1,5 +1,21 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-09 — Botão único de voltar e Esc em todas as telas (pedido do dono)
+
+- Toda tela com retorno usa `BotaoVoltar` (seta em círculo de 44px, fundo `soft`, hover dourado com
+  ícone navy nos dois temas); o texto fica só em `aria-label`/`title`. `CabecalhoPagina.voltar` recebe
+  `{ to, rotulo }`. Saíram breadcrumb, selo de status e eyebrow do detalhe público do imóvel; o título
+  ocupa a linha cheia, à direita da seta.
+- Esc é o atalho de voltar do sistema inteiro. Público e login (`useEscVoltar`): fora do catálogo, Esc
+  leva à tela inicial (`/`); no catálogo não faz nada. Painel (`useVoltarPainel`): mantém a decisão de
+  06/10 (página anterior; sem histórico, lista da seção e depois Visão geral).
+- Esc só volta se nenhuma camada o consumiu: diálogo aberto, `[data-esc-camada]`, menu mobile, dicas,
+  filtros suspensos (todos chamam `preventDefault`) ou foco em campo de texto. Regra única em
+  `escPodeVoltar` (`src/hooks/useEscVoltar.ts`). Componente novo que trate Esc deve chamar
+  `preventDefault()` para não disparar o retorno.
+- Botões de ação "Voltar" de telas de erro e o "Voltar" do rodapé do formulário de imóvel continuam
+  como botões com texto (são ação principal/cancelar, não navegação do cabeçalho).
+
 ## 2026-10-06 — Refinamento de contatos, perfil e filtros
 
 - O plano explicitamente aprovado autoriza frontend e API; sem commit/push/deploy/migrations.

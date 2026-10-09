@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { escPodeVoltar } from './useEscVoltar';
 
 function destinoInicial(caminho: string) {
   const secao = caminho.match(/^\/admin\/(pessoas|imoveis|contratos|corretores|cadastros|comissoes)\/.+/)?.[1];
@@ -29,10 +30,7 @@ export function useVoltarPainel() {
 
   useEffect(() => {
     function voltar(evento: KeyboardEvent) {
-      if (evento.key !== 'Escape' || evento.defaultPrevented || evento.repeat || evento.isComposing) return;
-      if (document.querySelector('.painel-ui dialog[open], .painel-ui [data-esc-camada]')) return;
-      const alvo = evento.target instanceof Element ? evento.target : null;
-      if (alvo?.closest('textarea, select, [contenteditable]:not([contenteditable="false"]), input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"])')) return;
+      if (!escPodeVoltar(evento, '.painel-ui dialog[open], .painel-ui [data-esc-camada]')) return;
       const destino = destinoInicial(local.pathname);
       if (historico.current.indice === 0 && destino === local.pathname) return;
       evento.preventDefault();

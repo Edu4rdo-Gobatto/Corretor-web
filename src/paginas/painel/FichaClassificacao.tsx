@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { consultarRegistroDisponivel, idRegistro } from '../../servicos/registros';
 import { mensagemErro } from '../../servicos/formato';
@@ -41,7 +41,7 @@ export default function FichaClassificacao() {
     finally { setOcupado(false); }
   }
   return <>
-    <CabecalhoPagina voltar={<Link to="/admin/cadastros">Cadastros</Link>} titulo={item?.nome ?? 'Cadastro'} descricao={categoria ? CATEGORIAS[categoria] : undefined} acoes={item && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={item.nome} desabilitado={ocupado} aoClicar={() => setEditando(true)} /><AcaoIcone icone={item.ativo ? IconeArquivar : IconeDesarquivar} rotulo={item.ativo ? 'Desativar' : 'Reativar'} contexto={item.nome} tom={item.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>} />
+    <CabecalhoPagina voltar={{ to: '/admin/cadastros', rotulo: 'Voltar para cadastros' }} titulo={item?.nome ?? 'Cadastro'} descricao={categoria ? CATEGORIAS[categoria] : undefined} acoes={item && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={item.nome} desabilitado={ocupado} aoClicar={() => setEditando(true)} /><AcaoIcone icone={item.ativo ? IconeArquivar : IconeDesarquivar} rotulo={item.ativo ? 'Desativar' : 'Reativar'} contexto={item.nome} tom={item.ativo ? 'perigo' : 'neutro'} desabilitado={ocupado} aoClicar={() => { setErroAcao(''); setConfirmando(true); }} /></>} />
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !item && <Aviso>Cadastro indisponível.</Aviso>}
     {item && !consulta.carregando && !consulta.erro && <section className={estilos.painel}><h2 className={estilos.tituloPainel}>Dados do cadastro</h2><dl className="ficha-dados">

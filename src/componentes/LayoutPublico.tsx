@@ -5,6 +5,7 @@ import { lerUrlCatalogo, rotas, urlCatalogo } from '../servicos/urls';
 import { sinalizarIdaAosDevs } from '../servicos/obra';
 import { brand } from '../config/brand';
 import { useTema } from '../hooks/useTema';
+import { useEscVoltar } from '../hooks/useEscVoltar';
 import { telefoneWhatsapp } from '../servicos/contato';
 
 // Uma variante do logo por tema; o CSS escolhe qual aparece (o SSR é o mesmo nos dois temas). `lazy` evita baixar a
@@ -26,6 +27,8 @@ export default function LayoutPublico() {
   const detalheImovel = consulta === null && /^\/imoveis\/[^/]+\/?$/.test(location.pathname);
   const alugarAtivo = consulta?.finalidade === 'locacao';
   const comprarAtivo = consulta?.finalidade === 'venda';
+  // Fora do catálogo, Esc volta para a tela inicial.
+  useEscVoltar(consulta ? null : rotas.inicio);
   const classeAtiva = 'text-brand max-[650px]:text-gold';
   const [menuAberto, setMenuAberto] = useState(false);
   const { escuro, alternar } = useTema();
@@ -37,7 +40,7 @@ export default function LayoutPublico() {
     const overflowAnterior = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const fecharComEscape = (evento: KeyboardEvent) => {
-      if (evento.key === 'Escape') { setMenuAberto(false); botaoMenu.current?.focus(); }
+      if (evento.key === 'Escape') { evento.preventDefault(); setMenuAberto(false); botaoMenu.current?.focus(); }
     };
     document.addEventListener('keydown', fecharComEscape);
     return () => { document.removeEventListener('keydown', fecharComEscape); document.body.style.overflow = overflowAnterior; };
@@ -60,8 +63,8 @@ export default function LayoutPublico() {
         <div className="ml-auto flex shrink-0 items-center gap-4">
           <nav id="public-navigation" aria-label="Principal"
             className={`flex items-center gap-[30px] text-[15px] max-[900px]:gap-3 max-[900px]:text-sm max-[650px]:absolute max-[650px]:inset-x-0 max-[650px]:top-[84px] max-[650px]:z-[5] max-[650px]:flex-col max-[650px]:items-stretch max-[650px]:gap-1 max-[650px]:border-b-[3px] max-[650px]:border-b-gold max-[650px]:bg-navy max-[650px]:p-6 max-[650px]:text-white max-[650px]:shadow-[0_12px_16px_#0001] ${menuAberto ? 'max-[650px]:flex' : 'max-[650px]:hidden'} max-[650px]:[&_a]:flex max-[650px]:[&_a]:min-h-12 max-[650px]:[&_a]:w-fit max-[650px]:[&_a]:items-center max-[650px]:[&_a]:text-[19px] [&_a]:[--linha-y:-6px] max-[650px]:[&_a]:[--linha-y:4px]`}>
-            <Link ref={primeiroLink} to={urlCatalogo({ finalidade: 'locacao' })} className={`linha-nav ${alugarAtivo ? classeAtiva : ''}`} aria-current={alugarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Alugar</Link>
-            <Link to={urlCatalogo({ finalidade: 'venda' })} className={`linha-nav ${comprarAtivo ? classeAtiva : ''}`} aria-current={comprarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Comprar</Link>
+            <Link ref={primeiroLink} to={urlCatalogo({ finalidade: 'locacao' })} state={{ rolarCatalogo: true }} className={`linha-nav ${alugarAtivo ? classeAtiva : ''}`} aria-current={alugarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Alugar</Link>
+            <Link to={urlCatalogo({ finalidade: 'venda' })} state={{ rolarCatalogo: true }} className={`linha-nav ${comprarAtivo ? classeAtiva : ''}`} aria-current={comprarAtivo ? 'page' : undefined} onClick={() => fecharMenu(false)}>Comprar</Link>
             <span className="flex items-center border-l border-line py-3 pl-8 max-[900px]:pl-3 max-[650px]:border-l-0 max-[650px]:border-t max-[650px]:border-t-white/20 max-[650px]:py-0 max-[650px]:pl-0"><Link to={rotas.painel} onClick={() => fecharMenu(false)} className="linha-nav inline-flex items-center gap-[14px]">Área do corretor <IconeSetaExterna size={16} /></Link></span>
             <p aria-hidden="true" className="m-0 hidden pt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold max-[650px]:block">CRECI {brand.creci}</p>
           </nav>
