@@ -1,5 +1,22 @@
 # Tarefas — corretor-web
 
+## 2026-10-08 — Codex: 404 da foto corrigido na implantação
+
+O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.
+
+URL original /api/corretores/1/foto?v=1f6h7x3 agora responde 302; seguindo redirect, HTTP 200 image/jpeg, 22322 bytes. /api/v1/saude da API retorna status ok. Perfil aberto recarregado para verificar a correção. Sem alterações funcionais, migrations, gravação de dados, commit ou push; documentação histórica preservada. Conector Render segue indisponível, mas sessão do navegador permitiu corrigir a implantação.
+
+
+## FOTO-404-20261008 — Rota ausente na API publicada
+
+- Responsável: Codex.
+- Status: diagnóstico local concluído; correção da implantação pendente.
+- [x] Reproduzir 404 publicado nos caminhos legado e versionado.
+- [x] Confirmar endpoint no código local/GitHub e validar build/proxy com banco/storage simulados.
+- [ ] Reconectar Render, verificar commit/build/start e publicar API atual se autorizado.
+- [ ] Revalidar URL real e foto do perfil após implantação.
+
+
 ## REFINAMENTOS-20261006 — Contatos, perfil e filtros
 
 - **Responsável:** Codex.
@@ -272,3 +289,15 @@ Pedido explícito: “reverta tudo, e me dê um plano e um resumo do que foi ped
 Os registros de implementação/validação de 05 e 06/10 acima são históricos e NÃO descrevem o produto atual. As orientações específicas dessa refatoração ficam canceladas como instruções de implementação vigente. O novo documento PLANO-AREA-CORRETOR.md contém apenas o pedido consolidado e a proposta de execução futura; não autoriza reimplementar. Preservar o restante das orientações do repositório. Backup local ignorado em artifacts/reversao-area-corretor-2026-10-06.
 
 Verificação da reversão: todos os arquivos rastreados de src comparados por hash ao HEAD, sem diferenças; componentes novos ausentes e referências removidas. npm run build e node scripts/seo-smoke.mjs aprovados após a reversão, assim como git diff --check. A suíte de testes não foi repetida nesta reversão. Plano entregue em docs/PLANO-AREA-CORRETOR.md.
+
+## 2026-10-09 — Codex: contorno de foco após Esc
+
+Implementado o plano autorizado: `data-foco-navegacao` no main do painel e no h1 de Desenvolvedores; `[data-foco-navegacao]:focus { outline: none; }` em global.css. Preservados tabIndex, foco programático, Pular para o conteúdo, retorno do foco e regras de Esc. A marcação é exclusiva de destinos não interativos; não aplicar a todos os elementos com tabindex=-1 nem remover o foco visível de controles.
+
+Validação: typecheck, lint, build e testes existentes aprovados (3 arquivos, 23 testes). QA efêmero Chrome com API simulada: 19 verificações aprovadas, incluindo reprodução da borda de 3px com a nova regra removida via CSSOM, Visão geral/Imóveis/Contratos/Devs nos dois temas, Tab em link/botão/input, filtro, menu mobile, diálogo intacto com retorno do foco e diálogo alterado com dois Esc. Capturas e resultados ignorados em artifacts/esc-foco-2026-10-09. Sem erros JavaScript nos cenários concluídos. Primeiro QA usou rótulo inexistente Abrir menu; corrigido para Menu. Reinícios do navegador foram necessários antes da rodada final completa.
+
+O smoke original scripts/seo-smoke.mjs falhou na expectativa antiga do h1 Imóveis comerciais; a tela atual usa Imóveis para alugar e comprar. Cópia efêmera com apenas essa expectativa e caminhos de import ajustados passou: SSR, metadados, paginação, 404, discovery, proxy/cookies, função Vercel gerada e indisponibilidade/recuperação 503. O script original foi preservado; sua expectativa continua pendente de atualização fora deste escopo. Build emitiu avisos de anotação PURE do Zod e chunk maior que 500 kB, sem impedir conclusão.
+
+Entrega local concluída; alterações preexistentes preservadas. Sem novas suítes, dependências, API, banco, commit, push ou deploy por esta tarefa. QA simulado não equivale a homologação real nem validação em Safari/iOS.
+
+2026-10-09 — Atualização: dono autorizou commit e push da correção de foco e destes registros na main. Validações da entrega acima permanecem aplicáveis; publicação no Git não confirma deploy.
