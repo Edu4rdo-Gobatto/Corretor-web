@@ -145,7 +145,7 @@ function EstruturaPainel() {
           </div>
         </div>
       </aside>
-      <main ref={principal} id="conteudo-painel" tabIndex={-1} aria-label={paginaAtual} className="@container/principal mx-auto w-full min-w-0 max-w-[1500px] px-[18px] py-7 lg:p-12"><Outlet /></main>
+      <main ref={principal} id="conteudo-painel" tabIndex={-1} data-foco-navegacao aria-label={paginaAtual} className="@container/principal mx-auto w-full min-w-0 max-w-[1500px] px-[18px] py-7 lg:p-12"><Outlet /></main>
       {menuAberto && <Dialogo titulo="Navegação do painel" tamanho="estreito" telaInteira aoFechar={() => setMenuAberto(false)}>{navegacao(true)}</Dialogo>}
       {paletaAberta && <PaletaPainel destinos={[...visiveis, { to: rotas.perfil, nome: 'Meu perfil' }, { to: rotas.inicio, nome: 'Ver site' }]} aoFechar={() => setPaletaAberta(false)} />}
       {contaAberta && <Dialogo titulo="Minha conta" tamanho="estreito" aoFechar={() => { if (!saindo) setContaAberta(false); }}><p><strong className="block">{corretor.nome}</strong><span className="text-muted">{cargo}</span></p>{erroSaida && <Aviso tom="erro">{erroSaida}</Aviso>}<div className="grid gap-3"><Link to={rotas.perfil} onClick={() => setContaAberta(false)} className="buttonSecondary">Meu perfil</Link><button type="button" disabled={saindo} onClick={encerrar} className="buttonGhost">{saindo ? 'Saindo…' : 'Sair da conta'}</button></div></Dialogo>}

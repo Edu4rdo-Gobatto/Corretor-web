@@ -47,7 +47,7 @@ export default function Devs() {
       <Seo />
       <BotaoVoltar to="/" rotulo="Voltar ao catálogo" />
       <p className="eyebrow">Quem fez</p>
-      <h1 ref={titulo} tabIndex={-1}>Desenvolvedores</h1>
+      <h1 ref={titulo} tabIndex={-1} data-foco-navegacao>Desenvolvedores</h1>
       <p className="muted">Quem construiu este site: front-end e back-end.</p>
       <ul className="mt-8 grid list-none gap-6 p-0 max-[560px]:grid-cols-1 sm:grid-cols-2">
         {devs.map((dev) => (
