@@ -1,5 +1,22 @@
 # Tarefas — corretor-web
 
+## 2026-10-08 — Codex: 404 da foto corrigido na implantação
+
+O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.
+
+URL original /api/corretores/1/foto?v=1f6h7x3 agora responde 302; seguindo redirect, HTTP 200 image/jpeg, 22322 bytes. /api/v1/saude da API retorna status ok. Perfil aberto recarregado para verificar a correção. Sem alterações funcionais, migrations, gravação de dados, commit ou push; documentação histórica preservada. Conector Render segue indisponível, mas sessão do navegador permitiu corrigir a implantação.
+
+
+## FOTO-404-20261008 — Rota ausente na API publicada
+
+- Responsável: Codex.
+- Status: diagnóstico local concluído; correção da implantação pendente.
+- [x] Reproduzir 404 publicado nos caminhos legado e versionado.
+- [x] Confirmar endpoint no código local/GitHub e validar build/proxy com banco/storage simulados.
+- [ ] Reconectar Render, verificar commit/build/start e publicar API atual se autorizado.
+- [ ] Revalidar URL real e foto do perfil após implantação.
+
+
 ## REFINAMENTOS-20261006 — Contatos, perfil e filtros
 
 - **Responsável:** Codex.

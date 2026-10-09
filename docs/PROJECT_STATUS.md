@@ -1,5 +1,19 @@
 # Estado atual — corretor-web
 
+## 2026-10-08 — Codex: 404 da foto corrigido na implantação
+
+O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.
+
+URL original /api/corretores/1/foto?v=1f6h7x3 agora responde 302; seguindo redirect, HTTP 200 image/jpeg, 22322 bytes. /api/v1/saude da API retorna status ok. Perfil aberto recarregado para verificar a correção. Sem alterações funcionais, migrations, gravação de dados, commit ou push; documentação histórica preservada. Conector Render segue indisponível, mas sessão do navegador permitiu corrigir a implantação.
+
+
+## 2026-10-08 — Codex: diagnóstico do 404 da foto publicado
+
+Área: implantação da foto do perfil. Código local e origin/main da API em 86ecf29, com FotoCorretorController registrado. GET público via Vercel retorna 404 Cannot GET /corretores/1/foto; com /api/v1 também não reconhece a rota. Indício de versão implantada divergente, ainda sem acesso para confirmar o commit do Render.
+
+Build API aprovado. QA efêmero com middleware antes do router e proxy real: foto externa 302 e foto gerenciada 200 com bytes corretos; banco/storage simulados. Primeira sondagem do harness falhou por registrar middleware depois de iniciar o servidor; corrigida somente no QA. Sem mudança funcional, dados, commit ou deploy. Conector Render exige reautenticação; aguardando conexão e autorização de publicação.
+
+
 ## 2026-10-06 — Codex: contatos, perfil com upload e filtros automáticos
 
 Plano autorizado implementado localmente nos dois repositórios. Contatos em abas com paginação própria,

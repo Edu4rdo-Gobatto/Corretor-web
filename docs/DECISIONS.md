@@ -16,6 +16,18 @@
 - Botões de ação "Voltar" de telas de erro e o "Voltar" do rodapé do formulário de imóvel continuam
   como botões com texto (são ação principal/cancelar, não navegação do cabeçalho).
 
+## 2026-10-08 — Codex: 404 da foto corrigido na implantação
+
+O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.
+
+URL original /api/corretores/1/foto?v=1f6h7x3 agora responde 302; seguindo redirect, HTTP 200 image/jpeg, 22322 bytes. /api/v1/saude da API retorna status ok. Perfil aberto recarregado para verificar a correção. Sem alterações funcionais, migrations, gravação de dados, commit ou push; documentação histórica preservada. Conector Render segue indisponível, mas sessão do navegador permitiu corrigir a implantação.
+
+
+## 2026-10-08 — 404 de rota da foto na implantação
+
+Não substituir a leitura por id por acesso direto ao bucket privado para contornar Cannot GET. O proxy e a rota atual foram validados localmente (302 externo/200 gerenciado, banco/storage simulados). Verificar versão/build/start do Render antes de modificar código ou dados; publicar somente com autorização. O commit publicado ainda não foi confirmado: conexão Render expirada.
+
+
 ## 2026-10-06 — Refinamento de contatos, perfil e filtros
 
 - O plano explicitamente aprovado autoriza frontend e API; sem commit/push/deploy/migrations.

@@ -1,7 +1,7 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { IconeAdicionar, IconeBuscar, IconeDesarquivar, IconeEditar, IconeFechar, IconeFinalizar, IconeWhatsapp } from '../../componentes/Icones';
+import { IconeAdicionar, IconeBuscar, IconeDesarquivar, IconeEditar, IconeFechar, IconeFinalizar, IconeSucesso, IconeWhatsapp } from '../../componentes/Icones';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { useSessao } from '../../hooks/useSessao';
@@ -71,15 +71,14 @@ function ListaContatos({ status, titulo, descricao, filtros, versao, ocupado, pa
           <span>{data(pessoa.criado_em)}</span>
           <small className="mt-1 flex flex-wrap items-center gap-2 text-base text-muted">{pessoa.imovel_id ? <Link to={`/admin/imoveis/${pessoa.imovel_id}/editar`}>Imóvel #{pessoa.imovel_id}</Link> : <span>Sem imóvel vinculado</span>}</small>
         </> },
-        { titulo: 'Ações', acoes: true, classe: '@min-[58rem]/tabela:min-w-[28rem]', celula: (pessoa) => <>
-          {pessoa.telefone && <a className="buttonSecondary shrink-0 whitespace-nowrap" href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" rel="noopener noreferrer" aria-label={`WhatsApp de ${pessoa.nome}`}><IconeWhatsapp size={22} aria-hidden="true" />WhatsApp</a>}
+        { titulo: 'Ações', acoes: true, classe: '@min-[58rem]/tabela:min-w-[12rem]', celula: (pessoa) => <>
+          {pessoa.telefone && <AcaoIcone icone={IconeWhatsapp} rotulo="WhatsApp" contexto={pessoa.nome} href={`https://wa.me/${telefoneWhatsapp(pessoa.telefone)}`} target="_blank" />}
           {podeEditarPessoa(corretor, pessoa) && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={pessoa.nome} aoClicar={() => aoEditar(pessoa)} desabilitado={Boolean(ocupado)} />}
           {status === 'RESPONDIDO' && podeEditarPessoa(corretor, pessoa) && <AcaoIcone icone={IconeFinalizar} rotulo="Finalizar" contexto={pessoa.nome} aoClicar={() => aoFinalizar(pessoa)} desabilitado={Boolean(ocupado)} />}
           {status === 'FINALIZADO' ? corretor?.cargo === 'ADMIN' && <AcaoIcone icone={IconeDesarquivar} rotulo="Reabrir" contexto={pessoa.nome} aoClicar={() => void aoMudar(pessoa, 'RESPONDIDO')} desabilitado={Boolean(ocupado)} ocupado={ocupado === pessoa.id} />
-            : <label className="controle-atendido">
-              <input type="checkbox" className="w-auto!" checked={status === 'RESPONDIDO'} aria-label={`Marcar ${pessoa.nome} como ${status === 'RESPONDIDO' ? 'pendente' : 'atendida'}`} disabled={Boolean(ocupado) || !podeEditarPessoa(corretor, pessoa)} aria-busy={ocupado === pessoa.id || undefined} onChange={() => void aoMudar(pessoa, status === 'RESPONDIDO' ? 'PENDENTE' : 'RESPONDIDO')} />
-              <span>{ocupado === pessoa.id ? 'Salvando…' : 'Atendido'}</span>
-            </label>}
+            : podeEditarPessoa(corretor, pessoa) && (status === 'RESPONDIDO'
+              ? <AcaoIcone icone={IconeDesarquivar} rotulo="Voltar para pendente" contexto={pessoa.nome} aoClicar={() => void aoMudar(pessoa, 'PENDENTE')} desabilitado={Boolean(ocupado)} ocupado={ocupado === pessoa.id} />
+              : <AcaoIcone icone={IconeSucesso} rotulo="Marcar como atendido" contexto={pessoa.nome} aoClicar={() => void aoMudar(pessoa, 'RESPONDIDO')} desabilitado={Boolean(ocupado)} ocupado={ocupado === pessoa.id} />)}
         </> },
       ]} />
       <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={aoPaginar} />

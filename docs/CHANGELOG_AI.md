@@ -13,6 +13,20 @@
 
 Validação: typecheck, lint e testes existentes.
 
+## 2026-10-08 — Codex: 404 da foto corrigido na implantação
+
+O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.
+
+URL original /api/corretores/1/foto?v=1f6h7x3 agora responde 302; seguindo redirect, HTTP 200 image/jpeg, 22322 bytes. /api/v1/saude da API retorna status ok. Perfil aberto recarregado para verificar a correção. Sem alterações funcionais, migrations, gravação de dados, commit ou push; documentação histórica preservada. Conector Render segue indisponível, mas sessão do navegador permitiu corrigir a implantação.
+
+
+## 2026-10-08 — Codex: investigação do GET da foto com 404
+
+Reproduzido GET https://corretor-web-test.vercel.app/api/corretores/1/foto?v=1f6h7x3: 404 Cannot GET; caminho versionado também ausente. API local sincronizada com origin/main (86ecf29); controller registrado no módulo. npm run build da API aprovado. QA efêmero usando controllers/services compilados e proxy scripts/runtime.mjs: redirect HTTPS 302 e imagem privada 200/bytes corretos, banco e storage simulados. Primeiro harness falhou por middleware adicionado após listen; repetição com ordem do bootstrap aprovada.
+
+Atualizados AGENTS, PROJECT_STATUS, TASKS, DECISIONS e CHANGELOG_AI em ambos os repositórios, preservando histórico. Sem alteração funcional ou dados. Commit implantado não confirmado; Render requer reautenticação. Correção remota e validação da foto real pendentes; nenhum deploy realizado.
+
+
 ## 2026-10-06 — Codex: refinamento de contatos, perfil e filtros
 
 Implementado o plano aprovado: seletor por conteúdo; lista de Contatos em abas e ações compactas com SVG;

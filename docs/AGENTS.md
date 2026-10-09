@@ -1,5 +1,17 @@
 # Instruções do projeto — corretor-web
 
+## 2026-10-08 — Codex: 404 da foto corrigido na implantação
+
+O dono autorizou resolver pela página aberta do Render usando Computer Use. Confirmado commit ativo antigo e3b0a32; implantação manual do origin/main 86ecf29 concluída (Deploy succeeded/Live), serviço srv-daj21e15efls73fab4gg, deploy dep-db4684m0tbcc73d9jtr0. Este registro substitui a pendência de acesso/publicação do diagnóstico abaixo.
+
+URL original /api/corretores/1/foto?v=1f6h7x3 agora responde 302; seguindo redirect, HTTP 200 image/jpeg, 22322 bytes. /api/v1/saude da API retorna status ok. Perfil aberto recarregado para verificar a correção. Sem alterações funcionais, migrations, gravação de dados, commit ou push; documentação histórica preservada. Conector Render segue indisponível, mas sessão do navegador permitiu corrigir a implantação.
+
+
+## 2026-10-08 — Diagnóstico da rota de foto publicada
+
+GET da foto publicado retornou Cannot GET nos caminhos legado e versionado. Código local/GitHub da API (86ecf29) já registra FotoCorretorController; build e proxy local aprovados com banco/storage simulados. Conferir commit/build/start do Render antes de alterar a implementação; preservar bucket privado e urlFotoCorretor. Conector exige reautenticação; publicação e foto real continuam pendentes.
+
+
 ## 2026-10-06 — Refinamento autorizado de contatos, perfil e filtros
 
 Estado vigente em `2026-10-06-refinamentos-sistema.md`; System Design em `2026-10-06-system-design.docx`.
