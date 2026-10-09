@@ -64,3 +64,25 @@ anteriores deste arquivo e mensagens de commit). Contagens de testes antigas des
 ## Entradas novas
 
 <!-- Acrescente abaixo, da mais antiga para a mais nova. -->
+
+## 09/10/2026 — Comissão editável, cadastros de contrato e slogan (Claude)
+
+Entregue (o código entrou no `40f635b`, commit do dono enviado à `origin/main`; docs e spec sem commit; sem deploy):
+- Comissão: edição completa com `versao_registro`, só observações após recebimento ou arquivada, conflito 409 com
+  recarga, arquivar/reativar confirmados e histórico do plano na ficha.
+- Cadastros em `/admin/cadastros/:categoria`, grupos Imóveis e Contratos, formulários de índice de reajuste e tipo
+  de contrato, ficha que volta para a categoria (botão, Esc e navegador).
+- Contrato: selects de tipo e índice, orientação sem opções, legado classificado, snapshot na ficha.
+- Slogan padrão em `brand.ts` no h1, rodapé e `<title>`; smoke atualizado (SMOKE-001).
+
+Arquivos: `src/servicos/{api,locacoes}.ts`, `src/tipos/index.ts`, `src/App.tsx`, `src/hooks/useVoltarPainel.ts`,
+`src/config/brand.ts`, `src/seo/metadata.ts`, `src/paginas/publico/Catalogo.tsx`, `src/paginas/painel/`
+(`EditoresComissao`, `DetalheComissao`, `Contratos`, `DetalheContrato`, `Cadastros`, `FichaClassificacao`,
+`EditorClassificacao`, `esquemaLocacao`, novos `EditorCadastro`, `EditorCadastroContrato`, `categoriasCadastro`),
+`scripts/seo-smoke.mjs`, `tests/visual/api-simulada.ts` (só tipos), `corretor-spec.json` e documentação.
+
+Validação: typecheck e build aprovados; lint com 0 erros e 2 avisos que já existiam (`Catalogo.tsx`); `npm test` 23/23;
+smoke de SSR aprovado. Navegador com a API completa e PostgreSQL descartável: 37/37.
+
+Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
+

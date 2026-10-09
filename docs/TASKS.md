@@ -7,10 +7,18 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 ## Abertas
 
 ### SMOKE-001 — Consertar o h1 esperado no smoke do SSR
-- **Status:** aberta. **Responsável:** a definir.
+- **Status:** concluída em 09/10 (Claude; código no `40f635b`). O smoke agora compara h1 e `<title>` com o slogan
+  de `brand.ts` e passa.
 - `scripts/seo-smoke.mjs:40` espera `<h1>Imóveis comerciais`. O h1 atual (`src/paginas/publico/Catalogo.tsx:57`) é
   "Imóveis para alugar e comprar", desde `2b3e27b` (06/10). O smoke falha desde então.
 - Concluir: atualizar a expectativa e rodar `npm run build && node scripts/seo-smoke.mjs` até passar.
+
+### DEPLOY-20261009 — Publicar comissão versionada e cadastros de contrato
+- **Status:** aberta (aguardando autorização). **Responsável:** a definir.
+- Depende da MIGRATION-20261009 da API (backup verificado, migration no Neon, API publicada antes).
+- O código já está no `40f635b` (`origin/main`). Concluir: deploy só depois da API; ADMIN cadastra tipos e índices; conferir edição de comissão,
+  arquivamento, Cadastros por categoria e contrato novo no ambiente de teste.
+- Registro: [2026-10-09-comissao-versionada-cadastros-contrato.md](2026-10-09-comissao-versionada-cadastros-contrato.md).
 
 ### TEST-VISUAL-001 — Specs da suíte visual
 - **Status:** aberta. **Responsável:** a definir.

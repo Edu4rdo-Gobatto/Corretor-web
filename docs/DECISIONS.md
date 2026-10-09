@@ -5,6 +5,18 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 09/10 — Comissão, cadastros de contrato e slogan
+- **Edição de comissão** reutiliza o formulário de registro e sempre envia `versao_registro`; 409 oferece
+  "Recarregar ficha". Com recebimento ou arquivada, o diálogo mostra só observações (decisão do dono: ocultar, não
+  desabilitar). Arquivar e reativar ficam na ficha, com confirmação; o checkbox "Comissão ativa" saiu do formulário.
+- **Cadastros** na rota `/admin/cadastros/:categoria`, com grupos Imóveis e Contratos. Tipos de contrato e índices de
+  reajuste não entram em `classificacoesPublicas` nem no SSR. Não guardar a categoria só em estado de componente.
+- **Contrato** escolhe tipo e índice entre opções ativas; contrato legado precisa ser classificado para salvar
+  (decisão do dono). Não voltar a aceitar índice como texto livre.
+- **Slogan** padrão em `brand.slogan`/`brand.tagline`, usado no h1, no rodapé e no `<title>` da home; o smoke compara
+  com ele. Não repetir o texto do slogan em componentes.
+
+
 ### Arquitetura e SSR
 
 - **11/09 — SSR próprio.** Páginas públicas renderizadas em `src/seo/server.tsx` e `scripts/*.mjs`, com hidratação.

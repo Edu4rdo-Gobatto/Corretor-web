@@ -20,9 +20,13 @@
 - Sessão: a API expira após 4h sem uso (JWT de 15 min, cookie de sessão do navegador, sem rotação). O front guarda o
   token só em memória e faz uma renovação compartilhada por vez. Pronta e validada em 06/10.
 - Tema claro azul-acinzentado e tema escuro, só por tokens de `tailwind.css`.
+- 09/10 (código no `40f635b`, enviado à `origin/main` pelo dono; sem deploy registrado): edição completa de comissão com versão, arquivar/reativar e histórico do plano;
+  Cadastros em `/admin/cadastros/:categoria` com índices de reajuste e tipos de contrato; contrato com tipo e índice;
+  slogan padrão no h1, rodapé e título. Depende da API com a migration de 09/10 (DEPLOY-20261009).
 
 **Verificações:** `typecheck`, `lint`, `build` e `npm test` (3 arquivos, 23 testes) passam.
-`node scripts/seo-smoke.mjs` falha desde 06/10 no h1 antigo (SMOKE-001). `npm run visual` não tem specs.
+`node scripts/seo-smoke.mjs` passa desde a correção local de 09/10 (SMOKE-001); antes falhava desde 06/10.
+`npm run visual` não tem specs. QA de navegador de 09/10: 37/37 com a API completa em PostgreSQL descartável.
 
 **Falta homologar:** perfil real (login + R2 + Neon), Safari/iOS e celular físico, cold start publicado (A11),
 ACLs do Drive (H01), A09 e A10 com dados reais.

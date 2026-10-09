@@ -26,6 +26,7 @@ de um arquivo. A API irmã tem o próprio índice em `../../Corretor-API/docs/`.
 | [2026-10-06-conclusao-area-corretor.md](2026-10-06-conclusao-area-corretor.md) | Resumo da conclusão da especificação do painel |
 | [2026-10-06-refinamentos-sistema.md](2026-10-06-refinamentos-sistema.md) | Resumo de Contatos em abas, foto por upload e filtros automáticos |
 | [2026-10-06-system-design.docx](2026-10-06-system-design.docx) | System Design de 06/10 (documento Word, não revisado nesta atualização) |
+| [2026-10-09-comissao-versionada-cadastros-contrato.md](2026-10-09-comissao-versionada-cadastros-contrato.md) | Comissão editável e versionada, cadastros de contrato e slogan (local) |
 | [2026-10-09-padronizacao-painel.md](2026-10-09-padronizacao-painel.md) | Padronização visual do painel inteiro |
 | [2026-10-09-seis-pontos.md](2026-10-09-seis-pontos.md) | CRECI, tema claro, vários tipos, `content.js` e clientes da comissão |
 | [PLANO-AREA-CORRETOR.md](PLANO-AREA-CORRETOR.md) | Resumo do plano da Área do Corretor, concluído |
