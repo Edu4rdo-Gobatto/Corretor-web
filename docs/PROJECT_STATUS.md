@@ -1,5 +1,14 @@
 # Estado atual — corretor-web
 
+## 2026-10-09 — Claude: correção dos seis pontos (web)
+
+Concluído localmente: campos number sem setinhas; `CampoCreci` compartilhado por Perfil e editor de corretores; tema
+claro azul-acinzentado por tokens (escuro inalterado) e variáveis antigas sincronizadas; catálogo com vários tipos
+funcionando após o contrato da API; `EditorComissao` com clientes elegíveis, limpeza ao trocar operação/contrato/imóvel
+e revalidação antes do POST. `content.js` é de extensão do Chrome (ID `npclhjbddhklpbnacpjloidibaggcgon`).
+Typecheck, lint, 23 testes e build aprovados; QA Chrome efêmero 63/63 contra API real com Postgres descartável.
+Depende da API publicada antes. Detalhes: `2026-10-09-seis-pontos.md`.
+
 ## 2026-10-09 — Codex: ações desktop corrigidas
 
 Correção local concluída após revisão no celular/desktop: a coluna de ações da tabela agora permanece em uma linha no desktop, incluindo quatro ações em Contatos. O mobile mantém quebra controlada nos cartões. Typecheck, lint, testes e build aprovados; conferência simulada de Contatos confirmou quatro botões em 44px, sem overflow em 1440px, e cartões mobile sem overflow em 390px. Sem API, dados ou publicação.

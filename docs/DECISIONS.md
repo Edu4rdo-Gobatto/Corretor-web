@@ -1,5 +1,18 @@
 # Decisões técnicas — corretor-web
 
+## 2026-10-09 — CRECI, tema claro e clientes da comissão (Claude)
+
+- `servicos/creci.ts` + `componentes/CampoCreci.tsx` são a única regra de CRECI do frontend (mesma da API). O campo
+  recusa a inserção inteira em vez de filtrar caracteres; maiúsculas só quando o valor já segue a regra. O legado não
+  editado é aceito no esquema e omitido no envio (PATCH preserva); `dadosBase` não envia CRECI.
+- Tema: só tokens de `tailwind.css` mudam. As variáveis antigas do `:root` em `global.css` agora referenciam os tokens.
+  Antes, por virem depois de `tailwind.css` com a mesma especificidade, elas sobrescreviam as da `.dark` com valores
+  claros; agora `.muted`, `.eyebrow`, `.buttonSecondary`, `.error` e o `accent-color` dos checkboxes seguem o token do
+  tema ativo. Os valores dos tokens escuros não mudaram.
+- Contrato consumido: `tipo_id` CSV e `GET /admin/comissoes/pessoas-elegiveis` (ver API). O seletor de clientes é
+  remontado por imóvel (`key`), o que descarta sugestões e respostas antigas.
+- Não fazer: voltar a usar a busca geral de pessoas no registro de comissão; remover a revalidação antes do POST.
+
 ## 2026-10-09 — Ações de tabela alinhadas no desktop
 
 - A coluna de ações do componente compartilhado não usa mais `w-px`/flex wrap no layout desktop. A largura segue o conteúdo e `min-w-max` mantém os ícones na mesma linha; a partir de 40rem, o wrapper usa `flex-nowrap`.

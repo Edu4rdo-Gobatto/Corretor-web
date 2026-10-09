@@ -16,13 +16,15 @@ import { data, mensagemErro } from '../../servicos/formato';
 import { rotas } from '../../servicos/urls';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Campo from '../../componentes/Campo';
+import CampoCreci from '../../componentes/CampoCreci';
+import { creciParaEnvio, esquemaCreci } from '../../servicos/creci';
 import Aviso from '../../componentes/Aviso';
 import { GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 
-const esquemaPerfil = z.object({
+const esquemaPerfil = (creciLegado: () => string) => z.object({
   nome: z.string().trim().min(2, 'Use pelo menos 2 caracteres.').max(100),
   whatsapp: z.string().regex(/^[1-9]\d{9,14}$/, 'Use DDI e DDD, somente números. Ex.: 5565999999999.'),
-  creci: z.string().max(50),
+  creci: esquemaCreci(creciLegado),
   url_foto: z.string().max(2048).refine((valor) => !valor || (/^https:\/\//.test(valor) && URL.canParse(valor)), 'Use uma URL HTTPS válida.'),
 });
 const esquemaSenha = z.object({
@@ -30,7 +32,7 @@ const esquemaSenha = z.object({
   nova_senha: z.string().min(12, 'Use entre 12 e 128 caracteres.').max(128).refine((valor) => /\S/.test(valor), 'Use entre 12 e 128 caracteres.'),
   confirmacao: z.string(),
 }).refine((valores) => valores.nova_senha === valores.confirmacao, { message: 'A confirmação não confere.', path: ['confirmacao'] });
-type ValoresPerfil = z.infer<typeof esquemaPerfil>;
+type ValoresPerfil = z.infer<ReturnType<typeof esquemaPerfil>>;
 type ValoresSenha = z.infer<typeof esquemaSenha>;
 
 export default function Perfil() {
@@ -60,16 +62,20 @@ export default function Perfil() {
     ]);
     return { imoveis, disponiveis, reservados, vendidos, alugados, pessoas, pendentes, ultimoMes };
   }, []));
-  const formularioPerfil = useForm<ValoresPerfil>({ resolver: zodResolver(esquemaPerfil), defaultValues: { nome: corretor?.nome ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', url_foto: corretor?.url_foto ?? '' } });
+  // CRECI salvo no servidor: um valor antigo fora da regra pode ficar intacto até ser editado.
+  const creciSalvo = useRef(corretor?.creci ?? '');
+  const [esquema] = useState(() => esquemaPerfil(() => creciSalvo.current));
+  const formularioPerfil = useForm<ValoresPerfil>({ resolver: zodResolver(esquema), defaultValues: { nome: corretor?.nome ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', url_foto: corretor?.url_foto ?? '' } });
   const perfilInicializado = useRef(corretor?.id);
-  useEffect(() => { if (corretor && (perfilInicializado.current !== corretor.id || !formularioPerfil.formState.isDirty)) { formularioPerfil.reset({ nome: corretor.nome, whatsapp: corretor.whatsapp, creci: corretor.creci ?? '', url_foto: corretor.url_foto ?? '' }); perfilInicializado.current = corretor.id; } }, [corretor, formularioPerfil]);
+  useEffect(() => { if (corretor && (perfilInicializado.current !== corretor.id || !formularioPerfil.formState.isDirty)) { creciSalvo.current = corretor.creci ?? ''; formularioPerfil.reset({ nome: corretor.nome, whatsapp: corretor.whatsapp, creci: corretor.creci ?? '', url_foto: corretor.url_foto ?? '' }); perfilInicializado.current = corretor.id; } }, [corretor, formularioPerfil]);
   async function salvarPerfil(valores: ValoresPerfil) {
     setErroPerfil('');
     setPerfilSalvo(false);
     try {
       const foto = fotoPendente ? (await prepararEnvio([fotoPendente])).prontos[0] : undefined;
-      const salvo = await api.atualizarPerfil({ nome: valores.nome.trim(), whatsapp: valores.whatsapp, creci: valores.creci.trim() || null, ...(formularioPerfil.formState.dirtyFields.url_foto ? { url_foto: valores.url_foto.trim() || null } : {}) }, foto);
+      const salvo = await api.atualizarPerfil({ nome: valores.nome.trim(), whatsapp: valores.whatsapp, creci: creciParaEnvio(valores.creci, creciSalvo.current), ...(formularioPerfil.formState.dirtyFields.url_foto ? { url_foto: valores.url_foto.trim() || null } : {}) }, foto);
       setFotoPendente(null); setErroFoto('');
+      creciSalvo.current = salvo.creci ?? '';
       formularioPerfil.reset({ nome: salvo.nome, whatsapp: salvo.whatsapp, creci: salvo.creci ?? '', url_foto: salvo.url_foto ?? '' });
       setPerfilSalvo(true);
       try { await atualizar(); } catch (causa) { setErroPerfil(`O perfil foi salvo, mas não foi possível atualizar a sessão. ${mensagemErro(causa)}`); }
@@ -124,7 +130,7 @@ export default function Perfil() {
         </div>
         <Campo rotulo="Nome" erro={errosPerfil.nome?.message}><input data-editar-perfil type="text" autoComplete="name" {...formularioPerfil.register('nome')} /></Campo>
         <Campo rotulo="WhatsApp com DDI e DDD" erro={errosPerfil.whatsapp?.message} dica="Somente números. Ex.: 5565999999999."><input type="tel" autoComplete="tel" {...formularioPerfil.register('whatsapp')} /></Campo>
-        <Campo rotulo="CRECI" erro={errosPerfil.creci?.message}><input type="text" {...formularioPerfil.register('creci')} /></Campo>
+        <Campo rotulo="CRECI" erro={errosPerfil.creci?.message} dica="Opcional. Números com J ou F no final, se houver."><CampoCreci {...formularioPerfil.register('creci')} /></Campo>
         <div className="col-span-full flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full"><button className="button" disabled={ocupado}><IconeSalvar size={20} aria-hidden="true" />{formularioPerfil.formState.isSubmitting ? 'Preparando e salvando…' : 'Salvar perfil'}</button></div>
         </fieldset>
       </form>

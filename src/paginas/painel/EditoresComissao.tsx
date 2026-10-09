@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Aviso from '../../componentes/Aviso';
 import Campo from '../../componentes/Campo';
@@ -13,11 +13,14 @@ import { api } from '../../servicos/api';
 import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
 import type { Comissao, Contrato, ParcelaComissao } from '../../servicos/locacoes';
 import type { Referencia } from '../../tipos';
-import { buscarImoveis, buscarPessoas } from './Contratos';
+import { ErroApi } from '../../servicos/http';
+import { buscarImoveis } from './Contratos';
 import { esquemaComissao, esquemaEdicaoComissao, esquemaPagamento, previaParcelas, type ValoresComissao } from './esquemaLocacao';
 
 const buscarContratos = async (termo: string): Promise<(Referencia & { imovel_id: number; imovel_titulo: string | null })[]> =>
   (await api.listarContratos({ busca: termo || undefined, limite: 10, ativo: true })).itens.map((item) => ({ id: item.id, nome: item.numero_contrato, imovel_id: item.imovel_id, imovel_titulo: item.imovel_titulo }));
+
+const PESSOA_INCOMPATIVEL = 'Esta pessoa não pode mais receber a comissão deste imóvel. Escolha outro cliente.';
 
 export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Contrato; aoFechar: () => void; aoSalvar: () => void }) {
   const [erro, setErro] = useState('');
@@ -26,18 +29,28 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   const [contratoEscolhido, setContratoEscolhido] = useState<Referencia | null>(contrato ? { id: contrato.id, nome: contrato.numero_contrato } : null);
   const [resolvendoContrato, setResolvendoContrato] = useState(false);
   const sequenciaContrato = useRef(0);
-  const { register, setValue, watch, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresComissao>({
+  const { register, setValue, setError, clearErrors, watch, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresComissao>({
     resolver: zodResolver(esquemaComissao),
     defaultValues: { tipo_operacao: contrato ? 'LOCACAO' : 'VENDA', contrato_id: contrato?.id ?? null, imovel_id: contrato?.imovel_id ?? 0, pessoa_id: 0, valor_total: '', quantidade_parcelas: 1, primeiro_vencimento: '', observacoes: '' },
   });
   const operacao = watch('tipo_operacao');
+  // Só clientes que o POST aceitaria; a busca muda de identidade com o imóvel e o seletor é remontado por `key`.
+  const imovelId = imovel?.id;
+  const buscarClientes = useCallback(async (termo: string) => imovelId
+    ? (await api.listarPessoasElegiveis({ imovel_id: imovelId, busca: termo || undefined, limite: 10 })).itens.map((item) => ({ id: item.id, nome: item.nome }))
+    : [], [imovelId]);
+  const limparPessoa = () => { setPessoa(null); setValue('pessoa_id', 0, { shouldDirty: true }); clearErrors('pessoa_id'); };
+  const escolherImovel = (valor: Referencia | null, validar = true) => {
+    setImovel(valor);
+    setValue('imovel_id', valor?.id ?? 0, { shouldValidate: validar, shouldDirty: true });
+    limparPessoa();
+  };
   const previa = previaParcelas(watch('valor_total'), watch('quantidade_parcelas'), watch('primeiro_vencimento'));
   const escolherContrato = async (valor: Referencia | null) => {
     const atual = ++sequenciaContrato.current;
     setContratoEscolhido(valor);
     setValue('contrato_id', valor?.id ?? null, { shouldValidate: true, shouldDirty: true });
-    setImovel(null);
-    setValue('imovel_id', 0, { shouldDirty: true });
+    escolherImovel(null, false);
     setErro('');
     if (!valor) { setResolvendoContrato(false); return; }
     setResolvendoContrato(true);
@@ -45,8 +58,7 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
       const contratoCarregado = await api.obterContrato(valor.id);
       if (sequenciaContrato.current !== atual) return;
       if (contratoCarregado) {
-        setImovel({ id: contratoCarregado.imovel_id, nome: contratoCarregado.imovel_titulo ?? `#${contratoCarregado.imovel_id}` });
-        setValue('imovel_id', contratoCarregado.imovel_id, { shouldValidate: true, shouldDirty: true });
+        escolherImovel({ id: contratoCarregado.imovel_id, nome: contratoCarregado.imovel_titulo ?? `#${contratoCarregado.imovel_id}` });
       }
     } catch (falha) {
       if (sequenciaContrato.current !== atual) return;
@@ -58,19 +70,28 @@ export function EditorComissao({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   async function salvar(valores: ValoresComissao) {
     if (resolvendoContrato) return;
     setErro('');
-    try { await api.criarComissao(valores); aoSalvar(); aoFechar(); }
-    catch (falha) { setErro(mensagemErro(falha)); }
+    try {
+      // O vínculo da pessoa pode ter mudado desde a escolha; receita, parcelas e vencimento ficam como estão.
+      const compativel = await api.listarPessoasElegiveis({ imovel_id: valores.imovel_id, pessoa_id: valores.pessoa_id, limite: 1 });
+      if (!compativel.itens.some((item) => item.id === valores.pessoa_id)) { setError('pessoa_id', { message: PESSOA_INCOMPATIVEL }, { shouldFocus: true }); return; }
+      await api.criarComissao(valores); aoSalvar(); aoFechar();
+    } catch (falha) {
+      if (falha instanceof ErroApi && falha.status === 400 && /^Pessoa /.test(falha.message)) setError('pessoa_id', { message: falha.message }, { shouldFocus: true });
+      else setErro(mensagemErro(falha));
+    }
   }
   return (
     <Dialogo titulo="Registrar comissão" tamanho="largo" alterado={isDirty} ocupado={isSubmitting || resolvendoContrato} aoFechar={() => { if (!isSubmitting && !resolvendoContrato) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate>
         <fieldset disabled={isSubmitting || resolvendoContrato} className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <p className="m-0">Informe a receita devida pela intermediação do negócio.</p>
-          {!contrato && <Campo rotulo="Operação" erro={errors.tipo_operacao?.message}><select {...register('tipo_operacao', { onChange: () => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null, { shouldDirty: true }); setValue('imovel_id', 0, { shouldDirty: true }); setValue('pessoa_id', 0, { shouldDirty: true }); setContratoEscolhido(null); setImovel(null); setPessoa(null); setErro(''); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></Campo>}
+          {!contrato && <Campo rotulo="Operação" erro={errors.tipo_operacao?.message}><select {...register('tipo_operacao', { onChange: () => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null, { shouldDirty: true }); setContratoEscolhido(null); escolherImovel(null, false); setErro(''); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></Campo>}
           {contrato ? <p className="m-0">Contrato: {contrato.numero_contrato}; {contrato.imovel_titulo}</p>
             : operacao === 'LOCACAO' ? <SeletorRegistro rotulo="Contrato de locação" valor={contratoEscolhido} buscar={buscarContratos} aoEscolher={(valor) => void escolherContrato(valor)} erro={errors.contrato_id?.message} dica={resolvendoContrato ? 'Buscando imóvel do contrato…' : imovel ? `Imóvel: ${imovel.nome}` : undefined} />
-              : <SeletorRegistro rotulo="Imóvel" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => { setImovel(valor); setValue('imovel_id', valor?.id ?? 0, { shouldValidate: true, shouldDirty: true }); }} erro={errors.imovel_id?.message} />}
-          <SeletorRegistro rotulo="Pessoa (cliente do negócio)" valor={pessoa} buscar={buscarPessoas} aoEscolher={(valor) => { setPessoa(valor); setValue('pessoa_id', valor?.id ?? 0, { shouldValidate: true, shouldDirty: true }); }} erro={errors.pessoa_id?.message} dica="A pessoa precisa estar ativa e sob o mesmo responsável pelo imóvel." />
+              : <SeletorRegistro rotulo="Imóvel" valor={imovel} buscar={buscarImoveis} aoEscolher={escolherImovel} erro={errors.imovel_id?.message} />}
+          <SeletorRegistro key={imovelId ?? 'sem-imovel'} rotulo="Pessoa (cliente do negócio)" valor={pessoa} buscar={buscarClientes} desabilitado={!imovelId || resolvendoContrato}
+            aoEscolher={(valor) => { setPessoa(valor); setValue('pessoa_id', valor?.id ?? 0, { shouldValidate: true, shouldDirty: true }); }} erro={errors.pessoa_id?.message}
+            dica={imovelId && !resolvendoContrato ? 'Somente pessoas ativas, do mesmo responsável e sem vínculo com outro imóvel.' : `Escolha ${operacao === 'LOCACAO' && !contrato ? 'o contrato' : 'o imóvel'} antes do cliente.`} />
           <div className={estilos.grade}>
             <Campo classe="col-span-full" rotulo="Receita total" erro={errors.valor_total?.message}><CampoNumero unidade="R$" placeholder="Ex.: 1.500,00" {...register('valor_total')} /></Campo>
             <Campo rotulo="Quantidade de parcelas" erro={errors.quantidade_parcelas?.message}><CampoNumero casasDecimais={0} min={1} max={600} {...register('quantidade_parcelas', { setValueAs: numeroDoCampo })} /></Campo>

@@ -20,7 +20,8 @@ export interface DadosCorretor {
   email: string;
   cpf?: string;
   whatsapp: string;
-  creci: string | null;
+  /** Omitido no PATCH quando não muda: a API mantém o valor atual. */
+  creci?: string | null;
   cargo: Cargo;
   url_foto: string | null;
   senha?: string;

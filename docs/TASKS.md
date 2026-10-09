@@ -1,5 +1,17 @@
 # Tarefas — corretor-web
 
+## SEIS-PONTOS-20261009 — Correção dos seis pontos (web)
+
+- Responsável: Claude. Plano autorizado pelo dono; concluída localmente.
+- [x] Ocultar setinhas de `input[type=number]` preservando limites, step, teclado e foco.
+- [x] CRECI compartilhado (Perfil e corretores): bloquear inserção/colagem inválida, permitir apagar/substituir legado.
+- [x] Paleta azul-acinzentada do tema claro e variáveis antigas sincronizadas; contraste ≥ 4,5:1 texto e ≥ 3:1 controles.
+- [x] Catálogo com nenhum, um e vários tipos em SSR, navegação, recarga e limpeza.
+- [x] Comissão: cliente só após imóvel, sugestões elegíveis, limpeza nas trocas e revalidação antes do POST.
+- [x] Registrar origem do `content.js` (extensão do Chrome) e orientar revisão.
+- [x] Typecheck, lint, testes, build e QA efêmero (63/63).
+- [ ] Publicar depois da API, se autorizado.
+
 ## TABELA-ACOES-DESKTOP-20261009 — Ícones de ações sem quebra
 
 - [x] Remover a largura fixa insuficiente da coluna de Contatos.

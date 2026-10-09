@@ -1,5 +1,19 @@
 # Histórico de trabalho dos agentes — corretor-web
 
+## 2026-10-09 — Correção dos seis pontos, lado web (Claude)
+
+Arquivos: `src/styles/global.css` (setinhas, variáveis antigas), `src/styles/tailwind.css` (paleta clara),
+`src/servicos/creci.ts` e `src/componentes/CampoCreci.tsx` (novos), `src/paginas/painel/Perfil.tsx`,
+`EditorCorretor.tsx`, `EditoresComissao.tsx`, `src/servicos/api.ts`, `src/servicos/locacoes.ts`, `src/tipos/index.ts`,
+`corretor-spec.json`, docs de contexto e `2026-10-09-seis-pontos.md`.
+
+Validação real:
+- `npm run typecheck`, `npm run lint`, `npm test` (3 arquivos, 23 testes) e `npm run build`: aprovados.
+- QA efêmero (Playwright + Chrome, scripts no scratchpad, fora do repo) com preview SSR do build e API real sobre
+  PostgreSQL descartável: 63/63. Corrigido durante o QA: apagar o legado `Teste` deixava `TEST`.
+- Contraste calculado: textos ≥ 4,73:1, borda de controle ≥ 3,21:1.
+- Sem cobertura: Safari/Firefox reais, dispositivo físico, troca de contrato com resposta em voo. Sem commit, push ou deploy.
+
 ## 2026-10-09 — Codex: ações de tabela sem quebra no desktop
 
 - Corrigido `Tabela.tsx`: células de ações desktop agora usam largura baseada no conteúdo, `whitespace-nowrap`, `flex-nowrap` e `min-w-max` a partir de 40rem; cartões mobile continuam flexíveis.

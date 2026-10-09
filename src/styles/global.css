@@ -6,7 +6,8 @@
 @import '@fontsource/source-sans-3/latin-700.css';
 
 @layer components {
-:root { font-family: 'Source Sans 3', sans-serif; color: var(--color-ink); background: var(--color-background); font-synthesis: none; --paper: #F8FAFD; --ink: #0A2042; --navy: #0A2042; --navy-deep: #071733; --green: #0A2042; --gold: #C99B3F; --gold-soft: #F4E9CF; --muted: #556074; --line: #D3DDEA; --white: #FFF; --error: #9C302B; --soft: #E2EAF5; --display: 'Libre Baskerville', Georgia, serif; }
+/* Variáveis antigas apontam para os tokens do tema, para os dois temas usarem a mesma paleta. */
+:root { font-family: 'Source Sans 3', sans-serif; color: var(--color-ink); background: var(--color-background); font-synthesis: none; --paper: var(--color-paper); --ink: var(--color-ink); --navy: var(--color-navy); --navy-deep: var(--color-navy-deep); --green: var(--color-brand); --gold: var(--color-gold); --gold-soft: var(--color-gold-soft); --muted: var(--color-muted); --line: var(--color-line); --white: var(--color-paper); --error: var(--color-error); --soft: var(--color-soft); --display: 'Libre Baskerville', Georgia, serif; }
 * { box-sizing: border-box; }
 /* O fallback cobre navegadores em que ::backdrop não herda as variáveis do documento. */
 dialog::backdrop { background-color: var(--color-sobreposicao, rgb(4 15 36 / 0.62)); }
@@ -30,6 +31,10 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 /* Destinos de navegação mantêm o foco acessível sem contornar o conteúdo da página. */
 [data-foco-navegacao]:focus { outline: none; }
 input,select,textarea { min-width: 0; width: 100%; background: var(--color-paper); color: var(--ink); border: 1px solid var(--color-control-line); border-radius: 4px; min-height: 46px; padding: 10px 12px; font-size: 16px; font-weight: 400; }
+/* Sem setinhas nativas de incremento: o valor é digitado; limites, step e teclado continuam do navegador. */
+input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
 input[type=checkbox] { width: 19px; height: 19px; min-height: 19px; accent-color: var(--green); flex-shrink: 0; }
 textarea { resize: vertical; min-height: 112px; }
 label { display: block; font-size: 15px; font-weight: 600; }

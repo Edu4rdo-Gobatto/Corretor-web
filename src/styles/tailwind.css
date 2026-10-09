@@ -7,20 +7,20 @@
   --color-action-hover: #071733;
   --color-on-action: #ffffff;
   --color-cena-legenda: #f8fafd;
-  --color-control-line: #7b8799;
+  --color-control-line: #63758e;
   /* Claro: fundo azul bem claro e superfícies quase brancas, para reduzir o brilho (pedido do dono, 18/09). */
-  --color-paper: #f8fafd;
+  --color-paper: #eaf0f7;
   --color-ink: #0a2042;
   --color-navy: #0a2042;
   --color-navy-deep: #071733;
   --color-brand: #0a2042;
   --color-gold: #c99b3f;
   --color-gold-soft: #f4e9cf;
-  --color-muted: #556074;
-  --color-line: #d3ddea;
-  --color-soft: #e2eaf5;
+  --color-muted: #4b5a70;
+  --color-line: #b6c5d8;
+  --color-soft: #cfdceb;
   --color-error: #9c302b;
-  --color-background: #ebf1f9;
+  --color-background: #dce5f0;
   --color-sucesso: #215a43;
   --color-sucesso-suave: #e8f2ec;
   --color-atencao: #775314;
@@ -31,11 +31,11 @@
   --color-acao-painel: #b3892d;
   --color-acao-painel-hover: #a37d29;
   --color-sobre-acao: #ffffff;
-  --color-campo: #f3f6fb;
-  --color-linha-a: #f5f6f8;
-  --color-linha-b: #e8ebef;
-  --color-linha-foco: #d9e2ef;
-  --color-cabecalho-tabela: #dfe5ee;
+  --color-campo: #e2eaf4;
+  --color-linha-a: #e4ebf4;
+  --color-linha-b: #d8e2ef;
+  --color-linha-foco: #c7d7ea;
+  --color-cabecalho-tabela: #ccd8e7;
   --color-texto-cabecalho-tabela: #2c3a52;
 
   --font-sans: "Source Sans 3", system-ui, sans-serif;

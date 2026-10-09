@@ -1,52 +1,57 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Aviso from '../../componentes/Aviso';
 import Campo from '../../componentes/Campo';
+import CampoCreci from '../../componentes/CampoCreci';
 import Dialogo from '../../componentes/Dialogo';
 import { estilos } from '../../componentes/estilosPainel';
 import { IconeSalvar } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
+import { creciParaEnvio, esquemaCreci } from '../../servicos/creci';
 import { mensagemErro } from '../../servicos/formato';
 import type { Corretor } from '../../tipos';
 
-export const esquemaCorretor = z.object({
+const esquemaCorretor = (creciLegado: () => string) => z.object({
   nome: z.string().trim().min(2, 'Use pelo menos 2 caracteres.').max(100),
   cpf: z.string().regex(/^\d{11}$/, 'Informe os 11 dígitos do CPF.'),
   email: z.email('Informe um e-mail válido.').max(254),
   whatsapp: z.string().regex(/^[1-9]\d{9,14}$/, 'Use DDI e DDD, somente números. Ex.: 5565999999999.'),
-  creci: z.string().max(50),
+  creci: esquemaCreci(creciLegado),
   cargo: z.enum(['ADMIN', 'CORRETOR']),
   url_foto: z.string().max(2048).refine((valor) => !valor || (/^https:\/\//.test(valor) && URL.canParse(valor)), 'Use uma URL HTTPS válida.'),
   senha: z.string().refine((valor) => valor === '' || (valor.length >= 12 && valor.length <= 128 && /\S/.test(valor)), 'Use entre 12 e 128 caracteres.'),
 });
-type Valores = z.infer<typeof esquemaCorretor>;
+type Valores = z.infer<ReturnType<typeof esquemaCorretor>>;
 const esquemaSenha = z.object({
   nova_senha: z.string().min(12, 'Use entre 12 e 128 caracteres.').max(128).refine((valor) => /\S/.test(valor), 'Use entre 12 e 128 caracteres.'),
   confirmacao: z.string(),
 }).refine((valores) => valores.nova_senha === valores.confirmacao, { message: 'A confirmação não confere.', path: ['confirmacao'] });
 
-export const dadosBase = (corretor: Corretor) => ({ nome: corretor.nome, cpf: corretor.cpf, email: corretor.email, whatsapp: corretor.whatsapp, cargo: corretor.cargo, creci: corretor.creci, url_foto: corretor.url_foto });
+/** Base de PATCHs de senha/ativação: sem CRECI, que fica inalterado (inclusive valores antigos fora da regra atual). */
+export const dadosBase = (corretor: Corretor) => ({ nome: corretor.nome, cpf: corretor.cpf, email: corretor.email, whatsapp: corretor.whatsapp, cargo: corretor.cargo, url_foto: corretor.url_foto });
 
 export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Corretor | null; aoFechar: () => void; aoSalvar: () => void }) {
   const [erro, setErro] = useState('');
+  const creciInicial = useRef(corretor?.creci ?? '');
+  const [esquema] = useState(() => esquemaCorretor(() => creciInicial.current));
   const { register, handleSubmit, setError, formState: { errors, isSubmitting, isDirty } } = useForm<Valores>({
-    resolver: zodResolver(esquemaCorretor),
+    resolver: zodResolver(esquema),
     defaultValues: { nome: corretor?.nome ?? '', cpf: corretor?.cpf ?? '', email: corretor?.email ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', cargo: corretor?.cargo ?? 'CORRETOR', url_foto: corretor?.url_foto ?? '', senha: '' },
   });
   async function salvar(valores: Valores) {
     if (!corretor && !valores.senha) { setError('senha', { message: 'Defina uma senha de pelo menos 12 caracteres.' }); return; }
     setErro('');
     try {
-      await api.salvarCorretor({ ...valores, creci: valores.creci || null, url_foto: valores.url_foto || null, senha: valores.senha || undefined }, corretor?.id);
+      await api.salvarCorretor({ ...valores, creci: creciParaEnvio(valores.creci, corretor ? corretor.creci : undefined), url_foto: valores.url_foto || null, senha: valores.senha || undefined }, corretor?.id);
       aoSalvar();
       aoFechar();
     } catch (causa) { setErro(mensagemErro(causa)); }
   }
   // Ordem pensada para a grade de 2 colunas não deixar célula vazia: Nome / CPF+E-mail / WhatsApp+CRECI / Permissão+Foto / Senha.
   const campos: [keyof Valores, string, string, string?][] = [['nome', 'Nome', 'text', 'col-span-full'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsapp', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text']];
-  const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <Campo key={nome} classe={classe} rotulo={rotulo} obrigatorio={nome === 'nome' || nome === 'cpf' || nome === 'email' || nome === 'whatsapp'} erro={errors[nome]?.message}><input type={tipo} {...register(nome)} /></Campo>;
+  const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <Campo key={nome} classe={classe} rotulo={rotulo} obrigatorio={nome === 'nome' || nome === 'cpf' || nome === 'email' || nome === 'whatsapp'} erro={errors[nome]?.message} dica={nome === 'creci' ? 'Opcional. Números com J ou F no final, se houver.' : undefined}>{nome === 'creci' ? <CampoCreci {...register(nome)} /> : <input type={tipo} {...register(nome)} />}</Campo>;
   return (
     <Dialogo titulo={corretor ? 'Editar corretor' : 'Novo corretor'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>

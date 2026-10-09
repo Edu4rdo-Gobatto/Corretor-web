@@ -99,6 +99,9 @@ export const locacoesApi = {
   prepararPastaDrive: (id: number) => http<Contrato>(`/admin/contratos/${id}/pasta-drive`, json('POST')),
   listarComissoes: (filtros: Filtros & { tipo_operacao?: TipoOperacao; contrato_id?: number; imovel_id?: number; pessoa_id?: number } = {}) =>
     http<Pagina<Comissao>>(`/admin/comissoes?${montarParametros(filtros)}`),
+  /** Clientes aceitos pelo registro de comissão do imóvel; `pessoa_id` revalida uma escolha antes do POST. */
+  listarPessoasElegiveis: (filtros: { imovel_id: number; busca?: string; pagina?: number; limite?: number; pessoa_id?: number }) =>
+    http<Pagina<{ id: number; nome: string }>>(`/admin/comissoes/pessoas-elegiveis?${montarParametros(filtros)}`),
   obterComissao: (id: number) => http<Comissao>(`/admin/comissoes/${id}`),
   criarComissao: (dados: DadosComissao) =>
     http<Comissao>('/admin/comissoes', json('POST', { ...dados, contrato_id: dados.tipo_operacao === 'LOCACAO' ? dados.contrato_id : null, observacoes: dados.observacoes || null })),
