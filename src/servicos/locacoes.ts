@@ -36,6 +36,12 @@ export interface Contrato {
   imovel_titulo: string | null;
   locador_nome: string | null;
   locatario_nome: string | null;
+  /** Fim original quando houve encerramento antecipado (vem junto do motivo). */
+  data_fim_contratada: string | null;
+  motivo_encerramento: string | null;
+  /** Contrato que este renovou e, quando houver, a renovação deste. */
+  contrato_anterior_id: number | null;
+  renovacao_id: number | null;
 }
 export interface DadosContrato {
   numero_contrato: string;
@@ -128,6 +134,9 @@ export const locacoesApi = {
   salvarContrato: (dados: DadosContrato, id?: number) =>
     http<Contrato>(`/admin/contratos${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', { ...dados, observacoes: dados.observacoes || null, ...(id ? {} : { ativo: undefined }) })),
   arquivarContrato: (id: number) => http<void>(`/admin/contratos/${id}`, json('DELETE')),
+  encerrarContrato: (id: number, dados: { data_encerramento: string; motivo: string }) => http<Contrato>(`/admin/contratos/${id}/encerrar`, json('POST', dados)),
+  renovarContrato: (id: number, dados: { numero_contrato: string; data_inicio: string; data_fim: string; valor_aluguel: string }) =>
+    http<Contrato>(`/admin/contratos/${id}/renovar`, json('POST', dados)),
   prepararPastaDrive: (id: number) => http<Contrato>(`/admin/contratos/${id}/pasta-drive`, json('POST')),
   listarComissoes: (filtros: Filtros & { tipo_operacao?: TipoOperacao; contrato_id?: number; imovel_id?: number; pessoa_id?: number } = {}) =>
     http<Pagina<Comissao>>(`/admin/comissoes?${montarParametros(filtros)}`),

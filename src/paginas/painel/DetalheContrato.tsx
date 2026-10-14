@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSessao } from '../../hooks/useSessao';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { urlFichaCorretor } from '../../servicos/urls';
@@ -9,13 +9,14 @@ import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
-import { IconeArquivar, IconeEditar, IconeAbrirFora } from '../../componentes/Icones';
+import { IconeArquivar, IconeEditar, IconeAbrirFora, IconeFinalizar, IconeContrato } from '../../componentes/Icones';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import { DadosFicha, DadoFicha, GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 import Comissoes from './Comissoes';
 import { EditorContrato } from './Contratos';
+import { EncerrarContrato, RenovarContrato } from './AcoesContrato';
 
 export default function DetalheContrato() {
   const { id = '' } = useParams();
@@ -23,6 +24,8 @@ export default function DetalheContrato() {
   const { corretor } = useSessao();
   const [editando, setEditando] = useState(false);
   const [arquivando, setArquivando] = useState(false);
+  const [dialogo, setDialogo] = useState<'encerrar' | 'renovar' | null>(null);
+  const navigate = useNavigate();
   const [ocupado, setOcupado] = useState(false);
   const [erroAcao, setErroAcao] = useState('');
   const { dados: registro, carregando, erro, recarregar } = useDadosPainel(useCallback(() => contratoId ? consultarRegistroDisponivel(() => api.obterContrato(contratoId)) : Promise.resolve(null), [contratoId]));
@@ -44,13 +47,20 @@ export default function DetalheContrato() {
     } catch (falha) { setErroAcao(mensagemErro(falha)); }
     finally { setOcupado(false); }
   }
+  const podeEncerrar = Boolean(dados?.ativo && dados.status === 'ATIVO' && !dados.motivo_encerramento);
+  const podeRenovar = Boolean(dados?.ativo && !dados.motivo_encerramento && !dados.renovacao_id);
   const urlDrive = dados?.url_pasta_drive && /^https:\/\/drive\.google\.com\/drive\/folders\/[\w-]+$/.test(dados.url_pasta_drive) ? dados.url_pasta_drive : null;
   return <>
     <CabecalhoPagina voltar={{ to: '/admin/contratos', rotulo: 'Voltar para contratos' }} titulo={dados?.numero_contrato ?? 'Contrato'} descricao={dados ? `${dados.status === 'ATIVO' ? 'Ativo' : 'Encerrado'}${dados.ativo ? '' : ', arquivado'}` : undefined}
-      acoes={dados && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setEditando(true)} />{dados.ativo && <AcaoIcone icone={IconeArquivar} rotulo="Arquivar" tom="perigo" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setArquivando(true)} />}</>} />
+      acoes={dados && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setEditando(true)} />{podeEncerrar && <AcaoIcone icone={IconeFinalizar} rotulo="Encerrar antes do fim" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setDialogo('encerrar')} />}{podeRenovar && <AcaoIcone icone={IconeContrato} rotulo="Renovar" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setDialogo('renovar')} />}{dados.ativo && <AcaoIcone icone={IconeArquivar} rotulo="Arquivar" tom="perigo" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setArquivando(true)} />}</>} />
     <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {!carregando && !erro && !dados && <Aviso>Contrato indisponível.</Aviso>}
     {dados && !carregando && !erro && <>
+      {(dados.motivo_encerramento || dados.contrato_anterior_id || dados.renovacao_id) && <Aviso classe="mb-6">
+        {dados.motivo_encerramento && <p className="m-0">Encerrado antes do fim contratado ({dataCivil(dados.data_fim_contratada)}); último dia de vigência {dataCivil(dados.data_fim)}. Motivo: {dados.motivo_encerramento}</p>}
+        {dados.contrato_anterior_id && <p className="m-0">Renovação de <Link to={`/admin/contratos/${dados.contrato_anterior_id}`}>contrato anterior</Link>.</p>}
+        {dados.renovacao_id && <p className="m-0">Renovado: <Link to={`/admin/contratos/${dados.renovacao_id}`}>ver o contrato novo</Link>.</p>}
+      </Aviso>}
       <GradePainel colunas={2}>
       <SecaoPainel titulo="Partes e imóvel"><DadosFicha>
         <DadoFicha rotulo="Imóvel"><Link to={`/admin/imoveis/${dados.imovel_id}`}>{dados.imovel_titulo ?? `Imóvel #${dados.imovel_id}`}</Link></DadoFicha>
@@ -77,6 +87,8 @@ export default function DetalheContrato() {
       {dados.observacoes && <SecaoPainel titulo="Observações"><p className="m-0 whitespace-pre-wrap">{dados.observacoes}</p></SecaoPainel>}
       </GradePainel>
       <Comissoes contrato={dados} />
+      {dialogo === 'encerrar' && <EncerrarContrato contrato={dados} aoFechar={() => setDialogo(null)} aoConcluir={() => { setDialogo(null); recarregar(); }} />}
+      {dialogo === 'renovar' && <RenovarContrato contrato={dados} aoFechar={() => setDialogo(null)} aoConcluir={(novo) => { setDialogo(null); navigate(`/admin/contratos/${novo.id}`); }} />}
       {editando && <EditorContrato key={dados.id} contrato={dados} aoFechar={() => setEditando(false)} aoSalvar={recarregar} />}
       {arquivando && <ConfirmarAcao titulo="Arquivar contrato?" descricao={<><p>O contrato {dados.numero_contrato} será encerrado e o histórico permanecerá disponível.</p>{erroAcao && <Aviso tom="erro">{erroAcao}</Aviso>}</>} confirmar="Arquivar contrato" ocupado={ocupado} aoFechar={() => { if (!ocupado) setArquivando(false); }} aoConfirmar={() => executar('arquivar')} />}
     </>}
