@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { IconeSetaExterna, IconeLocal, IconeArea } from './Icones';
 import { Link } from 'react-router-dom';
-import type { Imovel } from '../tipos';
+import type { ImovelResumo } from '../tipos';
 import { urlImovel } from '../servicos/urls';
 import { area, dinheiro, rotulosStatusImovel, valorPrincipal } from '../servicos/formato';
 
-export default function CartaoImovel({ imovel }: { imovel: Imovel }) {
+export default function CartaoImovel({ imovel }: { imovel: ImovelResumo }) {
   const [imagemFalhou, setImagemFalhou] = useState(false);
   const capa = imovel.midias.find((midia) => midia.capa && midia.tipo === 'IMAGEM') || imovel.midias.find((midia) => midia.tipo === 'IMAGEM');
   const preco = valorPrincipal(imovel);

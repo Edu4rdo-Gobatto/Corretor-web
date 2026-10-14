@@ -1,10 +1,10 @@
-import type { Classificacoes, Imovel, Pagina } from '../tipos';
+import type { Classificacoes, Imovel, ImovelResumo, Pagina } from '../tipos';
 import { lerUrlCatalogo, urlCatalogo, urlImovel } from '../servicos/urls';
 import { valorPrincipal } from '../servicos/formato';
 import { brand } from '../config/brand';
 
 export interface SeoConfig { siteUrl: string; indexable: boolean }
-export interface DadosPublicos { classificacoes?: Classificacoes; catalogo?: Pagina<Imovel>; imovel?: Imovel }
+export interface DadosPublicos { classificacoes?: Classificacoes; catalogo?: Pagina<ImovelResumo>; imovel?: Imovel }
 export interface Bootstrap { url: string; config: SeoConfig; data: DadosPublicos; status: number }
 export const defaultConfig: SeoConfig = { siteUrl: '', indexable: false };
 const IMAGEM_PADRAO = '/assets/commercial-space-1200.webp';

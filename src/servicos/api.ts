@@ -1,4 +1,4 @@
-import type { CadastroContrato, CategoriaClassificacao, CategoriaContrato, Classificacao, DadosCadastroContrato, Classificacoes, ConsultaCatalogo, Corretor, DadosCorretor, FichaImovel, Imovel, Midia, Pagina, Pessoa, Sessao, StatusContato, StatusImovel } from '../tipos';
+import type { CadastroContrato, CategoriaClassificacao, CategoriaContrato, Classificacao, DadosCadastroContrato, Classificacoes, ConsultaCatalogo, Corretor, DadosCorretor, FichaImovel, Imovel, ImovelResumo, Midia, Pagina, Pessoa, Sessao, StatusContato, StatusImovel } from '../tipos';
 import { ErroApi, http, definirTokenAcesso, renovarSessao } from './http';
 import { consultaParaApi, montarParametros } from './catalogo';
 import { locacoesApi } from './locacoes';
@@ -11,10 +11,10 @@ const CHAVE_CLASSIFICACOES = 'classificacoes';
 const chaveCatalogo = (consulta: ConsultaCatalogo) => `catalogo:${urlCatalogo(consulta)}`;
 
 /** Leitura síncrona do cache público: um filtro já visto aparece sem requisição nem estado de carregamento. */
-export const catalogoEmCache = (consulta: ConsultaCatalogo) => lerCache<Pagina<Imovel>>(chaveCatalogo(consulta));
+export const catalogoEmCache = (consulta: ConsultaCatalogo) => lerCache<Pagina<ImovelResumo>>(chaveCatalogo(consulta));
 export const classificacoesEmCache = () => lerCache<Classificacoes>(CHAVE_CLASSIFICACOES);
 /** O SSR já buscou estes dados para a URL de entrada; guardá-los evita repetir a busca ao voltar a ela. */
-export const semearCatalogo = (consulta: ConsultaCatalogo, valor: Pagina<Imovel>) => guardarCache(chaveCatalogo(consulta), valor, VALIDADE_CATALOGO_MS);
+export const semearCatalogo = (consulta: ConsultaCatalogo, valor: Pagina<ImovelResumo>) => guardarCache(chaveCatalogo(consulta), valor, VALIDADE_CATALOGO_MS);
 export const semearClassificacoes = (valor: Classificacoes) => guardarCache(CHAVE_CLASSIFICACOES, valor, VALIDADE_CLASSIFICACOES_MS);
 
 const json = (metodo: string, corpo?: unknown): RequestInit => ({ method: metodo, ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }) });
@@ -135,10 +135,10 @@ export const api = {
   },
 
   /** Catálogo público: tipo e finalidade chegam como slug e são resolvidos pelas classificações. */
-  listarImoveis: (consulta: ConsultaCatalogo): Promise<Pagina<Imovel>> => emCache(chaveCatalogo(consulta), VALIDADE_CATALOGO_MS, async () => {
+  listarImoveis: (consulta: ConsultaCatalogo): Promise<Pagina<ImovelResumo>> => emCache(chaveCatalogo(consulta), VALIDADE_CATALOGO_MS, async () => {
     const codificada = consultaParaApi(consulta, consulta.tipos?.length || consulta.finalidade ? await classificacoes() : { tipos: [], finalidades: [], caracteristicas: [] });
     if (codificada === null) return { itens: [], total: 0, pagina: consulta.pagina, limite: consulta.limite, total_paginas: 0 };
-    return http<Pagina<Imovel>>(`/imoveis?${codificada}`, {}, false);
+    return http<Pagina<ImovelResumo>>(`/imoveis?${codificada}`, {}, false);
   }),
   listarFichas: (filtros: FiltrosImoveis) => {
     const { tipos, finalidade, ...resto } = filtros;

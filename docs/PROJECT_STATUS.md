@@ -24,6 +24,9 @@
   Cadastros em `/admin/cadastros/:categoria` com índices de reajuste e tipos de contrato; contrato com tipo e índice;
   slogan padrão no h1, rodapé e título. Depende da API com a migration de 09/10 (DEPLOY-20261009).
 
+**13/10 (Claude, sem commit):** filtros do painel na URL (UX-007) e barra de filtros única `BarraFiltros` (UX-008),
+sem botão Buscar e com Limpar na faixa de chips. Typecheck, lint e build passam; sem QA de navegador.
+
 **Verificações:** `typecheck`, `lint`, `build` e `npm test` (3 arquivos, 23 testes) passam.
 `node scripts/seo-smoke.mjs` passa desde a correção local de 09/10 (SMOKE-001); antes falhava desde 06/10.
 `npm run visual` não tem specs. QA de navegador de 09/10: 37/37 com a API completa em PostgreSQL descartável.

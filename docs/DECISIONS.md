@@ -128,6 +128,11 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 - **09/10 — `BlocosPainel`.** `SecaoPainel`, `GradePainel`, `DadosFicha` e `DadoFicha`: título externo, mesma altura
   por linha, 2 colunas a partir de 44rem e 3 a partir de 70rem de container. Ações da tabela desktop numa linha.
 - **09/10 — Foco de navegação.** `data-foco-navegacao` tira o contorno só de destinos não interativos.
+- **13/10 — Barra de filtros única.** `BarraFiltros` + `CampoBusca` em todas as listas do painel. Sem botão Buscar
+  (os filtros se aplicam sozinhos; Enter aplica na hora). Limpar filtros fica na faixa de chips, para a linha de
+  campos não mudar de tamanho. Busca, status, ativo, página (e aba/datas em Contatos) vão à URL; Comissões e o imóvel
+  de Contatos ficam em memória. Na URL tudo usa `replace`, inclusive a página: o Esc do painel volta pelo histórico e
+  deve sair da lista, não percorrer páginas. O rascunho acompanha mudanças externas da URL (menu, voltar).
 - **02–03/10 — `/devs`.** Intro em `Dialogo` com obra animada e três MP3 CC0 locais; tenta tocar ao abrir e cai para
   o botão se o navegador bloquear. Nada de áudio fora do `/devs` nem depois de fechar.
 

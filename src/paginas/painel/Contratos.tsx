@@ -1,6 +1,6 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useParametrosLista } from '../../hooks/useParametrosLista';
-import { useCallback, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,9 +18,9 @@ import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
-import AcaoIcone from '../../componentes/AcaoIcone';
+import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
-import { IconeBuscar, IconeSalvar } from '../../componentes/Icones';
+import { IconeSalvar } from '../../componentes/Icones';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import Campo from '../../componentes/Campo';
@@ -108,21 +108,24 @@ export default function Contratos() {
   const navigate = useNavigate();
   const { filtros, pagina, definirFiltros, definirPagina: setPagina } = useParametrosLista<Filtros>(filtrosIniciais, valoresValidos);
   const { rascunho, definir: setRascunho, aplicarAgora } = useFiltrosAutomaticos({
-    iniciais: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    iniciais: filtros, externos: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
     aoAplicar: (valor) => definirFiltros(valor),
   });
   const [criando, setCriando] = useState(false);
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarContratos({ pagina, limite: 15, busca: filtros.busca || undefined, status: filtros.status || undefined, ativo: filtros.ativo === 'true' }), [pagina, filtros]));
   useAcoesPainel(useMemo(() => [{ id: 'novo-contrato', rotulo: 'Novo contrato', executar: () => setCriando(true), palavrasChave: 'locação aluguel' }], []));
-  function aplicar(evento: FormEvent) { evento.preventDefault(); aplicarAgora(); }
+  const resumo: FiltroAplicado<keyof Filtros>[] = [
+    ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
+    ...(filtros.status ? [{ campo: 'status' as const, rotulo: filtros.status === 'ATIVO' ? 'Ativos' : 'Encerrados' }] : []),
+    ...(filtros.ativo === 'false' ? [{ campo: 'ativo' as const, rotulo: 'Arquivados' }] : []),
+  ];
   return <>
     <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<BotaoAdicionar rotulo="Novo contrato" aoClicar={() => setCriando(true)} />} />
-    <form className={estilos.barraFiltros} onSubmit={aplicar}>
-      <label className="busca-painel">Buscar<input data-busca-painel value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Número, imóvel ou inquilino" /></label>
+    <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={(campo) => setRascunho({ ...rascunho, [campo]: filtrosIniciais[campo] }, true)} aoLimpar={() => setRascunho(filtrosIniciais, true)}>
+      <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Número, imóvel ou inquilino" />
       <SeletorFiltro rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
-      <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" /></div>
-    </form>
+    </BarraFiltros>
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && (
       <section>

@@ -5,10 +5,12 @@ type Configuracao<T> = {
   normalizar?: (valor: T) => T;
   validar?: (valor: T) => string;
   aoAplicar: (valor: T, automatico: boolean) => void;
+  /** Valor aplicado vindo de fora (ex.: URL). Quando muda sem passar por `aplicar`, o rascunho acompanha. */
+  externos?: T;
 };
 
 /** Um único rascunho: seleções imediatas, digitação com espera e aplicação sem duplicatas. */
-export function useFiltrosAutomaticos<T>({ iniciais, normalizar, validar, aoAplicar }: Configuracao<T>) {
+export function useFiltrosAutomaticos<T>({ iniciais, normalizar, validar, aoAplicar, externos }: Configuracao<T>) {
   const [rascunho, setRascunho] = useState(iniciais);
   const [erro, setErro] = useState('');
   const atual = useRef(iniciais);
@@ -43,5 +45,11 @@ export function useFiltrosAutomaticos<T>({ iniciais, normalizar, validar, aoApli
     cancelar(); atual.current = valor; setRascunho(valor); setErro('');
     ultima.current = JSON.stringify(configuracao.current.normalizar?.(valor) ?? valor);
   }
+  const chaveExterna = externos === undefined ? undefined : JSON.stringify(normalizar ? normalizar(externos) : externos);
+  useEffect(() => {
+    // Link do menu, voltar do navegador ou Limpar por outro caminho: a URL mudou e o rascunho não sabia.
+    if (chaveExterna !== undefined && chaveExterna !== ultima.current) sincronizar(externos as T);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chaveExterna]);
   return { rascunho, definir, erro, aplicarAgora: (automatico = true) => aplicar(atual.current, automatico), sincronizar };
 }

@@ -77,6 +77,10 @@ export interface Imovel {
   alterado_em: string;
 }
 
+/** Item de `GET /imoveis`: o que o cartão e o sitemap usam; `midias` traz só a capa (ou vem vazio). */
+export type ImovelResumo = Pick<Imovel, 'id' | 'titulo' | 'slug' | 'tipo_id' | 'finalidade_id' | 'tipo' | 'finalidade' | 'valor_venda' | 'valor_locacao'
+  | 'area_util' | 'bairro' | 'cidade' | 'estado' | 'status' | 'destaque' | 'midias' | 'criado_em' | 'alterado_em'>;
+
 /** Ficha completa, só nas rotas do painel. */
 export interface FichaImovel extends Imovel {
   proprietario_id: number | null;

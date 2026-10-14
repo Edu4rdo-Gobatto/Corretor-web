@@ -11,6 +11,7 @@ import Etiqueta from '../../componentes/Etiqueta';
 import { IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
+import BarraFiltros from '../../componentes/BarraFiltros';
 import Tabela from '../../componentes/Tabela';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
@@ -54,10 +55,10 @@ export default function Cadastros() {
   const trocar = (destino: CategoriaCadastro) => { setPagina(1); setErro(''); navegar(`/admin/cadastros/${destino}`); };
   return <>
     <CabecalhoPagina titulo="Cadastros" descricao={grupo.descricao} acoes={<BotaoAdicionar rotulo="Novo cadastro" aoClicar={() => setEditando(null)} />} />
-    <div className={estilos.barraFiltros}>
+    <BarraFiltros>
       <SeletorFiltro rotulo="Grupo" valor={grupo.id} opcoes={GRUPOS_CADASTRO.map((item) => ({ valor: item.id, rotulo: item.rotulo }))} aoMudar={(valor) => trocar(GRUPOS_CADASTRO.find((item) => item.id === valor)!.categorias[0])} />
       <SeletorFiltro<CategoriaCadastro> rotulo="Categoria" valor={categoria} opcoes={grupo.categorias.map((valor) => ({ valor, rotulo: ROTULOS_CADASTRO[valor] }))} aoMudar={trocar} />
-    </div>
+    </BarraFiltros>
     <EstadoCarregamento compacto carregando={carregando} erro={erroCarga} tentarNovamente={recarregar} />
     {erro && !confirmando && <Aviso tom="erro">{erro}</Aviso>}
     {dados && !erroCarga && !carregando && (

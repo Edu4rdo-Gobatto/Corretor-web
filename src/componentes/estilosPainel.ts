@@ -12,8 +12,6 @@ export const estilos = {
   erro: 'campo-erro m-0',
   dica: 'campo-dica font-normal',
   rodape: 'my-7 flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full',
-  barraFiltros: 'barra-filtros mb-4 flex flex-wrap items-end gap-4 @max-[35rem]/principal:grid @max-[35rem]/principal:grid-cols-1 [&_label]:grid [&_label]:gap-1.5',
-  acoesFiltros: 'acoes-filtros ml-auto flex flex-wrap items-center justify-end gap-3',
   sucesso: 'rounded-md bg-sucesso-suave p-3.5 text-sucesso',
   acoes: 'flex flex-nowrap items-center gap-1 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap',
 };

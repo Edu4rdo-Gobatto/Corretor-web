@@ -5,7 +5,7 @@ import { ContextoBootstrap } from './context';
 import { absolute, buildSeo, escapeHtml, renderHead, serialize, type Bootstrap, type SeoConfig } from './metadata';
 import { lerUrlCatalogo, slugImovelValido, urlImovel, urlNormalizada } from '../servicos/urls';
 import { consultaParaApi } from '../servicos/catalogo';
-import type { Classificacao, Classificacoes, Imovel, Pagina } from '../tipos';
+import type { Classificacao, Classificacoes, Imovel, ImovelResumo, Pagina } from '../tipos';
 import { brand } from '../config/brand';
 
 export interface ServerConfig extends SeoConfig { apiOrigin: string }
@@ -86,7 +86,7 @@ async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch
   for (const url of ['/', '/privacidade']) entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc></url>`);
   const deadline = AbortSignal.timeout(45000);
   const boundedFetch: typeof fetch = (input, init) => fetcher(input, { ...init, signal: AbortSignal.any([deadline, ...(init?.signal ? [init.signal] : [])]) });
-  const collect = (result: Pagina<Imovel>) => {
+  const collect = (result: Pagina<ImovelResumo>) => {
     if (!Array.isArray(result.itens) || !Number.isInteger(result.total_paginas) || result.total_paginas < 0) throw new PublicError(503);
     for (const imovel of result.itens) {
       if (!imovel.slug || typeof imovel.slug !== 'string') throw new PublicError(503);
@@ -95,14 +95,14 @@ async function sitemap(path: string, config: ServerConfig, fetcher: typeof fetch
       entries.set(url, `<url><loc>${escapeHtml(absolute(url, config))}</loc>${Number.isNaN(date.valueOf()) ? '' : `<lastmod>${date.toISOString()}</lastmod>`}</url>`);
     }
   };
-  const first = await publicGet<Pagina<Imovel>>('/imoveis?pagina=1&limite=100', config, boundedFetch);
+  const first = await publicGet<Pagina<ImovelResumo>>('/imoveis?pagina=1&limite=100', config, boundedFetch);
   collect(first);
   let nextPage = 2;
   await Promise.all(Array.from({ length: Math.min(6, Math.max(0, first.total_paginas - 1)) }, async () => {
     while (nextPage <= first.total_paginas) {
       const current = nextPage++;
       deadline.throwIfAborted();
-      collect(await publicGet<Pagina<Imovel>>(`/imoveis?pagina=${current}&limite=100`, config, boundedFetch));
+      collect(await publicGet<Pagina<ImovelResumo>>(`/imoveis?pagina=${current}&limite=100`, config, boundedFetch));
     }
   }));
   const chunks = sitemapChunks([...entries].sort(([a], [b]) => a.localeCompare(b)).map(([, entry]) => entry));
@@ -141,7 +141,7 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
       if (catalogo) {
         boot.data.classificacoes = await classificacoesPublicas(config, fetcher, orcamento);
         const codificada = consultaParaApi(catalogo, boot.data.classificacoes);
-        boot.data.catalogo = codificada === null ? { itens: [], total: 0, pagina: catalogo.pagina, limite: catalogo.limite, total_paginas: 0 } : await publicGet<Pagina<Imovel>>(`/imoveis?${codificada}`, config, fetcher, false, orcamento);
+        boot.data.catalogo = codificada === null ? { itens: [], total: 0, pagina: catalogo.pagina, limite: catalogo.limite, total_paginas: 0 } : await publicGet<Pagina<ImovelResumo>>(`/imoveis?${codificada}`, config, fetcher, false, orcamento);
         if (catalogo.pagina > Math.max(1, boot.data.catalogo.total_paginas)) boot.status = 404;
       } else if (/^\/imoveis\/[^/]+$/.test(url.pathname)) {
         const slug = decodeURIComponent(url.pathname.slice('/imoveis/'.length));

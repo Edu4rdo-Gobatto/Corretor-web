@@ -130,7 +130,7 @@ label input, label select, label textarea { margin-top: 6px; }
 .painel-ui .lista-filtro [aria-selected=true] svg { color: var(--color-acao-painel); }
 .painel-ui .lista-registro { border-color: var(--color-control-line); border-radius: 12px; padding: 6px; }
 .painel-ui .lista-registro [role=option] { border-radius: 8px; padding: 9px 12px; font-size: 18px; }
-.painel-ui .barra-filtros > :is(.campo, label, div):not(.acoes-filtros) { min-width: 0; }
+.painel-ui .barra-filtros > :is(.campo, label, div) { min-width: 0; }
 .painel-ui .acoes-linha > div { justify-content: flex-end; max-width: 100%; }
 
 .painel-ui .campo-numero { display: flex; align-items: stretch; min-height: 48px; border: 1.5px solid var(--color-control-line); border-radius: 10px; background: var(--color-campo); }

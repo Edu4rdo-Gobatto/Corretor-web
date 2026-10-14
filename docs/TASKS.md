@@ -97,6 +97,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 | Tarefa | Data | Resumo |
 |---|---|---|
+| UX-008 | 13/10 | `BarraFiltros` única em Imóveis, Pessoas, Contratos, Contatos, Comissões e Cadastros; sem botão Buscar; Limpar na faixa de chips (corrige o layout quebrado) |
 | UX-007 / LIMPEZA-001 / LIMPEZA-002 | 13/10 | Filtros e página de Imóveis, Pessoas, Contratos e Contatos (busca, datas, aba) na URL via `useParametrosLista`; `sessaoTeste.ts` removido; comentário de `renovarSessao` corrigido |
 | SEIS-PONTOS-20261009 | 09/10 | Setinhas, CRECI, tema claro, vários tipos, `content.js`, clientes da comissão. Publicação em PUBLICAR-20261009 |
 | TABELA-ACOES-DESKTOP-20261009 | 09/10 | Ações da tabela desktop numa linha; cartões mobile flexíveis |

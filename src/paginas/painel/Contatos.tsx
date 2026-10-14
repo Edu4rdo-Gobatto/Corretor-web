@@ -1,8 +1,8 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useParametrosLista } from '../../hooks/useParametrosLista';
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IconeBuscar, IconeDesarquivar, IconeEditar, IconeFechar, IconeFinalizar, IconeSucesso, IconeWhatsapp } from '../../componentes/Icones';
+import { IconeDesarquivar, IconeEditar, IconeFinalizar, IconeSucesso, IconeWhatsapp } from '../../componentes/Icones';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { useSessao } from '../../hooks/useSessao';
@@ -19,9 +19,9 @@ import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import Aviso from '../../componentes/Aviso';
-import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 
@@ -97,13 +97,13 @@ export default function Contatos() {
   const { filtros: parametros, definirFiltros } = useParametrosLista<ParametrosUrl>(parametrosIniciais, abasValidas);
   const [imovel, setImovel] = useState<Referencia | null>(null);
   const aba = parametros.aba;
-  const filtros = useMemo<Filtros>(() => ({ busca: parametros.busca, desde: parametros.desde, ate: parametros.ate, imovel }), [parametros, imovel]);
-  const setAba = (destino: StatusContato) => definirFiltros({ ...parametros, aba: destino });
+  const filtros = useMemo<Filtros>(() => ({ busca: parametros.busca, imovel, desde: parametros.desde, ate: parametros.ate }), [parametros, imovel]);
+  const setAba = (destino: StatusContato) => definirFiltros({ aba: destino });
   const [paginas, setPaginas] = useState<Record<StatusContato, number>>({ PENDENTE: 1, RESPONDIDO: 1, FINALIZADO: 1 });
   const { rascunho, definir: setRascunho, aplicarAgora, erro: erroFiltro } = useFiltrosAutomaticos({
-    iniciais: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    iniciais: filtros, externos: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
     validar: (valor) => valor.desde && valor.ate && valor.desde > valor.ate ? 'A data final deve ser igual ou posterior à inicial.' : '',
-    aoAplicar: (valor) => { setImovel(valor.imovel); definirFiltros({ busca: valor.busca, desde: valor.desde, ate: valor.ate, aba }); setPaginas({ PENDENTE: 1, RESPONDIDO: 1, FINALIZADO: 1 }); },
+    aoAplicar: (valor) => { setImovel(valor.imovel); definirFiltros({ busca: valor.busca, desde: valor.desde, ate: valor.ate }); setPaginas({ PENDENTE: 1, RESPONDIDO: 1, FINALIZADO: 1 }); },
   });
   const [erroMutacao, setErroMutacao] = useState('');
   const [versao, setVersao] = useState(0);
@@ -126,29 +126,25 @@ export default function Contatos() {
     } catch (causa) { setErroMutacao(mensagemErro(causa)); }
     finally { mutacaoAtiva.current = false; setOcupado(0); }
   }
-  function aplicar(evento: FormEvent) { evento.preventDefault(); aplicarAgora(); }
   function limpar() { setRascunho(filtrosIniciais, true); }
   function removerFiltro(campo: keyof Filtros) { setRascunho({ ...filtros, [campo]: filtrosIniciais[campo] }, true); }
-  const resumo: { campo: keyof Filtros; rotulo: string }[] = [
+  const resumo: FiltroAplicado<keyof Filtros>[] = [
     ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
     ...(filtros.imovel ? [{ campo: 'imovel' as const, rotulo: `Imóvel: ${filtros.imovel.nome}` }] : []),
     ...(filtros.desde ? [{ campo: 'desde' as const, rotulo: `Desde: ${filtros.desde.split('-').reverse().join('/')}` }] : []),
     ...(filtros.ate ? [{ campo: 'ate' as const, rotulo: `Até: ${filtros.ate.split('-').reverse().join('/')}` }] : []),
   ];
-  const filtrando = resumo.length > 0 || rascunho.busca || rascunho.imovel || rascunho.desde || rascunho.ate;
   const abas = [...listas, { status: 'FINALIZADO' as const, titulo: 'Finalizados', descricao: 'Histórico dos atendimentos concluídos. Somente administradores podem reabri-los.' }];
   const paginar = useCallback((pagina: number) => setPaginas((atual) => ({ ...atual, [aba]: pagina })), [aba]);
   const listaAtual = abas.find((lista) => lista.status === aba)!;
   return <>
     <CabecalhoPagina titulo="Contatos" descricao="Organize seus retornos e acompanhe cada atendimento." acoes={<BotaoAdicionar rotulo="Nova pessoa" aoClicar={() => setEditando(null)} desabilitado={Boolean(ocupado)} />} />
-    <form noValidate className={estilos.barraFiltros} onSubmit={aplicar}>
-      <Campo rotulo="Buscar" classe="busca-painel"><input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou documento" /></Campo>
+    <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={removerFiltro} aoLimpar={limpar}>
+      <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Nome, telefone, e-mail ou documento" />
       <div className="w-full min-w-0 @min-[38rem]/principal:w-[260px]"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor }, true)} /></div>
       <Campo rotulo="De"><input type="date" value={rascunho.desde} onChange={(evento) => setRascunho({ ...rascunho, desde: evento.target.value }, true)} /></Campo>
       <Campo rotulo="Até" erro={erroFiltro || undefined}><input type="date" value={rascunho.ate} onChange={(evento) => setRascunho({ ...rascunho, ate: evento.target.value }, true)} /></Campo>
-      <div className={estilos.acoesFiltros}><AcaoIcone icone={IconeBuscar} rotulo="Buscar" tipo="submit" />{filtrando && <button type="button" className="buttonGhost" onClick={limpar}>Limpar</button>}</div>
-    </form>
-    {resumo.length > 0 && <div aria-label="Filtros aplicados" className="mb-4 flex flex-wrap gap-2">{resumo.map(({ campo, rotulo }) => <button key={campo} type="button" className="chip-filtro-painel" aria-label={`Remover filtro: ${rotulo}`} onClick={() => removerFiltro(campo)}><span className="break-words">{rotulo}</span><IconeFechar size={16} className="shrink-0" aria-hidden="true" /></button>)}</div>}
+    </BarraFiltros>
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <div role="tablist" aria-label="Situação dos contatos" className="mb-5 flex flex-wrap gap-2 border-b border-line pb-3">
       {abas.map((lista, indice) => <button key={lista.status} id={`aba-${lista.status}`} role="tab" type="button" aria-selected={aba === lista.status} aria-controls="contatos-lista" tabIndex={aba === lista.status ? 0 : -1} className={`min-h-12 rounded-xl border px-4 py-2 font-semibold ${aba === lista.status ? 'border-gold bg-soft text-ink' : 'border-transparent bg-transparent text-muted'}`} onClick={() => { aplicarAgora(); setAba(lista.status); }} onKeyDown={(evento) => {

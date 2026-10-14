@@ -2,9 +2,9 @@ import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
-import { estilos } from '../../componentes/estilosPainel';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
+import BarraFiltros from '../../componentes/BarraFiltros';
 import Tabela from '../../componentes/Tabela';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
@@ -27,10 +27,10 @@ export default function Comissoes({ contrato }: { contrato?: Contrato }) {
     {contrato
       ? <div className="bloco-painel-cabecalho mb-4"><div className="min-w-0"><h2 className="m-0 text-[22px]">Comissões deste contrato</h2><p className="mb-0 mt-1 text-base text-muted">Receita de intermediação da imobiliária.</p></div>{contrato.ativo && <BotaoAdicionar classe="ml-auto" rotulo="Registrar comissão" aoClicar={() => setCriando(true)} />}</div>
       : <CabecalhoPagina titulo="Comissões" descricao="Receita de intermediação da imobiliária." acoes={<BotaoAdicionar rotulo="Registrar comissão" aoClicar={() => setCriando(true)} />} />}
-    <div className={estilos.barraFiltros}>
+    <BarraFiltros>
       {!contrato && <SeletorFiltro rotulo="Operação" valor={operacao} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'LOCACAO' as const, rotulo: 'Locação' }, { valor: 'VENDA' as const, rotulo: 'Venda' }]} aoMudar={(valor) => { setOperacao(valor); setPagina(1); }} />}
       <SeletorFiltro rotulo="Situação" valor={ativas ? 'true' : 'false'} opcoes={[{ valor: 'true' as const, rotulo: 'Ativas' }, { valor: 'false' as const, rotulo: 'Arquivadas' }]} aoMudar={(valor) => { setAtivas(valor === 'true'); setPagina(1); }} />
-    </div>
+    </BarraFiltros>
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !carregando && !erro && (
       <section>

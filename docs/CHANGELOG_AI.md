@@ -86,3 +86,12 @@ smoke de SSR aprovado. Navegador com a API completa e PostgreSQL descartável: 3
 
 Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
 
+### 13/10/2026 — Filtros do painel (Claude)
+- **Entregue:** UX-007 (filtros e página na URL via `src/hooks/useParametrosLista.ts`), LIMPEZA-001 e 002, UX-008
+  (`src/componentes/BarraFiltros.tsx` em Imóveis, Pessoas, Contratos, Contatos, Comissões e Cadastros; sem botão
+  Buscar; Limpar na faixa de chips; Contratos ganhou chips). `estilos.barraFiltros`/`acoesFiltros` removidos.
+- **Validação:** `typecheck`, `lint` e `build` passam. Testes não executados por pedido do dono; sem QA de navegador.
+- **Revisão de lacunas (13/10):** página na URL passou a `replace` (Esc continuava percorrendo páginas);
+  `useFiltrosAutomaticos` ganhou `externos` para o campo acompanhar a URL ao clicar no menu ou voltar; em Contatos,
+  trocar de aba logo após digitar não apaga mais a busca (`definirFiltros` parcial).
+- **Pendências:** conferência visual por tela (ADMIN e CORRETOR, 320/768/1440, dois temas).

@@ -6,7 +6,7 @@ import { api } from '../../servicos/api';
 import { useRecurso } from '../../hooks/useRecurso';
 import { urlImovel } from '../../servicos/urls';
 import { area, dinheiro, rotuloCaracteristica, somaMensal, valorCaracteristica, valorPrincipal, destaquesImovel, type ChaveDestaque } from '../../servicos/formato';
-import type { Imovel } from '../../tipos';
+import type { Imovel, ImovelResumo } from '../../tipos';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import BotaoVoltar from '../../componentes/BotaoVoltar';
 import GaleriaMidia from '../../componentes/GaleriaMidia';
@@ -33,12 +33,12 @@ function IndicadorDisponibilidade({ disponivel }: { disponivel: boolean }) {
 }
 
 function Semelhantes({ atual }: { atual: Imovel }) {
-  const [itens, setItens] = useState<Imovel[]>([]);
+  const [itens, setItens] = useState<ImovelResumo[]>([]);
   const finalidade = atual.finalidade?.slug;
   const tipo = atual.tipo?.slug;
   useEffect(() => {
     let cancelado = false;
-    const semAtual = (lista: Imovel[]) => lista.filter((item) => item.id !== atual.id);
+    const semAtual = (lista: ImovelResumo[]) => lista.filter((item) => item.id !== atual.id);
     api.listarImoveis({ pagina: 1, limite: 4, finalidade, cidade: atual.cidade }).then((pagina) => {
       if (cancelado) return;
       const proximos = semAtual(pagina.itens);
