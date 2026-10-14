@@ -141,7 +141,7 @@ export default function Contatos() {
     <CabecalhoPagina titulo="Contatos" descricao="Organize seus retornos e acompanhe cada atendimento." acoes={<BotaoAdicionar rotulo="Nova pessoa" aoClicar={() => setEditando(null)} desabilitado={Boolean(ocupado)} />} />
     <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={removerFiltro} aoLimpar={limpar}>
       <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Nome, telefone, e-mail ou documento" />
-      <div className="w-full min-w-0 @min-[38rem]/principal:w-[260px]"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor }, true)} /></div>
+      <div className="w-full min-w-0 @min-[38rem]/principal:w-65"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor }, true)} /></div>
       <Campo rotulo="De"><input type="date" value={rascunho.desde} onChange={(evento) => setRascunho({ ...rascunho, desde: evento.target.value }, true)} /></Campo>
       <Campo rotulo="Até" erro={erroFiltro || undefined}><input type="date" value={rascunho.ate} onChange={(evento) => setRascunho({ ...rascunho, ate: evento.target.value }, true)} /></Campo>
     </BarraFiltros>

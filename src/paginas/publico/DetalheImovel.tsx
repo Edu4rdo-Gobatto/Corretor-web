@@ -15,7 +15,7 @@ import FormularioContato from '../../componentes/FormularioContato';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import { Seo, useDadosIniciais } from '../../seo/context';
 
-const classeCaixa = 'rounded-[5px] border border-line bg-paper p-6 max-[480px]:p-5';
+const classeCaixa = 'rounded-lg border border-line bg-paper p-6 max-[480px]:p-5';
 // Mesmo acabamento dos cards do painel: filete dourado no topo.
 const classeCard = `${classeCaixa} border-t-[3px] border-t-gold shadow-sm`;
 const iconesDestaque: Record<ChaveDestaque, Icone> = { quartos: IconeCama, banheiros: IconeGota, salas: IconeSofa, pisos: IconeAndares, vagas: IconeCarro, piscina: IconePiscina, solar: IconeModoClaro, lazer: IconeTerreno };
@@ -51,7 +51,7 @@ function Semelhantes({ atual }: { atual: Imovel }) {
   }, [atual.id, atual.cidade, finalidade, tipo]);
   if (!itens.length) return null;
   return (
-    <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="similares">
+    <section className="pt-8.5 max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="similares">
       <h2 id="similares">Você também pode gostar</h2>
       <div className={`${classeCaixa} grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[760px]:grid-cols-1`}>{itens.map((item) => <CartaoImovel key={item.id} imovel={item} />)}</div>
     </section>
@@ -98,38 +98,38 @@ export default function DetalheImovel() {
   const iptu = imovel?.valor_iptu === null || imovel?.valor_iptu === undefined ? null : Number(imovel.valor_iptu);
 
   return (
-    <div className="container pb-6 pt-[30px]">
+    <div className="container pb-6 pt-7.5">
       <Seo dados={{ imovel }} status={statusErro || 200} />
       {!(imovel && !carregando && !erro) && <BotaoVoltar to="/" rotulo="Voltar aos imóveis" />}
       <EstadoCarregamento carregando={carregando} erro={erro} tentarNovamente={tentarNovamente} esqueleto="detalhe" />
       {!carregando && !erro && imovel && <>
-        <div className="flex items-start gap-5 pb-[30px] max-[760px]:gap-3">
-          <div className="mt-[3px] max-[760px]:mt-0"><BotaoVoltar to="/" rotulo="Voltar aos imóveis" /></div>
+        <div className="flex items-start gap-5 pb-7.5 max-[760px]:gap-3">
+          <div className="mt-0.75 max-[760px]:mt-0"><BotaoVoltar to="/" rotulo="Voltar aos imóveis" /></div>
           <div className="min-w-0 flex-1">
-            <h1 className="mb-[15px] text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
-            <p className="mb-0 flex items-start gap-[7px] text-muted"><IconeLocal size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
+            <h1 className="mb-3.75 text-[clamp(30px,3.3vw,46px)] max-[760px]:text-[32px]">{imovel.titulo}</h1>
+            <p className="mb-0 flex items-start gap-1.75 text-muted"><IconeLocal size={17} className="mt-1 shrink-0" /><span>{imovel.bairro}, {imovel.cidade} — {imovel.estado}</span></p>
           </div>
         </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-[52px] max-[1000px]:grid-cols-[minmax(0,1fr)_300px] max-[1000px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-5">
+        <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-13 max-[1000px]:grid-cols-[minmax(0,1fr)_300px] max-[1000px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-5">
             <div className="order-1 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-1"><GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} /></div>
-          <aside className="order-2 sticky top-[120px] min-w-0 min-[761px]:col-start-2 min-[761px]:row-start-1 min-[761px]:row-span-2 max-[760px]:static">
-            <div className="rounded-[5px] border border-line border-t-4 border-t-gold bg-paper p-[30px] shadow-sm max-[1000px]:p-[22px] max-[480px]:px-5 max-[480px]:py-6">
-              {imovel.valor_venda !== null && <><p className="eyebrow">Valor de venda</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_venda)}</p></>}
-              {imovel.valor_locacao !== null && <><p className="eyebrow">Valor de locação</p><p className="mb-[14px] text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_locacao)}<span className="ml-[6px] text-[15px] font-normal text-muted">/mês</span></p></>}
-              {!preco && <><p className="eyebrow">Valor</p><p className="mb-[14px] text-[26px] font-semibold text-brand">Sob consulta</p></>}
+          <aside className="order-2 sticky top-30 min-w-0 min-[761px]:col-start-2 min-[761px]:row-start-1 min-[761px]:row-span-2 max-[760px]:static">
+            <div className="rounded-lg border border-line border-t-4 border-t-gold bg-paper p-7.5 shadow-sm max-[1000px]:p-5.5 max-[480px]:px-5 max-[480px]:py-6">
+              {imovel.valor_venda !== null && <><p className="eyebrow">Valor de venda</p><p className="mb-3.5 text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_venda)}</p></>}
+              {imovel.valor_locacao !== null && <><p className="eyebrow">Valor de locação</p><p className="mb-3.5 text-[34px] font-semibold leading-[1.3] tracking-[-0.03em] text-brand max-[1000px]:text-[29px]">{dinheiro(imovel.valor_locacao)}<span className="ml-1.5 text-[15px] font-normal text-muted">/mês</span></p></>}
+              {!preco && <><p className="eyebrow">Valor</p><p className="mb-3.5 text-[26px] font-semibold text-brand">Sob consulta</p></>}
               <dl className="mb-4 border-y border-line text-sm [&_dd]:m-0 [&_div]:flex [&_div]:items-center [&_div]:justify-between [&_div]:gap-4 [&_div]:py-3 [&_div+div]:border-t [&_div+div]:border-line [&_dt]:text-muted">
                 <div><dt className="sr-only">Metragem</dt><dd className="text-[17px] font-semibold text-brand">{area(imovel.area_util)}</dd><dd><IndicadorDisponibilidade disponivel={imovel.status === 'DISPONIVEL'} /></dd></div>
                 <div><dt>Modalidade</dt><dd className="font-semibold text-brand">{modalidade}</dd></div>
-                <div><dt>Cidade</dt><dd className="text-right font-semibold [overflow-wrap:anywhere]">{imovel.cidade}/{imovel.estado}</dd></div>
+                <div><dt>Cidade</dt><dd className="text-right font-semibold wrap-anywhere">{imovel.cidade}/{imovel.estado}</dd></div>
               </dl>
               {imovel.valor_locacao !== null && <><p className="mb-1 text-sm text-muted">Soma dos valores informados{condominio === null || iptu === null ? ' (parcial)' : ''}: {dinheiro(somaMensal(Number(imovel.valor_locacao), condominio, iptu))}</p><p className="mb-3 text-xs text-muted">Confirme os encargos e a periodicidade do IPTU com o corretor. Esta soma não representa necessariamente o custo mensal.</p></>}
-              <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-[15px] [&_div]:py-[5px] [&_dt]:text-muted">
+              <dl className="pb-3 text-sm [&_dd]:m-0 [&_div]:flex [&_div]:justify-between [&_div]:gap-3.75 [&_div]:py-1.25 [&_dt]:text-muted">
                 {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
                 {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
               </dl>
               <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <IconeSetaExterna size={18} /></button>
-              <p className="mb-[22px] mt-[10px] text-center text-xs text-muted">Converse diretamente com o corretor.</p>
-              <div className="flex items-center gap-3 border-t border-line pt-[22px] [&_button]:min-h-11">
+              <p className="mb-5.5 mt-2.5 text-center text-xs text-muted">Converse diretamente com o corretor.</p>
+              <div className="flex items-center gap-3 border-t border-line pt-5.5 [&_button]:min-h-11">
                 {imovel.corretor && <>
                 <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={urlFotoCorretor(imovel.corretor)} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
                 <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
@@ -137,36 +137,36 @@ export default function DetalheImovel() {
                 <div className="ml-auto shrink-0"><AcaoIcone id="acao-compartilhar" icone={IconeCompartilhar} rotulo="Compartilhar imóvel" aoClicar={compartilhar} /></div>
               </div>
               {linkCopiado && <p className="mb-0 mt-2 text-right text-[13px] text-brand" role="status">Link copiado.</p>}
-              <p className="mb-0 mt-5 flex items-start gap-[7px] text-[11px] text-muted [&_svg]:shrink-0"><IconeProtegido size={16} /> Seus dados são usados apenas para o atendimento.</p>
+              <p className="mb-0 mt-5 flex items-start gap-1.75 text-[11px] text-muted [&_svg]:shrink-0"><IconeProtegido size={16} /> Seus dados são usados apenas para o atendimento.</p>
             </div>
           </aside>
             <div className="order-3 min-w-0 min-[761px]:col-start-1 min-[761px]:row-start-2">
-            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="caracteristicas">
+            <section className="pt-8.5 max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]" aria-labelledby="caracteristicas">
               <h2 id="caracteristicas">Características</h2>
               <div className={classeCard}>
                 <ul className="m-0 grid list-none grid-cols-4 gap-3 p-0 max-[1000px]:grid-cols-3 max-[760px]:grid-cols-2">
                   {tiles.map(({ chave, icone: IconeTile, valor, rotulo }) => (
-                    <li key={chave} className="flex flex-col gap-2 rounded-[3px] bg-soft px-4 py-[14px]">
+                    <li key={chave} className="flex flex-col gap-2 rounded-sm bg-soft px-4 py-3.5">
                       <IconeTile size={22} className="text-brand" />
                       <span className="text-sm leading-tight">{valor !== null && <strong className="mr-1 font-display text-[22px] text-brand">{valor}</strong>}{rotulo}</span>
                     </li>
                   ))}
                 </ul>
                 {demaisCaracteristicas.length > 0 && (
-                  <dl className="mb-0 mt-6 grid grid-cols-2 gap-x-8 gap-y-[14px] border-t border-line pt-6 max-[760px]:grid-cols-1 [&_dd]:m-0 [&_dd]:text-right [&_dd]:[overflow-wrap:anywhere] [&_div]:flex [&_div]:justify-between [&_div]:gap-5 [&_div]:border-b [&_div]:border-line [&_div]:pb-[10px] [&_div]:text-sm [&_dt]:[overflow-wrap:anywhere]">
+                  <dl className="mb-0 mt-6 grid grid-cols-2 gap-x-8 gap-y-3.5 border-t border-line pt-6 max-[760px]:grid-cols-1 [&_dd]:m-0 [&_dd]:text-right [&_dd]:wrap-anywhere [&_div]:flex [&_div]:justify-between [&_div]:gap-5 [&_div]:border-b [&_div]:border-line [&_div]:pb-2.5 [&_div]:text-sm [&_dt]:wrap-anywhere">
                     {demaisCaracteristicas.map((item) => <div key={item.caracteristica_id}><dt>{rotuloCaracteristica(item.nome)}</dt><dd>{valorCaracteristica(item.valor)}</dd></div>)}
                   </dl>
                 )}
               </div>
             </section>
-            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]"><h2>Sobre o imóvel</h2><div className={classeCard}><p className="mb-0 whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></div></section>
-            <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]">
+            <section className="pt-8.5 max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]"><h2>Sobre o imóvel</h2><div className={classeCard}><p className="mb-0 whitespace-pre-wrap leading-[1.8] text-muted">{imovel.descricao}</p></div></section>
+            <section className="pt-8.5 max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]">
               <h2>Localização</h2>
               <div className={`${classeCard} grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] items-start gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-4`}>
                 <p className="mb-0 text-2xl leading-[1.6] max-[760px]:text-base">{imovel.logradouro}, {imovel.numero}<br />{imovel.bairro} · {imovel.cidade}/{imovel.estado}</p>
                 {enderecoCompleto && <div>
                   {/* O iframe é de outro domínio e captura o clique; o link transparente por cima abre o Maps em nova guia. */}
-                  <div className="relative h-[180px] overflow-hidden rounded-[3px] border border-line max-[760px]:h-auto max-[760px]:aspect-[4/3]">
+                  <div className="relative h-45 overflow-hidden rounded-sm border border-line max-[760px]:h-auto max-[760px]:aspect-4/3">
                     <iframe className="absolute inset-0 h-full w-full border-0" loading="lazy" tabIndex={-1} aria-hidden="true" title={`Mapa de ${imovel.titulo}`} referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${consultaMapa}&output=embed`} />
                     <a className="absolute inset-0 transition-colors duration-150 hover:bg-navy/5" href={urlMaps} target="_blank" rel="noopener noreferrer" aria-label="Abrir localização no Google Maps em nova guia" />
                   </div>
@@ -178,7 +178,7 @@ export default function DetalheImovel() {
         </div>
         <Semelhantes key={`semelhantes-${imovel.id}`} atual={imovel} />
         <div className="hidden max-[760px]:fixed max-[760px]:inset-x-0 max-[760px]:bottom-0 max-[760px]:z-30 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-3 max-[760px]:border-t max-[760px]:border-gold max-[760px]:bg-navy max-[760px]:px-4 max-[760px]:pt-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-lg">
-          <div className="min-w-0"><span className="block text-xs text-white/80">{imovel.finalidade?.nome || 'Imóvel comercial'}</span><strong className="block font-display text-[19px] text-white [overflow-wrap:anywhere] max-[360px]:text-base">{preco ? <>{dinheiro(preco.valor)}{preco.tipo === 'locacao' && ' /mês'}</> : 'Sob consulta'}</strong></div>
+          <div className="min-w-0"><span className="block text-xs text-white/80">{imovel.finalidade?.nome || 'Imóvel comercial'}</span><strong className="block font-display text-[19px] text-white wrap-anywhere max-[360px]:text-base">{preco ? <>{dinheiro(preco.valor)}{preco.tipo === 'locacao' && ' /mês'}</> : 'Sob consulta'}</strong></div>
           <button className="button min-h-12 shrink-0 px-3 text-sm border-b-gold bg-gold text-navy hover:bg-gold/90" onClick={() => setContatoAberto(true)}>Falar com corretor</button>
         </div>
         {contatoAberto && <FormularioContato imovel={imovel} aoFechar={() => setContatoAberto(false)} />}

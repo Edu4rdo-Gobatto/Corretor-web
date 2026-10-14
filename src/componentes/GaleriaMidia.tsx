@@ -17,7 +17,7 @@ function Visualizacao({ midia, titulo, prioritaria }: { midia: Midia; titulo: st
   return origem ? <iframe src={origem} title={`Vídeo: ${titulo}`} loading="lazy" allow="fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <p>Este vídeo não está disponível.</p>;
 }
 
-const classeSeta = 'absolute top-1/2 z-[1] grid min-h-11 min-w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-paper text-ink shadow-sm hover:bg-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
+const classeSeta = 'absolute top-1/2 z-1 grid min-h-11 min-w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-paper text-ink shadow-sm hover:bg-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
 
 export default function GaleriaMidia({ midias, titulo }: { midias: Midia[]; titulo: string }) {
   const [indice, setIndice] = useState(0);
@@ -27,7 +27,7 @@ export default function GaleriaMidia({ midias, titulo }: { midias: Midia[]; titu
   const indiceAtual = Math.min(indice, ordenadas.length - 1);
   const atual = ordenadas[indiceAtual];
   const fotoAmpliada = indiceFoto === null ? undefined : fotos[indiceFoto];
-  if (!atual) return <div className="flex min-h-[320px] flex-col items-center justify-center gap-[15px] bg-soft p-[30px] text-center text-muted"><IconeSemImagem /><p>Fotos deste imóvel serão adicionadas em breve.</p></div>;
+  if (!atual) return <div className="flex min-h-80 flex-col items-center justify-center gap-3.75 bg-soft p-7.5 text-center text-muted"><IconeSemImagem /><p>Fotos deste imóvel serão adicionadas em breve.</p></div>;
 
   function mover(direcao: number) { setIndice((valor) => (valor + direcao + ordenadas.length) % ordenadas.length); }
   function moverFoto(direcao: number) { setIndiceFoto((valor) => ((valor ?? 0) + direcao + fotos.length) % fotos.length); }
@@ -41,24 +41,24 @@ export default function GaleriaMidia({ midias, titulo }: { midias: Midia[]; titu
   }
 
   return <div>
-    <div className="relative h-[475px] overflow-hidden rounded-lg border-b-[3px] border-b-gold bg-soft shadow-sm max-[700px]:h-[clamp(220px,62vw,320px)] [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
+    <div className="relative h-118.75 overflow-hidden rounded-lg border-b-[3px] border-b-gold bg-soft shadow-sm max-[700px]:h-[clamp(220px,62vw,320px)] [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
       role="region" tabIndex={ordenadas.length > 1 ? 0 : undefined} aria-label="Galeria do imóvel. Use as setas para navegar." onKeyDown={(evento) => navegar(evento)}>
       <Visualizacao key={atual.id} midia={atual} titulo={`${titulo} — ${indiceAtual + 1}`} prioritaria={indiceAtual === 0} />
       {ordenadas.length > 1 && <>
         <button type="button" className={`${classeSeta} left-3`} aria-label="Mídia anterior" onClick={() => mover(-1)}><IconeAnterior size={22} /></button>
         <button type="button" className={`${classeSeta} right-3`} aria-label="Próxima mídia" onClick={() => mover(1)}><IconeProximo size={22} /></button>
       </>}
-      {atual.tipo === 'IMAGEM' && <button type="button" className="absolute bottom-[18px] left-[18px] flex min-h-11 items-center gap-2 rounded border-0 bg-paper px-[14px] py-[10px] text-[13px]" onClick={() => setIndiceFoto(fotos.findIndex((foto) => foto.id === atual.id))}><IconeTelaCheia size={16} /> Ampliar foto</button>}
-      <span className="absolute bottom-[23px] right-[18px] rounded-full bg-navy/80 px-3 py-1 text-[13px] text-white" aria-live="polite" aria-atomic="true">{indiceAtual + 1} / {ordenadas.length}</span>
+      {atual.tipo === 'IMAGEM' && <button type="button" className="absolute bottom-4.5 left-4.5 flex min-h-11 items-center gap-2 rounded border-0 bg-paper px-3.5 py-2.5 text-[13px]" onClick={() => setIndiceFoto(fotos.findIndex((foto) => foto.id === atual.id))}><IconeTelaCheia size={16} /> Ampliar foto</button>}
+      <span className="absolute bottom-5.75 right-4.5 rounded-full bg-navy/80 px-3 py-1 text-[13px] text-white" aria-live="polite" aria-atomic="true">{indiceAtual + 1} / {ordenadas.length}</span>
     </div>
-    {ordenadas.length > 1 && <div className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-contain px-[3px] py-3">
+    {ordenadas.length > 1 && <div className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-contain px-0.75 py-3">
       {ordenadas.map((item, posicao) => <button type="button" key={item.id} onClick={() => setIndice(posicao)} aria-label={`Ver ${item.tipo === 'IMAGEM' ? 'foto' : 'vídeo'} ${posicao + 1}`} aria-pressed={indiceAtual === posicao}
-        className={`grid h-[72px] w-[100px] shrink-0 snap-start place-items-center overflow-hidden rounded border-2 bg-soft p-0 max-[700px]:w-[88px] ${indiceAtual === posicao ? 'border-brand outline-2 outline-paper outline-offset-[-4px]' : 'border-transparent'} [&_img]:h-full [&_img]:w-full [&_img]:object-cover`}>
+        className={`grid h-18 w-25 shrink-0 snap-start place-items-center overflow-hidden rounded border-2 bg-soft p-0 max-[700px]:w-22 ${indiceAtual === posicao ? 'border-brand outline-2 outline-paper outline-offset-[-4px]' : 'border-transparent'} [&_img]:h-full [&_img]:w-full [&_img]:object-cover`}>
         {item.tipo === 'IMAGEM' ? <Imagem key={item.url} url={item.url} titulo="" /> : <IconeReproduzir size={24} />}
       </button>)}
     </div>}
     {fotoAmpliada && <div onKeyDown={(evento) => navegar(evento, true)}><Dialogo titulo={titulo} tamanho="largo" aoFechar={() => setIndiceFoto(null)}>
-      <div className="relative grid min-h-[220px] place-items-center bg-soft [&_img]:max-h-[65dvh] [&_img]:w-full [&_img]:object-contain" role="region" aria-label="Fotos ampliadas. Use as setas para navegar." tabIndex={0}>
+      <div className="relative grid min-h-55 place-items-center bg-soft [&_img]:max-h-[65dvh] [&_img]:w-full [&_img]:object-contain" role="region" aria-label="Fotos ampliadas. Use as setas para navegar." tabIndex={0}>
         <Imagem key={fotoAmpliada.url} url={fotoAmpliada.url} titulo={`${titulo} — foto ${(indiceFoto ?? 0) + 1}`} />
         {fotos.length > 1 && <>
           <button type="button" className={`${classeSeta} left-2`} aria-label="Foto anterior" onClick={() => moverFoto(-1)}><IconeAnterior size={22} /></button>

@@ -118,7 +118,7 @@ export default function Catalogo() {
       />
       <section className="hero-anim container grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-5 pb-2 pt-4 max-[800px]:grid-cols-1 max-[800px]:gap-6 max-[800px]:pt-6">
         <div>
-          <h1 className="mb-2 mt-2 max-w-[650px] text-balance text-[clamp(30px,3.5vw,48px)] leading-[1.17] tracking-[-0.045em]">
+          <h1 className="mb-2 mt-2 max-w-162.5 text-balance text-[clamp(30px,3.5vw,48px)] leading-[1.17] tracking-[-0.045em]">
             {brand.slogan.inicio}{" "}
             <em className="font-normal text-brand">{brand.slogan.destaque}</em>
           </h1>
@@ -138,7 +138,7 @@ export default function Catalogo() {
             Explore os imóveis <IconeSetaBaixo size={17} />
           </a>
         </div>
-        <div className="relative h-[300px] overflow-hidden rounded-lg bg-soft max-[800px]:h-[clamp(200px,46vw,300px)]">
+        <div className="relative h-75 overflow-hidden rounded-lg bg-soft max-[800px]:h-[clamp(200px,46vw,300px)]">
           <img
             src="/assets/rua-comercial-1200.webp"
             srcSet="/assets/rua-comercial-640.webp 640w, /assets/rua-comercial-960.webp 960w, /assets/rua-comercial-1200.webp 1200w"
@@ -154,7 +154,7 @@ export default function Catalogo() {
       {/* Margem de rolagem = altura do cabeçalho (104/84px) + 20px − padding do topo: o título para logo abaixo do cabeçalho. */}
       <section
         id="catalogo"
-        className="container scroll-mt-[76px] pt-12 max-[800px]:scroll-mt-[56px] max-[560px]:scroll-mt-[72px] max-[560px]:pt-8"
+        className="container scroll-mt-19 pt-12 max-[800px]:scroll-mt-14 max-[560px]:scroll-mt-18 max-[560px]:pt-8"
         aria-labelledby="catalogo-titulo"
       >
         <div className="mb-6">
@@ -186,7 +186,7 @@ export default function Catalogo() {
           aplicar={aplicar}
           limpar={limpar}
         />
-        <div className="mt-[34px] max-[560px]:mt-7">
+        <div className="mt-8.5 max-[560px]:mt-7">
           <EstadoCarregamento
             carregando={false}
             erro={classificacoesRecurso.erro}
@@ -204,13 +204,13 @@ export default function Catalogo() {
               className={`transition-opacity motion-reduce:transition-none ${atualizando ? "opacity-60" : ""}`}
             >
               {imoveis?.itens.length ? (
-                <div className="grid grid-cols-[repeat(3,minmax(0,1fr))] gap-x-[30px] gap-y-[54px] max-[1100px]:gap-x-5 max-[1100px]:gap-y-9 max-[800px]:grid-cols-[repeat(2,minmax(0,1fr))] max-[560px]:grid-cols-1 max-[560px]:gap-7">
+                <div className="grid grid-cols-3 gap-x-7.5 gap-y-13.5 max-[1100px]:gap-x-5 max-[1100px]:gap-y-9 max-[800px]:grid-cols-2 max-[560px]:grid-cols-1 max-[560px]:gap-7">
                   {imoveis.itens.map((imovel) => (
                     <CartaoImovel key={imovel.id} imovel={imovel} />
                   ))}
                 </div>
               ) : (
-                <div className="rounded-[5px] border border-dashed border-line bg-soft px-6 py-[72px] text-center [&_svg]:mx-auto [&_svg]:mb-3 [&_svg]:text-brand">
+                <div className="rounded-lg border border-dashed border-line bg-soft px-6 py-18 text-center [&_svg]:mx-auto [&_svg]:mb-3 [&_svg]:text-brand">
                   <IconeBuscar size={30} />
                   <h3>Nenhum imóvel com esses filtros</h3>
                   <p>Tire algum filtro ou limpe todos para ver mais opções.</p>
@@ -232,7 +232,7 @@ export default function Catalogo() {
           )}
         </div>
       </section>
-      <section className="container mt-[92px] grid items-start gap-12 rounded-[3px] border-l-4 border-gold bg-navy px-14 py-9 text-white min-[561px]:grid-cols-[auto_minmax(0,1fr)] max-[800px]:gap-[30px] max-[800px]:px-8 max-[800px]:py-7 max-[560px]:mt-[50px] max-[560px]:grid-cols-1 max-[560px]:gap-6 max-[560px]:px-6 max-[560px]:py-6">
+      <section className="container mt-23 grid items-start gap-12 rounded-sm border-l-4 border-gold bg-navy px-14 py-9 text-white min-[561px]:grid-cols-[auto_minmax(0,1fr)] max-[800px]:gap-7.5 max-[800px]:px-8 max-[800px]:py-7 max-[560px]:mt-12.5 max-[560px]:grid-cols-1 max-[560px]:gap-6 max-[560px]:px-6 max-[560px]:py-6">
         <div>
           <h2 className="mb-0">
             Precisa de ajuda para

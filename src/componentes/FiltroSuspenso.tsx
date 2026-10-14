@@ -54,20 +54,20 @@ export default function FiltroSuspenso({ id, rotulo, resumo, vazio = 'Selecione'
     <button ref={gatilho} type="button" aria-expanded={aberto} aria-controls={`${id}-opcoes`} aria-labelledby={`${id}-rotulo ${id}-resumo`}
       onKeyDown={(evento) => { if (evento.key === 'Escape' && aberto) { evento.preventDefault(); setAberto(false); } }}
       onClick={() => setAberto(!aberto)}
-      className={`flex min-h-12 w-full items-center gap-3 rounded-[4px] border bg-transparent px-4 text-left text-base transition-colors hover:border-navy dark:hover:border-gold ${aberto ? 'border-navy dark:border-gold' : 'border-[var(--color-control-line)]'} ${ativo ? 'font-semibold shadow-[inset_0_-2px_0_var(--color-gold)]' : ''}`}>
+      className={`flex min-h-12 w-full items-center gap-3 rounded-md border bg-transparent px-4 text-left text-base transition-colors hover:border-navy dark:hover:border-gold ${aberto ? 'border-navy dark:border-gold' : 'border-control-line'} ${ativo ? 'font-semibold shadow-[inset_0_-2px_0_var(--color-gold)]' : ''}`}>
       <span id={`${id}-resumo`} className={`min-w-0 flex-1 truncate ${resumo ? '' : 'text-muted'}`}>{resumo || vazio}</span>
       <IconeProximo size={20} aria-hidden="true" className={`shrink-0 text-muted transition-transform ${aberto ? '-rotate-90' : 'rotate-90'}`} />
     </button>
-    {aberto && <fieldset id={`${id}-opcoes`} onPointerDown={() => { porPonteiro.current = true; }} onKeyDown={() => { porPonteiro.current = false; }} className="absolute left-0 top-[calc(100%+6px)] z-30 m-0 max-h-[min(60vh,380px)] w-full min-w-[240px] overflow-y-auto overscroll-contain rounded-md border border-line bg-paper p-1.5 shadow-[0_14px_32px_color-mix(in_srgb,var(--color-navy-deep)_24%,transparent)]">
+    {aberto && <fieldset id={`${id}-opcoes`} onPointerDown={() => { porPonteiro.current = true; }} onKeyDown={() => { porPonteiro.current = false; }} className="absolute left-0 top-[calc(100%+6px)] z-30 m-0 max-h-[min(60vh,380px)] w-full min-w-60 overflow-y-auto overscroll-contain rounded-md border border-line bg-paper p-1.5 shadow-[0_14px_32px_color-mix(in_srgb,var(--color-navy-deep)_24%,transparent)]">
       <legend className="sr-only">{rotulo}</legend>
       {opcoes.map((opcao) => {
         const marcado = selecionados.includes(opcao.valor);
         return <label key={opcao.valor}
-          className={`flex min-h-11 cursor-pointer items-center gap-3 rounded px-3 py-2 text-base font-normal hover:bg-soft has-[:focus-visible]:bg-soft ${marcado ? 'font-semibold' : ''}`}>
+          className={`flex min-h-11 cursor-pointer items-center gap-3 rounded px-3 py-2 text-base font-normal hover:bg-soft has-focus-visible:bg-soft ${marcado ? 'font-semibold' : ''}`}>
           <input type={multiplo ? 'checkbox' : 'radio'} name={`${id}-opcao`} checked={marcado} onChange={() => escolher(opcao.valor)}
             // Rádio marcado não dispara onChange: clicar nele de novo desmarca o filtro.
             onClick={() => { if (!multiplo && marcado) { aoMudar([]); if (porPonteiro.current) fechar(); } }}
-            className="m-0 size-[19px] min-h-0 shrink-0 p-0 accent-[var(--green)] focus-visible:outline-offset-2" />
+            className="m-0 size-4.75 min-h-0 shrink-0 p-0 accent-(--green) focus-visible:outline-offset-2" />
           {opcao.icone && <span className="shrink-0 text-muted" aria-hidden="true">{opcao.icone}</span>}
           <span className="min-w-0 flex-1">{opcao.rotulo}</span>
         </label>;

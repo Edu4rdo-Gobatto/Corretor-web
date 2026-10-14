@@ -75,10 +75,10 @@ export default function GerenciadorMidia({ imovel, aoAlterar }: { imovel: Pick<F
       <label className="mb-6 block border border-dashed border-control-line bg-soft p-7 text-ink">
         Adicionar fotos ou vídeos
         <span className="text-[13px] font-normal text-muted"> · Até {LIMITE_ARQUIVOS} arquivos por envio, 30 MB por vídeo e 60 MB no total. Imagens são otimizadas em WebP.</span>
-        <input type="file" multiple accept={TIPOS_ACEITOS.join(',')} disabled={ocupado} className="mt-[14px] block max-w-full"
+        <input type="file" multiple accept={TIPOS_ACEITOS.join(',')} disabled={ocupado} className="mt-3.5 block max-w-full"
           onChange={(evento) => { const arquivos = Array.from(evento.target.files ?? []); if (arquivos.length) void enviar(arquivos); evento.target.value = ''; }} />
       </label>
-      <div role="group" aria-label="Adicionar vídeo externo" className="mb-[26px] flex items-end gap-3 @max-[28rem]:flex-col @max-[28rem]:items-stretch">
+      <div role="group" aria-label="Adicionar vídeo externo" className="mb-6.5 flex items-end gap-3 @max-[28rem]:flex-col @max-[28rem]:items-stretch">
         <Campo rotulo="Link do YouTube ou Vimeo" classe="flex-1"><input type="url" value={url} onChange={(evento) => setUrl(evento.target.value)} placeholder="https://www.youtube.com/watch?v=…" disabled={ocupado}
           onKeyDown={(evento) => { if (evento.key === 'Enter') { evento.preventDefault(); adicionarVideo(); } }} /></Campo>
         <button type="button" className="buttonSecondary" disabled={ocupado} onClick={adicionarVideo}>Adicionar vídeo</button>
@@ -86,14 +86,14 @@ export default function GerenciadorMidia({ imovel, aoAlterar }: { imovel: Pick<F
       {erro && <Aviso tom="erro" classe="mb-4">{erro}</Aviso>}
       {progresso && <Aviso classe="mb-4">Processando {progresso.concluidos} de {progresso.total}…</Aviso>}
       {mensagem && <Aviso tom={mensagem.includes('Não foi possível') ? 'atencao' : 'sucesso'} classe="mb-4">{mensagem}</Aviso>}
-      <div className="grid grid-cols-1 gap-[18px] @min-[28rem]:grid-cols-2 @min-[52rem]:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4.5 @min-[28rem]:grid-cols-2 @min-[52rem]:grid-cols-3">
         {midias.map((item, indice) => {
           const urlSegura = item.tipo === 'VIDEO_EMBED' ? urlEmbed(item.url) : null;
           return (
             <article className="border border-line bg-paper" key={item.id}>
-              {item.tipo === 'IMAGEM' ? <img className="h-[150px] w-full bg-soft object-cover" src={item.url} alt={`Foto ${indice + 1} do imóvel`} loading="lazy" decoding="async" />
-                : item.tipo === 'VIDEO_ARQUIVO' ? <video className="h-[150px] w-full bg-soft object-cover" src={item.url} controls preload="metadata" aria-label={`Vídeo ${indice + 1} do imóvel`} />
-                  : <div className="grid h-[150px] place-items-center wrap-anywhere bg-soft p-4 text-ink">{urlSegura ? <a className="inline-flex items-center gap-2" href={urlSegura} target="_blank" rel="noopener noreferrer">Assistir ao vídeo <IconeAbrirFora size={20} aria-hidden="true" /></a> : <span>Vídeo indisponível</span>}</div>}
+              {item.tipo === 'IMAGEM' ? <img className="h-37.5 w-full bg-soft object-cover" src={item.url} alt={`Foto ${indice + 1} do imóvel`} loading="lazy" decoding="async" />
+                : item.tipo === 'VIDEO_ARQUIVO' ? <video className="h-37.5 w-full bg-soft object-cover" src={item.url} controls preload="metadata" aria-label={`Vídeo ${indice + 1} do imóvel`} />
+                  : <div className="grid h-37.5 place-items-center wrap-anywhere bg-soft p-4 text-ink">{urlSegura ? <a className="inline-flex items-center gap-2" href={urlSegura} target="_blank" rel="noopener noreferrer">Assistir ao vídeo <IconeAbrirFora size={20} aria-hidden="true" /></a> : <span>Vídeo indisponível</span>}</div>}
               <div className="acoes-linha flex flex-wrap items-center justify-end gap-1 p-3">
                 {item.capa ? <span className="mr-auto inline-flex min-h-11 items-center gap-1.5 rounded bg-soft px-2 text-[14px] font-semibold text-brand"><IconeEstrela size={15} aria-hidden="true" />Capa</span> : item.tipo === 'IMAGEM' && <AcaoIcone icone={IconeEstrela} rotulo="Definir capa" contexto={`foto ${indice + 1}`} desabilitado={ocupado} aoClicar={() => void executar(() => api.definirCapa(imovel.id, item.id), 'Capa atualizada.')} />}
                 <AcaoIcone icone={IconeSetaCima} rotulo="Mover para cima" contexto={`mídia ${indice + 1}`} desabilitado={ocupado || indice === 0} aoClicar={() => void executar(() => reordenar(indice, indice - 1), 'Ordem atualizada.')} />

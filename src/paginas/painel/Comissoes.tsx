@@ -35,7 +35,7 @@ export default function Comissoes({ contrato }: { contrato?: Contrato }) {
     {dados && !carregando && !erro && (
       <section>
         <Tabela<Comissao> itens={dados.itens} chave={(comissao) => comissao.id} vazio="Nenhuma comissão registrada." rotulo="Comissões" linkLinha={(comissao) => `/admin/comissoes/${comissao.id}`} colunas={[
-          { titulo: 'Operação', celula: (comissao) => <><Link to={`/admin/comissoes/${comissao.id}`}><strong>{comissao.tipo_operacao === 'VENDA' ? 'Venda' : 'Locação'} #{comissao.id}</strong></Link>{comissao.observacoes && <small className="mt-1 block max-w-[200px] truncate text-muted">{comissao.observacoes}</small>}</> },
+          { titulo: 'Operação', celula: (comissao) => <><Link to={`/admin/comissoes/${comissao.id}`}><strong>{comissao.tipo_operacao === 'VENDA' ? 'Venda' : 'Locação'} #{comissao.id}</strong></Link>{comissao.observacoes && <small className="mt-1 block max-w-50 truncate text-muted">{comissao.observacoes}</small>}</> },
           { titulo: 'Receita total', celula: (comissao) => dinheiroExato(comissao.valor_total) },
           { titulo: 'Recebido', celula: (comissao) => dinheiroExato(comissao.valor_pago ?? '0.00') },
           { titulo: 'Saldo', celula: (comissao) => dinheiroExato(comissao.saldo_pendente ?? comissao.valor_total) },

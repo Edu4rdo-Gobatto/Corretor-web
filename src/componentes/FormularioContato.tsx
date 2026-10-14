@@ -59,12 +59,12 @@ export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel
       ) : (
         <>
           <p className="muted">{imovel.titulo}<br />Converse com {imovel.corretor?.nome ?? 'o corretor responsável'} pelo WhatsApp.</p>
-          <form onSubmit={enviar} className="grid gap-[15px]" noValidate>
+          <form onSubmit={enviar} className="grid gap-3.75" noValidate>
             <Campo rotulo="Seu nome" obrigatorio erro={errors.nome?.message}><input autoComplete="name" {...register('nome')} /></Campo>
             <Campo rotulo="Telefone com DDD" obrigatorio erro={errors.telefone?.message}><input type="tel" inputMode="tel" autoComplete="tel" placeholder="(65) 99999-9999" {...register('telefone', { onChange: (evento) => setValue('telefone', formatarTelefone(evento.target.value), { shouldDirty: true }) })} /></Campo>
             <Campo rotulo="E-mail (opcional)" erro={errors.email?.message}><input type="email" autoComplete="email" {...register('email')} /></Campo>
             <Campo rotulo="Mensagem (opcional)" erro={errors.mensagem?.message}><textarea {...register('mensagem')} maxLength={2000} /></Campo>
-            <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden"><label>Site<input tabIndex={-1} autoComplete="off" {...register('website')} /></label></div>
+            <div aria-hidden="true" className="absolute -left-2500 h-px w-px overflow-hidden"><label>Site<input tabIndex={-1} autoComplete="off" {...register('website')} /></label></div>
             <div>
               <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-[13px] font-normal [&_input]:mt-1">
                 <input type="checkbox" {...register('consentimento')} aria-invalid={Boolean(errors.consentimento)} aria-describedby={errors.consentimento ? 'contato-consentimento-erro' : undefined} />

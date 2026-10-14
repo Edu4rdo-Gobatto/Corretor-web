@@ -14,7 +14,7 @@ type Propriedades = {
 };
 
 const icones: Record<string, Icone> = { galpao: IconeGalpao, 'sala-comercial': IconeEdificio, predio: IconePredio, loja: IconeLoja, terreno: IconeTerreno };
-const chipBase = 'inline-flex min-h-11 items-center gap-2 rounded-[3px] border px-3 py-[10px] text-sm';
+const chipBase = 'inline-flex min-h-11 items-center gap-2 rounded-sm border px-3 py-2.5 text-sm';
 const chipInativo = 'border-line bg-transparent text-muted hover:border-navy dark:hover:border-gold';
 const chipSelecionado = 'border-navy bg-navy text-white shadow-[inset_0_-2px_0_var(--color-gold)]';
 const rotuloGrupo = 'mb-2 block text-sm font-semibold';
@@ -165,7 +165,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
   const contador = (total: number) => total > 0 && <><span aria-hidden="true" className="inline-grid h-6 min-w-6 place-items-center rounded-full bg-gold px-1.5 text-xs font-bold text-navy-deep">{total}</span><span className="sr-only">({total} {total === 1 ? 'ativo' : 'ativos'})</span></>;
   const mensagemErro = erro && <p className="error mb-0 mt-4" role="alert">{erro}</p>;
 
-  return <div role="search" aria-label="Filtrar imóveis" className="rounded-lg border border-line border-t-[3px] border-t-gold bg-paper px-7 pb-4 pt-6 shadow-sm max-[560px]:px-[18px] max-[560px]:pt-5">
+  return <div role="search" aria-label="Filtrar imóveis" className="rounded-lg border border-line border-t-[3px] border-t-gold bg-paper px-7 pb-4 pt-6 shadow-sm max-[560px]:px-4.5 max-[560px]:pt-5">
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] items-end gap-5 max-[1100px]:gap-3 max-[960px]:grid-cols-2 max-[960px]:gap-y-4 max-[800px]:hidden">
       <FiltroSuspenso id="filtro-finalidade" rotulo="Alugar ou comprar" resumo={finalidades.find((item) => item.chave === consulta.finalidade)?.nome}
         opcoes={finalidades.map((item) => ({ valor: item.chave, rotulo: item.nome }))}
@@ -176,7 +176,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
       <FiltroSuspenso id="filtro-ordem" rotulo="Ordenar por" filtro={false} resumo={rotulosOrdenacao[ordenar]} opcoes={ordenacoes}
         selecionados={[ordenar]} aoMudar={([valor]) => escolherOrdem(valor)} />
       <button type="button" aria-expanded={painelAberto} aria-controls="filtros-extras" onClick={() => setPainelAberto(!painelAberto)}
-        className={`buttonSecondary min-h-12 border-[var(--color-control-line)] px-4 py-0 ${painelAberto ? 'bg-soft' : ''}`}>
+        className={`buttonSecondary min-h-12 border-control-line px-4 py-0 ${painelAberto ? 'bg-soft' : ''}`}>
         <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos)}
         <IconeProximo size={18} aria-hidden="true" className={`text-muted transition-transform ${painelAberto ? '-rotate-90' : 'rotate-90'}`} />
       </button>
@@ -190,10 +190,10 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
 
     <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
       <button type="button" onClick={limparTudo} disabled={!temFiltro}
-        className="-ml-2 inline-flex min-h-11 items-center gap-2 rounded-[4px] border-0 bg-transparent px-2 text-sm font-semibold hover:bg-soft disabled:hover:bg-transparent">
+        className="-ml-2 inline-flex min-h-11 items-center gap-2 rounded-md border-0 bg-transparent px-2 text-sm font-semibold hover:bg-soft disabled:hover:bg-transparent">
         <IconeFechar size={16} aria-hidden="true" />Limpar
       </button>
-      <button type="button" aria-haspopup="dialog" onClick={() => setTelaCheia(true)} className="buttonSecondary min-h-11 border-[var(--color-control-line)] px-4 min-[801px]:hidden">
+      <button type="button" aria-haspopup="dialog" onClick={() => setTelaCheia(true)} className="buttonSecondary min-h-11 border-control-line px-4 min-[801px]:hidden">
         <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos + ocultasMobile)}
       </button>
     </div>

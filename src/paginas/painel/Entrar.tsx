@@ -35,16 +35,16 @@ export default function Entrar() {
   if (corretor) return <Navigate to={rotas.painel} replace />;
   return (
     <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-background lg:grid-cols-2 lg:grid-rows-1">
-      <section className="relative flex min-h-[220px] flex-col justify-between overflow-hidden bg-navy p-7 text-white lg:p-[70px]">
+      <section className="relative flex min-h-55 flex-col justify-between overflow-hidden bg-navy p-7 text-white lg:p-17.5">
         <img className="absolute inset-0 z-0 h-full w-full object-cover" src="/assets/commercial-space-source.jpg" srcSet="/assets/commercial-space-640.webp 640w, /assets/commercial-space-960.webp 960w, /assets/commercial-space-1400.webp 1400w" sizes="(max-width: 700px) 100vw, 50vw" width="1400" height="1050" alt="" {...{ fetchpriority: 'high' }} />
-        <div aria-hidden className="absolute inset-0 z-[1] bg-gradient-to-br from-navy via-navy/80 to-navy/50" />
-        <Link to={rotas.inicio} className="relative z-[2] font-display text-[21px] leading-[1.5] text-inherit no-underline">{brand.name}</Link>
-        <div className="relative z-[2]"><p className="eyebrow text-white">Seu painel de trabalho</p><h2 className="mb-4 max-w-[500px] font-display text-[30px] leading-[1.3] lg:text-[clamp(34px,4vw,52px)]">Imóveis, contatos e negócios em um só lugar.</h2><p className="mb-0 text-white/80">Organize seu portfólio e acompanhe cada atendimento.</p></div>
+        <div aria-hidden className="absolute inset-0 z-1 bg-linear-to-br from-navy via-navy/80 to-navy/50" />
+        <Link to={rotas.inicio} className="relative z-2 font-display text-[21px] leading-normal text-inherit no-underline">{brand.name}</Link>
+        <div className="relative z-2"><p className="eyebrow text-white">Seu painel de trabalho</p><h2 className="mb-4 max-w-125 font-display text-[30px] leading-[1.3] lg:text-[clamp(34px,4vw,52px)]">Imóveis, contatos e negócios em um só lugar.</h2><p className="mb-0 text-white/80">Organize seu portfólio e acompanhe cada atendimento.</p></div>
       </section>
       <main className="painel-ui flex items-center justify-center px-6 py-9 lg:p-12">
-        <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-100">
           <CabecalhoPagina titulo="Área do corretor" descricao="Acesse sua conta para continuar o trabalho." voltar={{ to: rotas.inicio, rotulo: 'Voltar ao site' }} />
-          <form onSubmit={handleSubmit((valores) => acessar(valores.email, valores.senha))} noValidate className="grid gap-4 [&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold">
+          <form onSubmit={handleSubmit((valores) => acessar(valores.email, valores.senha))} noValidate className="grid gap-4 [&_input]:w-full [&_label]:grid [&_label]:gap-1.75 [&_label]:font-semibold">
             <Campo rotulo="E-mail" obrigatorio erro={errors.email?.message}><input type="email" autoComplete="username" {...register('email')} /></Campo>
             <Campo rotulo="Senha" obrigatorio erro={errors.senha?.message}><input type="password" autoComplete="current-password" {...register('senha')} /></Campo>
             {erro && <Aviso tom="erro">{erro}</Aviso>}

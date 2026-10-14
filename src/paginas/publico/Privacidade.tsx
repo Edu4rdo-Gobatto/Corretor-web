@@ -5,8 +5,8 @@ import { Seo } from '../../seo/context';
 export default function Privacidade() {
   const pronta = brand.privacy.controller && brand.privacy.contactEmail && brand.privacy.address;
   return (
-    <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_h2]:text-[25px] [&_section]:mt-8 [&_section_p]:text-muted [&_.eyebrow]:mt-[45px]">
-      <div className="mx-auto max-w-[800px]">
+    <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_h2]:text-[25px] [&_section]:mt-8 [&_section_p]:text-muted [&_.eyebrow]:mt-11.25">
+      <div className="mx-auto max-w-200">
         <Seo />
         <p className="eyebrow">Transparência e cuidado</p>
         <div className="mb-4 flex items-center gap-4"><BotaoVoltar to="/" rotulo="Voltar ao catálogo" /><h1 className="mb-0">Política de privacidade</h1></div>

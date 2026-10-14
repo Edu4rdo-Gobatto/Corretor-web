@@ -9,15 +9,15 @@ export default function EstadoCarregamento({ carregando, erro, tentarNovamente, 
   if (carregando) {
     if (esqueleto === 'cartoes') {
       return (
-        <div className="grid grid-cols-3 gap-x-[30px] gap-y-[54px] max-[800px]:grid-cols-2 max-[560px]:grid-cols-1" role="status" aria-label="Carregando imóveis">
-          {[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="grid gap-3"><span className={`${brilho} aspect-[1.47/1] max-[560px]:aspect-[4/3]`} /><span className={`${brilho} h-3 w-1/3`} /><span className={`${brilho} h-12`} /><span className={`${brilho} h-5 w-2/3`} /><span className={`${brilho} mt-3 h-10`} /></div>)}
+        <div className="grid grid-cols-3 gap-x-7.5 gap-y-13.5 max-[800px]:grid-cols-2 max-[560px]:grid-cols-1" role="status" aria-label="Carregando imóveis">
+          {[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="grid gap-3"><span className={`${brilho} aspect-[1.47/1] max-[560px]:aspect-4/3`} /><span className={`${brilho} h-3 w-1/3`} /><span className={`${brilho} h-12`} /><span className={`${brilho} h-5 w-2/3`} /><span className={`${brilho} mt-3 h-10`} /></div>)}
         </div>
       );
     }
     if (esqueleto === 'detalhe') {
       return (
         <div className="grid gap-4 py-5" role="status" aria-label="Carregando imóvel">
-          <span className={`${brilho} h-[475px] max-[560px]:h-[320px]`} /><span className={`${brilho} h-7`} /><span className={`${brilho} h-7`} />
+          <span className={`${brilho} h-118.75 max-[560px]:h-80`} /><span className={`${brilho} h-7`} /><span className={`${brilho} h-7`} />
         </div>
       );
     }

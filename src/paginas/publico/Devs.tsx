@@ -40,10 +40,10 @@ export default function Devs() {
     if (!mostrarIntro) titulo.current?.focus();
   }, [mostrarIntro]);
   return (
-    <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_.eyebrow]:mt-[45px]">
+    <article className="container pt-9 [&_h1]:text-[clamp(32px,8vw,44px)] [&_.eyebrow]:mt-11.25">
       {mostrarIntro && <ObraOverlay aoSair={() => setMostrarIntro(false)} />}
       <span aria-live="polite" className="srOnly">{mostrarIntro ? '' : 'Página pronta.'}</span>
-      <div className="mx-auto max-w-[800px]">
+      <div className="mx-auto max-w-200">
       <Seo />
       <p className="eyebrow">Quem fez</p>
       <div className="mb-4 flex items-center gap-4"><BotaoVoltar to="/" rotulo="Voltar ao catálogo" /><h1 className="mb-0" ref={titulo} tabIndex={-1} data-foco-navegacao>Desenvolvedores</h1></div>

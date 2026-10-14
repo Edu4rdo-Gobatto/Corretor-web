@@ -81,7 +81,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
   }
 
   return (
-    <div ref={raiz} className="relative grid gap-[7px]" onBlur={(evento) => { if (!raiz.current?.contains(evento.relatedTarget as Node | null)) setAberto(false); }}>
+    <div ref={raiz} className="relative grid gap-1.75" onBlur={(evento) => { if (!raiz.current?.contains(evento.relatedTarget as Node | null)) setAberto(false); }}>
       <label htmlFor={idCampo} className="font-semibold">{rotulo}</label>
         <div className="relative">
           <input

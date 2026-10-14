@@ -38,19 +38,19 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
       <label className="mb-6 block border border-dashed border-control-line bg-soft p-7 text-ink">
         Adicionar fotos ou vídeos
         <span className="text-[13px] font-normal text-muted"> · Até {LIMITE_ARQUIVOS} arquivos, 30 MB por vídeo e 60 MB no total. Imagens são otimizadas em WebP.</span>
-        <input type="file" multiple accept={TIPOS_ACEITOS.join(',')} disabled={desabilitado} className="mt-[14px] block max-w-full"
+        <input type="file" multiple accept={TIPOS_ACEITOS.join(',')} disabled={desabilitado} className="mt-3.5 block max-w-full"
           onChange={(evento) => { adicionarArquivos(Array.from(evento.target.files ?? [])); evento.target.value = ''; }} />
       </label>
-      <div className="mb-[26px] flex items-end gap-3 @max-[28rem]:flex-col @max-[28rem]:items-stretch">
+      <div className="mb-6.5 flex items-end gap-3 @max-[28rem]:flex-col @max-[28rem]:items-stretch">
         <Campo rotulo="Link do YouTube ou Vimeo" classe="flex-1"><input type="url" value={url} onChange={(evento) => setUrl(evento.target.value)} placeholder="https://www.youtube.com/watch?v=…" disabled={desabilitado} onKeyDown={(evento) => { if (evento.key === 'Enter') { evento.preventDefault(); adicionarVideo(); } }} /></Campo>
         <button type="button" className="buttonSecondary" disabled={desabilitado || !url} onClick={adicionarVideo}>Adicionar vídeo</button>
       </div>
       {erro && <Aviso tom="erro" classe="mb-4">{erro}</Aviso>}
       {(previas.length > 0 || videos.length > 0) && (
-        <ul className="grid list-none grid-cols-1 gap-[18px] p-0 @min-[28rem]:grid-cols-2 @min-[52rem]:grid-cols-3">
+        <ul className="grid list-none grid-cols-1 gap-4.5 p-0 @min-[28rem]:grid-cols-2 @min-[52rem]:grid-cols-3">
           {previas.map((previa, indice) => (
             <li key={`${previa.arquivo.name}-${indice}`} className="border border-line bg-paper">
-              {previa.url ? <img className="h-[150px] w-full object-cover" src={previa.url} alt={`Prévia ${indice + 1}: ${previa.arquivo.name}`} /> : <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm">{previa.arquivo.name}</div>}
+              {previa.url ? <img className="h-37.5 w-full object-cover" src={previa.url} alt={`Prévia ${indice + 1}: ${previa.arquivo.name}`} /> : <div className="grid h-37.5 place-items-center bg-soft p-4 text-sm">{previa.arquivo.name}</div>}
               <div className="acoes-linha flex items-center justify-between gap-2 p-3 text-base">
                 <span className="min-w-0 truncate">{indice === 0 && previa.url ? 'Capa ' : ''}{previa.arquivo.name}</span>
                 <AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={previa.arquivo.name} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos.filter((_, posicao) => posicao !== indice), videos)} />
@@ -59,7 +59,7 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
           ))}
           {videos.map((video, indice) => (
             <li key={`${video}-${indice}`} className="border border-line bg-paper">
-              <div className="grid h-[150px] place-items-center bg-soft p-4 text-sm wrap-anywhere">Vídeo: {video}</div>
+              <div className="grid h-37.5 place-items-center bg-soft p-4 text-sm wrap-anywhere">Vídeo: {video}</div>
               <div className="acoes-linha flex justify-end p-3"><AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={`vídeo ${indice + 1}`} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos, videos.filter((_, posicao) => posicao !== indice))} /></div>
             </li>
           ))}
