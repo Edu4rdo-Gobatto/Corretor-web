@@ -5,6 +5,13 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 14/10 — Bibliotecas em chunks próprios no build do cliente
+- `scripts/build.mjs` separa `react` (React, React DOM, scheduler, React Router) e `formularios` (zod,
+  react-hook-form) via `manualChunks`, só no build do cliente. O chunk principal tinha 509 kB e disparava o aviso do
+  Vite; agora tem 144 kB. O SSR continua um bundle único.
+- Não carregar `DetalheImovel` com `React.lazy` para reduzir o bundle: o `renderToString` entregaria o fallback no
+  lugar do HTML do imóvel e quebraria o SEO.
+
 ### 13/10 — Cache em memória do catálogo público
 - `servicos/cache.ts` guarda no navegador o catálogo por consulta (2 min, chave `urlCatalogo`) e as classificações
   públicas (10 min); promessas em andamento são compartilhadas e falhas não ficam no cache. Os dados do SSR semeiam
