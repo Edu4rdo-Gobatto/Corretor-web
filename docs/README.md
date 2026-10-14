@@ -33,7 +33,6 @@ npm run preview      # serve o build em 127.0.0.1:4173
 npm run typecheck
 npm run lint
 npm test             # vitest: 3 arquivos, 23 testes
-npm run visual       # Playwright visual: hoje sem specs, não executa nada útil
 node scripts/seo-smoke.mjs          # smoke do SSR após o build: falha desde 06/10 (ver Testes)
 node scripts/seo-smoke.mjs --serve  # prévia com API fictícia em 127.0.0.1:4180 (API em 4199)
 ```
@@ -154,10 +153,8 @@ Quando o mesmo pacote muda API e front, publique a API primeiro.
 ## Testes
 
 - `npm test`: vitest com 3 arquivos e 23 testes em `src/servicos/` (contato/LGPD, URLs de filtro e formatação de
-  valores). As suítes antigas foram removidas em 03/10 e a mínima foi recriada em 04/10.
-- `npm run visual`: o `playwright.visual.config.ts` aponta para `tests/visual/`, mas lá só há ajudantes. Não há
-  specs.
-- `node scripts/seo-smoke.mjs`: falha desde 06/10, porque a linha 40 ainda espera o h1 antigo "Imóveis comerciais".
+  valores). As suítes antigas foram removidas em 03/10, a mínima foi recriada em 04/10 e a suíte visual, sem specs, saiu em 14/10.
+- `node scripts/seo-smoke.mjs`: compara h1 e título do SSR com o slogan de `brand.ts` (passa desde 09/10).
 - A API irmã não tem suítes.
 
 ## Navegação por teclado

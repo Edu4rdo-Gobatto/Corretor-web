@@ -20,12 +20,6 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
   arquivamento, Cadastros por categoria e contrato novo no ambiente de teste.
 - Registro: [2026-10-09-comissao-versionada-cadastros-contrato.md](2026-10-09-comissao-versionada-cadastros-contrato.md).
 
-### TEST-VISUAL-001 — Specs da suíte visual
-- **Status:** aberta. **Responsável:** a definir.
-- `tests/visual/` só tem ajudantes (`ajudantes.ts`, `api-simulada.ts`, `orcamento.ts`, `preparar.ts`,
-  `seguranca.ts`). O `playwright.visual.config.ts` ainda cita `publico.spec.ts`. `npm run visual` não tem o que rodar.
-- Concluir: decidir com o dono entre recriar specs (público e painel, dois temas, larguras do config) ou remover a
-  suíte, o config e o script `visual`. Depende de pedido do dono, porque amplia a suíte.
 
 ### LIMPEZA-003 — Exclude de `tests/e2e` no `vite.config.ts`
 - **Status:** aberta. **Responsável:** a definir.
@@ -97,6 +91,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 | Tarefa | Data | Resumo |
 |---|---|---|
+| LIMPEZA-TESTES | 14/10 | Removidos `tests/visual/`, `playwright.visual.config.ts`, scripts `visual`, `src/test/setup.ts` e as dependências jsdom e Testing Library. Ficam 3 testes de lógica pura (vitest em node) |
 | UX-008 | 13/10 | `BarraFiltros` única em Imóveis, Pessoas, Contratos, Contatos, Comissões e Cadastros; sem botão Buscar; Limpar na faixa de chips (corrige o layout quebrado) |
 | UX-007 / LIMPEZA-001 / LIMPEZA-002 | 13/10 | Filtros e página de Imóveis, Pessoas, Contratos e Contatos (busca, datas, aba) na URL via `useParametrosLista`; `sessaoTeste.ts` removido; comentário de `renovarSessao` corrigido |
 | SEIS-PONTOS-20261009 | 09/10 | Setinhas, CRECI, tema claro, vários tipos, `content.js`, clientes da comissão. Publicação em PUBLICAR-20261009 |

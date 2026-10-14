@@ -99,7 +99,6 @@ Não deixe dois agentes editando a mesma área ao mesmo tempo.
 | Testes | `npm test` (vitest, 3 arquivos, 23 testes) | não |
 | Lint / tipos | `npm run lint` / `npm run typecheck` | não |
 | Smoke do SSR | `node scripts/seo-smoke.mjs` (falha no h1 desde 06/10; ver TASKS) | não (API fictícia) |
-| Suíte visual | `npm run visual` (sem specs hoje) | não |
 | Revisão visual / medição | prompts em [comando-revisar-design.md](comando-revisar-design.md) e [comando-medir.md](comando-medir.md) | não |
 
 Os prompts `/revisar-design` e `/medir` (e os subagentes [revisor-design.md](revisor-design.md) e
@@ -120,7 +119,6 @@ scripts/runtime.mjs      # proxy /api → API_ORIGIN (remove /api) e renderizaç
 scripts/safe-origin.mjs  # recusa API_ORIGIN remoto em dev/preview
 scripts/seo-smoke.mjs    # smoke do SSR com API fictícia (4180/4199); --serve mantém a prévia
 scripts/gerar-logo.mjs   # gera as variantes WebP do logo por tema
-tests/visual/            # só ajudantes do Playwright (api-simulada, orcamento, preparar, seguranca, ajudantes)
 
 src/App.tsx              # rotas, RolarAoTopo, redirecionamentos antigos
 src/main.tsx             # entrada do cliente (hidrata o HTML do SSR)

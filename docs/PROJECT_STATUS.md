@@ -29,7 +29,7 @@ sem botão Buscar e com Limpar na faixa de chips. Typecheck, lint e build passam
 
 **Verificações:** `typecheck`, `lint`, `build` e `npm test` (3 arquivos, 23 testes) passam.
 `node scripts/seo-smoke.mjs` passa desde a correção local de 09/10 (SMOKE-001); antes falhava desde 06/10.
-`npm run visual` não tem specs. QA de navegador de 09/10: 37/37 com a API completa em PostgreSQL descartável.
+A suíte visual foi removida em 14/10 (não tinha specs). QA de navegador de 09/10: 37/37 com a API completa em PostgreSQL descartável.
 
 **Falta homologar:** perfil real (login + R2 + Neon), Safari/iOS e celular físico, cold start publicado (A11),
 ACLs do Drive (H01), A09 e A10 com dados reais.
