@@ -5,6 +5,16 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 13/10 — Cache em memória do catálogo público
+- `servicos/cache.ts` guarda no navegador o catálogo por consulta (2 min, chave `urlCatalogo`) e as classificações
+  públicas (10 min); promessas em andamento são compartilhadas e falhas não ficam no cache. Os dados do SSR semeiam
+  o cache. Filtro novo = 1 requisição; filtro já visto = 0. Sem dependência nova (TanStack Query/SWR descartados).
+- Toda resposta OK de método diferente de GET/HEAD em `http()` limpa o cache: não invalidar mutação por mutação.
+  `classificacoes(true)` (painel) nunca usa cache. O SSR não usa este módulo (tem `fetcher` próprio).
+- Com resultados na tela, a nova busca só os esmaece (`aria-busy`, `opacity-60`); o esqueleto fica para a primeira
+  carga sem dados. Não voltar a trocar a grade pelo esqueleto: a página encolhia e o scroll pulava.
+- Não filtrar o catálogo no navegador a partir de uma carga completa: duplicaria regras de preço/ILIKE/ordenação da API.
+
 ### 09/10 — Comissão, cadastros de contrato e slogan
 - **Edição de comissão** reutiliza o formulário de registro e sempre envia `versao_registro`; 409 oferece
   "Recarregar ficha". Com recebimento ou arquivada, o diálogo mostra só observações (decisão do dono: ocultar, não

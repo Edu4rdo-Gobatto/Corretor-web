@@ -1,4 +1,5 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
+import { useParametrosLista } from '../../hooks/useParametrosLista';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { IconeBuscar, IconeDesarquivar, IconeEditar, IconeFechar, IconeFinalizar, IconeSucesso, IconeWhatsapp } from '../../componentes/Icones';
@@ -26,6 +27,9 @@ import { useAcoesPainel } from '../../hooks/useComandosPainel';
 
 interface Filtros { busca: string; imovel: Referencia | null; desde: string; ate: string }
 const filtrosIniciais: Filtros = { busca: '', imovel: null, desde: '', ate: '' };
+type ParametrosUrl = { busca: string; desde: string; ate: string; aba: StatusContato };
+const parametrosIniciais: ParametrosUrl = { busca: '', desde: '', ate: '', aba: 'PENDENTE' };
+const abasValidas = { aba: ['PENDENTE', 'RESPONDIDO', 'FINALIZADO'] } as const;
 const LIMITE = 10;
 const listas: { status: StatusContato; titulo: string; descricao: string }[] = [
   { status: 'PENDENTE', titulo: 'Pendentes', descricao: 'Quem ainda aguarda seu primeiro retorno.' },
@@ -90,13 +94,16 @@ function ListaContatos({ status, titulo, descricao, filtros, versao, ocupado, pa
 /** Abas de atendimento com filtros comuns e paginação independente. */
 export default function Contatos() {
   const { corretor } = useSessao();
-  const [filtros, setFiltros] = useState(filtrosIniciais);
-  const [aba, setAba] = useState<StatusContato>('PENDENTE');
+  const { filtros: parametros, definirFiltros } = useParametrosLista<ParametrosUrl>(parametrosIniciais, abasValidas);
+  const [imovel, setImovel] = useState<Referencia | null>(null);
+  const aba = parametros.aba;
+  const filtros = useMemo<Filtros>(() => ({ busca: parametros.busca, desde: parametros.desde, ate: parametros.ate, imovel }), [parametros, imovel]);
+  const setAba = (destino: StatusContato) => definirFiltros({ ...parametros, aba: destino });
   const [paginas, setPaginas] = useState<Record<StatusContato, number>>({ PENDENTE: 1, RESPONDIDO: 1, FINALIZADO: 1 });
   const { rascunho, definir: setRascunho, aplicarAgora, erro: erroFiltro } = useFiltrosAutomaticos({
-    iniciais: filtrosIniciais, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    iniciais: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
     validar: (valor) => valor.desde && valor.ate && valor.desde > valor.ate ? 'A data final deve ser igual ou posterior à inicial.' : '',
-    aoAplicar: (valor) => { setFiltros(valor); setPaginas({ PENDENTE: 1, RESPONDIDO: 1, FINALIZADO: 1 }); },
+    aoAplicar: (valor) => { setImovel(valor.imovel); definirFiltros({ busca: valor.busca, desde: valor.desde, ate: valor.ate, aba }); setPaginas({ PENDENTE: 1, RESPONDIDO: 1, FINALIZADO: 1 }); },
   });
   const [erroMutacao, setErroMutacao] = useState('');
   const [versao, setVersao] = useState(0);

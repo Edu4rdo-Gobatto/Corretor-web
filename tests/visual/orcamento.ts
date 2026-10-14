@@ -19,5 +19,6 @@ export const orcamento: Record<string, number> = {
   // Público: chamadas do navegador depois do HTML do SSR (a busca do servidor não entra aqui).
   'publico/catalogo': 0,
   'publico/detalhe': 4,
-  'publico/navegar-filtro': 7,
+  // 13/10: cache em memória do catálogo e das classificações (era 7: 3 classificações repetidas ×2 + imóveis).
+  'publico/navegar-filtro': 1,
 };

@@ -1,4 +1,5 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
+import { useParametrosLista } from '../../hooks/useParametrosLista';
 import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { IconeEditar, IconeBuscar, IconeFechar } from '../../componentes/Icones';
@@ -20,8 +21,9 @@ import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 
-interface Filtros { busca: string; status: '' | StatusContato; ativo: 'true' | 'false' }
+type Filtros = { busca: string; status: '' | StatusContato; ativo: 'true' | 'false' };
 const filtrosIniciais: Filtros = { busca: '', status: '', ativo: 'true' };
+const valoresValidos = { status: ['', ...Object.keys(rotulosStatusContato)], ativo: ['true', 'false'] } as const;
 
 export const formatarDocumento = (valor: string | null) => {
   if (!valor) return '';
@@ -32,11 +34,10 @@ export const formatarDocumento = (valor: string | null) => {
 
 export default function Pessoas() {
   const { corretor } = useSessao();
-  const [pagina, setPagina] = useState(1);
-  const [filtros, setFiltros] = useState(filtrosIniciais);
+  const { filtros, pagina, definirFiltros, definirPagina: setPagina } = useParametrosLista<Filtros>(filtrosIniciais, valoresValidos);
   const { rascunho, definir: setRascunho, aplicarAgora } = useFiltrosAutomaticos({
-    iniciais: filtrosIniciais, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
-    aoAplicar: (valor) => { setPagina(1); setFiltros(valor); },
+    iniciais: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    aoAplicar: (valor) => definirFiltros(valor),
   });
   const [editando, setEditando] = useState<Pessoa | null | undefined>();
   useAcoesPainel(useMemo(() => [{ id: 'nova-pessoa', rotulo: 'Nova pessoa', executar: () => setEditando(null) }], []));

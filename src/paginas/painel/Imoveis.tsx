@@ -1,4 +1,5 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
+import { useParametrosLista } from '../../hooks/useParametrosLista';
 import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IconeArquivar, IconeDesarquivar, IconeAdicionar, IconeBuscar, IconeEditar, IconeFechar } from '../../componentes/Icones';
@@ -21,18 +22,18 @@ import { estilos } from '../../componentes/estilosPainel';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { urlFichaCorretor } from '../../servicos/urls';
 
-interface Filtros { busca: string; status: '' | StatusImovel; ativo: 'true' | 'false' }
+type Filtros = { busca: string; status: '' | StatusImovel; ativo: 'true' | 'false' };
 const filtrosIniciais: Filtros = { busca: '', status: '', ativo: 'true' };
+const valoresValidos = { status: ['', ...Object.keys(rotulosStatusImovel)], ativo: ['true', 'false'] } as const;
 
 export default function Imoveis() {
   const navegar = useNavigate();
   useAcoesPainel(useMemo(() => [{ id: 'novo-imovel', rotulo: 'Novo imóvel', executar: () => navegar('/admin/imoveis/novo') }], [navegar]));
   const { corretor } = useSessao();
-  const [pagina, setPagina] = useState(1);
-  const [filtros, setFiltros] = useState(filtrosIniciais);
+  const { filtros, pagina, definirFiltros, definirPagina: setPagina } = useParametrosLista<Filtros>(filtrosIniciais, valoresValidos);
   const { rascunho, definir: setRascunho, aplicarAgora } = useFiltrosAutomaticos({
-    iniciais: filtrosIniciais, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
-    aoAplicar: (valor) => { setPagina(1); setFiltros(valor); },
+    iniciais: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    aoAplicar: (valor) => definirFiltros(valor),
   });
   const [erroMutacao, setErroMutacao] = useState('');
   const [ocupado, setOcupado] = useState(0);

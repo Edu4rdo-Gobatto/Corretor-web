@@ -1,4 +1,5 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
+import { useParametrosLista } from '../../hooks/useParametrosLista';
 import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -99,16 +100,16 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   );
 }
 
-interface Filtros { busca: string; status: '' | StatusContrato; ativo: 'true' | 'false' }
+type Filtros = { busca: string; status: '' | StatusContrato; ativo: 'true' | 'false' };
 const filtrosIniciais: Filtros = { busca: '', status: '', ativo: 'true' };
+const valoresValidos = { status: ['', 'ATIVO', 'INATIVO'], ativo: ['true', 'false'] } as const;
 
 export default function Contratos() {
   const navigate = useNavigate();
-  const [pagina, setPagina] = useState(1);
-  const [filtros, setFiltros] = useState(filtrosIniciais);
+  const { filtros, pagina, definirFiltros, definirPagina: setPagina } = useParametrosLista<Filtros>(filtrosIniciais, valoresValidos);
   const { rascunho, definir: setRascunho, aplicarAgora } = useFiltrosAutomaticos({
-    iniciais: filtrosIniciais, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
-    aoAplicar: (valor) => { setPagina(1); setFiltros(valor); },
+    iniciais: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
+    aoAplicar: (valor) => definirFiltros(valor),
   });
   const [criando, setCriando] = useState(false);
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarContratos({ pagina, limite: 15, busca: filtros.busca || undefined, status: filtros.status || undefined, ativo: filtros.ativo === 'true' }), [pagina, filtros]));

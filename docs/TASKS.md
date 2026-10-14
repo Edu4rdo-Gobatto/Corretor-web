@@ -27,17 +27,6 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 - Concluir: decidir com o dono entre recriar specs (público e painel, dois temas, larguras do config) ou remover a
   suíte, o config e o script `visual`. Depende de pedido do dono, porque amplia a suíte.
 
-### LIMPEZA-001 — Arquivo órfão `src/paginas/painel/sessaoTeste.ts`
-- **Status:** aberta. **Responsável:** a definir.
-- Importa `vitest` dentro de `src/` e nenhum arquivo o usa. Sobra das suítes removidas em 03/10.
-- Concluir: apagar o arquivo e conferir `typecheck`, `lint` e `build`.
-
-### LIMPEZA-002 — Comentário obsoleto sobre rotação em `http.ts`
-- **Status:** aberta. **Responsável:** a definir.
-- O comentário de `renovarSessao` (`src/servicos/http.ts:55-56`) fala em "mesma rotação do cookie". A API não
-  rotaciona mais o token desde 06/10: a renovação só estende o prazo de 4h.
-- Concluir: reescrever o comentário. Sem mudança de comportamento.
-
 ### LIMPEZA-003 — Exclude de `tests/e2e` no `vite.config.ts`
 - **Status:** aberta. **Responsável:** a definir.
 - O `test.exclude` ainda lista `tests/e2e/**`, pasta removida. Concluir: tirar a entrada e rodar `npm test`.
@@ -87,11 +76,6 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 ### NOTIFY-001 — Avisar o corretor ao chegar um contato
 - **Status:** aberta (aguarda o canal: WhatsApp ou e-mail). Integração no `POST /pessoas` da API.
 
-### UX-007 — Filtros do painel na URL
-- **Status:** aberta. **Responsável:** a definir.
-- `useFiltrosAutomaticos` não usa a query string no painel. Concluir: recarregar ou compartilhar link mantendo busca,
-  status e página em Imóveis, Pessoas, Contatos e Contratos.
-
 ### CABECALHOS-PENDENCIAS — Ajustes visuais relatados em 06/10
 - **Status:** aberta (verificar). Chips do catálogo, raios variados, valores de tracking em maiúsculas e o X do
   `Dialogo` com borda. Os chips do painel ganharam 44px em 09/10; conferir o resto antes de mexer.
@@ -113,6 +97,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 | Tarefa | Data | Resumo |
 |---|---|---|
+| UX-007 / LIMPEZA-001 / LIMPEZA-002 | 13/10 | Filtros e página de Imóveis, Pessoas, Contratos e Contatos (busca, datas, aba) na URL via `useParametrosLista`; `sessaoTeste.ts` removido; comentário de `renovarSessao` corrigido |
 | SEIS-PONTOS-20261009 | 09/10 | Setinhas, CRECI, tema claro, vários tipos, `content.js`, clientes da comissão. Publicação em PUBLICAR-20261009 |
 | TABELA-ACOES-DESKTOP-20261009 | 09/10 | Ações da tabela desktop numa linha; cartões mobile flexíveis |
 | PAINEL-PADRAO-20261009 | 09/10 | Acabamento comum do painel com `BlocosPainel` |

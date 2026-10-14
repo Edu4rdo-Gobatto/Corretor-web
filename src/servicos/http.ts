@@ -1,4 +1,5 @@
 import type { Sessao } from '../tipos';
+import { limparCache } from './cache';
 
 const urlBase = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 export const urlApi = (caminho: string) => `${urlBase}${caminho}`;
@@ -52,7 +53,7 @@ async function renovarAcesso(): Promise<Sessao> {
   return sessao;
 }
 
-/** A restauração do provedor e a retentativa HTTP usam a mesma rotação do cookie. */
+/** A restauração do provedor e a retentativa HTTP compartilham uma única renovação, que só estende o prazo de 4h. */
 export function renovarSessao(): Promise<Sessao> {
   if (!renovacaoPendente) {
     const promessa = renovarAcesso().finally(() => { if (renovacaoPendente === promessa) renovacaoPendente = null; });
@@ -86,6 +87,9 @@ async function respostaAutenticada(caminho: string, opcoes: RequestInit = {}, po
 
 export async function http<T>(caminho: string, opcoes: RequestInit = {}, podeRenovar = true): Promise<T> {
   const resposta = await respostaAutenticada(caminho, opcoes, podeRenovar);
+  // Toda escrita bem-sucedida pode mudar o catálogo ou as classificações: o cache de leitura recomeça.
+  const metodo = (opcoes.method ?? 'GET').toUpperCase();
+  if (metodo !== 'GET' && metodo !== 'HEAD') limparCache();
   return resposta.status === 204 ? undefined as T : resposta.json() as Promise<T>;
 }
 

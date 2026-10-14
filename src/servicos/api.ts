@@ -2,7 +2,20 @@ import type { CadastroContrato, CategoriaClassificacao, CategoriaContrato, Class
 import { ErroApi, http, definirTokenAcesso, renovarSessao } from './http';
 import { consultaParaApi, montarParametros } from './catalogo';
 import { locacoesApi } from './locacoes';
-import { slugImovelValido } from './urls';
+import { slugImovelValido, urlCatalogo } from './urls';
+import { emCache, guardarCache, lerCache } from './cache';
+
+const VALIDADE_CATALOGO_MS = 2 * 60_000;
+const VALIDADE_CLASSIFICACOES_MS = 10 * 60_000;
+const CHAVE_CLASSIFICACOES = 'classificacoes';
+const chaveCatalogo = (consulta: ConsultaCatalogo) => `catalogo:${urlCatalogo(consulta)}`;
+
+/** Leitura síncrona do cache público: um filtro já visto aparece sem requisição nem estado de carregamento. */
+export const catalogoEmCache = (consulta: ConsultaCatalogo) => lerCache<Pagina<Imovel>>(chaveCatalogo(consulta));
+export const classificacoesEmCache = () => lerCache<Classificacoes>(CHAVE_CLASSIFICACOES);
+/** O SSR já buscou estes dados para a URL de entrada; guardá-los evita repetir a busca ao voltar a ela. */
+export const semearCatalogo = (consulta: ConsultaCatalogo, valor: Pagina<Imovel>) => guardarCache(chaveCatalogo(consulta), valor, VALIDADE_CATALOGO_MS);
+export const semearClassificacoes = (valor: Classificacoes) => guardarCache(CHAVE_CLASSIFICACOES, valor, VALIDADE_CLASSIFICACOES_MS);
 
 const json = (metodo: string, corpo?: unknown): RequestInit => ({ method: metodo, ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }) });
 
@@ -21,7 +34,12 @@ export async function verificarPaginaPublica(caminho: string, sinal: AbortSignal
 const somenteAlterados = <T extends object, A extends object>(dados: T, anterior: A | undefined, chaves: (keyof T & keyof A)[]) =>
   Object.fromEntries(chaves.filter((chave) => anterior && (anterior[chave] as unknown) === (dados[chave] as unknown)).map((chave) => [chave, undefined]));
 
-async function classificacoes(gerenciadas = false): Promise<Classificacoes> {
+/** A lista pública vem do cache; a do painel (`gerenciadas`, com inativos) sempre busca. */
+function classificacoes(gerenciadas = false): Promise<Classificacoes> {
+  return gerenciadas ? buscarClassificacoes(true) : emCache(CHAVE_CLASSIFICACOES, VALIDADE_CLASSIFICACOES_MS, () => buscarClassificacoes(false));
+}
+
+async function buscarClassificacoes(gerenciadas: boolean): Promise<Classificacoes> {
   const carregar = async (categoria: CategoriaClassificacao) => {
     const itens: Classificacao[] = [];
     let pagina = 1;
@@ -117,11 +135,11 @@ export const api = {
   },
 
   /** Catálogo público: tipo e finalidade chegam como slug e são resolvidos pelas classificações. */
-  listarImoveis: async (consulta: ConsultaCatalogo): Promise<Pagina<Imovel>> => {
+  listarImoveis: (consulta: ConsultaCatalogo): Promise<Pagina<Imovel>> => emCache(chaveCatalogo(consulta), VALIDADE_CATALOGO_MS, async () => {
     const codificada = consultaParaApi(consulta, consulta.tipos?.length || consulta.finalidade ? await classificacoes() : { tipos: [], finalidades: [], caracteristicas: [] });
     if (codificada === null) return { itens: [], total: 0, pagina: consulta.pagina, limite: consulta.limite, total_paginas: 0 };
     return http<Pagina<Imovel>>(`/imoveis?${codificada}`, {}, false);
-  },
+  }),
   listarFichas: (filtros: FiltrosImoveis) => {
     const { tipos, finalidade, ...resto } = filtros;
     return http<Pagina<FichaImovel>>(`/admin/imoveis?${montarParametros({ ...resto, tipo_id: tipos?.join(','), finalidade_id: finalidade })}`);

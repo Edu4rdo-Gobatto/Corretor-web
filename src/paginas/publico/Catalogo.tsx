@@ -5,7 +5,13 @@ import {
   IconeSetaExterna,
   IconeBuscar,
 } from "../../componentes/Icones";
-import { api } from "../../servicos/api";
+import {
+  api,
+  catalogoEmCache,
+  classificacoesEmCache,
+  semearCatalogo,
+  semearClassificacoes,
+} from "../../servicos/api";
 import { lerUrlCatalogo, urlCatalogo } from "../../servicos/urls";
 import { plural } from "../../servicos/formato";
 import { telefoneWhatsapp } from "../../servicos/contato";
@@ -40,20 +46,32 @@ export default function Catalogo() {
     navigate(urlCatalogo({ ordenar: consulta.ordenar }, extras));
   const buscarImoveis = useCallback(
     () => api.listarImoveis(consulta),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [chaveConsulta],
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const iniciais = useDadosIniciais();
+  // O SSR já trouxe os dados da URL de entrada: no cache, voltar a ela não repete a busca.
+  useEffect(() => {
+    if (iniciais?.data.catalogo) semearCatalogo(consulta, iniciais.data.catalogo);
+    if (iniciais?.data.classificacoes)
+      semearClassificacoes(iniciais.data.classificacoes);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const {
     valor: imoveis,
     carregando,
     erro,
     statusErro,
     tentarNovamente,
-  } = useRecurso(buscarImoveis, iniciais?.data.catalogo);
+  } = useRecurso(
+    buscarImoveis,
+    iniciais?.data.catalogo ?? catalogoEmCache(consulta),
+  );
   const classificacoesRecurso = useRecurso(
     useCallback(() => api.classificacoes(), []),
-    iniciais?.data.classificacoes,
+    iniciais?.data.classificacoes ?? classificacoesEmCache(),
   );
+  // Com resultados anteriores na tela, a nova busca só os esmaece: a página não encolhe nem pula.
+  const atualizando = carregando && imoveis !== undefined;
   const classificacoes = classificacoesRecurso.valor;
   const chave = (item: { id: number; slug?: string | null }) =>
     item.slug ?? String(item.id);
@@ -150,8 +168,8 @@ export default function Catalogo() {
             className="m-0 min-h-[1.55em] text-sm text-muted"
             aria-live="polite"
           >
-            {!carregando &&
-              !erro &&
+            {!erro &&
+              imoveis !== undefined &&
               plural(
                 imoveis?.total || 0,
                 "imóvel encontrado",
@@ -175,13 +193,16 @@ export default function Catalogo() {
             tentarNovamente={classificacoesRecurso.tentarNovamente}
           />
           <EstadoCarregamento
-            carregando={carregando}
+            carregando={carregando && !atualizando}
             erro={erro}
             tentarNovamente={tentarNovamente}
             esqueleto="cartoes"
           />
-          {!carregando && !erro && (
-            <>
+          {(!carregando || atualizando) && !erro && (
+            <div
+              aria-busy={atualizando || undefined}
+              className={`transition-opacity motion-reduce:transition-none ${atualizando ? "opacity-60" : ""}`}
+            >
               {imoveis?.itens.length ? (
                 <div className="grid grid-cols-[repeat(3,minmax(0,1fr))] gap-x-[30px] gap-y-[54px] max-[1100px]:gap-x-5 max-[1100px]:gap-y-9 max-[800px]:grid-cols-[repeat(2,minmax(0,1fr))] max-[560px]:grid-cols-1 max-[560px]:gap-7">
                   {imoveis.itens.map((imovel) => (
@@ -207,7 +228,7 @@ export default function Catalogo() {
                   rolarParaCatalogo();
                 }}
               />
-            </>
+            </div>
           )}
         </div>
       </section>
