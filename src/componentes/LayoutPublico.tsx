@@ -10,6 +10,10 @@ import { telefoneWhatsapp } from '../servicos/contato';
 
 // Uma variante do logo por tema; o CSS escolhe qual aparece (o SSR é o mesmo nos dois temas). `lazy` evita baixar a
 // variante escondida. Tamanhos 1x/2x/3x da altura de 48px, gerados por scripts/gerar-logo.mjs.
+// Mesma linha dourada dos links do cabeçalho; vai no texto porque o link do rodapé ocupa a altura toda do alvo de toque.
+const linhaRodape = 'linha-nav [--linha-y:-4px]';
+const itemRodape = 'flex min-h-11 w-fit items-center text-white';
+const textoRodape = 'flex min-h-8 items-center text-white/80';
 const classeLogo = 'h-[48px] w-auto max-w-[230px] object-contain object-left max-[900px]:h-10 max-[900px]:max-w-[175px]';
 const atributosLogo = (base: string) => ({
   src: `${base}-48.webp`,
@@ -50,7 +54,6 @@ export default function LayoutPublico() {
     if (devolverFoco) botaoMenu.current?.focus();
   }
   const rotuloTema = escuro ? 'Ativar modo claro' : 'Ativar modo escuro';
-  const temContato = brand.contact.whatsapp || brand.contact.email || brand.contact.hours || brand.contact.address;
   return <>
     <a className="skipLink" href="#main">Pular para o conteúdo</a>
     <header className="sticky top-0 z-40 border-b border-line bg-paper shadow-[inset_0_-2px_0_var(--color-gold)]">
@@ -77,23 +80,19 @@ export default function LayoutPublico() {
     </header>
     <main id="main"><Outlet /></main>
     <footer className="mt-12 border-t-2 border-gold bg-navy py-8 text-white md:mt-20">
-      <div className="container grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <div><p className="mb-1 font-display text-2xl text-white">{brand.name}</p><p className="mb-3 text-xs text-gold">{brand.credential}</p><p className="text-white/80">{brand.tagline}</p></div>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_a]:text-white [&_a:hover]:underline">
-          <Link to={rotas.inicio}>Imóveis comerciais</Link>
-          <Link to={urlCatalogo({ finalidade: 'locacao' })}>Alugar</Link>
-          <Link to={urlCatalogo({ finalidade: 'venda' })}>Comprar</Link>
-          <Link to={rotas.privacidade}>Política de privacidade</Link>
-          <Link to={rotas.devs} onClick={sinalizarIdaAosDevs}>Desenvolvedores</Link>
-          <Link to={rotas.painel}>Área do corretor</Link>
+      {/* Três linhas no desktop: a marca ocupa as duas primeiras da coluna 1 e a 3ª linha corre por baixo dela, de ponta a ponta.
+          No celular `order` agrupa links, contato e dados. */}
+      <div className="container grid gap-x-6 gap-y-1 text-sm md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-[minmax(2.75rem,auto)_minmax(2.75rem,auto)_auto]">
+        <div className="mb-6 md:col-span-2 lg:col-span-1 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mb-0 lg:grid lg:grid-rows-subgrid"><p className="mb-1 font-display text-2xl text-white lg:mb-0 lg:self-center">{brand.name}</p><p className="mb-0 text-base text-white/80 lg:self-center">{brand.tagline}</p></div>
+        <Link className={`${itemRodape} order-1 lg:order-none`} to={rotas.inicio}><span className={linhaRodape}>Imóveis comerciais</span></Link>
+        {brand.contact.whatsapp && <a className={`${itemRodape} order-3 lg:order-none`} href={`https://wa.me/${telefoneWhatsapp(brand.contact.whatsapp)}`} target="_blank" rel="noopener noreferrer">WhatsApp: {brand.contact.whatsapp}</a>}
+        <Link className={`${itemRodape} order-2 lg:order-none`} to={rotas.privacidade}><span className={linhaRodape}>Política de privacidade</span></Link>
+        {brand.contact.email && <a className={`${itemRodape} order-4 lg:order-none`} href={`mailto:${brand.contact.email}`}>{brand.contact.email}</a>}
+        {brand.contact.hours && <span className={`${textoRodape} order-5 lg:order-none lg:mt-4`}>Atendimento: {brand.contact.hours}</span>}
+        {brand.contact.address && <span className={`${textoRodape} order-6 lg:order-none lg:mt-4`}>{brand.contact.address}</span>}
+        <div className="order-7 flex min-h-8 items-center justify-between gap-4 md:col-span-2 lg:order-none lg:col-span-1 lg:mt-4">
+          <Link className="flex w-fit items-center text-white" to={rotas.devs} onClick={sinalizarIdaAosDevs}><span className={linhaRodape}>Desenvolvedores</span></Link>
         </div>
-        {temContato && <address className="grid content-start gap-2 text-sm not-italic text-white/80">
-          {brand.contact.whatsapp && <a className="min-h-11 text-white" href={`https://wa.me/${telefoneWhatsapp(brand.contact.whatsapp)}`} target="_blank" rel="noopener noreferrer">WhatsApp: {brand.contact.whatsapp}</a>}
-          {brand.contact.email && <a className="min-h-11 text-white" href={`mailto:${brand.contact.email}`}>{brand.contact.email}</a>}
-          {brand.contact.hours && <span>Atendimento: {brand.contact.hours}</span>}
-          {brand.contact.address && <span>{brand.contact.address}</span>}
-          {brand.contact.creci && <span>{brand.contact.creci}</span>}
-        </address>}
       </div>
       <div className="container mt-6 flex flex-wrap justify-between gap-3 border-t border-white/20 pt-5 text-xs text-white/80"><span>© {new Date().getFullYear()} {brand.name} — CRECI {brand.creci}</span><span>{brand.closing}</span></div>
     </footer>

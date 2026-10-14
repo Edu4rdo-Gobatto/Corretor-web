@@ -1,13 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import Aviso from '../../componentes/Aviso';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import { estilos } from '../../componentes/estilosPainel';
 import Etiqueta from '../../componentes/Etiqueta';
-import { IconeAdicionar, IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
+import { IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
 import Tabela from '../../componentes/Tabela';
@@ -52,7 +53,7 @@ export default function Cadastros() {
   const grupo = grupoDaCategoria(categoria);
   const trocar = (destino: CategoriaCadastro) => { setPagina(1); setErro(''); navegar(`/admin/cadastros/${destino}`); };
   return <>
-    <CabecalhoPagina titulo="Cadastros" descricao={grupo.descricao} acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo" contexto={ROTULOS_CADASTRO[categoria]} aoClicar={() => setEditando(null)} />} />
+    <CabecalhoPagina titulo="Cadastros" descricao={grupo.descricao} acoes={<BotaoAdicionar rotulo="Novo cadastro" aoClicar={() => setEditando(null)} />} />
     <div className={estilos.barraFiltros}>
       <SeletorFiltro rotulo="Grupo" valor={grupo.id} opcoes={GRUPOS_CADASTRO.map((item) => ({ valor: item.id, rotulo: item.rotulo }))} aoMudar={(valor) => trocar(GRUPOS_CADASTRO.find((item) => item.id === valor)!.categorias[0])} />
       <SeletorFiltro<CategoriaCadastro> rotulo="Categoria" valor={categoria} opcoes={grupo.categorias.map((valor) => ({ valor, rotulo: ROTULOS_CADASTRO[valor] }))} aoMudar={trocar} />

@@ -43,7 +43,7 @@ export default function Entrar() {
       </section>
       <main className="painel-ui flex items-center justify-center px-6 py-9 lg:p-12">
         <div className="w-full max-w-[400px]">
-          <CabecalhoPagina rotulo="Área do corretor" titulo="Entrar no painel" descricao="Acesse sua conta para continuar o trabalho." voltar={{ to: rotas.inicio, rotulo: 'Voltar ao site' }} />
+          <CabecalhoPagina titulo="Área do corretor" descricao="Acesse sua conta para continuar o trabalho." voltar={{ to: rotas.inicio, rotulo: 'Voltar ao site' }} />
           <form onSubmit={handleSubmit((valores) => acessar(valores.email, valores.senha))} noValidate className="grid gap-4 [&_input]:w-full [&_label]:grid [&_label]:gap-[7px] [&_label]:font-semibold">
             <Campo rotulo="E-mail" obrigatorio erro={errors.email?.message}><input type="email" autoComplete="username" {...register('email')} /></Campo>
             <Campo rotulo="Senha" obrigatorio erro={errors.senha?.message}><input type="password" autoComplete="current-password" {...register('senha')} /></Campo>

@@ -1,13 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import Aviso from '../../componentes/Aviso';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import { estilos } from '../../componentes/estilosPainel';
 import Etiqueta from '../../componentes/Etiqueta';
-import { IconeAdicionar, IconeArquivar, IconeChave, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
+import { IconeArquivar, IconeChave, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
 import Paginacao from '../../componentes/Paginacao';
 import Tabela from '../../componentes/Tabela';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
@@ -40,7 +41,7 @@ export default function Corretores() {
     finally { setOcupado(0); }
   }
   return <>
-    <CabecalhoPagina titulo="Corretores" descricao="Pessoas que conectam espaços e negócios." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo" contexto="corretor" aoClicar={() => setEditando(null)} />} />
+    <CabecalhoPagina titulo="Corretores" descricao="Pessoas que conectam espaços e negócios." acoes={<BotaoAdicionar rotulo="Novo corretor" aoClicar={() => setEditando(null)} />} />
     {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && !carregando && (

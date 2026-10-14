@@ -17,7 +17,10 @@ const api = createServer(async (req, res) => {
     const itens=url.pathname==='/tipos-imovel'?classificacoesExemplo.tipos:url.pathname==='/finalidades-imovel'?classificacoesExemplo.finalidades:classificacoesExemplo.caracteristicas;res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
   } else if (url.pathname === '/imoveis') {
     const page = Number(url.searchParams.get('pagina') || 1); const limit = Number(url.searchParams.get('limite') || 9);
-    res.end(JSON.stringify({ itens: properties.slice((page - 1) * limit, page * limit), total: properties.length, pagina:page, limite:limit, total_paginas: Math.ceil(properties.length / limit) }));
+    // Como a API: tipo_id aceita um id ou CSV.
+    const tipos = (url.searchParams.get('tipo_id') ?? '').split(',').filter(Boolean).map(Number);
+    const filtrados = tipos.length ? properties.filter(item => tipos.includes(item.tipo_id)) : properties;
+    res.end(JSON.stringify({ itens: filtrados.slice((page - 1) * limit, page * limit), total: filtrados.length, pagina:page, limite:limit, total_paginas: Math.ceil(filtrados.length / limit) }));
   } else if (url.pathname.startsWith('/imoveis/')) {
     // Como a API: localiza pelo id no fim do slug e devolve o registro com o slug atual.
     const slug = decodeURIComponent(url.pathname.slice(9));
@@ -44,6 +47,13 @@ try {
   assert.equal(texto(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? ''), brand.tagline);
   assert.equal(html.match(/<title>([^<]*)<\/title>/)?.[1], `${brand.tagline} | ${brand.name}`); assert.match(html, /Sala comercial no Centro/);
   assert.match(html, /href="\/\?pagina=2"/); assert.match(html, /application\/ld\+json/);
+  // Vários tipos: parâmetro repetido, página filtrada (sem indexação) e título com os nomes juntos.
+  const multiplos = await fetch('http://127.0.0.1:4180/?tipo=galpao&tipo=loja'); const htmlMultiplos = await multiplos.text();
+  assert.equal(multiplos.status, 200); assert.match(htmlMultiplos, /<title>Galpões e Lojas /); assert.match(htmlMultiplos, /name="robots" content="noindex/);
+  assert.match(htmlMultiplos, /Galpão logístico com doca/); assert.doesNotMatch(htmlMultiplos, /Sala comercial no Centro/);
+  // Fora de ordem ou com vírgula, a URL é normalizada para o parâmetro repetido em ordem alfabética.
+  const emVirgula = await fetch('http://127.0.0.1:4180/?tipo=loja,galpao', { redirect: 'manual' });
+  assert.equal(emVirgula.status, 301); assert.equal(emVirgula.headers.get('location'), '/?tipo=galpao&tipo=loja');
   const redirected = await fetch('http://127.0.0.1:4180/?purpose=VENDA&type=GALPAO', { redirect: 'manual' });
   assert.equal(redirected.status, 301);
   assert.equal(redirected.headers.get('location'), '/imoveis/para-comprar/galpoes');

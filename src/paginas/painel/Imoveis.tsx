@@ -14,6 +14,7 @@ import Paginacao from '../../componentes/Paginacao';
 import Tabela from '../../componentes/Tabela';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import Aviso from '../../componentes/Aviso';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { estilos } from '../../componentes/estilosPainel';
@@ -65,7 +66,7 @@ export default function Imoveis() {
   }
 
   return <>
-    <CabecalhoPagina titulo="Imóveis" descricao="Espaços bem apresentados, novas possibilidades." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
+    <CabecalhoPagina titulo="Imóveis" descricao="Espaços bem apresentados, novas possibilidades." acoes={<BotaoAdicionar rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
       <label className="busca-painel">Buscar<input value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Título, bairro, cidade ou #código" /></label>
       <SeletorFiltro rotulo="Situação do anúncio" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />

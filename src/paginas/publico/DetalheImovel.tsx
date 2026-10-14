@@ -163,7 +163,7 @@ export default function DetalheImovel() {
             <section className="pt-[34px] max-[480px]:pt-7 [&_h2]:mb-5 [&_h2]:text-[26px]">
               <h2>Localização</h2>
               <div className={`${classeCard} grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] items-start gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-4`}>
-                <p className="mb-0">{imovel.logradouro}, {imovel.numero}<br />{imovel.bairro} · {imovel.cidade}/{imovel.estado}</p>
+                <p className="mb-0 text-2xl leading-[1.6] max-[760px]:text-base">{imovel.logradouro}, {imovel.numero}<br />{imovel.bairro} · {imovel.cidade}/{imovel.estado}</p>
                 {enderecoCompleto && <div>
                   {/* O iframe é de outro domínio e captura o clique; o link transparente por cima abre o Maps em nova guia. */}
                   <div className="relative h-[180px] overflow-hidden rounded-[3px] border border-line max-[760px]:h-auto max-[760px]:aspect-[4/3]">

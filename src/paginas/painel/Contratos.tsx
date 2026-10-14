@@ -18,7 +18,8 @@ import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
 import AcaoIcone from '../../componentes/AcaoIcone';
-import { IconeAdicionar, IconeBuscar, IconeSalvar } from '../../componentes/Icones';
+import BotaoAdicionar from '../../componentes/BotaoAdicionar';
+import { IconeBuscar, IconeSalvar } from '../../componentes/Icones';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import Campo from '../../componentes/Campo';
@@ -114,7 +115,7 @@ export default function Contratos() {
   useAcoesPainel(useMemo(() => [{ id: 'novo-contrato', rotulo: 'Novo contrato', executar: () => setCriando(true), palavrasChave: 'locação aluguel' }], []));
   function aplicar(evento: FormEvent) { evento.preventDefault(); aplicarAgora(); }
   return <>
-    <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo contrato" aoClicar={() => setCriando(true)} />} />
+    <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<BotaoAdicionar rotulo="Novo contrato" aoClicar={() => setCriando(true)} />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
       <label className="busca-painel">Buscar<input data-busca-painel value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Número, imóvel ou inquilino" /></label>
       <SeletorFiltro rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />

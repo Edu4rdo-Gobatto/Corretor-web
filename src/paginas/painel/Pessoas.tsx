@@ -1,7 +1,7 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { IconeEditar, IconeAdicionar, IconeBuscar, IconeFechar } from '../../componentes/Icones';
+import { IconeEditar, IconeBuscar, IconeFechar } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { useSessao } from '../../hooks/useSessao';
@@ -15,6 +15,7 @@ import Paginacao from '../../componentes/Paginacao';
 import Tabela from '../../componentes/Tabela';
 import SeletorFiltro from '../../componentes/SeletorFiltro';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
@@ -51,7 +52,7 @@ export default function Pessoas() {
   ];
   const filtrando = resumo.length > 0 || rascunho.busca || rascunho.status || rascunho.ativo === 'false';
   return <>
-    <CabecalhoPagina titulo="Pessoas" descricao="Clientes, proprietários e inquilinos: uma pessoa, um cadastro." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Nova pessoa" aoClicar={() => setEditando(null)} />} />
+    <CabecalhoPagina titulo="Pessoas" descricao="Clientes, proprietários e inquilinos: uma pessoa, um cadastro." acoes={<BotaoAdicionar rotulo="Nova pessoa" aoClicar={() => setEditando(null)} />} />
     <form className={estilos.barraFiltros} onSubmit={aplicar}>
       <label className="busca-painel">Buscar<input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou CPF/CNPJ" /></label>
       <SeletorFiltro rotulo="Situação do contato" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusContato).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />

@@ -1,7 +1,7 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { IconeAdicionar, IconeBuscar, IconeDesarquivar, IconeEditar, IconeFechar, IconeFinalizar, IconeSucesso, IconeWhatsapp } from '../../componentes/Icones';
+import { IconeBuscar, IconeDesarquivar, IconeEditar, IconeFechar, IconeFinalizar, IconeSucesso, IconeWhatsapp } from '../../componentes/Icones';
 import { api, type FiltrosPessoas } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { useSessao } from '../../hooks/useSessao';
@@ -18,6 +18,7 @@ import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
 import EditorPessoa from './EditorPessoa';
@@ -132,7 +133,7 @@ export default function Contatos() {
   const paginar = useCallback((pagina: number) => setPaginas((atual) => ({ ...atual, [aba]: pagina })), [aba]);
   const listaAtual = abas.find((lista) => lista.status === aba)!;
   return <>
-    <CabecalhoPagina titulo="Contatos" descricao="Organize seus retornos e acompanhe cada atendimento." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Nova pessoa" aoClicar={() => setEditando(null)} desabilitado={Boolean(ocupado)} />} />
+    <CabecalhoPagina titulo="Contatos" descricao="Organize seus retornos e acompanhe cada atendimento." acoes={<BotaoAdicionar rotulo="Nova pessoa" aoClicar={() => setEditando(null)} desabilitado={Boolean(ocupado)} />} />
     <form noValidate className={estilos.barraFiltros} onSubmit={aplicar}>
       <Campo rotulo="Buscar" classe="busca-painel"><input type="search" value={rascunho.busca} onChange={(evento) => setRascunho({ ...rascunho, busca: evento.target.value })} placeholder="Nome, telefone, e-mail ou documento" /></Campo>
       <div className="w-full min-w-0 @min-[38rem]/principal:w-[260px]"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor }, true)} /></div>

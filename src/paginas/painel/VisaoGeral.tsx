@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconeAdicionar, IconeContatos } from '../../componentes/Icones';
+import { IconeContatos } from '../../componentes/Icones';
 import { Link } from 'react-router-dom';
 import { api } from '../../servicos/api';
 import { useSessao } from '../../hooks/useSessao';
@@ -10,7 +10,6 @@ import type { StatusImovel } from '../../tipos';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Tabela from '../../componentes/Tabela';
-import AcaoIcone from '../../componentes/AcaoIcone';
 import { GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 import { estilos } from '../../componentes/estilosPainel';
 
@@ -68,7 +67,7 @@ export default function VisaoGeral() {
   const { corretor } = useSessao();
   const pendentes = useDadosPainel(carregadores.pendentes);
   return <>
-    <CabecalhoPagina titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." acoes={<AcaoIcone icone={IconeAdicionar} rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
+    <CabecalhoPagina titulo={`Olá, ${corretor?.nome.split(' ')[0]}.`} descricao="Um olhar sobre suas próximas oportunidades." />
     <SecaoPainel titulo="Contatos aguardando resposta" descricao="Comece por quem ainda espera seu retorno." classe="mb-4" acoes={<Link className="buttonSecondary" to={rotas.contatos}><IconeContatos size={20} aria-hidden="true" />Responder contatos</Link>}>
       <EstadoCarregamento compacto carregando={pendentes.carregando} erro={pendentes.erro} tentarNovamente={pendentes.recarregar} />
       {!pendentes.carregando && !pendentes.erro && pendentes.dados && <>
