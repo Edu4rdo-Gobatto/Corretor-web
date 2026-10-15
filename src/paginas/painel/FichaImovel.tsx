@@ -59,7 +59,7 @@ export default function FichaImovel({ imovel }: { imovel: Ficha }) {
         {linha('Proprietário', imovel.proprietario && <Link to={`/admin/pessoas/${imovel.proprietario.id}`}>{imovel.proprietario.nome}</Link>)}
       </dl></Nota>
       <Nota titulo="Ficha interna" classe="imovel-nota-interna"><dl className="imovel-nota-dados">
-        {linha('Exclusividade', imovel.exclusividade ? 'Sim' : 'Não')}{linha('Exclusividade até', dataCivil(imovel.exclusividade_ate))}
+        {linha('Exclusividade', imovel.exclusividade ? 'Sim' : 'Não')}
         {linha('Captação', dataCivil(imovel.data_captacao))}{linha('Chaves', imovel.chaves)}
         {linha('Matrícula', imovel.matricula)}{linha('Inscrição municipal', imovel.inscricao_municipal)}
         {linha('Motivo da baixa', imovel.motivo_baixa)}

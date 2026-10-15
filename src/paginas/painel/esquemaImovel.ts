@@ -29,6 +29,7 @@ export const esquemaImovel = z.object({
   finalidade_id: z.string().min(1, 'Selecione uma finalidade.'),
   status: z.enum(['DISPONIVEL', 'RESERVADO', 'VENDIDO', 'ALUGADO', 'RETIRADO']),
   destaque: z.boolean(),
+  ativo: z.boolean(),
   valor_venda: decimal(0, 9999999999.99).nullable(),
   valor_locacao: decimal(0, 9999999999.99).nullable(),
   valor_condominio: decimal(0, 99999999.99).nullable(),
@@ -46,7 +47,6 @@ export const esquemaImovel = z.object({
   corretor_id: z.string(),
   proprietario: z.object({ id: z.number(), nome: z.string() }).nullable(),
   exclusividade: z.boolean(),
-  exclusividade_ate: dataOpcional,
   data_captacao: dataOpcional,
   chaves: texto(500),
   matricula: texto(100),
@@ -60,10 +60,10 @@ export const esquemaImovel = z.object({
 export type ValoresImovel = z.infer<typeof esquemaImovel>;
 
 export const imovelVazio: ValoresImovel = {
-  titulo: '', tipo_id: '', finalidade_id: '', status: 'DISPONIVEL', destaque: false,
+  titulo: '', tipo_id: '', finalidade_id: '', status: 'DISPONIVEL', destaque: false, ativo: true,
   valor_venda: null, valor_locacao: null, valor_condominio: null, valor_iptu: null, area_util: 0, area_total: 0,
   cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: 'MT', descricao: '', corretor_id: '',
-  proprietario: null, exclusividade: false, exclusividade_ate: '', data_captacao: '', chaves: '', matricula: '', inscricao_municipal: '', observacoes_internas: '', motivo_baixa: '',
+  proprietario: null, exclusividade: false, data_captacao: '', chaves: '', matricula: '', inscricao_municipal: '', observacoes_internas: '', motivo_baixa: '',
   caracteristicas: [],
 };
 
@@ -72,12 +72,12 @@ const numeroOuNulo = (valor: string | null) => valor === null ? null : Number(va
 /** Ficha da API → valores do formulário. */
 export function valoresDaFicha(ficha: FichaImovel): ValoresImovel {
   return {
-    titulo: ficha.titulo, tipo_id: String(ficha.tipo_id), finalidade_id: String(ficha.finalidade_id), status: ficha.status, destaque: ficha.destaque,
+    titulo: ficha.titulo, tipo_id: String(ficha.tipo_id), finalidade_id: String(ficha.finalidade_id), status: ficha.status, destaque: ficha.destaque, ativo: ficha.ativo,
     valor_venda: numeroOuNulo(ficha.valor_venda), valor_locacao: numeroOuNulo(ficha.valor_locacao), valor_condominio: numeroOuNulo(ficha.valor_condominio), valor_iptu: numeroOuNulo(ficha.valor_iptu),
     area_util: Number(ficha.area_util), area_total: Number(ficha.area_total),
     cep: ficha.cep ?? '', logradouro: ficha.logradouro, numero: ficha.numero, complemento: ficha.complemento ?? '', bairro: ficha.bairro, cidade: ficha.cidade,
     estado: estados.includes(ficha.estado as typeof estados[number]) ? ficha.estado as typeof estados[number] : 'MT', descricao: ficha.descricao, corretor_id: String(ficha.corretor_id),
-    proprietario: ficha.proprietario, exclusividade: ficha.exclusividade, exclusividade_ate: ficha.exclusividade_ate ?? '', data_captacao: ficha.data_captacao ?? '',
+    proprietario: ficha.proprietario, exclusividade: ficha.exclusividade, data_captacao: ficha.data_captacao ?? '',
     chaves: ficha.chaves ?? '', matricula: ficha.matricula ?? '', inscricao_municipal: ficha.inscricao_municipal ?? '', observacoes_internas: ficha.observacoes_internas ?? '', motivo_baixa: ficha.motivo_baixa ?? '',
     caracteristicas: ficha.caracteristicas.map((item) => ({ caracteristica_id: String(item.caracteristica_id), valor: item.valor ?? '' })),
   };
@@ -86,15 +86,16 @@ export function valoresDaFicha(ficha: FichaImovel): ValoresImovel {
 const decimalTexto = (valor: number | null) => valor === null ? null : valor.toFixed(2);
 const textoOuNulo = (valor: string) => valor.trim() || null;
 
-/** Valores do formulário → corpo da API (decimais como texto, vazios como null). */
-export function dadosParaApi(valores: ValoresImovel, corretorId?: number): DadosImovel {
+/** Valores do formulário → corpo da API (decimais como texto, vazios como null). `ativo` só vai na edição: imóvel novo nasce ativo. */
+export function dadosParaApi(valores: ValoresImovel, corretorId?: number, edicao = false): DadosImovel {
   return {
     titulo: valores.titulo, tipo_id: Number(valores.tipo_id), finalidade_id: Number(valores.finalidade_id), status: valores.status, destaque: valores.destaque,
+    ...(edicao ? { ativo: valores.ativo } : {}),
     valor_venda: decimalTexto(valores.valor_venda), valor_locacao: decimalTexto(valores.valor_locacao), valor_condominio: decimalTexto(valores.valor_condominio), valor_iptu: decimalTexto(valores.valor_iptu),
     area_util: valores.area_util.toFixed(2), area_total: valores.area_total.toFixed(2),
     cep: textoOuNulo(valores.cep), logradouro: valores.logradouro, numero: valores.numero, complemento: textoOuNulo(valores.complemento), bairro: valores.bairro, cidade: valores.cidade, estado: valores.estado, descricao: valores.descricao,
     ...(corretorId ? { corretor_id: corretorId } : {}),
-    proprietario_id: valores.proprietario?.id ?? null, exclusividade: valores.exclusividade, exclusividade_ate: valores.exclusividade_ate || null, data_captacao: valores.data_captacao || null,
+    proprietario_id: valores.proprietario?.id ?? null, exclusividade: valores.exclusividade, data_captacao: valores.data_captacao || null,
     chaves: textoOuNulo(valores.chaves), matricula: textoOuNulo(valores.matricula), inscricao_municipal: textoOuNulo(valores.inscricao_municipal), observacoes_internas: textoOuNulo(valores.observacoes_internas), motivo_baixa: textoOuNulo(valores.motivo_baixa),
     caracteristicas: valores.caracteristicas.map((item) => ({ caracteristica_id: Number(item.caracteristica_id), valor: item.valor.trim() || null })),
   };

@@ -71,9 +71,16 @@ label input, label select, label textarea { margin-top: 6px; }
 .grupo-acao:focus-within .dica-acao { visibility: visible; opacity: 1; }
 @media (hover: hover) { .grupo-acao:hover .dica-acao { visibility: visible; opacity: 1; } }
 .grupo-acao.dica-oculta .dica-acao { visibility: hidden; opacity: 0; }
-.campo-dica, .campo-erro { font-size: 14px; line-height: 1.43; font-weight: 400; }
-.campo-dica { color: var(--color-muted); }
-.campo-erro { color: var(--color-error); }
+.campo-dica { font-size: 14px; line-height: 1.43; font-weight: 400; color: var(--color-muted); }
+/* Erro de campo: só borda vermelha e ícone dentro do controle, à direita; o texto fica para leitores de tela. */
+.campo-controle { position: relative; min-width: 0; }
+input[aria-invalid=true], select[aria-invalid=true], textarea[aria-invalid=true] { border-color: var(--color-error); }
+.campo-icone-erro { position: absolute; top: 50%; right: 12px; display: grid; transform: translateY(-50%); color: var(--color-error); line-height: 0; cursor: help; }
+.campo-controle:has(> :is(select, input[type=date])) > .campo-icone-erro { right: 40px; }
+.campo-controle:has(> textarea) > .campo-icone-erro { top: 14px; transform: none; }
+input[type=checkbox][aria-invalid=true] { outline: 2px solid var(--color-error); outline-offset: 2px; }
+.campo-controle input[aria-invalid=true], .campo-controle textarea[aria-invalid=true] { padding-right: 44px; }
+.campo-controle :is(select, input[type=date])[aria-invalid=true] { padding-right: 72px; }
 .dialogo-titulo { margin-bottom: 0; font-size: 27px; }
 .field { display: grid; gap: 6px; }
 .error { color: var(--error); font-size: 15px; }
@@ -93,7 +100,7 @@ label input, label select, label textarea { margin-top: 6px; }
 .painel-ui input:focus-visible, .painel-ui select:focus-visible, .painel-ui textarea:focus-visible { border-color: var(--color-acao-painel); outline: 3px solid var(--color-acao-painel); outline-offset: 1px; }
 .painel-ui input[aria-invalid=true], .painel-ui select[aria-invalid=true], .painel-ui textarea[aria-invalid=true] { border-color: var(--color-error); }
 .painel-ui .campo { gap: 8px; }
-.painel-ui .campo-dica, .painel-ui .campo-erro { font-size: 16px; line-height: 1.45; }
+.painel-ui .campo-dica { font-size: 16px; line-height: 1.45; }
 .painel-ui .button, .painel-ui .buttonSecondary, .painel-ui .buttonGhost { min-height: 48px; padding: 11px 20px; border-radius: 12px; font-size: 18px; }
 .painel-ui .button { border: 0; background: var(--color-acao-painel); color: var(--color-sobre-acao); }
 .painel-ui .button:hover { background: var(--color-acao-painel-hover); }

@@ -1,8 +1,8 @@
 import type { ValoresImovel } from './esquemaImovel';
 
-const textos = ['titulo', 'tipo_id', 'finalidade_id', 'status', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado', 'descricao', 'corretor_id', 'exclusividade_ate', 'data_captacao', 'chaves', 'matricula', 'inscricao_municipal', 'observacoes_internas', 'motivo_baixa'] as const;
+const textos = ['titulo', 'tipo_id', 'finalidade_id', 'status', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado', 'descricao', 'corretor_id', 'data_captacao', 'chaves', 'matricula', 'inscricao_municipal', 'observacoes_internas', 'motivo_baixa'] as const;
 const numeros = ['valor_venda', 'valor_locacao', 'valor_condominio', 'valor_iptu', 'area_util', 'area_total'] as const;
-const booleanos = ['destaque', 'exclusividade'] as const;
+const booleanos = ['destaque', 'ativo', 'exclusividade'] as const;
 type Armazenamento = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 export type ResultadoRascunho = 'salvo' | 'grande_demais' | 'cota' | 'indisponivel';
 

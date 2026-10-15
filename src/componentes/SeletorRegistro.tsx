@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { IconeFechar } from './Icones';
+import { IconeErroCampo } from './Campo';
 import type { Referencia } from '../tipos';
 import { mensagemErro } from '../servicos/formato';
 
@@ -83,7 +84,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
   return (
     <div ref={raiz} className="relative grid gap-1.75" onBlur={(evento) => { if (!raiz.current?.contains(evento.relatedTarget as Node | null)) setAberto(false); }}>
       <label htmlFor={idCampo} className="font-semibold">{rotulo}</label>
-        <div className="relative">
+        <div className="campo-controle">
           <input
             ref={entrada}
             id={idCampo} role="combobox" aria-expanded={aberto} aria-controls={idLista} aria-autocomplete="list" aria-invalid={!!erro}
@@ -97,6 +98,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
               <IconeFechar size={16} />
             </button>
           )}
+          {erro && <IconeErroCampo erro={erro} classe={valor && !desabilitado ? 'right-13!' : ''} />}
         </div>
       {aberto && (
         <ul id={idLista} role="listbox" data-esc-camada data-direcao={paraCima ? 'acima' : 'abaixo'} style={{ maxHeight: alturaMaxima }} className={`lista-registro absolute z-20 m-0 w-full list-none overflow-auto rounded border border-line bg-paper p-1 shadow-lg ${paraCima ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
@@ -112,7 +114,7 @@ export default function SeletorRegistro({ rotulo, valor, buscar, aoEscolher, err
           ))}
         </ul>
       )}
-      {erro ? <span id={`${idLista}-descricao`} className="campo-erro m-0">{erro}</span> : dica ? <span id={`${idLista}-descricao`} className="campo-dica">{dica}</span> : null}
+      {(erro || dica) && <span id={`${idLista}-descricao`} className={erro ? 'srOnly' : 'campo-dica'}>{erro || dica}</span>}
     </div>
   );
 }

@@ -9,7 +9,6 @@ export const estilos = {
   // Ações de formulário dentro do Dialogo: grudadas no fim da área rolável, sempre visíveis. O sticky respeita o padding
   // do corpo do modal (pb-8/pb-6), por isso o bottom negativo igual a ele deixa o rodapé rente à borda.
   rodapeDialogo: 'sticky -bottom-8 z-10 -mx-8 -mb-8 mt-7 max-[520px]:-bottom-6 flex flex-wrap items-center justify-end gap-3.5 border-t border-line bg-paper px-8 py-4 max-[520px]:-mx-[22px] max-[520px]:-mb-6 max-[520px]:px-[22px]',
-  erro: 'campo-erro m-0',
   dica: 'campo-dica font-normal',
   rodape: 'my-7 flex flex-wrap items-center gap-3.5 max-[560px]:[&_.button]:w-full',
   sucesso: 'rounded-md bg-sucesso-suave p-3.5 text-sucesso',

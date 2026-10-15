@@ -86,7 +86,6 @@ export interface FichaImovel extends Imovel {
   proprietario_id: number | null;
   proprietario: { id: number; nome: string } | null;
   exclusividade: boolean;
-  exclusividade_ate: string | null;
   data_captacao: string | null;
   chaves: string | null;
   matricula: string | null;

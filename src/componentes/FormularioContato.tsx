@@ -7,7 +7,7 @@ import type { Imovel } from '../tipos';
 import { api } from '../servicos/api';
 import { esquemaContato, formatarTelefone, urlWhatsapp, type CamposContato } from '../servicos/contato';
 import Dialogo from './Dialogo';
-import Campo from './Campo';
+import Campo, { IconeErroCampo } from './Campo';
 import Aviso from './Aviso';
 
 /** Contato do site: abre o WhatsApp no mesmo gesto do envio e registra a pessoa com consentimento. */
@@ -69,8 +69,9 @@ export default function FormularioContato({ imovel, aoFechar }: { imovel: Imovel
               <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-[13px] font-normal [&_input]:mt-1">
                 <input type="checkbox" {...register('consentimento')} aria-invalid={Boolean(errors.consentimento)} aria-describedby={errors.consentimento ? 'contato-consentimento-erro' : undefined} />
                 <span>Autorizo o uso dos meus dados para receber contato sobre este imóvel, conforme a <Link to="/privacidade" target="_blank" className="link-texto">Política de Privacidade</Link>.</span>
+                {errors.consentimento?.message && <IconeErroCampo erro={errors.consentimento.message} classe="static! mt-0.5 transform-none!" />}
               </label>
-              {errors.consentimento && <span id="contato-consentimento-erro" className="error">{errors.consentimento.message}</span>}
+              {errors.consentimento && <span id="contato-consentimento-erro" className="srOnly">{errors.consentimento.message}</span>}
             </div>
             {falha && <Aviso tom="erro">{falha}</Aviso>}
             <button className="button" type="submit" disabled={enviando}>{enviando ? 'Registrando contato…' : falha ? 'Tentar registrar novamente' : 'Falar com corretor'}<IconeSetaExterna size={17} /></button>
