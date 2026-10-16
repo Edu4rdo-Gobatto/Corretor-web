@@ -1,16 +1,17 @@
 # Estado atual — corretor-web
 
-## 16/10/2026 — Publicação dos testes em andamento (Codex)
+## 16/10/2026 — CI verde e commits enviados (Codex)
 
-O dono autorizou commit e push do frontend, seguidos do acompanhamento do GitHub Actions. Main conferida
-com o remoto antes de publicar; revalidação do pacote em execução. As entregas e limites datados abaixo
-permanecem como histórico. Sem deploy manual, migration ou alteração de dados reais nesta etapa.
+O dono autorizou commit e push do frontend, seguidos do acompanhamento do GitHub Actions. Main sincronizada
+com `origin/main` (commit `f4cb446`), CI **verde** (run 38981025796), 185/185 testes passaram. API também comitada
+e enviada (`564b765` na API: README atualizado com estado 16/10, migrations aplicadas, deploy aguarda autorização).
+Sem deploy manual, migration ou alteração de dados reais nesta etapa.
 
 ## Atualização vigente — 16/10/2026 (Codex)
 
 Restauração autorizada de testes concluída localmente sobre `0513cc9`, preservando seletor único, cidades e
-publicação/SEO recebidos do parceiro. Main com alterações locais, sem commit/push/deploy. Os registros datados
-abaixo permanecem como histórico do estado de cada entrega.
+publicação/SEO recebidos do parceiro. Commits enviados e CI verificado. Os registros datados abaixo
+permanecem como histórico do estado de cada entrega.
 
 **Verificação executada:** 214 unitários em 13 arquivos; typecheck, lint, build visual isolado e smoke SSR
 aprovados. Playwright: **185/185 em duas execuções completas consecutivas**, sete projetos, sem atualizar as
@@ -19,9 +20,10 @@ Controles negativos CSS e SSR reprovaram como esperado. Revisão independente se
 
 Foram corrigidos quatro defeitos reproduzidos: deduplicação de cache durante carga lenta, exposição de mensagem
 interna em 5xx da renovação, disputa no redirecionamento de login e borda de foco dos botões Mais filtros.
-Specs, referências e workflow estão prontos para versionamento. GitHub Actions remoto não executado; API, banco,
-R2, Drive, Safari/iOS, celular físico e aceite visual do dono não foram homologados nesta entrega. As tarefas
-de publicação/integração do parceiro continuam abertas. Plano e evidências: [restauração](2026-10-15-restauracao-testes.md).
+Specs, referências e workflow estão prontos para versionamento. API e banco reais não foram usados. O dono deve
+conectar Render, verificar `/api/v1/saude` e configurar `ALLOWED_ORIGINS` antes do deploy do front.
+
+## Estado atual (09/10/2026)
 
 ## Estado atual (09/10/2026)
 

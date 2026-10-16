@@ -8,11 +8,12 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 ### CI-20261016 — Versionar a restauração e conferir GitHub Actions
 
-- **Status:** em andamento. **Responsável:** Codex. Commit e push autorizados pelo dono após a entrega local.
-- [ ] Revalidar o pacote final e revisar os arquivos destinados ao commit.
-- [ ] Commitar e enviar à main, preservando o trabalho existente e sem arquivos ignorados.
-- [ ] Acompanhar o workflow do commit e corrigir falhas demonstradas, se houver.
-- [ ] Registrar o resultado remoto e os limites de homologação, sem confundir CI com ambiente real.
+- **Status:** concluída. **Responsável:** Codex. Commits autorizados e enviados à `origin/main`.
+- [x] Revalidar o pacote final e revisar os arquivos destinados ao commit.
+- [x] Commitar e enviar à main, preservando o trabalho existente e sem arquivos ignorados.
+- [x] Acompanhar o workflow do commit: **CI verde** (run 38981025796), 185/185 testes passaram.
+- [x] Registrar o resultado remoto e os limites de homologação, sem confundir CI com ambiente real.
+- API também comitada e enviada (`564b765`): README atualizado com estado 16/10, migrations aplicadas, deploy aguarda autorização do dono.
 
 ### TEST-20261015 — Restaurar testes permanentes, referências e CI
 

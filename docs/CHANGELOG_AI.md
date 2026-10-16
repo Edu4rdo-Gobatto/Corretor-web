@@ -178,3 +178,16 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
 - Correções em `f4cb446`; matriz 185/185 local e workflow **verde no CI** (run 38980687347, 3m6s), cumprindo a
   pendência "executar o workflow após publicação". Aviso inofensivo do `upload-artifact@v4` sobre Node 20.
 
+### 16/10/2026 — Commit, push e CI verde (Claude)
+
+- **Entregue:** commits `64f0547` (DOCS) e `f4cb446` (matriz visual) enviados à `origin/main` via `git push`. API também
+  comitada (`564b765`): README da API atualizado com estado 16/10, migrations aplicadas e deploy aguarda autorização.
+- **Validação:** workflow CI **verde** (run 38981025796), 185/185 testes passaram em 3m6s. Todos os testes visuais
+  aprovaram: `contatos.png` com placeholder de data em pt-BR, menu responsivo com Ctrl+K funcionando.
+- **Pendências:** DEPLOY-001 (API para Render) e PUBLISH-CIDADES-20261016 (front após API). O owner deve conectar Render,
+  verificar `/api/v1/saude` e configurar `ALLOWED_ORIGINS`, depois publicar o front na Vercel.
+
+### 16/10/2026 — Atualização do TASKS.md (Claude)
+
+- CI-20261016 marcada como concluída, com checklist atualizado. Status do projeto sincronizado com o push da API.
+
