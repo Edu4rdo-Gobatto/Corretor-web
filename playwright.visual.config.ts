@@ -14,7 +14,10 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/referencias/{projectName}/{arg}{ext}',
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   outputDir: 'test-results/visual/artefatos',
-  use: { baseURL, browserName: 'chromium', locale: 'pt-BR', timezoneId: 'America/Cuiaba', deviceScaleFactor: 1, serviceWorkers: 'block', contextOptions: { reducedMotion: 'reduce' }, trace: 'retain-on-failure' },
+  use: { baseURL, browserName: 'chromium', locale: 'pt-BR', timezoneId: 'America/Cuiaba', deviceScaleFactor: 1, serviceWorkers: 'block', contextOptions: { reducedMotion: 'reduce' }, trace: 'retain-on-failure',
+    // O placeholder nativo do input de data segue o idioma da UI do Chromium, não o locale do contexto;
+    // sem isso o runner do CI (en-US) renderiza mm/dd/yyyy em vez do dd/mm/aaaa das referências.
+    launchOptions: { args: ['--lang=pt-BR'] } },
   projects: [
     { name: 'claro-1440', use: { viewport: { width: 1440, height: 900 }, colorScheme: 'light' } },
     { name: 'claro-1024', testIgnore: '**/referencias.spec.ts', use: { viewport: { width: 1024, height: 768 }, colorScheme: 'light' } },

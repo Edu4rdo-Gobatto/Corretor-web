@@ -109,6 +109,8 @@ test('menu responsivo e Ctrl+K navegam pelo painel', async ({ page }) => {
     await expect(page.getByRole('dialog', { name: 'Navegação do painel' })).toBeVisible();
     await page.getByRole('dialog').getByRole('link', { name: 'Pessoas', exact: true }).click();
     await expect(page).toHaveURL('/admin/pessoas');
+    // O Ctrl+K é ignorado com qualquer diálogo aberto; esperar o menu fechar evita corrida no CI.
+    await expect(page.getByRole('dialog', { name: 'Navegação do painel' })).toBeHidden();
   }
   await page.keyboard.press('Control+k');
   await expect(page.getByRole('dialog', { name: 'Comandos do painel' })).toBeVisible();
