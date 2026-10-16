@@ -90,7 +90,7 @@ export default function Imoveis() {
                 </div>;
               } },
               { titulo: 'Valor', celula: (imovel) => { const preco = valorPrincipal(imovel); return <>{preco ? dinheiro(preco.valor) : 'Sob consulta'}<small className="mt-1 block text-muted">{imovel.finalidade?.nome ?? ''}{preco?.tipo === 'locacao' ? ' por mês' : ''}</small></>; } },
-              { titulo: 'Situação', celula: (imovel) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={imovel.status === 'DISPONIVEL' ? 'neutro' : 'atencao'}>{rotulosStatusImovel[imovel.status]}</Etiqueta>{imovel.destaque && <Etiqueta tom="atencao">Destaque</Etiqueta>}{!imovel.ativo && <Etiqueta tom="alerta">Inativo</Etiqueta>}</div> },
+              { titulo: 'Situação', celula: (imovel) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={imovel.status === 'DISPONIVEL' ? 'neutro' : 'atencao'}>{rotulosStatusImovel[imovel.status]}</Etiqueta>{!imovel.ativo && <Etiqueta tom="alerta">Inativo</Etiqueta>}</div> },
               { titulo: 'Ações', acoes: true, celula: (imovel) => <div className={`${estilos.acoes} max-lg:justify-end`}>
                 {podeEditar(imovel) && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={imovel.titulo} to={`/admin/imoveis/${imovel.id}/editar`} desabilitado={!!ocupado} />}
                 {podeEditar(imovel) && <AcaoIcone icone={imovel.ativo ? IconeArquivar : IconeDesarquivar} rotulo={imovel.ativo ? 'Desativar' : 'Reativar'} contexto={imovel.titulo} tom={imovel.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === imovel.id} aoClicar={() => { setErroMutacao(''); setConfirmando(imovel); }} />}

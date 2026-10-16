@@ -75,7 +75,6 @@ export interface DadosImovel {
   estado: string;
   descricao: string;
   status: StatusImovel;
-  destaque: boolean;
   corretor_id?: number;
   ativo?: boolean;
   proprietario_id: number | null;
@@ -109,7 +108,7 @@ export interface DadosPessoa {
   ativo?: boolean;
 }
 
-export interface FiltrosImoveis extends Partial<ConsultaCatalogo> { busca?: string; status?: StatusImovel; ativo?: boolean; corretor_id?: number; proprietario_id?: number; destaque?: boolean; id?: number }
+export interface FiltrosImoveis extends Partial<ConsultaCatalogo> { busca?: string; status?: StatusImovel; ativo?: boolean; corretor_id?: number; proprietario_id?: number; id?: number }
 export interface FiltrosPessoas { pagina?: number; limite?: number; busca?: string; status_contato?: StatusContato; imovel_id?: number; corretor_id?: number; ativo?: boolean; criado_desde?: string; criado_ate?: string; id?: number }
 
 export const api = {

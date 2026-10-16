@@ -15,7 +15,7 @@ export const imovelExemplo: Imovel = {
   tipo: classificacoesExemplo.tipos[0], finalidade: classificacoesExemplo.finalidades[0],
   valor_venda: null, valor_locacao: '2500.00', valor_condominio: '300.00', valor_iptu: '100.00', area_util: '60.00', area_total: '70.00',
   cep: null, logradouro: 'Rua de demonstração', numero: '100', complemento: null, bairro: 'Centro', cidade: 'Juara', estado: 'MT',
-  descricao: 'Imóvel fictício para verificar o site. Sala comercial com iluminação natural.', status: 'DISPONIVEL', destaque: false, ativo: true,
+  descricao: 'Imóvel fictício para verificar o site. Sala comercial com iluminação natural.', status: 'DISPONIVEL', ativo: true,
   corretor_id: 1, corretor: { id: 1, nome: 'Corretor de teste', whatsapp: '5565999990000', creci: null, url_foto: null },
   midias: [{ id: 7, tipo: 'IMAGEM', url: '/assets/commercial-space-1200.webp', capa: true, ordem: 0 }],
   caracteristicas: [{ caracteristica_id: 5, nome: 'Acessibilidade', icone: null, valor: null }],
@@ -24,7 +24,7 @@ export const imovelExemplo: Imovel = {
 
 interface ModeloCatalogo {
   titulo: string; tipo: number; finalidade: 'locacao' | 'venda'; valor: string; area_util: string; area_total: string;
-  condominio: string | null; iptu: string | null; bairro: string; cidade: string; logradouro: string; corretor: number; destaque?: boolean;
+  condominio: string | null; iptu: string | null; bairro: string; cidade: string; logradouro: string; corretor: number;
 }
 
 const corretoresExemplo = [
@@ -34,10 +34,10 @@ const corretoresExemplo = [
 
 const modelosCatalogo: ModeloCatalogo[] = [
   { titulo: 'Sala comercial no Centro', tipo: 0, finalidade: 'locacao', valor: '2500.00', area_util: '60.00', area_total: '70.00', condominio: '300.00', iptu: '100.00', bairro: 'Centro', cidade: 'Juara', logradouro: 'Rua de demonstração', corretor: 0 },
-  { titulo: 'Galpão logístico com doca', tipo: 1, finalidade: 'locacao', valor: '18500.00', area_util: '820.00', area_total: '1200.00', condominio: null, iptu: '640.00', bairro: 'Distrito Industrial', cidade: 'Juara', logradouro: 'Avenida das Indústrias', corretor: 1, destaque: true },
+  { titulo: 'Galpão logístico com doca', tipo: 1, finalidade: 'locacao', valor: '18500.00', area_util: '820.00', area_total: '1200.00', condominio: null, iptu: '640.00', bairro: 'Distrito Industrial', cidade: 'Juara', logradouro: 'Avenida das Indústrias', corretor: 1 },
   { titulo: 'Loja de rua com vitrine', tipo: 2, finalidade: 'locacao', valor: '7200.00', area_util: '110.00', area_total: '130.00', condominio: null, iptu: '210.00', bairro: 'Goiabeiras', cidade: 'Juara', logradouro: 'Avenida Miguel Sutil', corretor: 0 },
   { titulo: 'Terreno comercial de esquina', tipo: 3, finalidade: 'venda', valor: '1450000.00', area_util: '600.00', area_total: '600.00', condominio: null, iptu: '380.00', bairro: 'Jardim Itália', cidade: 'Juara', logradouro: 'Rua das Palmeiras', corretor: 1 },
-  { titulo: 'Prédio comercial com três pavimentos', tipo: 4, finalidade: 'venda', valor: '4200000.00', area_util: '980.00', area_total: '1100.00', condominio: null, iptu: '1850.00', bairro: 'Centro Sul', cidade: 'Porto dos Gaúchos', logradouro: 'Avenida Governador Júlio Campos', corretor: 0, destaque: true },
+  { titulo: 'Prédio comercial com três pavimentos', tipo: 4, finalidade: 'venda', valor: '4200000.00', area_util: '980.00', area_total: '1100.00', condominio: null, iptu: '1850.00', bairro: 'Centro Sul', cidade: 'Porto dos Gaúchos', logradouro: 'Avenida Governador Júlio Campos', corretor: 0 },
   { titulo: 'Sala comercial em torre empresarial', tipo: 0, finalidade: 'venda', valor: '520000.00', area_util: '42.00', area_total: '55.00', condominio: '480.00', iptu: '90.00', bairro: 'Bosque da Saúde', cidade: 'Juara', logradouro: 'Rua Barão de Melgaço', corretor: 1 },
   { titulo: 'Galpão com escritório e pátio', tipo: 1, finalidade: 'venda', valor: '2900000.00', area_util: '1400.00', area_total: '2500.00', condominio: null, iptu: '1200.00', bairro: 'Parque Industrial', cidade: 'Juara', logradouro: 'Rodovia dos Imigrantes', corretor: 0 },
   { titulo: 'Loja em galeria no Shopping Popular', tipo: 2, finalidade: 'locacao', valor: '3400.00', area_util: '38.00', area_total: '45.00', condominio: '420.00', iptu: '60.00', bairro: 'Centro Norte', cidade: 'Juara', logradouro: 'Avenida Isaac Póvoas', corretor: 1 },
@@ -63,7 +63,7 @@ export function catalogoExemplo(): Imovel[] {
       valor_condominio: modelo.condominio, valor_iptu: modelo.iptu, area_util: modelo.area_util, area_total: modelo.area_total,
       logradouro: modelo.logradouro, bairro: modelo.bairro, cidade: modelo.cidade,
       descricao: `Imóvel fictício para verificar o site. ${modelo.titulo} em ${modelo.bairro}, ${modelo.cidade}.`,
-      destaque: Boolean(modelo.destaque), corretor_id: corretoresExemplo[modelo.corretor].id, corretor: corretoresExemplo[modelo.corretor],
+      corretor_id: corretoresExemplo[modelo.corretor].id, corretor: corretoresExemplo[modelo.corretor],
     };
   });
 }

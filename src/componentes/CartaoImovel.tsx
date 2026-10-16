@@ -17,7 +17,6 @@ export default function CartaoImovel({ imovel }: { imovel: ImovelResumo }) {
           ? <img src={capa.url} alt={imovel.titulo} loading="lazy" decoding="async" onError={() => setImagemFalhou(true)} className="h-full w-full object-cover" />
           : <div className="grid h-full place-items-center text-muted">Foto em breve</div>}
         <span className="absolute left-4.25 top-4.25 rounded-sm border-b-2 border-gold bg-navy px-2.75 py-1.5 text-[11px] font-semibold uppercase tracking-[0.065em] text-white">{finalidade}</span>
-        {imovel.destaque && <span className="absolute right-3.5 top-4.25 rounded-sm bg-gold px-2.5 py-1.25 text-[11px] font-semibold uppercase tracking-[0.065em] text-navy">Destaque</span>}
         <span className="absolute bottom-3.5 right-3.5 z-1 grid h-11 w-11 place-items-center rounded-full bg-paper transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:bg-gold-soft"><IconeSetaExterna size={19} /></span>
       </Link>
       <div className="flex flex-1 flex-col px-5 pb-4 pt-5 max-[560px]:px-4">

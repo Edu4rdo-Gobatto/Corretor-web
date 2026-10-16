@@ -30,7 +30,7 @@ export default function FichaImovel({ imovel }: { imovel: Ficha }) {
         <GaleriaMidia key={imovel.id} midias={imovel.midias} titulo={imovel.titulo} />
       </Nota>
       <Nota titulo="Resumo do imóvel">
-      <div className="mb-4 flex flex-wrap gap-2"><Etiqueta>{rotulosStatusImovel[imovel.status]}</Etiqueta>{!imovel.ativo && <Etiqueta tom="alerta">Arquivado</Etiqueta>}{imovel.destaque && <Etiqueta tom="atencao">Destaque</Etiqueta>}</div>
+      <div className="mb-4 flex flex-wrap gap-2"><Etiqueta>{rotulosStatusImovel[imovel.status]}</Etiqueta>{!imovel.ativo && <Etiqueta tom="alerta">Arquivado</Etiqueta>}</div>
       <dl className="imovel-nota-dados imovel-nota-valores">
         {linha('Tipo', imovel.tipo?.nome)}{linha('Finalidade', imovel.finalidade?.nome)}
         {linha('Valor de venda', moeda(imovel.valor_venda))}{linha('Locação mensal', moeda(imovel.valor_locacao))}

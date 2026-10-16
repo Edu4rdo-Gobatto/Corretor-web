@@ -67,7 +67,7 @@ export default function FiltroSuspenso({ id, rotulo, resumo, vazio = 'Selecione'
           <input type={multiplo ? 'checkbox' : 'radio'} name={`${id}-opcao`} checked={marcado} onChange={() => escolher(opcao.valor)}
             // Rádio marcado não dispara onChange: clicar nele de novo desmarca o filtro.
             onClick={() => { if (!multiplo && marcado) { aoMudar([]); if (porPonteiro.current) fechar(); } }}
-            className="m-0 size-4.75 min-h-0 shrink-0 p-0 accent-(--green) focus-visible:outline-offset-2" />
+            className="m-0 size-4.75 min-h-0 shrink-0 p-0 accent-(--green)" />
           {opcao.icone && <span className="shrink-0 text-muted" aria-hidden="true">{opcao.icone}</span>}
           <span className="min-w-0 flex-1">{opcao.rotulo}</span>
         </label>;

@@ -14,6 +14,7 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import GerenciadorMidia from '../../componentes/GerenciadorMidia';
 import SelecaoMidia from '../../componentes/SelecaoMidia';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
+import InterruptorSite from '../../componentes/InterruptorSite';
 import Campo from '../../componentes/Campo';
 import EntradaNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import Aviso from '../../componentes/Aviso';
@@ -57,6 +58,7 @@ function InstanciaFormulario() {
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [duplicando, setDuplicando] = useState(false);
+  const [alterandoSite, setAlterandoSite] = useState(false);
   const [confirmacaoCopia, setConfirmacaoCopia] = useState<'alteracoes' | 'rascunho' | null>(null);
   const [arquivosPendentes, setArquivosPendentes] = useState<File[]>([]);
   const [videosPendentes, setVideosPendentes] = useState<string[]>([]);
@@ -134,7 +136,7 @@ function InstanciaFormulario() {
     if (alterado && !confirmouAlteracoes) { setConfirmacaoCopia('alteracoes'); return; }
     const chaveNovo = chaveRascunho(corretor?.id ?? 'anonimo');
     if (lerRascunho(sessionStorage, chaveNovo) && !confirmouRascunho) { setConfirmacaoCopia('rascunho'); return; }
-    const copia = esquemaImovel.safeParse({ ...valoresDaFicha(imovel), titulo: `${imovel.titulo.slice(0, 190)} — Cópia`, status: 'DISPONIVEL', ativo: true, corretor_id: String(corretor?.id ?? '') });
+    const copia = esquemaImovel.safeParse({ ...valoresDaFicha(imovel), titulo: `${imovel.titulo.slice(0, 190)} — Cópia`, status: 'DISPONIVEL', corretor_id: String(corretor?.id ?? '') });
     if (!copia.success) { setErro('Revise os dados do imóvel antes de duplicar.'); return; }
     if (gravarRascunho(sessionStorage, chaveNovo, copia.data) !== 'salvo') { setErro('Não foi possível preparar a cópia nesta aba. Verifique o armazenamento do navegador.'); return; }
     setDuplicando(true);
@@ -165,7 +167,7 @@ function InstanciaFormulario() {
     if (!id && !classificacoesAtivas(valores)) { setErro('Selecione classificações ativas antes de salvar o novo imóvel.'); return; }
     try {
       const corretorId = corretor?.cargo === 'ADMIN' ? Number(valores.corretor_id) || corretor.id : undefined;
-      const salvo = await api.salvarImovel(dadosParaApi(valores, corretorId, !!id), id ? Number(id) : undefined, imovel);
+      const salvo = await api.salvarImovel(dadosParaApi(valores, corretorId), id ? Number(id) : undefined, imovel);
       rascunhoAtivo.current = false;
       limparRascunho(sessionStorage, chave);
       setRascunhoRestaurado(false);
@@ -187,6 +189,23 @@ function InstanciaFormulario() {
     }
   }
 
+  /** Exibir no site vale na hora: só muda `ativo`, sem tocar nas edições pendentes do formulário. */
+  async function alternarSite() {
+    if (!imovel || alterandoSite) return;
+    const exibir = !imovel.ativo;
+    setErro('');
+    setSucesso('');
+    setAlterandoSite(true);
+    try {
+      setImovel(await api.ativarImovel(imovel.id, exibir));
+      setSucesso(exibir ? 'Anúncio exibido no site.' : 'Anúncio retirado do site.');
+    } catch {
+      setErro('Não foi possível alterar a exibição. Tente novamente.');
+    } finally {
+      setAlterandoSite(false);
+    }
+  }
+
   const campoTexto = (nome: CampoTexto, rotulo: string, extra?: string) => (
     <Campo rotulo={rotulo.replace(' *', '')} obrigatorio={rotulo.endsWith(' *')} dica={extra} erro={errors[nome]?.message}><input {...register(nome)} /></Campo>
   );
@@ -197,7 +216,7 @@ function InstanciaFormulario() {
     <Campo rotulo={rotulo} erro={errors[nome]?.message}><input type="date" {...register(nome)} /></Campo>
   );
   const secao = (numero: string, titulo: string, conteudo: React.ReactNode, descricao?: string) => (
-    <SecaoPainel classeConteudo="@container" titulo={<><span className="mr-2 text-sm font-sans font-semibold text-muted">{numero}</span>{titulo}</>} descricao={descricao}>{conteudo}</SecaoPainel>
+    <SecaoPainel classeConteudo="@container" titulo={<span className="inline-flex items-center gap-3"><span className={estilos.numeroSecao}>{numero}</span>{titulo}</span>} descricao={descricao}>{conteudo}</SecaoPainel>
   );
   const avisoNavegacao = (typeof window !== 'undefined' ? (window.history.state as { usr?: { aviso?: string } } | null)?.usr?.aviso : undefined) ?? '';
 
@@ -207,6 +226,7 @@ function InstanciaFormulario() {
       voltar={imovel ? { to: `/admin/imoveis/${imovel.id}`, rotulo: 'Voltar para a ficha do imóvel' } : { to: '/admin/imoveis', rotulo: 'Voltar para imóveis' }}
       titulo={imovel ? `Editar imóvel ${codigoImovel(imovel.id)}` : 'Novo imóvel'}
       acoes={imovel && <>
+        {podeEditar && <InterruptorSite ativo={imovel.ativo} ocupado={alterandoSite || isSubmitting} aoAlternar={() => void alternarSite()} />}
         <Link to={urlImovel(imovel.slug)} target="_blank" rel="noopener noreferrer" className="buttonSecondary">Ver anúncio <IconeAbrirFora aria-hidden="true" /></Link>
         {podeEditar && <AcaoIcone icone={IconeCopiar} rotulo="Duplicar" contexto={imovel.titulo} desabilitado={duplicando || isSubmitting} aoClicar={() => duplicar()} />}
       </>}
@@ -218,19 +238,15 @@ function InstanciaFormulario() {
         {rascunhoRestaurado && <Aviso classe="mb-5">Seu rascunho foi restaurado nesta aba. Revise os dados antes de salvar.</Aviso>}
         {avisoRascunho && <Aviso tom="atencao" classe="mb-5">{avisoRascunho}</Aviso>}
         <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
-        {secao('01', 'Publicação no site', <div className={estilos.grade}>
-          {imovel && <div className="col-span-full grid gap-1"><label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" aria-describedby="imovel-ativo-dica" {...register('ativo')} />Exibir no site</label><span id="imovel-ativo-dica" className="campo-dica">Desmarcado, o anúncio sai do site e o imóvel fica arquivado. Histórico e mídias são preservados.</span></div>}
-          <Campo rotulo="Situação" obrigatorio erro={errors.status?.message} dica="Aparece no anúncio como disponível ou indisponível. Não esconde o imóvel do site."><select {...register('status')}>{Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
-          <div className="grid content-center gap-1"><label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" aria-describedby="imovel-destaque-dica" {...register('destaque')} />Destacar na vitrine do site</label><span id="imovel-destaque-dica" className="campo-dica">Mostra o selo Destaque no cartão do imóvel.</span></div>
-        </div>, imovel ? undefined : 'O imóvel entra no site assim que for salvo.')}
-        {secao('02', 'Apresentação', <div className={estilos.grade}>
+        {secao('01', 'Apresentação', <div className={estilos.grade}>
           <div className="col-span-full">{campoTexto('titulo', 'Título do anúncio *')}</div>
           <Campo rotulo="Tipo de imóvel" obrigatorio erro={errors.tipo_id?.message}><select {...register('tipo_id')}><option value="">Selecione</option>{classificacoes.tipos.filter((item) => item.ativo || item.id === imovel?.tipo_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
           <Campo rotulo="Finalidade" obrigatorio erro={errors.finalidade_id?.message}><select {...register('finalidade_id')}><option value="">Selecione</option>{classificacoes.finalidades.filter((item) => item.ativo || item.id === imovel?.finalidade_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
+          <Campo rotulo="Situação" obrigatorio erro={errors.status?.message} dica="Aparece no anúncio como disponível ou indisponível. Não esconde o imóvel do site."><select {...register('status')}>{Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
           {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{corretores.filter((item) => item.ativo || item.id === imovel?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>}
           <Campo classe="col-span-full" rotulo="Descrição" obrigatorio erro={errors.descricao?.message}><textarea rows={6} {...register('descricao')} /></Campo>
         </div>)}
-        {secao('03', 'Valores e dimensões', <div className={estilos.grade}>
+        {secao('02', 'Valores e dimensões', <div className={estilos.grade}>
           {campoNumero('valor_venda', 'Valor de venda (R$)', true)}
           {campoNumero('valor_locacao', 'Valor de locação mensal (R$)', true)}
           {campoNumero('valor_condominio', 'Condomínio mensal (R$)', true)}
@@ -238,11 +254,11 @@ function InstanciaFormulario() {
           {campoNumero('area_util', 'Área útil (m²) *')}
           {campoNumero('area_total', 'Área total (m²) *')}
         </div>, 'Sem valor de venda nem de locação, o site mostra "sob consulta".')}
-        {secao('04', 'Localização', <div className={estilos.grade}>
+        {secao('03', 'Localização', <div className={estilos.grade}>
           {campoTexto('cep', 'CEP')}{campoTexto('complemento', 'Complemento')}{campoTexto('logradouro', 'Rua / avenida *')}{campoTexto('numero', 'Número *')}{campoTexto('bairro', 'Bairro *')}{campoTexto('cidade', 'Cidade *')}
           <Campo rotulo="Estado" obrigatorio erro={errors.estado?.message}><select {...register('estado')}>{estados.map((estado) => <option key={estado}>{estado}</option>)}</select></Campo>
         </div>)}
-        {secao('05', 'Características', <>
+        {secao('04', 'Características', <>
           {caracteristicas.map((campo, indice) => (
             <div key={campo.id} className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-4 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <Campo classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica" erro={errors.caracteristicas?.[indice]?.caracteristica_id?.message}><select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
@@ -253,10 +269,10 @@ function InstanciaFormulario() {
           {(errors.caracteristicas?.root ?? errors.caracteristicas)?.message && <p className="error">{(errors.caracteristicas?.root ?? errors.caracteristicas)?.message}</p>}
           <button type="button" className="buttonSecondary" disabled={caracteristicas.length >= 100} onClick={() => adicionarCaracteristica({ caracteristica_id: '', valor: '' })}>Adicionar característica</button>
         </>, 'Selecione as características cadastradas e informe seus valores.')}
-        {secao('06', 'Fotos e vídeos', imovel
+        {secao('05', 'Fotos e vídeos', imovel
           ? <GerenciadorMidia imovel={imovel} aoAlterar={async () => { setImovel(await api.obterFicha(imovel.id)); }} />
           : <SelecaoMidia arquivos={arquivosPendentes} videos={videosPendentes} desabilitado={isSubmitting} aoAlterar={(arquivos, videos) => { setArquivosPendentes(arquivos); setVideosPendentes(videos); }} />)}
-        {secao('07', 'Ficha interna', <div className={estilos.grade}>
+        {secao('06', 'Ficha interna', <div className={estilos.grade}>
           <div className="col-span-full"><SeletorRegistro rotulo="Proprietário" valor={proprietario} buscar={buscarPessoas} aoEscolher={(valor) => setValue('proprietario', valor, { shouldDirty: true })} dica="Pessoa cadastrada em Pessoas. Fica só no painel." /></div>
           <div className="grid content-center gap-1"><label className="flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" aria-describedby="imovel-exclusividade-dica" {...register('exclusividade')} />Exclusividade de venda ou locação</label><span id="imovel-exclusividade-dica" className="campo-dica">Acordo com o proprietário: só esta imobiliária pode anunciar e negociar o imóvel.</span></div>
           {campoData('data_captacao', 'Data de captação')}
@@ -268,8 +284,8 @@ function InstanciaFormulario() {
         </div>, 'Nada desta seção aparece no site.')}
         </fieldset>
         {erro && <Aviso tom="erro" classe="mb-5">{erro}</Aviso>}
-        <div className="superficie-painel sticky bottom-0 z-10 mt-4 flex flex-wrap items-center justify-between gap-4">
-          <p role="status" className="m-0 min-w-0 flex-1 text-sm text-muted">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
+        <div className="superficie-painel barra-salvar sticky bottom-0 z-10 mt-4 flex flex-wrap items-center justify-between gap-4">
+          <p role="status" className="m-0 min-w-0 flex-1 text-lg font-semibold text-ink">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
           <div className="ml-auto flex flex-wrap items-center justify-end gap-3"><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
           <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link></div>
         </div>

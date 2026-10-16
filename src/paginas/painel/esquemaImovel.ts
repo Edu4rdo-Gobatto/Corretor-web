@@ -28,8 +28,6 @@ export const esquemaImovel = z.object({
   tipo_id: z.string().min(1, 'Selecione um tipo.'),
   finalidade_id: z.string().min(1, 'Selecione uma finalidade.'),
   status: z.enum(['DISPONIVEL', 'RESERVADO', 'VENDIDO', 'ALUGADO', 'RETIRADO']),
-  destaque: z.boolean(),
-  ativo: z.boolean(),
   valor_venda: decimal(0, 9999999999.99).nullable(),
   valor_locacao: decimal(0, 9999999999.99).nullable(),
   valor_condominio: decimal(0, 99999999.99).nullable(),
@@ -60,7 +58,7 @@ export const esquemaImovel = z.object({
 export type ValoresImovel = z.infer<typeof esquemaImovel>;
 
 export const imovelVazio: ValoresImovel = {
-  titulo: '', tipo_id: '', finalidade_id: '', status: 'DISPONIVEL', destaque: false, ativo: true,
+  titulo: '', tipo_id: '', finalidade_id: '', status: 'DISPONIVEL',
   valor_venda: null, valor_locacao: null, valor_condominio: null, valor_iptu: null, area_util: 0, area_total: 0,
   cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: 'MT', descricao: '', corretor_id: '',
   proprietario: null, exclusividade: false, data_captacao: '', chaves: '', matricula: '', inscricao_municipal: '', observacoes_internas: '', motivo_baixa: '',
@@ -72,7 +70,7 @@ const numeroOuNulo = (valor: string | null) => valor === null ? null : Number(va
 /** Ficha da API → valores do formulário. */
 export function valoresDaFicha(ficha: FichaImovel): ValoresImovel {
   return {
-    titulo: ficha.titulo, tipo_id: String(ficha.tipo_id), finalidade_id: String(ficha.finalidade_id), status: ficha.status, destaque: ficha.destaque, ativo: ficha.ativo,
+    titulo: ficha.titulo, tipo_id: String(ficha.tipo_id), finalidade_id: String(ficha.finalidade_id), status: ficha.status,
     valor_venda: numeroOuNulo(ficha.valor_venda), valor_locacao: numeroOuNulo(ficha.valor_locacao), valor_condominio: numeroOuNulo(ficha.valor_condominio), valor_iptu: numeroOuNulo(ficha.valor_iptu),
     area_util: Number(ficha.area_util), area_total: Number(ficha.area_total),
     cep: ficha.cep ?? '', logradouro: ficha.logradouro, numero: ficha.numero, complemento: ficha.complemento ?? '', bairro: ficha.bairro, cidade: ficha.cidade,
@@ -86,11 +84,10 @@ export function valoresDaFicha(ficha: FichaImovel): ValoresImovel {
 const decimalTexto = (valor: number | null) => valor === null ? null : valor.toFixed(2);
 const textoOuNulo = (valor: string) => valor.trim() || null;
 
-/** Valores do formulário → corpo da API (decimais como texto, vazios como null). `ativo` só vai na edição: imóvel novo nasce ativo. */
-export function dadosParaApi(valores: ValoresImovel, corretorId?: number, edicao = false): DadosImovel {
+/** Valores do formulário → corpo da API (decimais como texto, vazios como null). */
+export function dadosParaApi(valores: ValoresImovel, corretorId?: number): DadosImovel {
   return {
-    titulo: valores.titulo, tipo_id: Number(valores.tipo_id), finalidade_id: Number(valores.finalidade_id), status: valores.status, destaque: valores.destaque,
-    ...(edicao ? { ativo: valores.ativo } : {}),
+    titulo: valores.titulo, tipo_id: Number(valores.tipo_id), finalidade_id: Number(valores.finalidade_id), status: valores.status,
     valor_venda: decimalTexto(valores.valor_venda), valor_locacao: decimalTexto(valores.valor_locacao), valor_condominio: decimalTexto(valores.valor_condominio), valor_iptu: decimalTexto(valores.valor_iptu),
     area_util: valores.area_util.toFixed(2), area_total: valores.area_total.toFixed(2),
     cep: textoOuNulo(valores.cep), logradouro: valores.logradouro, numero: valores.numero, complemento: textoOuNulo(valores.complemento), bairro: valores.bairro, cidade: valores.cidade, estado: valores.estado, descricao: valores.descricao,
