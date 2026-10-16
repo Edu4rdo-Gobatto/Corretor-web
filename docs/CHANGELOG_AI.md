@@ -165,3 +165,16 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
 - **Pendências/limites:** executar o workflow após publicação; aceite visual do dono e homologação com API,
   banco, R2, Drive, Safari/iOS e celular físico. As publicações/migrações do parceiro permanecem nas tarefas
   próprias. Avisos existentes do build sobre anotações do Zod e tamanho do chunk não impediram a compilação.
+
+### 16/10/2026 — Primeiro CI verde após duas falhas do runner (Claude)
+
+- Commit da restauração (`ba0930b`) reprovou o workflow no runner windows-2025: 180/185. (1) As referências de
+  `contatos` divergiram nos 4 temas por 338 pixels: o placeholder nativo do `input[type=date]` segue o idioma da
+  **UI do Chromium**, que no runner é en-US (`mm/dd/yyyy`), e não o `locale` do contexto; confirmado por
+  experimento local (`--lang=en-US` muda o formato numa máquina pt-BR). Correção: `launchOptions
+  ['--lang=pt-BR']` no `playwright.visual.config.ts`; referências intactas. (2) `claro-768` no fluxo do menu
+  responsivo: o painel ignora Ctrl+K com qualquer `<dialog>` aberto (`LayoutPainel.tsx`) e a tecla saía com o menu
+  em tela inteira ainda fechando; o teste agora espera o diálogo de navegação ficar oculto antes do atalho.
+- Correções em `f4cb446`; matriz 185/185 local e workflow **verde no CI** (run 38980687347, 3m6s), cumprindo a
+  pendência "executar o workflow após publicação". Aviso inofensivo do `upload-artifact@v4` sobre Node 20.
+
