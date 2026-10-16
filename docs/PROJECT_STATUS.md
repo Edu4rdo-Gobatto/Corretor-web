@@ -27,7 +27,11 @@
 **13/10 (Claude, sem commit):** filtros do painel na URL (UX-007) e barra de filtros única `BarraFiltros` (UX-008),
 sem botão Buscar e com Limpar na faixa de chips. Typecheck, lint e build passam; sem QA de navegador.
 
-**Verificações:** `typecheck`, `lint`, `build` e `npm test` (3 arquivos, 23 testes) passam.
+**16/10 (Claude):** "Exibir no site" só por `ativo` (API alterada: vendidos e alugados aparecem e aceitam
+contato), controle só na edição do imóvel, destaque removido, foco só por cor de borda, erro de campo com ícone.
+Falta conferência visual no painel real (VISUAL-20261016) e publicar API e web (PUBLICAR-20261016).
+
+**Verificações:** `typecheck`, `lint`, `build` e `npm test` (4 arquivos, 25 testes) passam.
 `node scripts/seo-smoke.mjs` passa desde a correção local de 09/10 (SMOKE-001); antes falhava desde 06/10.
 A suíte visual foi removida em 14/10 (não tinha specs). QA de navegador de 09/10: 37/37 com a API completa em PostgreSQL descartável.
 

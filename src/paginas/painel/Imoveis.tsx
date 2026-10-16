@@ -1,12 +1,12 @@
 import { useFiltrosAutomaticos } from '../../hooks/useFiltrosAutomaticos';
 import { useParametrosLista } from '../../hooks/useParametrosLista';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { IconeArquivar, IconeDesarquivar, IconeAdicionar, IconeEditar } from '../../componentes/Icones';
+import { IconeAdicionar, IconeEditar } from '../../componentes/Icones';
 import { useSessao } from '../../hooks/useSessao';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { api } from '../../servicos/api';
-import { codigoImovel, dinheiro, mensagemErro, rotulosStatusImovel, valorPrincipal } from '../../servicos/formato';
+import { codigoImovel, dinheiro, rotulosStatusImovel, valorPrincipal } from '../../servicos/formato';
 import type { FichaImovel, StatusImovel } from '../../tipos';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
@@ -17,8 +17,6 @@ import SeletorFiltro from '../../componentes/SeletorFiltro';
 import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
-import Aviso from '../../componentes/Aviso';
-import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import { estilos } from '../../componentes/estilosPainel';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { urlFichaCorretor } from '../../servicos/urls';
@@ -36,9 +34,6 @@ export default function Imoveis() {
     iniciais: filtros, externos: filtros, normalizar: (valor) => ({ ...valor, busca: valor.busca.trim() }),
     aoAplicar: (valor) => definirFiltros(valor),
   });
-  const [erroMutacao, setErroMutacao] = useState('');
-  const [ocupado, setOcupado] = useState(0);
-  const [confirmando, setConfirmando] = useState<FichaImovel>();
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarFichas({ pagina, limite: 12, busca: filtros.busca || undefined, status: filtros.status || undefined, ativo: filtros.ativo === 'true' }), [pagina, filtros]));
   const itens = dados?.itens ?? [];
   const podeEditar = (imovel: FichaImovel) => corretor?.cargo === 'ADMIN' || corretor?.id === imovel.corretor_id;
@@ -51,20 +46,6 @@ export default function Imoveis() {
     ...(filtros.status ? [{ campo: 'status' as const, rotulo: rotulosStatusImovel[filtros.status] }] : []),
     ...(filtros.ativo === 'false' ? [{ campo: 'ativo' as const, rotulo: 'Inativos' }] : []),
   ];
-  async function alternarAtivo(imovel: FichaImovel) {
-    const ativar = !imovel.ativo;
-    setOcupado(imovel.id);
-    setErroMutacao('');
-    try {
-      await api.ativarImovel(imovel.id, ativar);
-      setConfirmando(undefined);
-      if (dados?.itens.length === 1 && pagina > 1) setPagina(pagina - 1); else recarregar();
-    } catch (causa) {
-      setErroMutacao(mensagemErro(causa));
-    } finally {
-      setOcupado(0);
-    }
-  }
 
   return <>
     <CabecalhoPagina titulo="Imóveis" descricao="Espaços bem apresentados, novas possibilidades." acoes={<BotaoAdicionar rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
@@ -73,7 +54,6 @@ export default function Imoveis() {
       <SeletorFiltro rotulo="Situação do anúncio" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
     </BarraFiltros>
-    {erroMutacao && !confirmando && <Aviso tom="erro">{erroMutacao}</Aviso>}
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && !carregando && (
       <section>
@@ -92,14 +72,12 @@ export default function Imoveis() {
               { titulo: 'Valor', celula: (imovel) => { const preco = valorPrincipal(imovel); return <>{preco ? dinheiro(preco.valor) : 'Sob consulta'}<small className="mt-1 block text-muted">{imovel.finalidade?.nome ?? ''}{preco?.tipo === 'locacao' ? ' por mês' : ''}</small></>; } },
               { titulo: 'Situação', celula: (imovel) => <div className="flex flex-wrap gap-1.5"><Etiqueta tom={imovel.status === 'DISPONIVEL' ? 'neutro' : 'atencao'}>{rotulosStatusImovel[imovel.status]}</Etiqueta>{!imovel.ativo && <Etiqueta tom="alerta">Inativo</Etiqueta>}</div> },
               { titulo: 'Ações', acoes: true, celula: (imovel) => <div className={`${estilos.acoes} max-lg:justify-end`}>
-                {podeEditar(imovel) && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={imovel.titulo} to={`/admin/imoveis/${imovel.id}/editar`} desabilitado={!!ocupado} />}
-                {podeEditar(imovel) && <AcaoIcone icone={imovel.ativo ? IconeArquivar : IconeDesarquivar} rotulo={imovel.ativo ? 'Desativar' : 'Reativar'} contexto={imovel.titulo} tom={imovel.ativo ? 'perigo' : 'neutro'} desabilitado={!!ocupado} ocupado={ocupado === imovel.id} aoClicar={() => { setErroMutacao(''); setConfirmando(imovel); }} />}
+                {podeEditar(imovel) && <AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={imovel.titulo} to={`/admin/imoveis/${imovel.id}/editar`} />}
               </div> },
             ]} />
             <Paginacao pagina={pagina} totalPaginas={dados.total_paginas} aoMudar={setPagina} />
           </>}
       </section>
     )}
-    {confirmando && <ConfirmarAcao titulo={`${confirmando.ativo ? 'Desativar' : 'Reativar'} imóvel`} descricao={<><p>{confirmando.titulo}. {confirmando.ativo ? 'Seu histórico e suas mídias serão preservados.' : 'O cadastro voltará a ficar ativo.'}</p>{erroMutacao && <Aviso tom="erro">{erroMutacao}</Aviso>}</>} confirmar={confirmando.ativo ? 'Desativar imóvel' : 'Reativar imóvel'} perigo={confirmando.ativo} ocupado={!!ocupado} aoConfirmar={() => alternarAtivo(confirmando)} aoFechar={() => { if (!ocupado) setConfirmando(undefined); }} />}
   </>;
 }

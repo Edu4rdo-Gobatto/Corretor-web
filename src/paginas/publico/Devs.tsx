@@ -46,7 +46,7 @@ export default function Devs() {
       <div className="mx-auto max-w-200">
       <Seo />
       <p className="eyebrow">Quem fez</p>
-      <div className="mb-4 flex items-center gap-4"><BotaoVoltar to="/" rotulo="Voltar ao catálogo" /><h1 className="mb-0" ref={titulo} tabIndex={-1} data-foco-navegacao>Desenvolvedores</h1></div>
+      <div className="mb-4 flex items-center gap-4"><BotaoVoltar to="/" rotulo="Voltar ao catálogo" /><h1 className="mb-0" ref={titulo} tabIndex={-1}>Desenvolvedores</h1></div>
       <p className="muted">Quem construiu este site: front-end e back-end.</p>
       <ul className="mt-8 grid list-none gap-6 p-0 max-[560px]:grid-cols-1 sm:grid-cols-2">
         {devs.map((dev) => (

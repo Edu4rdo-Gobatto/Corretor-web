@@ -1,6 +1,6 @@
 import type { Classificacoes, Imovel, ImovelResumo, Pagina } from '../tipos';
 import { lerUrlCatalogo, urlCatalogo, urlImovel } from '../servicos/urls';
-import { valorPrincipal } from '../servicos/formato';
+import { rotulosStatusImovel, valorPrincipal } from '../servicos/formato';
 import { brand } from '../config/brand';
 
 export interface SeoConfig { siteUrl: string; indexable: boolean }
@@ -45,9 +45,13 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
   const imovel = data.imovel;
   if (imovel) {
     const preco = valorPrincipal(imovel);
+    // Imóvel fora de oferta continua no site como referência; o texto não pode dizer "à venda" nem "para alugar".
+    // "Imóvel vendido: Casa em…" evita concordar o adjetivo com o tipo ("Casa alugado").
+    const disponivel = imovel.status === 'DISPONIVEL';
     const finalidade = imovel.finalidade?.slug === 'locacao' ? 'para alugar' : imovel.finalidade?.slug === 'venda' ? 'à venda' : imovel.finalidade?.nome || '';
+    const abertura = disponivel ? `${imovel.tipo?.nome || 'Imóvel'} ${finalidade}` : `Imóvel ${rotulosStatusImovel[imovel.status].toLowerCase()}: ${imovel.tipo?.nome || 'imóvel'}`;
     title = `${imovel.titulo} | ${imovel.cidade}/${imovel.estado} | ${brand.name}`;
-    description = `${imovel.tipo?.nome || 'Imóvel'} ${finalidade} em ${imovel.bairro}, ${imovel.cidade}/${imovel.estado}, com ${Number(imovel.area_util)} m². ${imovel.descricao.replace(/\s+/g, ' ').trim()}`.slice(0, 170);
+    description = `${abertura} em ${imovel.bairro}, ${imovel.cidade}/${imovel.estado}, com ${Number(imovel.area_util)} m². ${imovel.descricao.replace(/\s+/g, ' ').trim()}`.slice(0, 170);
     const capa = imovel.midias.find((midia) => midia.tipo === 'IMAGEM' && midia.capa) || imovel.midias.find((midia) => midia.tipo === 'IMAGEM');
     if (capa && /^https?:\/\//.test(capa.url)) image = capa.url;
     else if (capa?.url.startsWith('/') && !capa.url.startsWith('//')) image = absolute(capa.url, config);
@@ -55,7 +59,7 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
       {
         '@type': 'RealEstateListing', '@id': canonical, url: canonical, name: imovel.titulo, description: imovel.descricao, image, dateModified: imovel.alterado_em,
         mainEntity: { '@type': 'Place', name: imovel.titulo, address: { '@type': 'PostalAddress', streetAddress: `${imovel.logradouro}, ${imovel.numero}`, addressLocality: imovel.cidade, addressRegion: imovel.estado, addressCountry: 'BR' } },
-        ...(preco ? { offers: { '@type': 'Offer', price: preco.valor, priceCurrency: 'BRL', url: canonical, businessFunction: preco.tipo === 'locacao' ? 'http://purl.org/goodrelations/v1#LeaseOut' : 'http://purl.org/goodrelations/v1#Sell' } } : {}),
+        ...(preco ? { offers: { '@type': 'Offer', price: preco.valor, priceCurrency: 'BRL', url: canonical, availability: disponivel ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut', businessFunction: preco.tipo === 'locacao' ? 'http://purl.org/goodrelations/v1#LeaseOut' : 'http://purl.org/goodrelations/v1#Sell' } } : {}),
       },
       { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Imóveis comerciais', item: absolute('/', config) }, { '@type': 'ListItem', position: 2, name: imovel.titulo, item: canonical }] },
     );

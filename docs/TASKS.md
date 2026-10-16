@@ -74,6 +74,16 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 - **Status:** aberta (verificar). Chips do catálogo, raios variados, valores de tracking em maiúsculas e o X do
   `Dialogo` com borda. Os chips do painel ganharam 44px em 09/10; conferir o resto antes de mexer.
 
+### VISUAL-20261016 — Conferir no painel real as mudanças de 16/10
+- **Status:** aberta. **Responsável:** a definir.
+- Logado (ADMIN e CORRETOR), dois temas, 390/1024/1440: interruptor "Exibir no site" (liga, desliga, mantém
+  edições), listagem e ficha sem Arquivar, círculos 01–06, barra de salvar, ícone de erro nos campos, foco só por cor.
+
+### PUBLICAR-20261016 — Publicar a regra de exibição
+- **Status:** aberta (depende do dono). **Responsável:** a definir.
+- Publicar a API (`RESTRICAO_PUBLICA` só por `ativo`) antes do web. Sem migration. Depois, conferir no catálogo
+  publicado um imóvel Vendido/Alugado ativo.
+
 ## Backlog (sugestões)
 
 - **PERF-001 a 003:** cache no SSR para classificações; carga paralela no painel; bundle público menor (o chunk do
@@ -91,6 +101,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 | Tarefa | Data | Resumo |
 |---|---|---|
+| EXIBIR-SITE-20261016 | 16/10 | "Exibir no site" só por `ativo` (web + API), controle só em Editar, destaque removido, foco só por cor de borda (`#a37d29`), erro de campo com ícone, SEO por situação |
 | LIMPEZA-TESTES | 14/10 | Removidos `tests/visual/`, `playwright.visual.config.ts`, scripts `visual`, `src/test/setup.ts` e as dependências jsdom e Testing Library. Ficam 3 testes de lógica pura (vitest em node) |
 | UX-008 | 13/10 | `BarraFiltros` única em Imóveis, Pessoas, Contratos, Contatos, Comissões e Cadastros; sem botão Buscar; Limpar na faixa de chips (corrige o layout quebrado) |
 | UX-007 / LIMPEZA-001 / LIMPEZA-002 | 13/10 | Filtros e página de Imóveis, Pessoas, Contratos e Contatos (busca, datas, aba) na URL via `useParametrosLista`; `sessaoTeste.ts` removido; comentário de `renovarSessao` corrigido |

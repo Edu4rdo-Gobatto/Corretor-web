@@ -5,6 +5,26 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 16/10 — Exibição no site, foco e fim do destaque
+- **"Exibir no site" = `ativo`, e só isso.** Imóvel ativo aparece no catálogo, no detalhe e aceita contato em
+  qualquer situação (Vendido, Alugado, Reservado, Retirado), como referência de portfólio. A regra mora na API
+  (`RESTRICAO_PUBLICA` em `Corretor-API/src/imoveis/imoveis.service.ts`); corretor desativado não esconde o imóvel,
+  e o aviso de contato vai ao e-mail dele mesmo assim.
+- O controle fica **só** no interruptor do cabeçalho de Editar imóvel (`InterruptorSite`), que salva na hora por
+  `PATCH /admin/imoveis/:id { ativo }` e não mexe nas edições pendentes. Listagem e ficha não têm mais
+  Arquivar/Desativar/Reativar; mantêm a etiqueta e o filtro Ativos/Inativos. Imóvel novo nasce ativo.
+- O salvar do formulário não envia `ativo` nem `destaque` (ambos opcionais na API). O destaque saiu do front
+  inteiro: tipos, formulário, rascunho, selo do cartão e etiquetas. A coluna continua na API, sem efeito no site.
+- SEO de imóvel fora de oferta: `Offer.availability` = `SoldOut` (Disponível = `InStock`) e descrição
+  "Imóvel vendido: Casa em…", sem "à venda"/"para alugar" e sem concordar o adjetivo com o tipo.
+- **Foco:** nenhum anel nem borda maior. `:focus-visible { outline: none }`; quem tem borda (campos, selects,
+  `seletor-filtro`, `campo-numero`, botões de contorno, voltar, setas da galeria, trilho do interruptor) só troca a
+  cor para `--color-acao-painel-hover` (`#a37d29`, 3,13:1 sobre `#e2eaf4`; `#b3892d` dava 2,65:1). Campo com erro
+  continua vermelho focado. Botões preenchidos, links de texto, abas, ícones de ação e cartões ficam **sem**
+  indicador de foco por decisão do dono (abaixo do WCAG 2.4.7; reverter é uma regra em `:focus-visible`).
+- Erro de campo só com borda vermelha e ícone dentro do controle (`Campo`, `SeletorRegistro`); o texto fica em
+  `srOnly` e no `title` do ícone.
+
 ### 14/10 — Bibliotecas em chunks próprios no build do cliente
 - `scripts/build.mjs` separa `react` (React, React DOM, scheduler, React Router) e `formularios` (zod,
   react-hook-form) via `manualChunks`, só no build do cliente. O chunk principal tinha 509 kB e disparava o aviso do
@@ -134,7 +154,6 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
   Fichas, formulários, confirmações, ações financeiras e site público conservam texto.
 - **09/10 — `BlocosPainel`.** `SecaoPainel`, `GradePainel`, `DadosFicha` e `DadoFicha`: título externo, mesma altura
   por linha, 2 colunas a partir de 44rem e 3 a partir de 70rem de container. Ações da tabela desktop numa linha.
-- **09/10 — Foco de navegação.** `data-foco-navegacao` tira o contorno só de destinos não interativos.
 - **13/10 — Barra de filtros única.** `BarraFiltros` + `CampoBusca` em todas as listas do painel. Sem botão Buscar
   (os filtros se aplicam sozinhos; Enter aplica na hora). Limpar filtros fica na faixa de chips, para a linha de
   campos não mudar de tamanho. Busca, status, ativo, página (e aba/datas em Contatos) vão à URL; Comissões e o imóvel
@@ -173,4 +192,6 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 | 05/10 | Trilho de ícones sem nome, tooltips centrais, fichas em modal, `/`, `?`, Ctrl+Enter | Revertido pelo dono em 06/10 |
 | 06/10 | Sidebar de "conforto" com hover `#b18424` e tabelas a 52rem | Revertido em 06/10; hover atual `#a37d29` |
 | 06/10 | Esc sempre volta à lista ou à Visão geral | Página anterior do painel (06/10) |
+| 09/10 | `data-foco-navegacao` tirava o contorno de destinos não interativos | Foco sem contorno em todo o site (16/10); atributo removido |
+| até 16/10 | Site público só com imóvel `DISPONIVEL` e corretor ativo; destaque no cartão | Exibição só por `ativo`; destaque removido (16/10) |
 | 06/10 | Duas filas em Contatos | Três abas (06/10) |

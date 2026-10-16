@@ -17,7 +17,7 @@ function Visualizacao({ midia, titulo, prioritaria }: { midia: Midia; titulo: st
   return origem ? <iframe src={origem} title={`Vídeo: ${titulo}`} loading="lazy" allow="fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <p>Este vídeo não está disponível.</p>;
 }
 
-const classeSeta = 'absolute top-1/2 z-1 grid min-h-11 min-w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-paper text-ink shadow-sm hover:bg-soft focus-visible:border-gold';
+const classeSeta = 'absolute top-1/2 z-1 grid min-h-11 min-w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-paper text-ink shadow-sm hover:bg-soft focus-visible:border-acao-painel-hover';
 
 export default function GaleriaMidia({ midias, titulo }: { midias: Midia[]; titulo: string }) {
   const [indice, setIndice] = useState(0);

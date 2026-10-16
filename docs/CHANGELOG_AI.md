@@ -95,3 +95,23 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
   `useFiltrosAutomaticos` ganhou `externos` para o campo acompanhar a URL ao clicar no menu ou voltar; em Contatos,
   trocar de aba logo após digitar não apaga mais a busca (`definirFiltros` parcial).
 - **Pendências:** conferência visual por tela (ADMIN e CORRETOR, 320/768/1440, dois temas).
+
+### 16/10/2026 — Exibir no site, foco e gaps da revisão (Claude)
+- **Entregue (web):** interruptor "Exibir no site" no cabeçalho de Editar imóvel (`src/componentes/InterruptorSite.tsx`),
+  imediato; Arquivar/Desativar removidos de `Imoveis.tsx` e `DetalheImovel.tsx`; destaque removido do front;
+  Situação de volta em Apresentação; seções 01–06 em círculo igual ao `BotaoVoltar` (`estilos.numeroSecao`); barra
+  de salvar com texto de 18px e fundo `--color-barra-estado`; erro de campo só com ícone e borda; "Exclusividade
+  válida até" removida; foco só por cor de borda em `--color-acao-painel-hover`; `data-foco-navegacao` removido;
+  `Offer.availability` e descrição de SEO por situação (`src/seo/metadata.ts` + `metadata.test.ts`).
+- **Entregue (API, `Corretor-API`):** `RESTRICAO_PUBLICA = 'imovel.ativo = true'`; detalhe e contato público só
+  exigem `ativo`; testes novos `imoveis.service.spec.ts` e `pessoas.service.spec.ts`.
+- **Validação:** web `typecheck`, `lint`, `build` e `npm test` (4 arquivos, 25 testes) passam; `node
+  scripts/seo-smoke.mjs` passa. API `lint`, `build` e `jest` (3 suítes, 8 testes) passam; o teste de contato falha
+  contra a regra antiga (conferido). API local em `--watch` com o Neon, só leitura: `/imoveis` foi de 7 para 9
+  itens (entraram um Alugado e um Reservado). Preview SSR: `/` 200, detalhe do Alugado 200 com `SoldOut` e
+  "Imóvel alugado: Casa em…", `robots.txt` 200, `sitemap.xml` 200 (vazio porque `SEO_INDEXABLE=false` local),
+  rota inexistente 404. Capturas no Chrome do cartão "Alugado" e do detalhe "Indisponível" com contato. Foco
+  medido no Chrome: borda `rgb(163,125,41)`, `outline: none`.
+- **Não verificado:** painel real logado (toggle, listagem, ficha, barra), tema escuro e celular; nenhum dado do
+  Neon foi alterado; produção não foi usada.
+- **Pendências:** VISUAL-20261016; publicar a API antes do web (PUBLICAR-20261016).
