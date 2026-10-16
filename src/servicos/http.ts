@@ -45,7 +45,7 @@ async function renovarAcesso(): Promise<Sessao> {
       window.dispatchEvent(new Event('session-expired'));
       throw new ErroApi('Sua sessão expirou. Entre novamente para continuar.', resposta.status);
     }
-    throw new ErroApi(mensagem || 'O serviço de sessão está indisponível. Tente novamente.', resposta.status);
+    throw new ErroApi(resposta.status >= 500 ? 'O serviço de sessão está indisponível. Tente novamente.' : mensagem || 'O serviço de sessão está indisponível. Tente novamente.', resposta.status);
   }
   const sessao = await resposta.json() as Sessao;
   verificarVersao();

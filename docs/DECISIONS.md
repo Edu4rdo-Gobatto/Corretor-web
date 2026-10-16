@@ -5,6 +5,11 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 16/10 — Publicação da restauração dos testes
+- Após conferir a entrega local, o dono autorizou commit e push da main do frontend, com acompanhamento do CI.
+  A autorização substitui a restrição de publicação da etapa anterior. Sem PR/branch paralela, deploy manual,
+  migration ou mudança de dados. Revalidar o pacote que será enviado e registrar o resultado real do workflow.
+
 ### 16/10 — Seletor único e cadastro de Cidades
 - **Um select só no sistema:** `componentes/Seletor.tsx` (antes `SeletorFiltro`): botão com seta, lista em popover na
   camada superior, check dourado na opção escolhida, teclado (setas, Home/End, digitar, Enter/Espaço, Esc, Tab).
@@ -36,6 +41,36 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
   indicador de foco por decisão do dono (abaixo do WCAG 2.4.7; reverter é uma regra em `:focus-visible`).
 - Erro de campo só com borda vermelha e ícone dentro do controle (`Campo`, `SeletorRegistro`); o texto fica em
   `srOnly` e no `title` do ícone.
+
+### 15/10 — Testes permanentes restaurados por novo pedido do dono
+
+- Plano aprovado: `2026-10-15-restauracao-testes.md`. Preservar testes existentes e ampliar HTTP/cache/API,
+  validação, embeds, SEO e filtros automáticos; QA visual permanente em Playwright com API simulada.
+- Restaurar somente React Testing Library e jsdom como dev-deps necessárias ao hook. Testes importam suas APIs
+  explicitamente; Vitest usa Node por padrão e jsdom apenas onde o arquivo declara essa necessidade.
+- Build visual força `/api`, API_ORIGIN em loopback, domínio fictício e indexação desligada. Reutilização do build
+  exige marca de configuração e hashes; não reutilizar silenciosamente outro servidor nas portas 4180/4199.
+- Referências PNG ficam rastreadas em `tests/visual/referencias/`; relatórios, traces e diferenças ficam ignorados.
+  Atualização somente pelo comando explícito e após inspeção. CI nunca cria/regrava referências.
+- Chromium da versão Playwright 1.60, Windows local e runner windows-2025; outro ambiente exige validação das
+  referências. Estado, datas, idioma, fuso, imagens e fontes controlados para reduzir diferenças espúrias.
+- Preservar o conteúdo integral dos documentos locais condensados/removidos pelo remoto no registro histórico
+  de 15/10 e restaurar documento removido identificado como histórico. As regras atuais prevalecem sobre ele.
+
+### 16/10 — Correções mínimas encontradas pela regressão restaurada
+
+- Cache: uma carga ainda pendente não vence pelo TTL do resultado; a validade começa na resolução. Limite de
+  entradas, limpeza e proteção contra respostas antigas continuam ativos.
+- Renovação: mensagens internas de 5xx ficam ocultas, mantendo status, sessão e possibilidade de nova tentativa.
+- Entrada: um único redirecionamento após autenticação respeita o destino protegido; remover a disputa entre
+  `Navigate` e navegação imperativa que levava sempre à Visão geral.
+- Catálogo: os dois botões Mais filtros usam a utility de foco na mesma camada da borda base. Preservar o foco
+  por mudança de cor da borda definido em 16/10; não adicionar anéis nem alterar foco fora dos controles.
+- O mock SSR também registra método/rota inesperados e o encerramento global exige registro vazio, inclusive
+  quando o cliente ignora um status de erro. As respostas de cenários conhecidos 404/503 permanecem permitidas.
+- Aceitação da restauração em 16/10: duas matrizes completas sem atualização e controles negativos CSS/SSR.
+  Specs temporários dos negativos ficam só em artifacts após a comprovação; preservar os hashes das referências.
+  Configuração do workflow não equivale à execução no GitHub nem à homologação com integrações reais.
 
 ### 14/10 — Bibliotecas em chunks próprios no build do cliente
 - `scripts/build.mjs` separa `react` (React, React DOM, scheduler, React Router) e `formularios` (zod,

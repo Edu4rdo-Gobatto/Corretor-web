@@ -19,6 +19,10 @@ de um arquivo. A API irmã tem o próprio índice em `../../Corretor-API/docs/`.
 
 | Arquivo | Conteúdo |
 |---|---|
+| [2026-10-15-restauracao-testes.md](2026-10-15-restauracao-testes.md) | Plano aprovado, implementação e critérios de aceitação dos testes permanentes |
+| [2026-10-15-auditoria-front.md](2026-10-15-auditoria-front.md) | Auditoria original e adendo de revalidação após sincronização |
+| [2026-10-15-historico-preservado-36e73b1.md](2026-10-15-historico-preservado-36e73b1.md) | Conteúdo integral dos documentos locais anteriores à sincronização de 15/10 |
+| [PLANO-PROJETO-CORRETOR.md](PLANO-PROJETO-CORRETOR.md) | Documento histórico restaurado para preservar o conteúdo local removido pelo remoto |
 | [2026-10-02-auditoria-fullstack.md](2026-10-02-auditoria-fullstack.md) | Achados A01–A11 e H01 com o status atual |
 | [2026-10-03-carga-catalogo.md](2026-10-03-carga-catalogo.md) | Carga de 12 imóveis ilustrativos no Neon |
 | [2026-10-06-painel-especificacao-visual.md](2026-10-06-painel-especificacao-visual.md) | Tokens e regras vigentes do painel |

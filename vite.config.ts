@@ -5,5 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(() => ({
     plugins: [react(), tailwindcss()],
     server: { allowedHosts: ['.loca.lt'] },
-    test: { restoreMocks: true, exclude: ['node_modules', 'dist', '.worktrees', '.vercel'] },
+    test: {
+        restoreMocks: true,
+        exclude: ['**/node_modules/**', 'dist/**', '.worktrees/**', '.vercel/**', 'artifacts/**', 'tests/visual/**'],
+    },
 }));

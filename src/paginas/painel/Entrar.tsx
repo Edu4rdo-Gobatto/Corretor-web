@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Navigate, Link, useLocation } from 'react-router-dom';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import { useEscVoltar } from '../../hooks/useEscVoltar';
 import { useForm } from 'react-hook-form';
@@ -17,8 +17,9 @@ const esquema = z.object({ email: z.email('Informe um e-mail válido.'), senha: 
 
 export default function Entrar() {
   const { corretor, entrar, carregando } = useSessao();
-  const navigate = useNavigate();
   const location = useLocation();
+  const de = (location.state as { de?: unknown } | null)?.de;
+  const destino = typeof de === 'string' && (de === rotas.painel || de.startsWith('/admin/')) && de !== rotas.entrar ? de : rotas.painel;
   useEscVoltar(rotas.inicio);
   const [erro, setErro] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof esquema>>({ resolver: zodResolver(esquema) });
@@ -26,13 +27,11 @@ export default function Entrar() {
     setErro('');
     try {
       await entrar(email, senha);
-      const de = (location.state as { de?: unknown } | null)?.de;
-      navigate(typeof de === 'string' && de.startsWith('/admin') && de !== rotas.entrar ? de : rotas.painel, { replace: true });
     } catch (falha) {
       setErro(mensagemErro(falha));
     }
   }
-  if (corretor) return <Navigate to={rotas.painel} replace />;
+  if (corretor) return <Navigate to={destino} replace />;
   return (
     <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-background lg:grid-cols-2 lg:grid-rows-1">
       <section className="relative flex min-h-55 flex-col justify-between overflow-hidden bg-navy p-7 text-white lg:p-17.5">

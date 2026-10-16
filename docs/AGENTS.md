@@ -1,5 +1,22 @@
 # Instruções do projeto — corretor-web
 
+## 16/10/2026 — Publicação dos testes autorizada
+
+Após a entrega local, o dono autorizou commit, push do frontend e acompanhamento do GitHub Actions.
+Essa autorização substitui o limite de não publicar da etapa de restauração abaixo. Permanecer na main;
+incluir specs, referências, correções verificadas e documentação preservada. Não incluir arquivos ignorados,
+segredos ou artefatos gerados. Não executar deploy manual, migration nem alterações de dados reais.
+
+## 15/10/2026 — Restauração autorizada dos testes permanentes
+
+O dono aprovou `2026-10-15-restauracao-testes.md` e pediu sua implementação. A autorização substitui a restrição
+de ampliar suítes apenas neste escopo: unitários críticos, Playwright público/painel, referências versionadas e
+GitHub Actions. Trabalho direto na main, local, sem commit/push/deploy. Não alterar dados ou usar API real.
+Manter fixtures exclusivas de teste; origem local obrigatória e tráfego externo bloqueado. Usar Chromium vinculado
+ao Playwright 1.60, não o Chrome que atualiza sozinho. Comparações normais não atualizam referências.
+Comandos: `npm test`, `npm run visual`, `visual:build`, `visual:sem-build`, `visual:atualizar`. Instruções e limites
+no README e no plano. Histórico anterior à sincronização preservado em `2026-10-15-historico-preservado-36e73b1.md`.
+
 ## Contexto
 
 Front do site e do painel de um corretor de imóveis comerciais (Lucas Gobatto, Juara/MT): catálogo público,
@@ -96,14 +113,16 @@ Não deixe dois agentes editando a mesma área ao mesmo tempo.
 | Desenvolvimento (SSR) | `npm run dev` → `127.0.0.1:5173` | sim |
 | Build de produção | `npm run build` → `dist/` e `.vercel/output` | não |
 | Servir o build | `npm run preview` → `127.0.0.1:4173` | sim |
-| Testes | `npm test` (vitest, 3 arquivos, 23 testes) | não |
+| Testes | `npm test` (Vitest, 13 arquivos, 214 testes em 16/10; suíte mínima anterior: 3/23) | não |
+| Regressão visual | `npm run visual` (185 casos e 32 referências em 16/10) | não (API simulada) |
 | Lint / tipos | `npm run lint` / `npm run typecheck` | não |
-| Smoke do SSR | `node scripts/seo-smoke.mjs` (falha no h1 desde 06/10; ver TASKS) | não (API fictícia) |
+| Smoke do SSR | `node scripts/seo-smoke.mjs` (passa; falha histórica do h1 de 06/10 corrigida em 09/10) | não (API fictícia) |
 | Revisão visual / medição | prompts em [comando-revisar-design.md](comando-revisar-design.md) e [comando-medir.md](comando-medir.md) | não |
 
 Os prompts `/revisar-design` e `/medir` (e os subagentes [revisor-design.md](revisor-design.md) e
 [auditor-desempenho.md](auditor-desempenho.md)) não são carregados automaticamente desde a remoção de `.claude/` em
-04/10, e dependem de specs visuais que não existem.
+04/10. Até 14/10 dependiam de specs visuais que não existiam; a restauração de 15–16/10 entrega quatro specs
+permanentes em `tests/visual/`, com comandos próprios acima. Os prompts históricos não substituem essa suíte.
 
 Variáveis de ambiente: tabela no [README](README.md#variáveis-de-ambiente).
 
@@ -118,6 +137,8 @@ scripts/preview.mjs      # serve o build em 127.0.0.1:4173
 scripts/runtime.mjs      # proxy /api → API_ORIGIN (remove /api) e renderização das páginas
 scripts/safe-origin.mjs  # recusa API_ORIGIN remoto em dev/preview
 scripts/seo-smoke.mjs    # smoke do SSR com API fictícia (4180/4199); --serve mantém a prévia
+scripts/visual.mjs       # build isolado, validação do build reutilizado e execução do Playwright
+scripts/visual-servidor.mjs # SSR e API simulada estrita da suíte visual (4180/4199)
 scripts/gerar-logo.mjs   # gera as variantes WebP do logo por tema
 
 src/App.tsx              # rotas, RolarAoTopo, redirecionamentos antigos
@@ -140,7 +161,7 @@ src/paginas/painel/      # LayoutPainel, Entrar, VisaoGeral, Perfil
                          # Cadastros, FichaClassificacao, EditorClassificacao
                          # Contratos, DetalheContrato, esquemaLocacao
                          # Comissoes, DetalheComissao, EditoresComissao
-                         # sessaoTeste.ts (órfão, importa vitest; ver TASKS)
+                         # histórico: sessaoTeste.ts (órfão que importava vitest) removido em 13/10; ver TASKS
 src/componentes/         # público: LayoutPublico, CartaoImovel, FiltrosCatalogo, FormularioContato, GaleriaMidia,
                          #   PaginaIndisponivel, CenaReparo, CasaQuebrada, CenaObra, ObraOverlay
                          # painel: BlocosPainel, Tabela, CabecalhoPagina, BotaoVoltar, AcaoIcone, PaletaPainel,

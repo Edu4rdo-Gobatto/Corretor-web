@@ -1,5 +1,28 @@
 # Estado atual — corretor-web
 
+## 16/10/2026 — Publicação dos testes em andamento (Codex)
+
+O dono autorizou commit e push do frontend, seguidos do acompanhamento do GitHub Actions. Main conferida
+com o remoto antes de publicar; revalidação do pacote em execução. As entregas e limites datados abaixo
+permanecem como histórico. Sem deploy manual, migration ou alteração de dados reais nesta etapa.
+
+## Atualização vigente — 16/10/2026 (Codex)
+
+Restauração autorizada de testes concluída localmente sobre `0513cc9`, preservando seletor único, cidades e
+publicação/SEO recebidos do parceiro. Main com alterações locais, sem commit/push/deploy. Os registros datados
+abaixo permanecem como histórico do estado de cada entrega.
+
+**Verificação executada:** 214 unitários em 13 arquivos; typecheck, lint, build visual isolado e smoke SSR
+aprovados. Playwright: **185/185 em duas execuções completas consecutivas**, sete projetos, sem atualizar as
+32 referências de oito telas em claro/escuro e desktop/mobile. Imagens inspecionadas; SHA-256 preservados.
+Controles negativos CSS e SSR reprovaram como esperado. Revisão independente sem bloqueantes abertos.
+
+Foram corrigidos quatro defeitos reproduzidos: deduplicação de cache durante carga lenta, exposição de mensagem
+interna em 5xx da renovação, disputa no redirecionamento de login e borda de foco dos botões Mais filtros.
+Specs, referências e workflow estão prontos para versionamento. GitHub Actions remoto não executado; API, banco,
+R2, Drive, Safari/iOS, celular físico e aceite visual do dono não foram homologados nesta entrega. As tarefas
+de publicação/integração do parceiro continuam abertas. Plano e evidências: [restauração](2026-10-15-restauracao-testes.md).
+
 ## Estado atual (09/10/2026)
 
 **Git:** `main` sincronizada com `origin/main` em `aa4de75`. API irmã em `6b987a5`.
@@ -64,3 +87,15 @@ ACLs do Drive (H01), A09 e A10 com dados reais.
 | 06/10 | Especificação do painel concluída a partir de `a2a9f81`; Contatos em abas, foto por upload, filtros automáticos; sessão de 4h na API (`46f2235`) |
 | 08/10 | 404 da foto resolvido com o deploy de `86ecf29` no Render |
 | 09/10 | Ficha do imóvel em notas, padronização do painel, ações só com ícone, `BotaoVoltar`, seis pontos (`aa4de75`); documentação atualizada |
+
+
+## 15/10/2026 — Restauração de testes em andamento (Codex)
+
+Plano aprovado pelo dono: testes permanentes, referências visuais e GitHub Actions. Main sincronizada em `0dedf02`; relatório original preservado. Histórico integral anterior em `2026-10-15-historico-preservado-36e73b1.md`; documento removido pelo remoto restaurado como histórico. Frentes: HTTP/cache/API; validação/embeds/SEO/hook; Playwright/mocks; coordenação, scripts, CI e documentação. Trabalho local sem commit/push/deploy nem acesso a API/banco reais.
+
+## 16/10/2026 — Continuação da restauração
+
+Base recebida do parceiro: `0513cc9`, preservando seletor unificado, cidades e regras de publicação/SEO por situação.
+Cobertura SEO restaurada em arquivo separado, mantendo os testes novos do parceiro. Unitários: **214/214 em 13
+arquivos**; tipos, lint, build isolado e smoke aprovados. Correção de foco em Mais filtros reproduzida pelo
+Playwright antes do ajuste. Referências e matriz visual completa ainda em validação; CI remoto não executado.

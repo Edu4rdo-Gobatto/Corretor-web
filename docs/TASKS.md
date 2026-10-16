@@ -6,6 +6,27 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 ## Abertas
 
+### CI-20261016 — Versionar a restauração e conferir GitHub Actions
+
+- **Status:** em andamento. **Responsável:** Codex. Commit e push autorizados pelo dono após a entrega local.
+- [ ] Revalidar o pacote final e revisar os arquivos destinados ao commit.
+- [ ] Commitar e enviar à main, preservando o trabalho existente e sem arquivos ignorados.
+- [ ] Acompanhar o workflow do commit e corrigir falhas demonstradas, se houver.
+- [ ] Registrar o resultado remoto e os limites de homologação, sem confundir CI com ambiente real.
+
+### TEST-20261015 — Restaurar testes permanentes, referências e CI
+
+- **Status:** concluída localmente em 16/10/2026. **Responsável:** Codex. Plano aprovado: [restauração](2026-10-15-restauracao-testes.md).
+- [x] Sincronizar main em `0dedf02`, preservar relatório e histórico integral dos documentos.
+- [x] Restaurar dependências necessárias e comandos isolados de execução; configurar workflow Windows/Node24.
+- [x] Cobrir HTTP/cache/API, validação/embeds/SEO e filtros automáticos.
+- [x] Restaurar mocks estritos, specs Playwright e 32 referências principais.
+- [x] Validar tipos, lint, 214 unitários/13 arquivos, build e smoke; duas matrizes de 185 casos e controles negativos CSS/SSR.
+- [x] Revisar diff e documentação; registrar separadamente limites de integração e CI ainda não publicado.
+- Referências inspecionadas e hashes preservados nas duas matrizes, sem atualização. Revisão independente sem
+  bloqueantes. Workflow configurado localmente; execução no GitHub e homologação real continuam sem validação.
+- Sem commit, push ou deploy. Resultados completos no plano; logs e revisão em `artifacts/restauracao-testes-2026-10-15/` (ignorado).
+
 ### SMOKE-001 — Consertar o h1 esperado no smoke do SSR
 - **Status:** concluída em 09/10 (Claude; código no `40f635b`). O smoke agora compara h1 e `<title>` com o slogan
   de `brand.ts` e passa.
@@ -107,6 +128,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 | Tarefa | Data | Resumo |
 |---|---|---|
+| TEST-20261015 | 16/10 | Testes permanentes: 214 unitários, 185 Playwright em duas matrizes, 32 referências e workflow; entrega local sem commit/push |
 | SELETOR-CIDADES-20261016 | 16/10 | `Seletor` único (15 selects nativos migrados), cadastro de Cidades, Estado → Cidade no imóvel, filtro de cidade do catálogo pelo cadastro |
 | EXIBIR-SITE-20261016 | 16/10 | "Exibir no site" só por `ativo` (web + API), controle só em Editar, destaque removido, foco só por cor de borda (`#a37d29`), erro de campo com ícone, SEO por situação |
 | LIMPEZA-TESTES | 14/10 | Removidos `tests/visual/`, `playwright.visual.config.ts`, scripts `visual`, `src/test/setup.ts` e as dependências jsdom e Testing Library. Ficam 3 testes de lógica pura (vitest em node) |

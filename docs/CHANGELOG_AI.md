@@ -140,3 +140,28 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
   lista por cima de `<dialog>` modal). Os únicos erros de console foram 404 das fontes no servidor do harness.
 - **Não verificado:** painel real logado; catálogo com a API nova antes da migration no Neon.
 - **Pendências:** PUBLICAR-CIDADES-20261016.
+
+### 16/10/2026 — Restauração dos testes permanentes (Codex)
+- **Autorização e preservação:** plano aprovado em 15/10; trabalho direto na main. Base inicial sincronizada em
+  `0dedf02`, retomada sobre `0513cc9`, preservando seletor único, cidades, publicação e testes novos do parceiro.
+  Relatório original e histórico documental preservados, inclusive no arquivo integral de 15/10; nenhum commit,
+  push, deploy ou acesso a dados reais.
+- **Entregue:** testes HTTP/cache/API, validação, embeds, SEO e filtros automáticos; quatro specs Playwright,
+  API simulada estrita para browser/SSR, sete projetos e 32 referências; scripts de build/execução/atualização
+  explícita; workflow Windows 2025/Node24. Dev-deps restauradas: React Testing Library e jsdom.
+- **Correções reproduzidas:** `servicos/cache.ts` inicia TTL do resultado na resolução, mantendo a promessa
+  pendente compartilhada; `servicos/http.ts` oculta mensagem interna de 5xx da renovação; `painel/Entrar.tsx` usa
+  um único redirecionamento para o destino protegido; `FiltrosCatalogo.tsx` corrige a precedência da borda de foco.
+- **Arquivos:** novos `*.test.ts/tsx` nas áreas acima, `tests/visual/` e suas referências,
+  `playwright.visual.config.ts`, `scripts/visual.mjs`, `scripts/visual-servidor.mjs`, `.github/workflows/testes.yml`;
+  package/lock, Vitest/TypeScript e docs AGENTS/DECISIONS/TASKS/PROJECT_STATUS/README/INDICE/plano/auditoria alinhados.
+- **Validação executada:** 214/214 unitários em 13 arquivos; typecheck, lint, build visual e smoke final aprovados.
+  Duas matrizes Playwright completas: **185/185 em 1,6 min e 185/185 em 1,7 min**, sem atualizar imagens. As 32
+  referências foram inspecionadas e mantiveram os hashes. CSS proposital detectou 7.782 pixels divergentes
+  (saída 1); requisições SSR desconhecidas reprovaram no teardown mesmo com consumidor verde (saída 1).
+  Revisão independente sem bloqueantes e `git diff --check` limpo. Logs/revisões em
+  `artifacts/restauracao-testes-2026-10-15/`, ignorado. O negativo SSR registrou isoladamente `UV_HANDLE_CLOSING`
+  no encerramento, ausente nas matrizes normais; o AssertionError do gate foi conferido separadamente.
+- **Pendências/limites:** executar o workflow após publicação; aceite visual do dono e homologação com API,
+  banco, R2, Drive, Safari/iOS e celular físico. As publicações/migrações do parceiro permanecem nas tarefas
+  próprias. Avisos existentes do build sobre anotações do Zod e tamanho do chunk não impediram a compilação.

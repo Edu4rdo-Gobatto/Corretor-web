@@ -37,7 +37,8 @@ export function emCache<T>(chave: string, validadeMs: number, carregar: () => Pr
     (valor) => { if (entradas.get(chave)?.promessa === promessa) guardarCache(chave, valor, validadeMs); return valor; },
     (motivo: unknown) => { if (entradas.get(chave)?.promessa === promessa) entradas.delete(chave); throw motivo; },
   );
-  registrar(chave, { promessa, expira: Date.now() + validadeMs });
+  // A carga pendente segue compartilhada; o TTL do valor começa quando ela resolve.
+  registrar(chave, { promessa, expira: Infinity });
   return promessa;
 }
 

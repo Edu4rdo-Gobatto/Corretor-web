@@ -182,7 +182,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
       <FiltroSuspenso id="filtro-ordem" rotulo="Ordenar por" filtro={false} resumo={rotulosOrdenacao[ordenar]} opcoes={ordenacoes}
         selecionados={[ordenar]} aoMudar={([valor]) => escolherOrdem(valor)} />
       <button type="button" aria-expanded={painelAberto} aria-controls="filtros-extras" onClick={() => setPainelAberto(!painelAberto)}
-        className={`buttonSecondary min-h-12 border-control-line px-4 py-0 ${painelAberto ? 'bg-soft' : ''}`}>
+        className={`buttonSecondary min-h-12 border-control-line focus-visible:border-acao-painel-hover px-4 py-0 ${painelAberto ? 'bg-soft' : ''}`}>
         <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos)}
         <IconeProximo size={18} aria-hidden="true" className={`text-muted transition-transform ${painelAberto ? '-rotate-90' : 'rotate-90'}`} />
       </button>
@@ -199,7 +199,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
         className="-ml-2 inline-flex min-h-11 items-center gap-2 rounded-md border-0 bg-transparent px-2 text-sm font-semibold hover:bg-soft disabled:hover:bg-transparent">
         <IconeFechar size={16} aria-hidden="true" />Limpar
       </button>
-      <button type="button" aria-haspopup="dialog" onClick={() => setTelaCheia(true)} className="buttonSecondary min-h-11 border-control-line px-4 min-[801px]:hidden">
+      <button type="button" aria-haspopup="dialog" onClick={() => setTelaCheia(true)} className="buttonSecondary min-h-11 border-control-line focus-visible:border-acao-painel-hover px-4 min-[801px]:hidden">
         <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos + ocultasMobile)}
       </button>
     </div>

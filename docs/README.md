@@ -32,8 +32,12 @@ npm run build        # tsc -b + dist/client, dist/server e .vercel/output
 npm run preview      # serve o build em 127.0.0.1:4173
 npm run typecheck
 npm run lint
-npm test             # vitest: 3 arquivos, 23 testes
-node scripts/seo-smoke.mjs          # smoke do SSR após o build: falha desde 06/10 (ver Testes)
+npm test             # Vitest: serviços críticos, SEO e filtros automáticos
+npm run visual       # build isolado + Playwright com API simulada
+npm run visual:build # somente build isolado, reutilizável pela suíte
+npm run visual:sem-build # Playwright usando o último build visual identificado
+npm run visual:atualizar # atualizar referências explicitamente, após revisão
+node scripts/seo-smoke.mjs          # smoke separado do SSR após o build
 node scripts/seo-smoke.mjs --serve  # prévia com API fictícia em 127.0.0.1:4180 (API em 4199)
 ```
 
@@ -151,6 +155,36 @@ Checklist para publicar:
 Quando o mesmo pacote muda API e front, publique a API primeiro.
 
 ## Testes
+
+A restauração foi autorizada em 15/10: [plano e critérios](2026-10-15-restauracao-testes.md). Os registros abaixo
+de remoção são históricos; a implementação nova acrescenta testes permanentes à suíte mínima.
+
+Instale as dependências com `npm ci` e o navegador com `npx playwright install chromium`. Node 24 é obrigatório.
+`npm test` roda apenas Vitest. Os arquivos HTTP/hook usam jsdom explicitamente; demais unitários usam Node.
+Nenhum teste usa a API ou o banco reais. Fixtures representam contratos de interface, não homologação do backend.
+
+Validação local de 16/10/2026: **214 unitários em 13 arquivos** e **185 casos Playwright em sete projetos**,
+com duas execuções completas aprovadas sem atualização das **32 referências**. Tipos, lint, build e smoke
+passaram; os controles negativos confirmaram a detecção de alteração visual e de requisição SSR inesperada.
+O [plano](2026-10-15-restauracao-testes.md#resultado-final-em-16102026) registra escopo, evidências e limites.
+
+`npm run visual` produz um build de teste, substituindo `dist/` e `.vercel/output`, e executa o Playwright. O comando
+fixa `/api`, API simulada em `127.0.0.1:4199`, SSR em `127.0.0.1:4180` e indexação desligada, sem modificar `.env`.
+Portas ocupadas fazem a suíte falhar. Depois de testar, gere novamente o build normal antes de publicar o produto.
+`visual:sem-build` exige a marca e os hashes do build isolado; se um build normal o substituiu, rode `visual:build`.
+
+Referências de screenshot ficam em `tests/visual/referencias/` e devem acompanhar os specs no versionamento.
+Para mudar uma referência intencionalmente: executar `npm run visual:atualizar`, inspecionar as imagens/diferenças,
+revisar o diff e executar `npm run visual:sem-build` sem atualização. A execução comum falha em referência ausente
+ou divergente. Não atualizar imagens para esconder regressão de layout nem usar capturas antigas como aprovação.
+Windows + Chromium do Playwright 1.60 é o ambiente de referência; outro SO ou navegador pode renderizar diferente.
+
+O relatório HTML fica em `playwright-report/` (`npx playwright show-report`); resultados, diffs e traces ficam em
+`test-results/`. Ambos são ignorados pelo Git. O workflow `.github/workflows/testes.yml` usa Windows 2025/Node24
+em PRs, pushes da main e execução manual; preserva artefatos por 14 dias e não atualiza referências.
+A execução efetiva do workflow remoto depende de publicar o arquivo; configuração local não comprova execução no GitHub.
+
+Histórico da suíte mínima:
 
 - `npm test`: vitest com 3 arquivos e 23 testes em `src/servicos/` (contato/LGPD, URLs de filtro e formatação de
   valores). As suítes antigas foram removidas em 03/10, a mínima foi recriada em 04/10 e a suíte visual, sem specs, saiu em 14/10.
