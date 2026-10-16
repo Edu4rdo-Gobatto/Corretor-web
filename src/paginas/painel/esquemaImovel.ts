@@ -7,14 +7,27 @@ import type { Classificacao, Classificacoes, FichaImovel } from '../../tipos';
  * exclusivas do ADMIN. O tipo, a finalidade e as características atuais da ficha que não vierem na lista entram como
  * inativos, para o formulário continuar exibindo o valor salvo.
  */
-export function comClassificacoesDaFicha(lista: Classificacoes, ficha: Pick<FichaImovel, 'tipo_id' | 'tipo' | 'finalidade_id' | 'finalidade' | 'caracteristicas'>): Classificacoes {
+export function comClassificacoesDaFicha(lista: Classificacoes, ficha: Pick<FichaImovel, 'tipo_id' | 'tipo' | 'finalidade_id' | 'finalidade' | 'caracteristicas' | 'cidade' | 'estado'>): Classificacoes {
   const incluir = (itens: Classificacao[], id: number, nome: string | undefined): Classificacao[] =>
     itens.some((item) => item.id === id) ? itens : [...itens, { id, nome: nome ?? `#${id}`, ativo: false }];
   return {
     tipos: incluir(lista.tipos, ficha.tipo_id, ficha.tipo?.nome),
     finalidades: incluir(lista.finalidades, ficha.finalidade_id, ficha.finalidade?.nome),
     caracteristicas: ficha.caracteristicas.reduce((itens, item) => incluir(itens, item.caracteristica_id, item.nome), lista.caracteristicas),
+    // Cidade gravada antes do cadastro (ou fora dele) continua visível; `id` 0 marca que não está cadastrada.
+    cidades: lista.cidades.some((item) => mesmaCidade(item, ficha.cidade, ficha.estado)) ? lista.cidades : [...lista.cidades, { id: 0, nome: ficha.cidade, estado: ficha.estado, ativo: false }],
   };
+}
+
+/** Mesma regra da API (`normalizarNome`): sem acento, sem caixa e com espaços simples. */
+export const normalizarNome = (nome: string) => nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+export const mesmaCidade = (item: Classificacao, cidade: string, estado: string) => item.estado === estado && normalizarNome(item.nome) === normalizarNome(cidade);
+
+/** Opções de Cidade para o estado escolhido: ativas, mais a cidade atual quando inativa ou fora do cadastro. */
+export function opcoesCidade(cidades: Classificacao[], estado: string, atual: string) {
+  return cidades
+    .filter((item) => item.estado === estado && (item.ativo || (atual !== '' && mesmaCidade(item, atual, estado))))
+    .map((item) => ({ valor: item.nome, rotulo: item.ativo ? item.nome : `${item.nome} (${item.id ? 'inativa' : 'não cadastrada'})` }));
 }
 
 export const estados = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'] as const;

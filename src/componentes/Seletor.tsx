@@ -1,24 +1,44 @@
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type Ref } from 'react';
 import Campo from './Campo';
 import { IconeProximo, IconeSucesso } from './Icones';
 
-type Opcao<T extends string> = { valor: T; rotulo: string };
+export type OpcaoSeletor<T extends string> = { valor: T; rotulo: string };
 type Propriedades<T extends string> = {
-  rotulo: string; valor: T; opcoes: readonly Opcao<T>[]; aoMudar: (valor: T) => void;
+  rotulo: string; valor: T; opcoes: readonly OpcaoSeletor<T>[]; aoMudar: (valor: T) => void;
   desabilitado?: boolean; classe?: string;
+  erro?: string; dica?: string; obrigatorio?: boolean;
+  /** Texto do botão quando o valor não está na lista (campo ainda vazio ou carregando). */
+  placeholder?: string;
+  /** Id estável para páginas renderizadas no servidor, onde `useId` pode divergir do cliente. */
+  id?: string;
+  campoRef?: Ref<HTMLButtonElement>;
+  aoDesfocar?: () => void;
 };
 
-/** Seleção simples dos filtros: mantém o foco no campo e a lista na camada superior. */
-export default function SeletorFiltro<T extends string>({ rotulo, valor, opcoes, aoMudar, desabilitado, classe = '' }: Propriedades<T>) {
-  const id = useId();
-  const campo = useRef<HTMLButtonElement>(null);
+/** `useLayoutEffect` avisa no servidor (SSR do catálogo); lá a lista nunca abre, então `useEffect` basta. */
+const useEfeitoLayout = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+/**
+ * Seleção única de todo o sistema: botão com seta, lista flutuante na camada superior e check na opção escolhida.
+ * Mantém o foco no botão e responde às setas, Home/End, digitação para saltar, Enter/Espaço, Esc e Tab.
+ */
+export default function Seletor<T extends string>({ rotulo, valor, opcoes, aoMudar, desabilitado, classe = '', erro, dica, obrigatorio, placeholder = 'Selecione', id: idFixo, campoRef, aoDesfocar }: Propriedades<T>) {
+  const idGerado = useId();
+  const id = idFixo ?? idGerado;
+  const campo = useRef<HTMLButtonElement | null>(null);
+  const ligarCampo = (elemento: HTMLButtonElement | null) => {
+    campo.current = elemento;
+    if (typeof campoRef === 'function') campoRef(elemento);
+    else if (campoRef) (campoRef as { current: HTMLButtonElement | null }).current = elemento;
+  };
   const lista = useRef<HTMLUListElement>(null);
   const [aberto, setAberto] = useState(false);
   const [ativa, setAtiva] = useState(0);
   const busca = useRef({ texto: '', instante: 0 });
+  const escolhida = opcoes.find((opcao) => opcao.valor === valor);
   const selecionada = Math.max(0, opcoes.findIndex((opcao) => opcao.valor === valor));
 
-  useLayoutEffect(() => {
+  useEfeitoLayout(() => {
     const elemento = lista.current;
     if (!aberto || desabilitado || !elemento) return;
     const usaPopover = typeof elemento.showPopover === 'function';
@@ -53,13 +73,14 @@ export default function SeletorFiltro<T extends string>({ rotulo, valor, opcoes,
     };
   }, [aberto, desabilitado]);
 
-  useLayoutEffect(() => {
+  useEfeitoLayout(() => {
     if (aberto) lista.current?.children[ativa]?.scrollIntoView({ block: 'nearest' });
   }, [aberto, ativa]);
 
   function escolher(indice: number) {
     if (!opcoes[indice]) return;
-    aoMudar(opcoes[indice].valor);
+    // Como o select nativo: escolher de novo a mesma opção não dispara mudança (ex.: Operação zera o contrato).
+    if (opcoes[indice].valor !== valor) aoMudar(opcoes[indice].valor);
     setAberto(false);
     campo.current?.focus();
   }
@@ -87,17 +108,17 @@ export default function SeletorFiltro<T extends string>({ rotulo, valor, opcoes,
     }
   }
   return <div className={`min-w-0 ${classe}`}>
-    <Campo rotulo={rotulo}>
-      <button ref={campo} type="button" role="combobox" className="seletor-filtro" disabled={desabilitado}
+    <Campo rotulo={rotulo} erro={erro} dica={dica} obrigatorio={obrigatorio}>
+      <button ref={ligarCampo} id={idFixo ? `${idFixo}-botao` : undefined} type="button" role="combobox" className="seletor" disabled={desabilitado}
         aria-expanded={aberto && !desabilitado} aria-controls={`${id}-lista`} aria-haspopup="listbox"
         aria-activedescendant={aberto && !desabilitado ? `${id}-opcao-${ativa}` : undefined}
-        onKeyDown={teclado} onBlur={() => setAberto(false)}
+        onKeyDown={teclado} onBlur={() => { setAberto(false); aoDesfocar?.(); }}
         onClick={() => { setAtiva(selecionada); setAberto(!aberto); }}>
-        <span className="min-w-0 flex-1 text-left break-normal">{opcoes.find((opcao) => opcao.valor === valor)?.rotulo ?? 'Selecione'}</span>
+        <span className={`min-w-0 flex-1 text-left break-normal ${escolhida ? '' : 'seletor-vazio'}`}>{escolhida?.rotulo ?? placeholder}</span>
         <IconeProximo size={20} aria-hidden="true" className={`shrink-0 ${aberto ? '-rotate-90' : 'rotate-90'}`} />
       </button>
     </Campo>
-    {aberto && !desabilitado && <ul ref={lista} id={`${id}-lista`} role="listbox" aria-label={rotulo} className="lista-filtro" data-esc-camada>
+    {aberto && !desabilitado && <ul ref={lista} id={`${id}-lista`} role="listbox" aria-label={rotulo} className="lista-seletor" data-esc-camada onPointerDown={(evento) => evento.preventDefault()}>
       {opcoes.map((opcao, indice) => <li key={opcao.valor} id={`${id}-opcao-${indice}`} role="option" aria-selected={opcao.valor === valor}
         data-ativa={indice === ativa || undefined} onPointerDown={(evento) => evento.preventDefault()} onClick={() => escolher(indice)}>
         <span className="min-w-0 flex-1 break-normal">{opcao.rotulo}</span>

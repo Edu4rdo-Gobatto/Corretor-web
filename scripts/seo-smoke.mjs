@@ -11,10 +11,10 @@ const api = createServer(async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   if (url.pathname === '/saude') {
     res.end(JSON.stringify({ status: 'ok' }));
-  } else if (dadosIndisponiveis && (['/tipos-imovel', '/finalidades-imovel', '/caracteristicas', '/imoveis'].includes(url.pathname) || url.pathname.startsWith('/imoveis/'))) {
+  } else if (dadosIndisponiveis && (['/tipos-imovel', '/finalidades-imovel', '/caracteristicas', '/cidades', '/imoveis'].includes(url.pathname) || url.pathname.startsWith('/imoveis/'))) {
     res.writeHead(503); res.end(JSON.stringify({ message: 'Indisponibilidade simulada' }));
-  } else if (['/tipos-imovel','/finalidades-imovel','/caracteristicas'].includes(url.pathname)) {
-    const itens=url.pathname==='/tipos-imovel'?classificacoesExemplo.tipos:url.pathname==='/finalidades-imovel'?classificacoesExemplo.finalidades:classificacoesExemplo.caracteristicas;res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
+  } else if (['/tipos-imovel','/finalidades-imovel','/caracteristicas','/cidades'].includes(url.pathname)) {
+    const itens=url.pathname==='/tipos-imovel'?classificacoesExemplo.tipos:url.pathname==='/finalidades-imovel'?classificacoesExemplo.finalidades:url.pathname==='/cidades'?classificacoesExemplo.cidades:classificacoesExemplo.caracteristicas;res.end(JSON.stringify({itens,total:itens.length,pagina:1,limite:100,total_paginas:1}));
   } else if (url.pathname === '/imoveis') {
     const page = Number(url.searchParams.get('pagina') || 1); const limit = Number(url.searchParams.get('limite') || 9);
     // Como a API: tipo_id aceita um id ou CSV.

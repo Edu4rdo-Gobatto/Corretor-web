@@ -28,9 +28,10 @@ export interface DadosCorretor {
   ativo?: boolean;
 }
 
-export interface Classificacao { id: number; nome: string; slug?: string; icone?: string | null; ativo: boolean }
-export interface Classificacoes { tipos: Classificacao[]; finalidades: Classificacao[]; caracteristicas: Classificacao[] }
-export type CategoriaClassificacao = 'tipos-imovel' | 'finalidades-imovel' | 'caracteristicas';
+/** Cadastro do grupo Imóveis; `estado` só existe em cidades (a mesma cidade pode existir em dois estados). */
+export interface Classificacao { id: number; nome: string; slug?: string; icone?: string | null; estado?: string; ativo: boolean }
+export interface Classificacoes { tipos: Classificacao[]; finalidades: Classificacao[]; caracteristicas: Classificacao[]; cidades: Classificacao[] }
+export type CategoriaClassificacao = 'tipos-imovel' | 'finalidades-imovel' | 'caracteristicas' | 'cidades';
 /** Cadastros de contratos de locação: fora do catálogo público e do SSR. */
 export type CategoriaContrato = 'tipos-contrato' | 'indices-reajuste';
 export type CategoriaCadastro = CategoriaClassificacao | CategoriaContrato;

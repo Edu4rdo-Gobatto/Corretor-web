@@ -31,7 +31,10 @@ sem botão Buscar e com Limpar na faixa de chips. Typecheck, lint e build passam
 contato), controle só na edição do imóvel, destaque removido, foco só por cor de borda, erro de campo com ícone.
 Falta conferência visual no painel real (VISUAL-20261016) e publicar API e web (PUBLICAR-20261016).
 
-**Verificações:** `typecheck`, `lint`, `build` e `npm test` (4 arquivos, 25 testes) passam.
+**16/10 (Claude), seletor e cidades:** todos os selects viraram o `Seletor` com check; cadastro de Cidades
+(Estado → Cidade no imóvel e filtro do catálogo). Depende da API com a migration `1789862400000` (PUBLICAR-CIDADES-20261016).
+
+**Verificações:** `typecheck`, `lint`, `build` e `npm test` (6 arquivos, 30 testes) passam.
 `node scripts/seo-smoke.mjs` passa desde a correção local de 09/10 (SMOKE-001); antes falhava desde 06/10.
 A suíte visual foi removida em 14/10 (não tinha specs). QA de navegador de 09/10: 37/37 com a API completa em PostgreSQL descartável.
 

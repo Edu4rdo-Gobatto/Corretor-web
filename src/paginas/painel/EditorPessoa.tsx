@@ -13,6 +13,7 @@ import type { Pessoa, Referencia } from '../../tipos';
 import Dialogo from '../../componentes/Dialogo';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Campo from '../../componentes/Campo';
+import CampoSelecao from '../../componentes/CampoSelecao';
 import Aviso from '../../componentes/Aviso';
 import { SecaoPainel } from '../../componentes/BlocosPainel';
 import { estilos } from '../../componentes/estilosPainel';
@@ -58,7 +59,7 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
   const { corretor } = useSessao();
   const [erro, setErro] = useState('');
   const imovelOriginal = useRef(imovelInicial ?? (pessoa?.imovel_id ? { id: pessoa.imovel_id, nome: `Imóvel #${pessoa.imovel_id}` } : null));
-  const { register, handleSubmit, setValue, setError, watch, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresPessoa>({
+  const { register, control, handleSubmit, setValue, setError, watch, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresPessoa>({
     resolver: zodResolver(esquemaPessoa),
     defaultValues: {
       nome: pessoa?.nome ?? '', telefone: pessoa?.telefone ?? '', email: pessoa?.email ?? '', tipo_pessoa: pessoa?.tipo_pessoa ?? '', cpf_cnpj: pessoa?.cpf_cnpj ?? '',
@@ -106,14 +107,16 @@ export default function EditorPessoa({ pessoa, imovelInicial, aoFechar, aoSalvar
             {campo('nome', 'Nome / razão social *')}
             {campo('telefone', 'Telefone com DDD *', 'tel')}
             {campo('email', 'E-mail', 'email')}
-            <Campo rotulo="Tipo de pessoa" erro={errors.tipo_pessoa?.message}><select {...register('tipo_pessoa')}><option value="">Não informado</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option></select></Campo>
+            <CampoSelecao control={control} name="tipo_pessoa" rotulo="Tipo de pessoa" opcoes={[{ valor: '', rotulo: 'Não informado' }, { valor: 'PF', rotulo: 'Pessoa física' }, { valor: 'PJ', rotulo: 'Pessoa jurídica' }]} />
             {/* Sem data de nascimento (PJ), o documento ocupa a linha inteira para não deixar célula vazia. */}
             <div className={tipoPessoa === 'PJ' ? 'col-span-full' : ''}>{campo('cpf_cnpj', 'CPF / CNPJ')}</div>
             {tipoPessoa !== 'PJ' && campo('data_nascimento', 'Data de nascimento', 'date')}
             <div className="col-span-full">{campo('endereco', 'Endereço completo')}</div>
             <div className="col-span-full"><SeletorRegistro rotulo="Imóvel de interesse" valor={imovel} buscar={buscarImoveis} aoEscolher={(valor) => setValue('imovel', valor?.id === imovelOriginal.current?.id ? imovelOriginal.current : valor, { shouldDirty: true })} dica="Opcional. Vincula a pessoa ao imóvel que ela procura." /></div>
-            <Campo classe={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'} rotulo="Situação do contato" erro={errors.status_contato?.message} dica={finalizadoBloqueado ? 'Somente um administrador pode reabrir este atendimento.' : undefined}><select {...register('status_contato')}>{Object.entries(rotulosStatusContato).filter(([valor]) => !finalizadoBloqueado || valor === 'FINALIZADO').map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
-            {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></Campo>}
+            <CampoSelecao control={control} name="status_contato" classe={corretor?.cargo === 'ADMIN' ? '' : 'col-span-full'} rotulo="Situação do contato" dica={finalizadoBloqueado ? 'Somente um administrador pode reabrir este atendimento.' : undefined}
+              opcoes={Object.entries(rotulosStatusContato).filter(([valor]) => !finalizadoBloqueado || valor === 'FINALIZADO').map(([valor, rotulo]) => ({ valor, rotulo }))} />
+            {corretor?.cargo === 'ADMIN' && <CampoSelecao control={control} name="corretor_id" rotulo="Corretor responsável"
+              opcoes={[{ valor: '', rotulo: 'Minha conta' }, ...(corretores.dados?.itens ?? []).filter((item) => item.ativo || item.id === pessoa?.corretor_id).map((item) => ({ valor: String(item.id), rotulo: item.nome }))]} />}
           </div>
           </SecaoPainel>
           <details className="min-w-0">

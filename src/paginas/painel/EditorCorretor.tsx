@@ -5,6 +5,7 @@ import { z } from 'zod';
 import Aviso from '../../componentes/Aviso';
 import Campo from '../../componentes/Campo';
 import CampoCreci from '../../componentes/CampoCreci';
+import CampoSelecao from '../../componentes/CampoSelecao';
 import Dialogo from '../../componentes/Dialogo';
 import { estilos } from '../../componentes/estilosPainel';
 import { IconeSalvar } from '../../componentes/Icones';
@@ -36,7 +37,7 @@ export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Cor
   const [erro, setErro] = useState('');
   const creciInicial = useRef(corretor?.creci ?? '');
   const [esquema] = useState(() => esquemaCorretor(() => creciInicial.current));
-  const { register, handleSubmit, setError, formState: { errors, isSubmitting, isDirty } } = useForm<Valores>({
+  const { register, control, handleSubmit, setError, formState: { errors, isSubmitting, isDirty } } = useForm<Valores>({
     resolver: zodResolver(esquema),
     defaultValues: { nome: corretor?.nome ?? '', cpf: corretor?.cpf ?? '', email: corretor?.email ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', cargo: corretor?.cargo ?? 'CORRETOR', url_foto: corretor?.url_foto ?? '', senha: '' },
   });
@@ -57,7 +58,7 @@ export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Cor
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>
         <fieldset disabled={isSubmitting} className="m-0 min-w-0 border-0 p-0"><div className={estilos.grade}>
           {campos.map((item) => campo(item))}
-          <Campo rotulo="Permissão" erro={errors.cargo?.message} obrigatorio><select {...register('cargo')}><option value="CORRETOR">Corretor</option><option value="ADMIN">Administrador</option></select></Campo>
+          <CampoSelecao control={control} name="cargo" rotulo="Permissão" obrigatorio opcoes={[{ valor: 'CORRETOR', rotulo: 'Corretor' }, { valor: 'ADMIN', rotulo: 'Administrador' }]} />
           {campo(['url_foto', 'URL da foto (HTTPS)', 'url'])}
           <Campo classe="col-span-full" rotulo={corretor ? 'Nova senha (opcional)' : 'Senha'} obrigatorio={!corretor} erro={errors.senha?.message} dica={`${corretor ? 'Deixe em branco para manter a senha atual. ' : ''}Mínimo de 12 caracteres.`}><input type="password" autoComplete="new-password" {...register('senha')} /></Campo>
         </div></fieldset>

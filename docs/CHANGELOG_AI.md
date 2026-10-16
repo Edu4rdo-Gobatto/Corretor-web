@@ -115,3 +115,28 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
 - **Não verificado:** painel real logado (toggle, listagem, ficha, barra), tema escuro e celular; nenhum dado do
   Neon foi alterado; produção não foi usada.
 - **Pendências:** VISUAL-20261016; publicar a API antes do web (PUBLICAR-20261016).
+
+### 16/10/2026 — Celular: barra de salvar e interruptor (Claude)
+- **Causa:** no celular o `<p>` da barra de salvar tinha `flex-1` (base 0) dentro de `.superficie-painel`, que usa
+  `overflow-wrap: anywhere`; a largura mínima caía para uma letra e o texto aparecia vertical ao lado dos botões.
+- **Entregue:** até 520px a barra vira coluna (texto na largura toda; "Salvar imóvel" e "Voltar" lado a lado, o primário
+  com o dobro da largura e alturas iguais); a legenda do interruptor "Exibir no site" fica só para leitores de tela
+  (`aria-describedby`); no desktop nada muda. Arquivos: `src/styles/global.css`, `src/paginas/painel/FormularioImovel.tsx`.
+- **Validação:** `typecheck`, `lint`, `build` passam. Capturas no Chrome com o CSS compilado e o mesmo HTML do
+  formulário em 390px (claro), 360px (escuro) e 1280px: sem letras empilhadas, rótulo longo "Salvar imóvel e enviar
+  mídias" em 2 linhas, desktop igual ao anterior.
+- **Não verificado:** painel real logado em celular físico ou DevTools.
+
+### 16/10/2026 — Seletor único e cadastro de Cidades (Claude)
+- **Entregue:** `SeletorFiltro` virou `Seletor` (erro, dica, obrigatório, placeholder, id fixo, ref, efeito isomórfico,
+  clique na barra de rolagem não fecha); `CampoSelecao` + `valorSelecao.ts`; os 15 `<select>` nativos migrados
+  (Imóvel 6, Contratos 3 + placeholder de carregamento, Pessoa 3, Comissão 1, Corretor 1); categoria Cidades em
+  Cadastros (editor com Estado, lista e ficha com UF); Estado → Cidade no imóvel; filtro de Cidade do catálogo pelo
+  cadastro; `/cidades` no SSR e no smoke; specs e docs.
+- **Validação:** `typecheck`, `lint`, `build`, `npm test` (6 arquivos, 30 testes; novos: `valorSelecao`, cidades do
+  imóvel) e `node scripts/seo-smoke.mjs` passam. Harness no Chrome com o `Seletor`/`CampoSelecao` reais e o CSS
+  compilado, 390px claro e 1280px escuro: 14/14 cenários (erro com ícone, foco no primeiro inválido, clique, check,
+  Esc, digitação + Enter, reescolher sem efeito, estado limpa cidade, lista longa dentro da tela, número no envio,
+  lista por cima de `<dialog>` modal). Os únicos erros de console foram 404 das fontes no servidor do harness.
+- **Não verificado:** painel real logado; catálogo com a API nova antes da migration no Neon.
+- **Pendências:** PUBLICAR-CIDADES-20261016.

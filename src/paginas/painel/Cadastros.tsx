@@ -10,7 +10,7 @@ import { estilos } from '../../componentes/estilosPainel';
 import Etiqueta from '../../componentes/Etiqueta';
 import { IconeArquivar, IconeDesarquivar, IconeEditar } from '../../componentes/Icones';
 import Paginacao from '../../componentes/Paginacao';
-import SeletorFiltro from '../../componentes/SeletorFiltro';
+import Seletor from '../../componentes/Seletor';
 import BarraFiltros from '../../componentes/BarraFiltros';
 import Tabela from '../../componentes/Tabela';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
@@ -22,8 +22,9 @@ import type { CategoriaCadastro } from '../../tipos';
 import { cadastrosApi, EditorCadastro, type ItemCadastro } from './EditorCadastro';
 import { GRUPOS_CADASTRO, ROTULOS_CADASTRO, categoriaCadastro, ehCategoriaContrato, grupoDaCategoria, periodicidade } from './categoriasCadastro';
 
-/** Linha auxiliar da tabela: slug, periodicidade ou descrição, conforme a categoria. */
+/** Linha auxiliar da tabela: estado, slug, periodicidade ou descrição, conforme a categoria. */
 function detalheItem(item: ItemCadastro) {
+  if (item.estado) return item.estado;
   if (item.periodicidade_meses) return periodicidade(item.periodicidade_meses);
   return item.slug ?? item.descricao ?? null;
 }
@@ -56,8 +57,8 @@ export default function Cadastros() {
   return <>
     <CabecalhoPagina titulo="Cadastros" descricao={grupo.descricao} acoes={<BotaoAdicionar rotulo="Novo cadastro" aoClicar={() => setEditando(null)} />} />
     <BarraFiltros>
-      <SeletorFiltro rotulo="Grupo" valor={grupo.id} opcoes={GRUPOS_CADASTRO.map((item) => ({ valor: item.id, rotulo: item.rotulo }))} aoMudar={(valor) => trocar(GRUPOS_CADASTRO.find((item) => item.id === valor)!.categorias[0])} />
-      <SeletorFiltro<CategoriaCadastro> rotulo="Categoria" valor={categoria} opcoes={grupo.categorias.map((valor) => ({ valor, rotulo: ROTULOS_CADASTRO[valor] }))} aoMudar={trocar} />
+      <Seletor rotulo="Grupo" valor={grupo.id} opcoes={GRUPOS_CADASTRO.map((item) => ({ valor: item.id, rotulo: item.rotulo }))} aoMudar={(valor) => trocar(GRUPOS_CADASTRO.find((item) => item.id === valor)!.categorias[0])} />
+      <Seletor<CategoriaCadastro> rotulo="Categoria" valor={categoria} opcoes={grupo.categorias.map((valor) => ({ valor, rotulo: ROTULOS_CADASTRO[valor] }))} aoMudar={trocar} />
     </BarraFiltros>
     <EstadoCarregamento compacto carregando={carregando} erro={erroCarga} tentarNovamente={recarregar} />
     {erro && !confirmando && <Aviso tom="erro">{erro}</Aviso>}

@@ -47,6 +47,7 @@ export default function FichaClassificacao() {
       <DadoFicha rotulo="Categoria">{categoria && ROTULOS_CADASTRO[categoria]}</DadoFicha><DadoFicha rotulo="Nome">{item.nome}</DadoFicha>
       {categoria && ehCategoriaContrato(categoria)
         ? <>{item.periodicidade_meses && <DadoFicha rotulo="Periodicidade">{periodicidade(item.periodicidade_meses)}</DadoFicha>}{categoria === 'indices-reajuste' ? <DadoFicha rotulo="Regra">{item.regra && <span className="whitespace-pre-wrap">{item.regra}</span>}</DadoFicha> : <DadoFicha rotulo="Descrição">{item.descricao && <span className="whitespace-pre-wrap">{item.descricao}</span>}</DadoFicha>}</>
+        : categoria === 'cidades' ? <DadoFicha rotulo="Estado">{item.estado}</DadoFicha>
         : <><DadoFicha rotulo="Identificador no endereço">{item.slug}</DadoFicha><DadoFicha rotulo="Ícone">{item.icone}</DadoFicha></>}
       <DadoFicha rotulo="Situação">{item.ativo ? 'Ativo' : 'Inativo'}</DadoFicha>
     </DadosFicha></SecaoPainel>}

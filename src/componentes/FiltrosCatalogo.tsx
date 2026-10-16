@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { IconeEdificio, IconeFechar, IconeFiltros, IconeGalpao, IconeLoja, IconePredio, IconeProximo, IconeTerreno, type Icone } from './Icones';
 import FiltroSuspenso from './FiltroSuspenso';
 import Dialogo from './Dialogo';
+import Seletor from './Seletor';
 import { useFiltrosAutomaticos } from '../hooks/useFiltrosAutomaticos';
 import { rotulosOrdenacao } from '../servicos/formato';
 import type { ConsultaCatalogo, Ordenacao } from '../tipos';
@@ -73,14 +74,17 @@ function resumoTipos(selecionados: string[], tipos: Classificacao[]) {
 }
 
 /** Local, preço e área: o mesmo trecho serve ao painel do desktop e à tela cheia do mobile. */
-function CamposExtras({ rascunho, aoMudar, emColunas }: { rascunho: Extras; aoMudar: (campo: HTMLInputElement) => void; emColunas: boolean }) {
+function CamposExtras({ rascunho, aoMudar, aoEscolherCidade, cidades, emColunas }: { rascunho: Extras; aoMudar: (campo: HTMLInputElement) => void; aoEscolherCidade: (cidade: string) => void; cidades: string[]; emColunas: boolean }) {
   const ligar = (campo: CampoExtra) => ({ name: campo, value: rascunho[campo], onChange: (evento: { currentTarget: HTMLInputElement }) => aoMudar(evento.currentTarget) });
   const grupo = 'm-0 grid min-w-0 grid-cols-2 gap-3 border-0 p-0';
   const legenda = 'mb-2 p-0 text-sm font-semibold';
   const campo = 'block min-w-0 text-sm font-normal text-muted [&_input]:text-ink';
   return <div className={emColunas ? 'grid grid-cols-3 gap-6 max-[1100px]:gap-4' : 'grid gap-6'}>
     <fieldset className={grupo}><legend className={legenda}>Local</legend>
-      <label className={campo}>Cidade<input {...ligar('cidade')} list="catalogo-cidades" placeholder="Ex.: Juara" maxLength={100} /></label>
+      {/* Cidades do cadastro (só as ativas); uma cidade vinda de um link antigo continua como opção. Id fixo: há duas instâncias (painel e tela cheia) e o catálogo passa pelo SSR. */}
+      <Seletor id={`catalogo-cidade-${emColunas ? 'painel' : 'tela'}`} classe="[&_label]:text-sm [&_label]:font-normal [&_label]:text-muted" rotulo="Cidade" valor={rascunho.cidade}
+        opcoes={[{ valor: '', rotulo: 'Todas as cidades' }, ...[...new Set([...cidades, ...(rascunho.cidade && !cidades.includes(rascunho.cidade) ? [rascunho.cidade] : [])])].map((cidade) => ({ valor: cidade, rotulo: cidade }))]}
+        aoMudar={aoEscolherCidade} />
       <label className={campo}>Bairro<input {...ligar('bairro')} placeholder="Ex.: Centro" maxLength={100} /></label>
     </fieldset>
     <fieldset className={grupo}><legend className={legenda}>Preço (R$)</legend>
@@ -142,6 +146,8 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
     else numerosInvalidos.current.delete(campo.name);
     definir({ ...rascunho, [campo.name]: campo.value });
   }
+  // Lista fechada: a escolha vale na hora, como os chips (sem esperar a digitação).
+  const escolherCidade = (cidade: string) => definir({ ...rascunho, cidade }, true);
   function aplicarExtras(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     if (aplicarAgora(false)) setTelaCheia(false);
@@ -182,7 +188,7 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
       </button>
     </div>
     {painelAberto && <form id="filtros-extras" noValidate onSubmit={aplicarExtras} aria-label="Mais filtros" className="mt-5 border-t border-line pt-5 max-[800px]:hidden">
-      <CamposExtras rascunho={rascunho} aoMudar={mudarCampo} emColunas />
+      <CamposExtras rascunho={rascunho} aoMudar={mudarCampo} aoEscolherCidade={escolherCidade} cidades={cidades} emColunas />
       {!telaCheia && mensagemErro}
     </form>}
 
@@ -197,12 +203,11 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
         <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos + ocultasMobile)}
       </button>
     </div>
-    <datalist id="catalogo-cidades">{cidades.map((cidade) => <option value={cidade} key={cidade} />)}</datalist>
 
     {telaCheia && <Dialogo titulo="Mais filtros" telaInteira aoFechar={() => { aplicarAgora(); setTelaCheia(false); }}>
       <form noValidate onSubmit={aplicarExtras} className="flex min-h-full flex-col">
         <div className="mb-6 grid gap-5 border-b border-line pb-6">{grupos()}</div>
-        <CamposExtras rascunho={rascunho} aoMudar={mudarCampo} emColunas={false} />
+        <CamposExtras rascunho={rascunho} aoMudar={mudarCampo} aoEscolherCidade={escolherCidade} cidades={cidades} emColunas={false} />
         {mensagemErro}
         <div className="mt-auto pt-8"><button type="submit" className="button w-full">Ver imóveis</button></div>
       </form>

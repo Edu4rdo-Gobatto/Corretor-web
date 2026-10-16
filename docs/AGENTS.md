@@ -144,7 +144,7 @@ src/paginas/painel/      # LayoutPainel, Entrar, VisaoGeral, Perfil
 src/componentes/         # público: LayoutPublico, CartaoImovel, FiltrosCatalogo, FormularioContato, GaleriaMidia,
                          #   PaginaIndisponivel, CenaReparo, CasaQuebrada, CenaObra, ObraOverlay
                          # painel: BlocosPainel, Tabela, CabecalhoPagina, BotaoVoltar, AcaoIcone, PaletaPainel,
-                         #   SeletorFiltro, FiltroSuspenso, SeletorRegistro, CampoNumero, CampoCreci,
+                         #   Seletor, CampoSelecao, FiltroSuspenso, SeletorRegistro, CampoNumero, CampoCreci,
                          #   GerenciadorMidia, prepararMidia.ts, SelecaoMidia, estilosPainel.ts
                          # comuns: Dialogo, ConfirmarAcao, Campo, Aviso, Etiqueta, Paginacao, EstadoCarregamento,
                          #   LimiteErro, Icones

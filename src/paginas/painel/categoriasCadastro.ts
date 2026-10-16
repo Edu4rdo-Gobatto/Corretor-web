@@ -2,12 +2,12 @@ import type { CategoriaCadastro, CategoriaContrato } from '../../tipos';
 
 /** Cadastros em dois grupos: os de imóveis alimentam o catálogo público e o SSR; os de contratos, não. */
 export const GRUPOS_CADASTRO = [
-  { id: 'imoveis', rotulo: 'Imóveis', descricao: 'Tipos, finalidades e características usados nos anúncios e no catálogo público.', categorias: ['tipos-imovel', 'finalidades-imovel', 'caracteristicas'] },
+  { id: 'imoveis', rotulo: 'Imóveis', descricao: 'Tipos, finalidades, características e cidades usados nos anúncios e no catálogo público.', categorias: ['tipos-imovel', 'finalidades-imovel', 'caracteristicas', 'cidades'] },
   { id: 'contratos', rotulo: 'Contratos', descricao: 'Tipos de contrato e índices de reajuste usados só nos contratos de locação do painel.', categorias: ['tipos-contrato', 'indices-reajuste'] },
 ] as const satisfies readonly { id: string; rotulo: string; descricao: string; categorias: readonly CategoriaCadastro[] }[];
 
 export const ROTULOS_CADASTRO: Record<CategoriaCadastro, string> = {
-  'tipos-imovel': 'Tipos de imóvel', 'finalidades-imovel': 'Finalidades', caracteristicas: 'Características',
+  'tipos-imovel': 'Tipos de imóvel', 'finalidades-imovel': 'Finalidades', caracteristicas: 'Características', cidades: 'Cidades',
   'tipos-contrato': 'Tipos de contrato', 'indices-reajuste': 'Índices de reajuste',
 };
 

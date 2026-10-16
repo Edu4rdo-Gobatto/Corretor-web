@@ -62,8 +62,10 @@ async function classificacoesPublicas(config: ServerConfig, fetcher: typeof fetc
     } while (pagina <= totalPaginas);
     return itens;
   };
-  const [tipos, finalidades, caracteristicas] = await Promise.all([carregar('tipos-imovel'), carregar('finalidades-imovel'), carregar('caracteristicas')]);
-  return { tipos, finalidades, caracteristicas };
+  const [tipos, finalidades, caracteristicas, cidades] = await Promise.all([carregar('tipos-imovel'), carregar('finalidades-imovel'), carregar('caracteristicas'),
+    // Cidades vieram depois (16/10): sem a rota na API, o SSR segue sem o filtro em vez de responder 503.
+    carregar('cidades').catch(() => [] as Classificacao[])]);
+  return { tipos, finalidades, caracteristicas, cidades };
 }
 
 const xml = (body: string, type: 'urlset' | 'sitemapindex' = 'urlset') => `<?xml version="1.0" encoding="UTF-8"?><${type} xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</${type}>`;

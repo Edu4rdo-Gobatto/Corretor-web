@@ -84,6 +84,12 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 - Publicar a API (`RESTRICAO_PUBLICA` só por `ativo`) antes do web. Sem migration. Depois, conferir no catálogo
   publicado um imóvel Vendido/Alugado ativo.
 
+### PUBLICAR-CIDADES-20261016 — Publicar o cadastro de Cidades
+- **Status:** aberta. **Responsável:** a definir.
+- Ordem: backup do Neon → `migration:run` (`1789862400000`, cria `cidades` e carrega as cidades dos imóveis) →
+  deploy da API → web. Sem a migration, a API nova recusa criar imóvel e `/cidades` falha (o catálogo segue sem a lista).
+- Depois: conferir Cadastros › Cidades, Estado → Cidade no imóvel e o filtro de cidade do catálogo.
+
 ## Backlog (sugestões)
 
 - **PERF-001 a 003:** cache no SSR para classificações; carga paralela no painel; bundle público menor (o chunk do
@@ -101,6 +107,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 | Tarefa | Data | Resumo |
 |---|---|---|
+| SELETOR-CIDADES-20261016 | 16/10 | `Seletor` único (15 selects nativos migrados), cadastro de Cidades, Estado → Cidade no imóvel, filtro de cidade do catálogo pelo cadastro |
 | EXIBIR-SITE-20261016 | 16/10 | "Exibir no site" só por `ativo` (web + API), controle só em Editar, destaque removido, foco só por cor de borda (`#a37d29`), erro de campo com ícone, SEO por situação |
 | LIMPEZA-TESTES | 14/10 | Removidos `tests/visual/`, `playwright.visual.config.ts`, scripts `visual`, `src/test/setup.ts` e as dependências jsdom e Testing Library. Ficam 3 testes de lógica pura (vitest em node) |
 | UX-008 | 13/10 | `BarraFiltros` única em Imóveis, Pessoas, Contratos, Contatos, Comissões e Cadastros; sem botão Buscar; Limpar na faixa de chips (corrige o layout quebrado) |

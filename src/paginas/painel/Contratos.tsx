@@ -17,13 +17,14 @@ import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
-import SeletorFiltro from '../../componentes/SeletorFiltro';
+import Seletor from '../../componentes/Seletor';
 import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import { IconeSalvar } from '../../componentes/Icones';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import Campo from '../../componentes/Campo';
+import CampoSelecao from '../../componentes/CampoSelecao';
 import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
 import { esquemaContrato, type ValoresContrato } from './esquemaLocacao';
@@ -45,7 +46,7 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
     const [tipos, indices] = await Promise.all([api.opcoesContrato('tipos-contrato'), api.opcoesContrato('indices-reajuste')]);
     return { tipos, indices };
   }, []));
-  const { register, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresContrato>({
+  const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresContrato>({
     resolver: zodResolver(esquemaContrato),
     defaultValues: {
       numero_contrato: contrato?.numero_contrato ?? '', imovel_id: contrato?.imovel_id ?? 0, locador_id: contrato?.locador_id ?? 0, locatario_id: contrato?.locatario_id ?? 0, corretor_id: contrato?.corretor_id ?? corretor?.id ?? 0,
@@ -66,8 +67,8 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
   const tipos = comAtual(opcoes.dados?.tipos, contrato?.tipo_contrato_id, contrato?.tipo_contrato_nome);
   const indices = comAtual(opcoes.dados?.indices, contrato?.indice_reajuste_id, contrato?.indice_reajuste_nome);
   const semOpcoes = opcoes.dados && (!tipos.length || !indices.length);
-  // Os selects só são registrados com as opções na tela, para o valor atual aparecer selecionado.
-  const carregandoOpcoes = <select disabled><option>{opcoes.erro ? 'Indisponível' : 'Carregando…'}</option></select>;
+  // Enquanto as opções não chegam, o seletor fica desabilitado com o motivo no lugar do valor.
+  const carregandoOpcoes = !opcoes.dados ? (opcoes.erro ? 'Indisponível' : 'Carregando…') : undefined;
   const legado = contrato && (contrato.tipo_contrato_id === null || contrato.indice_reajuste_id === null);
   return (
     <Dialogo titulo={contrato ? 'Editar contrato' : 'Novo contrato'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
@@ -79,11 +80,13 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
           {corretor?.cargo === 'ADMIN' ? <SeletorRegistro rotulo="Intermediador" valor={intermediador} buscar={buscarCorretores} aoEscolher={escolher('corretor_id', setIntermediador)} erro={errors.corretor_id?.message} /> : <p className="m-0">Intermediador: {corretor?.nome}.</p>}
           <div className={estilos.grade}>
             {campos.map(([nome, rotulo, tipo]) => <Campo key={nome} rotulo={rotulo} erro={errors[nome]?.message as string | undefined}>{nome === 'valor_aluguel' || nome === 'taxa_administracao' ? <CampoNumero unidade={nome === 'valor_aluguel' ? 'R$' : '%'} {...register(nome)} /> : <input type={tipo} {...register(nome)} />}</Campo>)}
-            <Campo rotulo="Tipo de contrato" erro={errors.tipo_contrato_id?.message}>{!opcoes.dados ? carregandoOpcoes : <select {...register('tipo_contrato_id', { setValueAs: Number })}><option value={0}>Selecione</option>{tipos.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select>}</Campo>
-            <Campo rotulo="Índice de reajuste" erro={errors.indice_reajuste_id?.message}>{!opcoes.dados ? carregandoOpcoes : <select {...register('indice_reajuste_id', { setValueAs: Number })}><option value={0}>Selecione</option>{indices.map((item) => <option key={item.id} value={item.id}>{item.nome}{item.periodicidade_meses ? ` (a cada ${item.periodicidade_meses} ${item.periodicidade_meses === 1 ? 'mês' : 'meses'})` : ''}</option>)}</select>}</Campo>
+            <CampoSelecao control={control} name="tipo_contrato_id" numerico rotulo="Tipo de contrato" desabilitado={!!carregandoOpcoes} placeholder={carregandoOpcoes}
+              opcoes={tipos.map((item) => ({ valor: String(item.id), rotulo: item.nome }))} />
+            <CampoSelecao control={control} name="indice_reajuste_id" numerico rotulo="Índice de reajuste" desabilitado={!!carregandoOpcoes} placeholder={carregandoOpcoes}
+              opcoes={indices.map((item) => ({ valor: String(item.id), rotulo: `${item.nome}${item.periodicidade_meses ? ` (a cada ${item.periodicidade_meses} ${item.periodicidade_meses === 1 ? 'mês' : 'meses'})` : ''}` }))} />
             {legado && <p className={`${estilos.dica} col-span-full m-0`}>Contrato anterior aos cadastros. Reajuste registrado: “{contrato.indice_reajuste}”. Para salvar, escolha o tipo e o índice; o texto anterior será substituído pelo índice escolhido.</p>}
             <Campo rotulo="Dia de vencimento" erro={errors.dia_vencimento?.message}><CampoNumero casasDecimais={0} min={1} max={31} {...register('dia_vencimento', { setValueAs: numeroDoCampo })} /></Campo>
-            <Campo rotulo="Situação" erro={errors.status?.message}><select {...register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Encerrado</option></select></Campo>
+            <CampoSelecao control={control} name="status" rotulo="Situação" opcoes={[{ valor: 'ATIVO', rotulo: 'Ativo' }, { valor: 'INATIVO', rotulo: 'Encerrado' }]} />
             <Campo classe="col-span-full" rotulo="Observações" erro={errors.observacoes?.message}><textarea {...register('observacoes')} /></Campo>
             {contrato && <label className="col-span-full flex! items-center gap-2.5!"><input type="checkbox" className="w-auto!" {...register('ativo')} />Manter no cadastro de contratos</label>}
           </div>
@@ -123,8 +126,8 @@ export default function Contratos() {
     <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<BotaoAdicionar rotulo="Novo contrato" aoClicar={() => setCriando(true)} />} />
     <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={(campo) => setRascunho({ ...rascunho, [campo]: filtrosIniciais[campo] }, true)} aoLimpar={() => setRascunho(filtrosIniciais, true)}>
       <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Número, imóvel ou inquilino" />
-      <SeletorFiltro rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
-      <SeletorFiltro rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
+      <Seletor rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
+      <Seletor rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
     </BarraFiltros>
     <EstadoCarregamento compacto carregando={carregando} erro={erro} tentarNovamente={recarregar} />
     {dados && !erro && (

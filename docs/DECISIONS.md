@@ -5,6 +5,18 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 16/10 — Seletor único e cadastro de Cidades
+- **Um select só no sistema:** `componentes/Seletor.tsx` (antes `SeletorFiltro`): botão com seta, lista em popover na
+  camada superior, check dourado na opção escolhida, teclado (setas, Home/End, digitar, Enter/Espaço, Esc, Tab).
+  Formulários usam `CampoSelecao` (Controller do react-hook-form: erro, foco no primeiro inválido, `numerico` com 0
+  como vazio, `aoMudar` para efeitos). Não há mais `<select>` nativo; não voltar a usá-lo. Reescolher a mesma opção
+  não dispara mudança (igual ao nativo). CSS base sem escopo (`.seletor`, `.lista-seletor`); o painel só aumenta.
+- **Cidades:** categoria nova no grupo Imóveis de Cadastros (nome + UF). O formulário do imóvel pede Estado e depois
+  Cidade (só as ativas do estado; a cidade gravada fora do cadastro aparece como "(não cadastrada)"); trocar o estado
+  limpa cidade de outro estado. O imóvel continua guardando a cidade em texto. O filtro do catálogo lista todas as
+  cidades ativas do cadastro, com "Todas as cidades"; a lista não sai mais dos imóveis da página.
+- Falha em `/cidades` (API antiga) não derruba o catálogo nem o SSR: a lista fica vazia.
+
 ### 16/10 — Exibição no site, foco e fim do destaque
 - **"Exibir no site" = `ativo`, e só isso.** Imóvel ativo aparece no catálogo, no detalhe e aceita contato em
   qualquer situação (Vendido, Alugado, Reservado, Retirado), como referência de portfólio. A regra mora na API
@@ -145,7 +157,7 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
   texto e converte nos adaptadores; `Dialogo` com `alterado`/`ocupado` (Esc + Esc ou Enter descarta); único atalho
   Ctrl/⌘+K.
 - **06/10 — Navegação do painel.** Esc volta à página anterior; sem histórico, à lista e depois à Visão geral.
-  `SeletorFiltro` nos filtros; menu mobile em tela inteira; cabeçalhos com `.linha-nav`.
+  `SeletorFiltro` nos filtros (hoje `Seletor`, em todos os selects); menu mobile em tela inteira; cabeçalhos com `.linha-nav`.
 - **06/10 — Contatos em abas.** Pendentes, Atendidos e Finalizados, com páginas independentes e CSV da página.
   Filtros automáticos por `useFiltrosAutomaticos`: seleção imediata, texto após 350 ms.
 - **09/10 — Esc e voltar em todas as telas.** `BotaoVoltar` em toda tela com retorno. No site e no login, Esc fora do

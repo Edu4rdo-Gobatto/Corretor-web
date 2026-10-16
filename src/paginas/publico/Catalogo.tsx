@@ -83,16 +83,10 @@ export default function Catalogo() {
     chave: chave(item),
     nome: item.nome,
   }));
+  // Cidades do cadastro (ativas), não só as da página carregada: escolher uma não esvazia a lista.
   const cidades = Array.from(
-    new Map(
-      (imoveis?.itens ?? []).map((item) => [
-        item.cidade.trim().toLocaleLowerCase("pt-BR"),
-        item.cidade.trim(),
-      ]),
-    ).values(),
-  )
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b, "pt-BR"));
+    new Set((classificacoes?.cidades ?? []).filter((item) => item.ativo).map((item) => item.nome.trim())),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
   function rolarParaCatalogo() {
     const reduzMovimento = window.matchMedia(

@@ -16,6 +16,7 @@ import SelecaoMidia from '../../componentes/SelecaoMidia';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import InterruptorSite from '../../componentes/InterruptorSite';
 import Campo from '../../componentes/Campo';
+import CampoSelecao from '../../componentes/CampoSelecao';
 import EntradaNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
 import Aviso from '../../componentes/Aviso';
 import AcaoIcone from '../../componentes/AcaoIcone';
@@ -24,7 +25,7 @@ import { estilos } from '../../componentes/estilosPainel';
 import { prepararEnvio } from '../../componentes/prepararMidia';
 import { SecaoPainel } from '../../componentes/BlocosPainel';
 import FichaImovel from './FichaImovel';
-import { comClassificacoesDaFicha, dadosParaApi, esquemaImovel, estados, imovelVazio, valoresDaFicha, type ValoresImovel } from './esquemaImovel';
+import { comClassificacoesDaFicha, dadosParaApi, esquemaImovel, estados, imovelVazio, mesmaCidade, opcoesCidade, valoresDaFicha, type ValoresImovel } from './esquemaImovel';
 import { chaveRascunho, gravarRascunho, lerRascunho, limparRascunho } from './rascunhoImovel';
 
 const AVISOS_RASCUNHO = {
@@ -33,8 +34,12 @@ const AVISOS_RASCUNHO = {
   indisponivel: 'O rascunho não pôde ser salvo nesta aba. Continue editando e salve o imóvel.',
   salvo: '',
 };
-type CampoTexto = 'titulo' | 'logradouro' | 'numero' | 'cidade' | 'bairro' | 'cep' | 'complemento' | 'chaves' | 'matricula' | 'inscricao_municipal';
+type CampoTexto = 'titulo' | 'logradouro' | 'numero' | 'bairro' | 'cep' | 'complemento' | 'chaves' | 'matricula' | 'inscricao_municipal';
 type CampoNumero = 'valor_venda' | 'valor_locacao' | 'valor_condominio' | 'valor_iptu' | 'area_util' | 'area_total';
+
+/** Cadastros e corretores como opções do seletor; registro inativo continua visível para o valor salvo. */
+const opcoesClassificacao = (itens: { id: number; nome: string; ativo: boolean }[]) =>
+  itens.map((item) => ({ valor: String(item.id), rotulo: `${item.nome}${item.ativo ? '' : ' (inativo)'}` }));
 
 export default function FormularioImovel() {
   const { id } = useParams();
@@ -51,7 +56,7 @@ function InstanciaFormulario() {
   const [rascunhoRestaurado, setRascunhoRestaurado] = useState(false);
   const [avisoRascunho, setAvisoRascunho] = useState('');
   const [imovel, setImovel] = useState<Ficha>();
-  const [classificacoes, setClassificacoes] = useState<Classificacoes>({ tipos: [], finalidades: [], caracteristicas: [] });
+  const [classificacoes, setClassificacoes] = useState<Classificacoes>({ tipos: [], finalidades: [], caracteristicas: [], cidades: [] });
   const [corretores, setCorretores] = useState<Corretor[]>([]);
   const [carregando, setCarregando] = useState(!!id);
   const [erroCarga, setErroCarga] = useState('');
@@ -67,6 +72,8 @@ function InstanciaFormulario() {
   const { fields: caracteristicas, append: adicionarCaracteristica, remove: removerCaracteristica } = useFieldArray({ control, name: 'caracteristicas' });
   const proprietario = watch('proprietario');
   const status = watch('status');
+  const estadoEscolhido = watch('estado');
+  const cidadeEscolhida = watch('cidade');
   const podeEditar = !imovel || corretor?.cargo === 'ADMIN' || corretor?.id === imovel.corretor_id;
   const alterado = podeEditar && (isDirty || rascunhoRestaurado || arquivosPendentes.length > 0 || videosPendentes.length > 0);
   const navegacaoLiberada = useGuardaFormulario(alterado);
@@ -240,10 +247,10 @@ function InstanciaFormulario() {
         <fieldset disabled={isSubmitting} className="m-0 grid min-w-0 gap-4 border-0 p-0">
         {secao('01', 'Apresentação', <div className={estilos.grade}>
           <div className="col-span-full">{campoTexto('titulo', 'Título do anúncio *')}</div>
-          <Campo rotulo="Tipo de imóvel" obrigatorio erro={errors.tipo_id?.message}><select {...register('tipo_id')}><option value="">Selecione</option>{classificacoes.tipos.filter((item) => item.ativo || item.id === imovel?.tipo_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
-          <Campo rotulo="Finalidade" obrigatorio erro={errors.finalidade_id?.message}><select {...register('finalidade_id')}><option value="">Selecione</option>{classificacoes.finalidades.filter((item) => item.ativo || item.id === imovel?.finalidade_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
-          <Campo rotulo="Situação" obrigatorio erro={errors.status?.message} dica="Aparece no anúncio como disponível ou indisponível. Não esconde o imóvel do site."><select {...register('status')}>{Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></Campo>
-          {corretor?.cargo === 'ADMIN' && <Campo rotulo="Corretor responsável" erro={errors.corretor_id?.message}><select {...register('corretor_id')}><option value="">Minha conta</option>{corretores.filter((item) => item.ativo || item.id === imovel?.corretor_id).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>}
+          <CampoSelecao control={control} name="tipo_id" rotulo="Tipo de imóvel" obrigatorio opcoes={opcoesClassificacao(classificacoes.tipos.filter((item) => item.ativo || item.id === imovel?.tipo_id))} />
+          <CampoSelecao control={control} name="finalidade_id" rotulo="Finalidade" obrigatorio opcoes={opcoesClassificacao(classificacoes.finalidades.filter((item) => item.ativo || item.id === imovel?.finalidade_id))} />
+          <CampoSelecao control={control} name="status" rotulo="Situação" obrigatorio dica="Aparece no anúncio como disponível ou indisponível. Não esconde o imóvel do site." opcoes={Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor, rotulo }))} />
+          {corretor?.cargo === 'ADMIN' && <CampoSelecao control={control} name="corretor_id" rotulo="Corretor responsável" opcoes={[{ valor: '', rotulo: 'Minha conta' }, ...opcoesClassificacao(corretores.filter((item) => item.ativo || item.id === imovel?.corretor_id))]} />}
           <Campo classe="col-span-full" rotulo="Descrição" obrigatorio erro={errors.descricao?.message}><textarea rows={6} {...register('descricao')} /></Campo>
         </div>)}
         {secao('02', 'Valores e dimensões', <div className={estilos.grade}>
@@ -255,13 +262,18 @@ function InstanciaFormulario() {
           {campoNumero('area_total', 'Área total (m²) *')}
         </div>, 'Sem valor de venda nem de locação, o site mostra "sob consulta".')}
         {secao('03', 'Localização', <div className={estilos.grade}>
-          {campoTexto('cep', 'CEP')}{campoTexto('complemento', 'Complemento')}{campoTexto('logradouro', 'Rua / avenida *')}{campoTexto('numero', 'Número *')}{campoTexto('bairro', 'Bairro *')}{campoTexto('cidade', 'Cidade *')}
-          <Campo rotulo="Estado" obrigatorio erro={errors.estado?.message}><select {...register('estado')}>{estados.map((estado) => <option key={estado}>{estado}</option>)}</select></Campo>
+          {campoTexto('cep', 'CEP')}{campoTexto('complemento', 'Complemento')}{campoTexto('logradouro', 'Rua / avenida *')}{campoTexto('numero', 'Número *')}{campoTexto('bairro', 'Bairro *')}
+          {/* Estado antes da Cidade: a lista de cidades depende do estado; trocar o estado limpa cidade de outro estado. */}
+          <CampoSelecao control={control} name="estado" rotulo="Estado" obrigatorio opcoes={estados.map((estado) => ({ valor: estado, rotulo: estado }))}
+            aoMudar={(uf) => { const atual = getValues('cidade'); if (atual && !classificacoes.cidades.some((item) => mesmaCidade(item, atual, uf))) setValue('cidade', '', { shouldDirty: true }); }} />
+          <CampoSelecao control={control} name="cidade" rotulo="Cidade" obrigatorio opcoes={opcoesCidade(classificacoes.cidades, estadoEscolhido, cidadeEscolhida)}
+            dica={opcoesCidade(classificacoes.cidades, estadoEscolhido, cidadeEscolhida).length ? undefined : 'Nenhuma cidade deste estado. Cadastre em Cadastros › Cidades.'} />
         </div>)}
         {secao('04', 'Características', <>
           {caracteristicas.map((campo, indice) => (
             <div key={campo.id} className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-4 @min-[38rem]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
-              <Campo classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica" erro={errors.caracteristicas?.[indice]?.caracteristica_id?.message}><select {...register(`caracteristicas.${indice}.caracteristica_id`)}><option value="">Selecione</option>{classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)).map((item) => <option key={item.id} value={item.id}>{item.nome}{item.ativo ? '' : ' (inativo)'}</option>)}</select></Campo>
+              <CampoSelecao control={control} name={`caracteristicas.${indice}.caracteristica_id`} classe="col-span-full @min-[38rem]:col-span-1" rotulo="Característica"
+                opcoes={opcoesClassificacao(classificacoes.caracteristicas.filter((item) => item.ativo || imovel?.caracteristicas.some((atual) => atual.caracteristica_id === item.id)))} />
               <Campo rotulo="Valor" erro={errors.caracteristicas?.[indice]?.valor?.message}><input {...register(`caracteristicas.${indice}.valor`)} maxLength={500} placeholder="Opcional, ex.: 4 vagas" /></Campo>
               <div className="flex items-end pb-1"><AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={`característica ${indice + 1}`} tom="perigo" aoClicar={() => removerCaracteristica(indice)} /></div>
             </div>
@@ -285,8 +297,8 @@ function InstanciaFormulario() {
         </fieldset>
         {erro && <Aviso tom="erro" classe="mb-5">{erro}</Aviso>}
         <div className="superficie-painel barra-salvar sticky bottom-0 z-10 mt-4 flex flex-wrap items-center justify-between gap-4">
-          <p role="status" className="m-0 min-w-0 flex-1 text-lg font-semibold text-ink">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
-          <div className="ml-auto flex flex-wrap items-center justify-end gap-3"><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
+          <p role="status" className="barra-salvar-texto m-0 min-w-0 flex-1 text-lg font-semibold text-ink">{isSubmitting ? progresso || 'Salvando imóvel…' : alterado ? 'Há alterações pendentes de salvar.' : sucesso || 'Nenhuma alteração pendente.'}</p>
+          <div className="barra-salvar-acoes ml-auto flex flex-wrap items-center justify-end gap-3"><button className="button" disabled={isSubmitting}><IconeSalvar aria-hidden="true" />{isSubmitting ? 'Salvando…' : imovel ? 'Salvar imóvel' : arquivosPendentes.length || videosPendentes.length ? 'Salvar imóvel e enviar mídias' : 'Salvar imóvel'}</button>
           <Link to="/admin/imoveis" className="buttonGhost">Voltar</Link></div>
         </div>
       </form>

@@ -8,6 +8,7 @@ export const classificacoesExemplo: Classificacoes = {
   ],
   finalidades: [{ id: 3, nome: 'Locação', slug: 'locacao', ativo: true }, { id: 4, nome: 'Venda', slug: 'venda', ativo: true }],
   caracteristicas: [{ id: 5, nome: 'Acessibilidade', icone: null, ativo: true }],
+  cidades: [{ id: 9, nome: 'Juara', estado: 'MT', ativo: true }, { id: 10, nome: 'Porto dos Gaúchos', estado: 'MT', ativo: true }],
 };
 
 export const imovelExemplo: Imovel = {

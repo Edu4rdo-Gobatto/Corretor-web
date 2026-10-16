@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import Aviso from '../../componentes/Aviso';
 import Campo from '../../componentes/Campo';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
+import CampoSelecao from '../../componentes/CampoSelecao';
 import Dialogo from '../../componentes/Dialogo';
 import { estilos } from '../../componentes/estilosPainel';
 import { IconeComissoes, IconeSalvar } from '../../componentes/Icones';
@@ -41,7 +42,7 @@ export function EditorComissao({ contrato, comissao, nomes, aoFechar, aoSalvar }
     : comissao?.contrato_id ? { id: comissao.contrato_id, nome: nomes?.contrato ?? `Contrato #${comissao.contrato_id}` } : null);
   const [resolvendoContrato, setResolvendoContrato] = useState(false);
   const sequenciaContrato = useRef(0);
-  const { register, setValue, setError, clearErrors, watch, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresComissao>({
+  const { register, control, setValue, setError, clearErrors, watch, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresComissao>({
     resolver: zodResolver(esquemaComissao),
     defaultValues: comissao
       ? { tipo_operacao: comissao.tipo_operacao, contrato_id: comissao.contrato_id, imovel_id: comissao.imovel_id, pessoa_id: comissao.pessoa_id, valor_total: comissao.valor_total, quantidade_parcelas: comissao.quantidade_parcelas, primeiro_vencimento: comissao.primeiro_vencimento ?? '', observacoes: comissao.observacoes ?? '' }
@@ -105,7 +106,8 @@ export function EditorComissao({ contrato, comissao, nomes, aoFechar, aoSalvar }
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar={comissao ? true : undefined}>
         <fieldset disabled={isSubmitting || resolvendoContrato} className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <p className="m-0">{comissao ? 'Mudar operação, vínculos, receita, parcelas ou vencimento gera um novo plano de parcelas. O plano anterior fica guardado no histórico.' : 'Informe a receita devida pela intermediação do negócio.'}</p>
-          {!contrato && <Campo rotulo="Operação" erro={errors.tipo_operacao?.message}><select {...register('tipo_operacao', { onChange: () => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null, { shouldDirty: true }); setContratoEscolhido(null); escolherImovel(null, false); setErro(''); } })}><option value="VENDA">Venda</option><option value="LOCACAO">Locação</option></select></Campo>}
+          {!contrato && <CampoSelecao control={control} name="tipo_operacao" rotulo="Operação" opcoes={[{ valor: 'VENDA', rotulo: 'Venda' }, { valor: 'LOCACAO', rotulo: 'Locação' }]}
+            aoMudar={() => { sequenciaContrato.current++; setResolvendoContrato(false); setValue('contrato_id', null, { shouldDirty: true }); setContratoEscolhido(null); escolherImovel(null, false); setErro(''); }} />}
           {contrato ? <p className="m-0">Contrato: {contrato.numero_contrato}; {contrato.imovel_titulo}</p>
             : operacao === 'LOCACAO' ? <SeletorRegistro rotulo="Contrato de locação" valor={contratoEscolhido} buscar={buscarContratos} aoEscolher={(valor) => void escolherContrato(valor)} erro={errors.contrato_id?.message} dica={resolvendoContrato ? 'Buscando imóvel do contrato…' : imovel ? `Imóvel: ${imovel.nome}` : undefined} />
               : <SeletorRegistro rotulo="Imóvel" valor={imovel} buscar={buscarImoveis} aoEscolher={escolherImovel} erro={errors.imovel_id?.message} />}

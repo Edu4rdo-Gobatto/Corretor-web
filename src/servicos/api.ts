@@ -52,8 +52,10 @@ async function buscarClassificacoes(gerenciadas: boolean): Promise<Classificacoe
     } while (pagina <= totalPaginas);
     return itens;
   };
-  const [tipos, finalidades, caracteristicas] = await Promise.all([carregar('tipos-imovel'), carregar('finalidades-imovel'), carregar('caracteristicas')]);
-  return { tipos, finalidades, caracteristicas };
+  const [tipos, finalidades, caracteristicas, cidades] = await Promise.all([carregar('tipos-imovel'), carregar('finalidades-imovel'), carregar('caracteristicas'),
+    // Cidades vieram depois (16/10): sem a rota na API, o catálogo segue sem o filtro em vez de falhar inteiro.
+    carregar('cidades').catch(() => [] as Classificacao[])]);
+  return { tipos, finalidades, caracteristicas, cidades };
 }
 
 export interface DadosImovel {
@@ -116,7 +118,7 @@ export const api = {
   classificacoes,
   listarClassificacoes: (categoria: CategoriaClassificacao, pagina = 1) => http<Pagina<Classificacao>>(`/admin/${categoria}?pagina=${pagina}&limite=20`),
   obterClassificacao: (categoria: CategoriaClassificacao, id: number) => http<Classificacao>(`/admin/${categoria}/${id}`),
-  salvarClassificacao: (categoria: CategoriaClassificacao, dados: { nome?: string; slug?: string; icone?: string | null; ativo?: boolean }, id?: number) =>
+  salvarClassificacao: (categoria: CategoriaClassificacao, dados: { nome?: string; slug?: string; icone?: string | null; estado?: string; ativo?: boolean }, id?: number) =>
     http<Classificacao>(`/admin/${categoria}${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', dados)),
   listarCadastrosContrato: (categoria: CategoriaContrato, pagina = 1) => http<Pagina<CadastroContrato>>(`/admin/${categoria}?pagina=${pagina}&limite=20`),
   obterCadastroContrato: (categoria: CategoriaContrato, id: number) => http<CadastroContrato>(`/admin/${categoria}/${id}`),
@@ -134,7 +136,7 @@ export const api = {
 
   /** Catálogo público: tipo e finalidade chegam como slug e são resolvidos pelas classificações. */
   listarImoveis: (consulta: ConsultaCatalogo): Promise<Pagina<ImovelResumo>> => emCache(chaveCatalogo(consulta), VALIDADE_CATALOGO_MS, async () => {
-    const codificada = consultaParaApi(consulta, consulta.tipos?.length || consulta.finalidade ? await classificacoes() : { tipos: [], finalidades: [], caracteristicas: [] });
+    const codificada = consultaParaApi(consulta, consulta.tipos?.length || consulta.finalidade ? await classificacoes() : { tipos: [], finalidades: [], caracteristicas: [], cidades: [] });
     if (codificada === null) return { itens: [], total: 0, pagina: consulta.pagina, limite: consulta.limite, total_paginas: 0 };
     return http<Pagina<ImovelResumo>>(`/imoveis?${codificada}`, {}, false);
   }),
