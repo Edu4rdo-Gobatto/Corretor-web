@@ -10,6 +10,20 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
   A autorização substitui a restrição de publicação da etapa anterior. Sem PR/branch paralela, deploy manual,
   migration ou mudança de dados. Revalidar o pacote que será enviado e registrar o resultado real do workflow.
 
+### 16/10 — Filtros em card, catálogo com Seletor e foto do perfil recortada
+- **Filtros do painel:** `BarraFiltros` é um card (`superficie-painel`). Sem faixa de chips nem botão "Limpar filtros":
+  com filtro aplicado (`filtrado`), um X no canto superior direito limpa todos de uma vez. Substitui a decisão de
+  13/10 sobre Limpar na faixa de chips; chips por filtro não voltam.
+- **Catálogo (desktop):** "Alugar ou comprar", "Tipo de imóvel" e "Ordenar por" usam `Seletor` (o `FiltroSuspenso`
+  foi removido). Tipo de imóvel passou a ser escolha única no desktop, com "Todos os tipos"; vários tipos vindos da URL
+  ou dos chips do celular aparecem como um resumo ("2 tipos") até o usuário escolher outro.
+- **Foto do perfil só por arquivo, recortada no navegador:** não existe mais foto por URL (nem em Meu perfil nem no
+  editor de corretor; só o próprio corretor muda a foto). Ao escolher o arquivo abre `AjustadorFoto` (arrastar, pinça e
+  zoom, setas do teclado, círculo = o avatar) e o app envia só o quadrado 512×512 em WebP (JPEG onde o navegador não
+  gera WebP). A API não muda e guarda o que recebe; "Remover foto" envia `url_foto: null`. Cálculo do recorte em
+  `servicos/recorteFoto.ts` (testado); reenquadrar a foto já salva exige escolher o arquivo de novo (sem ponto focal
+  na API). A API ainda aceita `url_foto` por URL e redireciona fotos externas antigas: limpeza pendente (ver TASKS).
+
 ### 16/10 — Seletor único e cadastro de Cidades
 - **Um select só no sistema:** `componentes/Seletor.tsx` (antes `SeletorFiltro`): botão com seta, lista em popover na
   camada superior, check dourado na opção escolhida, teclado (setas, Home/End, digitar, Enter/Espaço, Esc, Tab).
@@ -202,8 +216,8 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 - **09/10 — `BlocosPainel`.** `SecaoPainel`, `GradePainel`, `DadosFicha` e `DadoFicha`: título externo, mesma altura
   por linha, 2 colunas a partir de 44rem e 3 a partir de 70rem de container. Ações da tabela desktop numa linha.
 - **13/10 — Barra de filtros única.** `BarraFiltros` + `CampoBusca` em todas as listas do painel. Sem botão Buscar
-  (os filtros se aplicam sozinhos; Enter aplica na hora). Limpar filtros fica na faixa de chips, para a linha de
-  campos não mudar de tamanho. Busca, status, ativo, página (e aba/datas em Contatos) vão à URL; Comissões e o imóvel
+  (os filtros se aplicam sozinhos; Enter aplica na hora). Limpar filtros ficava na faixa de chips; desde 16/10 é o X do
+  card, para a linha de campos não mudar de tamanho. Busca, status, ativo, página (e aba/datas em Contatos) vão à URL; Comissões e o imóvel
   de Contatos ficam em memória. Na URL tudo usa `replace`, inclusive a página: o Esc do painel volta pelo histórico e
   deve sair da lista, não percorrer páginas. O rascunho acompanha mudanças externas da URL (menu, voltar).
 - **02–03/10 — `/devs`.** Intro em `Dialogo` com obra animada e três MP3 CC0 locais; tenta tocar ao abrir e cai para

@@ -21,7 +21,6 @@ const esquemaCorretor = (creciLegado: () => string) => z.object({
   whatsapp: z.string().regex(/^[1-9]\d{9,14}$/, 'Use DDI e DDD, somente números. Ex.: 5565999999999.'),
   creci: esquemaCreci(creciLegado),
   cargo: z.enum(['ADMIN', 'CORRETOR']),
-  url_foto: z.string().max(2048).refine((valor) => !valor || (/^https:\/\//.test(valor) && URL.canParse(valor)), 'Use uma URL HTTPS válida.'),
   senha: z.string().refine((valor) => valor === '' || (valor.length >= 12 && valor.length <= 128 && /\S/.test(valor)), 'Use entre 12 e 128 caracteres.'),
 });
 type Valores = z.infer<ReturnType<typeof esquemaCorretor>>;
@@ -31,7 +30,7 @@ const esquemaSenha = z.object({
 }).refine((valores) => valores.nova_senha === valores.confirmacao, { message: 'A confirmação não confere.', path: ['confirmacao'] });
 
 /** Base de PATCHs de senha/ativação: sem CRECI, que fica inalterado (inclusive valores antigos fora da regra atual). */
-export const dadosBase = (corretor: Corretor) => ({ nome: corretor.nome, cpf: corretor.cpf, email: corretor.email, whatsapp: corretor.whatsapp, cargo: corretor.cargo, url_foto: corretor.url_foto });
+export const dadosBase = (corretor: Corretor) => ({ nome: corretor.nome, cpf: corretor.cpf, email: corretor.email, whatsapp: corretor.whatsapp, cargo: corretor.cargo });
 
 export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Corretor | null; aoFechar: () => void; aoSalvar: () => void }) {
   const [erro, setErro] = useState('');
@@ -39,18 +38,18 @@ export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Cor
   const [esquema] = useState(() => esquemaCorretor(() => creciInicial.current));
   const { register, control, handleSubmit, setError, formState: { errors, isSubmitting, isDirty } } = useForm<Valores>({
     resolver: zodResolver(esquema),
-    defaultValues: { nome: corretor?.nome ?? '', cpf: corretor?.cpf ?? '', email: corretor?.email ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', cargo: corretor?.cargo ?? 'CORRETOR', url_foto: corretor?.url_foto ?? '', senha: '' },
+    defaultValues: { nome: corretor?.nome ?? '', cpf: corretor?.cpf ?? '', email: corretor?.email ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', cargo: corretor?.cargo ?? 'CORRETOR', senha: '' },
   });
   async function salvar(valores: Valores) {
     if (!corretor && !valores.senha) { setError('senha', { message: 'Defina uma senha de pelo menos 12 caracteres.' }); return; }
     setErro('');
     try {
-      await api.salvarCorretor({ ...valores, creci: creciParaEnvio(valores.creci, corretor ? corretor.creci : undefined), url_foto: valores.url_foto || null, senha: valores.senha || undefined }, corretor?.id);
+      await api.salvarCorretor({ ...valores, creci: creciParaEnvio(valores.creci, corretor ? corretor.creci : undefined), senha: valores.senha || undefined }, corretor?.id);
       aoSalvar();
       aoFechar();
     } catch (causa) { setErro(mensagemErro(causa)); }
   }
-  // Ordem pensada para a grade de 2 colunas não deixar célula vazia: Nome / CPF+E-mail / WhatsApp+CRECI / Permissão+Foto / Senha.
+  // Ordem pensada para a grade de 2 colunas não deixar célula vazia: Nome / CPF+E-mail / WhatsApp+CRECI / Permissão / Senha. A foto é do próprio corretor, enviada em Meu perfil.
   const campos: [keyof Valores, string, string, string?][] = [['nome', 'Nome', 'text', 'col-span-full'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsapp', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text']];
   const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <Campo key={nome} classe={classe} rotulo={rotulo} obrigatorio={nome === 'nome' || nome === 'cpf' || nome === 'email' || nome === 'whatsapp'} erro={errors[nome]?.message}>{nome === 'creci' ? <CampoCreci {...register(nome)} /> : <input type={tipo} {...register(nome)} />}</Campo>;
   return (
@@ -58,8 +57,7 @@ export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Cor
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>
         <fieldset disabled={isSubmitting} className="m-0 min-w-0 border-0 p-0"><div className={estilos.grade}>
           {campos.map((item) => campo(item))}
-          <CampoSelecao control={control} name="cargo" rotulo="Permissão" obrigatorio opcoes={[{ valor: 'CORRETOR', rotulo: 'Corretor' }, { valor: 'ADMIN', rotulo: 'Administrador' }]} />
-          {campo(['url_foto', 'URL da foto (HTTPS)', 'url'])}
+          <CampoSelecao control={control} name="cargo" classe="col-span-full" rotulo="Permissão" obrigatorio opcoes={[{ valor: 'CORRETOR', rotulo: 'Corretor' }, { valor: 'ADMIN', rotulo: 'Administrador' }]} />
           <Campo classe="col-span-full" rotulo={corretor ? 'Nova senha (opcional)' : 'Senha'} obrigatorio={!corretor} erro={errors.senha?.message} dica={`${corretor ? 'Deixe em branco para manter a senha atual. ' : ''}Mínimo de 12 caracteres.`}><input type="password" autoComplete="new-password" {...register('senha')} /></Campo>
         </div></fieldset>
         {erro && <Aviso tom="erro">{erro}</Aviso>}

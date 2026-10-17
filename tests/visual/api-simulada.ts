@@ -139,6 +139,8 @@ export interface ApiSimulada {
   fichas: FichaImovel[];
   pessoas: Pessoa[];
   perfilSalvo: unknown;
+  /** Foto enviada em multipart ao salvar o perfil: nome, tipo e bytes do arquivo. */
+  fotoEnviada: { nome: string; tipo: string; bytes: number } | undefined;
   embedsMockados: string[];
 }
 
@@ -173,7 +175,7 @@ function filtrar<T extends object>(itens: T[], url: URL): T[] {
 
 /** Um estado novo por BrowserContext, instalado antes da primeira navegação. */
 export async function simularApi(context: BrowserContext, cargo: Cargo | 'VISITANTE' = 'ADMIN'): Promise<ApiSimulada> {
-  const estado: ApiSimulada = { inesperadas: [], pedidos: [], usuario: structuredClone(corretores[cargo === 'CORRETOR' ? 1 : 0]), autenticado: cargo !== 'VISITANTE', regras: [], fichas: structuredClone(fichas), pessoas: structuredClone(pessoas), perfilSalvo: undefined, embedsMockados: [] };
+  const estado: ApiSimulada = { inesperadas: [], pedidos: [], usuario: structuredClone(corretores[cargo === 'CORRETOR' ? 1 : 0]), autenticado: cargo !== 'VISITANTE', regras: [], fichas: structuredClone(fichas), pessoas: structuredClone(pessoas), perfilSalvo: undefined, fotoEnviada: undefined, embedsMockados: [] };
   await context.route('**/*', async rota => {
     const pedido = rota.request();
     const url = new URL(pedido.url());
@@ -213,6 +215,14 @@ export async function simularApi(context: BrowserContext, cargo: Cargo | 'VISITA
     }
     if (caminho === '/autenticacao/sair' && metodo === 'POST') { estado.autenticado = false; return responder(rota, 204); }
     if (caminho === '/autenticacao/eu' && metodo === 'GET') return responder(rota, 200, estado.usuario);
+    if (caminho === '/autenticacao/eu' && metodo === 'PATCH' && (pedido.headers()['content-type'] ?? '').startsWith('multipart/form-data')) {
+      const bruto = pedido.postDataBuffer()?.toString('latin1') ?? '';
+      const arquivo = bruto.match(/name="foto"; filename="([^"]+)"\r\nContent-Type: ([^\r]+)\r\n\r\n/);
+      if (!arquivo || !/name="nome"/.test(bruto)) return inesperada();
+      const inicio = (arquivo.index ?? 0) + arquivo[0].length;
+      estado.fotoEnviada = { nome: arquivo[1], tipo: arquivo[2], bytes: bruto.lastIndexOf('\r\n--') - inicio };
+      return responder(rota, 200, estado.usuario);
+    }
     if (caminho === '/autenticacao/eu' && metodo === 'PATCH') {
       const dados = corpo as Record<string, unknown>;
       if (!dados || Object.keys(dados).some(c => !['nome', 'whatsapp', 'creci', 'url_foto'].includes(c)) || typeof dados.nome !== 'string' || typeof dados.whatsapp !== 'string') return inesperada();

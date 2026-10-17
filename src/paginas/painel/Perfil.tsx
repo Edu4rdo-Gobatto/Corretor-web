@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { urlFotoCorretor } from '../../servicos/fotos';
-import { prepararEnvio, validarSelecaoMidia } from '../../componentes/prepararMidia';
+import { validarSelecaoMidia } from '../../componentes/prepararMidia';
+import AjustadorFoto from '../../componentes/AjustadorFoto';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
 import { IconeSalvar } from '../../componentes/Icones';
 import { GuardaFormulario, useGuardaFormulario } from '../../hooks/useGuardaFormulario';
@@ -25,7 +26,6 @@ const esquemaPerfil = (creciLegado: () => string) => z.object({
   nome: z.string().trim().min(2, 'Use pelo menos 2 caracteres.').max(100),
   whatsapp: z.string().regex(/^[1-9]\d{9,14}$/, 'Use DDI e DDD, somente números. Ex.: 5565999999999.'),
   creci: esquemaCreci(creciLegado),
-  url_foto: z.string().max(2048).refine((valor) => !valor || (/^https:\/\//.test(valor) && URL.canParse(valor)), 'Use uma URL HTTPS válida.'),
 });
 const esquemaSenha = z.object({
   senha_atual: z.string().min(1, 'Informe a senha atual.'),
@@ -38,16 +38,19 @@ type ValoresSenha = z.infer<typeof esquemaSenha>;
 export default function Perfil() {
   const { corretor, atualizar } = useSessao();
   const [fotoQuebrada, setFotoQuebrada] = useState(false);
+  // `fotoOriginal` é o arquivo escolhido (para reenquadrar); `fotoPendente` é o recorte quadrado enviado ao salvar.
+  const [fotoOriginal, setFotoOriginal] = useState<File | null>(null);
   const [fotoPendente, setFotoPendente] = useState<File | null>(null);
+  const [ajustando, setAjustando] = useState(false);
+  const [removerFoto, setRemoverFoto] = useState(false);
   const [previaArquivo, setPreviaArquivo] = useState('');
-  const [modoFoto, setModoFoto] = useState<'ARQUIVO' | 'URL'>('ARQUIVO');
   const [erroFoto, setErroFoto] = useState('');
   useEffect(() => {
     if (!fotoPendente) { setPreviaArquivo(''); return; }
     const previa = URL.createObjectURL(fotoPendente); setPreviaArquivo(previa);
     return () => URL.revokeObjectURL(previa);
   }, [fotoPendente]);
-  useEffect(() => { setFotoPendente(null); setErroFoto(''); }, [corretor?.id]);
+  useEffect(() => { setFotoOriginal(null); setFotoPendente(null); setAjustando(false); setRemoverFoto(false); setErroFoto(''); }, [corretor?.id]);
   const [erroPerfil, setErroPerfil] = useState('');
   const [perfilSalvo, setPerfilSalvo] = useState(false);
   const [erroSenha, setErroSenha] = useState('');
@@ -65,18 +68,17 @@ export default function Perfil() {
   // CRECI salvo no servidor: um valor antigo fora da regra pode ficar intacto até ser editado.
   const creciSalvo = useRef(corretor?.creci ?? '');
   const [esquema] = useState(() => esquemaPerfil(() => creciSalvo.current));
-  const formularioPerfil = useForm<ValoresPerfil>({ resolver: zodResolver(esquema), defaultValues: { nome: corretor?.nome ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '', url_foto: corretor?.url_foto ?? '' } });
+  const formularioPerfil = useForm<ValoresPerfil>({ resolver: zodResolver(esquema), defaultValues: { nome: corretor?.nome ?? '', whatsapp: corretor?.whatsapp ?? '', creci: corretor?.creci ?? '' } });
   const perfilInicializado = useRef(corretor?.id);
-  useEffect(() => { if (corretor && (perfilInicializado.current !== corretor.id || !formularioPerfil.formState.isDirty)) { creciSalvo.current = corretor.creci ?? ''; formularioPerfil.reset({ nome: corretor.nome, whatsapp: corretor.whatsapp, creci: corretor.creci ?? '', url_foto: corretor.url_foto ?? '' }); perfilInicializado.current = corretor.id; } }, [corretor, formularioPerfil]);
+  useEffect(() => { if (corretor && (perfilInicializado.current !== corretor.id || !formularioPerfil.formState.isDirty)) { creciSalvo.current = corretor.creci ?? ''; formularioPerfil.reset({ nome: corretor.nome, whatsapp: corretor.whatsapp, creci: corretor.creci ?? '' }); perfilInicializado.current = corretor.id; } }, [corretor, formularioPerfil]);
   async function salvarPerfil(valores: ValoresPerfil) {
     setErroPerfil('');
     setPerfilSalvo(false);
     try {
-      const foto = fotoPendente ? (await prepararEnvio([fotoPendente])).prontos[0] : undefined;
-      const salvo = await api.atualizarPerfil({ nome: valores.nome.trim(), whatsapp: valores.whatsapp, creci: creciParaEnvio(valores.creci, creciSalvo.current), ...(formularioPerfil.formState.dirtyFields.url_foto ? { url_foto: valores.url_foto.trim() || null } : {}) }, foto);
-      setFotoPendente(null); setErroFoto('');
+      const salvo = await api.atualizarPerfil({ nome: valores.nome.trim(), whatsapp: valores.whatsapp, creci: creciParaEnvio(valores.creci, creciSalvo.current), ...(removerFoto && !fotoPendente ? { url_foto: null } : {}) }, fotoPendente ?? undefined);
+      setFotoOriginal(null); setFotoPendente(null); setRemoverFoto(false); setErroFoto('');
       creciSalvo.current = salvo.creci ?? '';
-      formularioPerfil.reset({ nome: salvo.nome, whatsapp: salvo.whatsapp, creci: salvo.creci ?? '', url_foto: salvo.url_foto ?? '' });
+      formularioPerfil.reset({ nome: salvo.nome, whatsapp: salvo.whatsapp, creci: salvo.creci ?? '' });
       setPerfilSalvo(true);
       try { await atualizar(); } catch (causa) { setErroPerfil(`O perfil foi salvo, mas não foi possível atualizar a sessão. ${mensagemErro(causa)}`); }
       recarregar();
@@ -89,12 +91,11 @@ export default function Perfil() {
     try { await api.alterarSenha({ senha_atual: valores.senha_atual, nova_senha: valores.nova_senha }); formularioSenha.reset(); setSenhaSalva(true); }
     catch (causa) { setErroSenha(mensagemErro(causa)); }
   }
-  const alterado = formularioPerfil.formState.isDirty || formularioSenha.formState.isDirty || Boolean(fotoPendente);
+  const alterado = formularioPerfil.formState.isDirty || formularioSenha.formState.isDirty || Boolean(fotoPendente) || removerFoto;
   const liberado = useGuardaFormulario(alterado);
   const ocupado = formularioPerfil.formState.isSubmitting || formularioSenha.formState.isSubmitting;
   useAcoesPainel(useMemo(() => [{ id: 'editar-perfil', rotulo: 'Editar meu perfil', executar: () => document.querySelector<HTMLInputElement>('[data-editar-perfil]')?.focus() }], []));
-  const valorFoto = formularioPerfil.watch('url_foto');
-  const previaFoto = previaArquivo || (corretor && valorFoto === corretor.url_foto ? urlFotoCorretor(corretor) : /^https:\/\//.test(valorFoto) ? valorFoto : '');
+  const previaFoto = previaArquivo || (corretor && !removerFoto ? urlFotoCorretor(corretor) : '');
   useEffect(() => { setFotoQuebrada(false); }, [previaFoto]);
   if (!corretor) return null;
   const mostrarFoto = Boolean(previaFoto) && !fotoQuebrada;
@@ -102,14 +103,24 @@ export default function Perfil() {
     if (!arquivo || ocupado) return;
     const problema = !arquivo.type.startsWith('image/') ? 'Use uma foto JPG, PNG ou WebP.' : validarSelecaoMidia([arquivo]);
     setErroFoto(problema ?? '');
-    if (!problema) {
-      formularioPerfil.setValue('url_foto', corretor?.url_foto ?? '', { shouldDirty: true, shouldValidate: true });
-      setFotoPendente(arquivo);
-    }
+    if (!problema) { setFotoOriginal(arquivo); setAjustando(true); }
   }
+  function usarRecorte(recorte: File) {
+    setFotoPendente(recorte); setRemoverFoto(false); setAjustando(false); setErroFoto('');
+  }
+  function falharAjuste(mensagem: string) {
+    setAjustando(false); setErroFoto(mensagem);
+    if (!fotoPendente) setFotoOriginal(null);
+  }
+  function removerFotoAtual() {
+    setFotoOriginal(null); setFotoPendente(null); setErroFoto('');
+    setRemoverFoto(Boolean(corretor?.url_foto));
+  }
+  const temFoto = Boolean(fotoPendente || (corretor.url_foto && !removerFoto));
   const errosPerfil = formularioPerfil.formState.errors;
   const errosSenha = formularioSenha.formState.errors;
   return <>
+    {ajustando && fotoOriginal && <AjustadorFoto arquivo={fotoOriginal} aoConfirmar={usarRecorte} aoCancelar={() => { setAjustando(false); if (!fotoPendente) setFotoOriginal(null); }} aoFalhar={falharAjuste} />}
     <GuardaFormulario alterado={alterado} liberado={liberado} descricao="Há alterações não salvas no perfil ou na senha. Sair descarta somente estas edições." />
     <CabecalhoPagina titulo="Meu perfil" descricao={corretor.nome} />
     <GradePainel colunas={2}>
@@ -120,13 +131,12 @@ export default function Perfil() {
           <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[28px] font-semibold text-ink">{mostrarFoto ? <img src={previaFoto} alt="Prévia da foto do perfil" onError={() => setFotoQuebrada(true)} className="h-full w-full object-cover" /> : corretor.nome.charAt(0).toUpperCase()}</div>
           <div className="min-w-0 flex-1"><p className="mb-1 text-base text-muted">{corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'} · Desde {data(corretor.criado_em)}</p><p className="m-0 break-all text-base">{corretor.email}</p><small className="text-[14px] text-muted">O administrador altera seu e-mail.</small></div>
         </div>
-        <div className="col-span-full">
-          <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Origem da foto">
-            <button type="button" className={`buttonGhost !min-h-11 !px-3 !py-2 !text-base ${modoFoto === 'ARQUIVO' ? 'bg-soft' : ''}`} aria-pressed={modoFoto === 'ARQUIVO'} onClick={() => setModoFoto('ARQUIVO')}>Enviar foto</button>
-            <button type="button" className={`buttonGhost !min-h-11 !px-3 !py-2 !text-base ${modoFoto === 'URL' ? 'bg-soft' : ''}`} aria-pressed={modoFoto === 'URL'} onClick={() => { setModoFoto('URL'); setFotoPendente(null); setErroFoto(''); }}>Usar URL</button>
-            {(fotoPendente || valorFoto) && <button type="button" className="buttonGhost !min-h-11 !px-3 !py-2 !text-base" onClick={() => { setFotoPendente(null); setErroFoto(''); formularioPerfil.setValue('url_foto', '', { shouldDirty: true, shouldValidate: true }); }}>Remover foto</button>}
-          </div>
-          {modoFoto === 'ARQUIVO' ? <Campo rotulo="Foto do perfil" erro={erroFoto || undefined} dica={fotoPendente ? `${fotoPendente.name} · Será enviada ao salvar.` : 'JPG, PNG ou WebP, até 30 MB. A foto será otimizada antes do envio.'}><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(evento) => { escolherFoto(evento.target.files?.[0]); evento.target.value = ''; }} /></Campo> : <Campo rotulo="URL da foto (HTTPS)" erro={errosPerfil.url_foto?.message}><input type="url" {...formularioPerfil.register('url_foto')} /></Campo>}
+        <div className="col-span-full grid gap-3">
+          <Campo rotulo="Foto do perfil" erro={erroFoto || undefined} dica={fotoPendente ? 'Foto recortada. Será enviada ao salvar.' : 'JPG, PNG ou WebP, até 30 MB. Você escolhe o enquadramento antes de enviar.'}><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(evento) => { escolherFoto(evento.target.files?.[0]); evento.target.value = ''; }} /></Campo>
+          {(fotoOriginal || temFoto) && <div className="flex flex-wrap gap-2">
+            {fotoOriginal && fotoPendente && <button type="button" className="buttonGhost !min-h-11 !px-3 !py-2 !text-base" onClick={() => setAjustando(true)}>Ajustar enquadramento</button>}
+            {temFoto && <button type="button" className="buttonGhost !min-h-11 !px-3 !py-2 !text-base" onClick={removerFotoAtual}>Remover foto</button>}
+          </div>}
         </div>
         <Campo rotulo="Nome" erro={errosPerfil.nome?.message}><input data-editar-perfil type="text" autoComplete="name" {...formularioPerfil.register('nome')} /></Campo>
         <Campo rotulo="WhatsApp com DDI e DDD" erro={errosPerfil.whatsapp?.message} dica="Somente números. Ex.: 5565999999999."><input type="tel" autoComplete="tel" {...formularioPerfil.register('whatsapp')} /></Campo>

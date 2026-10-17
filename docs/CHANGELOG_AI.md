@@ -191,3 +191,15 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
 
 - CI-20261016 marcada como concluída, com checklist atualizado. Status do projeto sincronizado com o push da API.
 
+### 16/10/2026 — Filtros em card, catálogo com Seletor e foto do perfil recortada (Claude)
+
+- **Entregue:** `BarraFiltros` vira card com X de limpar (chips e botão duplicado removidos); catálogo (desktop) com `Seletor`
+  (`FiltroSuspenso` removido; tipo de imóvel em escolha única); dica do CRECI removida do editor de corretor; foto do perfil
+  só por arquivo: `AjustadorFoto` (arrastar, pinça, zoom, setas; prévias nos tamanhos de uso, ocultas em celular baixo) +
+  `servicos/recorteFoto.ts` (quadrado 512 WebP/JPEG); foto por URL removida de Meu perfil e do editor de corretor.
+- **Validação:** `tsc`, `eslint` e vitest (220 testes) limpos; matriz Playwright 191/191 após atualizar 14 referências
+  (catálogo, contatos, imóveis e perfil, nos temas e larguras afetados) e novo teste de foto (arrastar, zoom, recorte, envio
+  multipart). Capturas conferidas em 390×844 e 360×640. Dependências de teste e Chromium instalados localmente (`npm install`,
+  `playwright install chromium`).
+- **Pendências:** API ainda aceita foto por URL (API-FOTO-URL-20261016); pinça só verificada por leitura de código (o teste
+  automatizado usa mouse); QA em celular físico/Safari iOS. Filtros e catálogo já estão no commit `81fe5ff`; a foto do perfil, as referências e as docs ficam sem commit.

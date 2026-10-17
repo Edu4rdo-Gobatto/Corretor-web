@@ -149,7 +149,7 @@ src/seo/                 # server.tsx (SSR, robots, sitemap, llms, 404/503), met
 src/tipos/index.ts       # tipos do contrato HTTP (Imovel, FichaImovel, Pessoa, Corretor, Pagina...)
 src/servicos/            # http.ts (token em memória, renovarSessao), api.ts, locacoes.ts, catalogo.ts, urls.ts
                          # (caminhosCatalogo, urlNormalizada), contato.ts, validacao.ts, formato.ts, creci.ts,
-                         # pessoas.ts (permissões de pessoa), registros.ts, fotos.ts (urlFotoCorretor),
+                         # pessoas.ts (permissões de pessoa), registros.ts, fotos.ts (urlFotoCorretor), recorteFoto.ts (recorte da foto de perfil),
                          # exportacaoContatos.ts (CSV), videoEmbed.ts, obra.ts (áudio do /devs), *.test.ts
 src/hooks/               # useSessao (ProvedorSessao), useTema, useRecurso, useDadosPainel, useFiltrosAutomaticos,
                          # useGuardaFormulario, useEscVoltar, useVoltarPainel, useComandosPainel, useRecuperacaoPagina
@@ -165,7 +165,7 @@ src/paginas/painel/      # LayoutPainel, Entrar, VisaoGeral, Perfil
 src/componentes/         # público: LayoutPublico, CartaoImovel, FiltrosCatalogo, FormularioContato, GaleriaMidia,
                          #   PaginaIndisponivel, CenaReparo, CasaQuebrada, CenaObra, ObraOverlay
                          # painel: BlocosPainel, Tabela, CabecalhoPagina, BotaoVoltar, AcaoIcone, PaletaPainel,
-                         #   Seletor, CampoSelecao, FiltroSuspenso, SeletorRegistro, CampoNumero, CampoCreci,
+                         #   Seletor, CampoSelecao, AjustadorFoto, SeletorRegistro, CampoNumero, CampoCreci,
                          #   GerenciadorMidia, prepararMidia.ts, SelecaoMidia, estilosPainel.ts
                          # comuns: Dialogo, ConfirmarAcao, Campo, Aviso, Etiqueta, Paginacao, EstadoCarregamento,
                          #   LimiteErro, Icones

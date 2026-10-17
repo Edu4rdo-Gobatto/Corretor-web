@@ -101,6 +101,58 @@ test('falha ao salvar perfil preserva edição; sucesso atualiza estado e payloa
   expect(api.usuario.nome).toBe('Lucas Atualizado');
 });
 
+test('foto do perfil: só arquivo, enquadramento, recorte quadrado e envio', async ({ page, api }) => {
+  await abrir(page, '/admin/perfil', 'Meu perfil');
+  await expect(page.getByRole('button', { name: 'Usar URL' })).toHaveCount(0);
+  await expect(page.getByLabel('URL da foto (HTTPS)')).toHaveCount(0);
+  // Retrato 600×1000: metade de cima vermelha, metade de baixo azul.
+  const base64 = await page.evaluate(() => {
+    const canvas = document.createElement('canvas'); canvas.width = 600; canvas.height = 1000;
+    const contexto = canvas.getContext('2d')!;
+    contexto.fillStyle = '#cc3333'; contexto.fillRect(0, 0, 600, 500);
+    contexto.fillStyle = '#3366cc'; contexto.fillRect(0, 500, 600, 500);
+    return canvas.toDataURL('image/png').split(',')[1];
+  });
+  const retrato = { name: 'retrato.png', mimeType: 'image/png', buffer: Buffer.from(base64, 'base64') };
+  const escolher = () => page.getByLabel('Foto do perfil').setInputFiles(retrato);
+  const dialogo = page.getByRole('dialog', { name: 'Ajustar foto' });
+  const palco = dialogo.getByRole('application');
+  const corNoPalco = (altura: number) => dialogo.locator('canvas').first().evaluate((canvas: HTMLCanvasElement, fracao) => [...canvas.getContext('2d')!.getImageData(canvas.width / 2, Math.floor(canvas.height * fracao), 1, 1).data.slice(0, 3)], altura);
+
+  await escolher();
+  await expect(dialogo).toBeVisible();
+  await expect(dialogo.getByRole('button', { name: 'Usar foto' })).toBeEnabled();
+  // Centralizado: 70% da altura do palco cai na metade azul.
+  expect((await corNoPalco(0.7))[2]).toBeGreaterThan(150);
+  // Cancelar descarta a escolha sem marcar o perfil como alterado.
+  await dialogo.getByRole('button', { name: 'Cancelar' }).click();
+  await expect(dialogo).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Remover foto' })).toHaveCount(0);
+
+  await escolher();
+  const caixa = (await palco.boundingBox())!;
+  await page.mouse.move(caixa.x + caixa.width / 2, caixa.y + 20);
+  await page.mouse.down();
+  await page.mouse.move(caixa.x + caixa.width / 2, caixa.y + caixa.height - 4, { steps: 8 });
+  await page.mouse.up();
+  // Arrastar para baixo traz o topo da foto: o mesmo ponto passa a ser vermelho.
+  await expect.poll(async () => (await corNoPalco(0.7))[0]).toBeGreaterThan(150);
+  await dialogo.getByRole('slider', { name: 'Zoom' }).fill('2');
+  await palco.focus();
+  await page.keyboard.press('ArrowRight');
+  await dialogo.getByRole('button', { name: 'Usar foto' }).click();
+  await expect(dialogo).toHaveCount(0);
+  await expect(page.getByText('Foto recortada. Será enviada ao salvar.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ajustar enquadramento' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Salvar perfil' }).click();
+  await expect(page.getByText('Perfil atualizado.')).toBeVisible();
+  expect(api.fotoEnviada?.tipo).toMatch(/^image\/(webp|jpeg)$/);
+  expect(api.fotoEnviada?.bytes).toBeGreaterThan(200);
+  expect(api.fotoEnviada?.bytes).toBeLessThan(200_000);
+  expect(api.inesperadas).toEqual([]);
+});
+
 test('menu responsivo e Ctrl+K navegam pelo painel', async ({ page }) => {
   await abrir(page, '/admin/imoveis', 'Imóveis');
   const menu = page.getByRole('button', { name: 'Menu', exact: true });

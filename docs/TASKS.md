@@ -6,6 +6,12 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 ## Abertas
 
+### API-FOTO-URL-20261016 — Tirar a foto por URL da API
+
+- **Status:** aberta, aguardando decisão do dono. O web já não envia nem edita `url_foto` por URL (só arquivo ou `null` para remover).
+- [ ] Na `Corretor-API`: `url_foto` só `null` em `AtualizarPerfilDto`/`CriarCorretorDto`; remover o ramo "foto ou URL" de `atualizarPerfil`.
+- [ ] Decidir o que fazer com fotos externas já gravadas (hoje `foto-corretor.controller.ts` redireciona): migrar, limpar ou manter só a leitura.
+
 ### CI-20261016 — Versionar a restauração e conferir GitHub Actions
 
 - **Status:** concluída. **Responsável:** Codex. Commits autorizados e enviados à `origin/main`.
@@ -130,6 +136,7 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 | Tarefa | Data | Resumo |
 |---|---|---|
 | TEST-20261015 | 16/10 | Testes permanentes: 214 unitários, 185 Playwright em duas matrizes, 32 referências e workflow; entrega local sem commit/push |
+| FILTROS-FOTO-20261016 | 16/10 | Filtros do painel em card com X para limpar; catálogo (desktop) com `Seletor`; foto do perfil só por arquivo com ajuste de enquadramento (`AjustadorFoto`, mobile com pinça); URL de foto removida do web; CRECI sem dica no editor de corretor |
 | SELETOR-CIDADES-20261016 | 16/10 | `Seletor` único (15 selects nativos migrados), cadastro de Cidades, Estado → Cidade no imóvel, filtro de cidade do catálogo pelo cadastro |
 | EXIBIR-SITE-20261016 | 16/10 | "Exibir no site" só por `ativo` (web + API), controle só em Editar, destaque removido, foco só por cor de borda (`#a37d29`), erro de campo com ícone, SEO por situação |
 | LIMPEZA-TESTES | 14/10 | Removidos `tests/visual/`, `playwright.visual.config.ts`, scripts `visual`, `src/test/setup.ts` e as dependências jsdom e Testing Library. Ficam 3 testes de lógica pura (vitest em node) |

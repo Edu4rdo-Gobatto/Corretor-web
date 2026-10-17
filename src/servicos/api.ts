@@ -190,8 +190,8 @@ export const api = {
     definirTokenAcesso(null);
   },
   eu: () => http<Corretor>('/autenticacao/eu'),
-  /** `creci` omitido mantém o valor atual; null ou vazio limpa. */
-  atualizarPerfil: (dados: { nome: string; whatsapp: string; creci?: string | null; url_foto?: string | null }, foto?: File) => {
+  /** `creci` omitido mantém o valor atual; null ou vazio limpa. A foto só entra como arquivo; `url_foto: null` remove a atual. */
+  atualizarPerfil: (dados: { nome: string; whatsapp: string; creci?: string | null; url_foto?: null }, foto?: File) => {
     if (!foto) return http<Corretor>('/autenticacao/eu', json('PATCH', dados));
     const corpo = new FormData();
     corpo.set('nome', dados.nome); corpo.set('whatsapp', dados.whatsapp); if (dados.creci !== undefined) corpo.set('creci', dados.creci ?? ''); corpo.set('foto', foto);
