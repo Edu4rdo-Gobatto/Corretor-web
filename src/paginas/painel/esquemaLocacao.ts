@@ -49,3 +49,13 @@ export function previaParcelas(total: string, quantidade: number, primeira: stri
     return { valor: `${valor / 100n}.${String(valor % 100n).padStart(2, '0')}`, data: data.toISOString().slice(0, 10) };
   });
 }
+
+const doisDigitos = (numero: number) => String(numero).padStart(2, '0');
+const isoLocal = (ano: number, mes: number, dia: number) => `${ano}-${doisDigitos(mes)}-${doisDigitos(dia)}`;
+
+/** Período inicial de um contrato novo: hoje (data local, não UTC) até a mesma data um ano depois (29/02 vira 28/02). */
+export function periodoPadraoContrato(hoje = new Date()): { data_inicio: string; data_fim: string } {
+  const ano = hoje.getFullYear(); const mes = hoje.getMonth() + 1; const dia = hoje.getDate();
+  const diaFim = mes === 2 && dia === 29 ? 28 : dia;
+  return { data_inicio: isoLocal(ano, mes, dia), data_fim: isoLocal(ano + 1, mes, diaFim) };
+}

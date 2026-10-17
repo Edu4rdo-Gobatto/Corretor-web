@@ -27,7 +27,7 @@ import Campo from '../../componentes/Campo';
 import CampoSelecao from '../../componentes/CampoSelecao';
 import Aviso from '../../componentes/Aviso';
 import { estilos } from '../../componentes/estilosPainel';
-import { esquemaContrato, type ValoresContrato } from './esquemaLocacao';
+import { esquemaContrato, periodoPadraoContrato, type ValoresContrato } from './esquemaLocacao';
 
 export const buscarImoveis = async (termo: string): Promise<Referencia[]> => (await api.listarFichas({ busca: termo || undefined, limite: 10, ativo: true })).itens.map((item) => ({ id: item.id, nome: item.titulo }));
 export const buscarPessoas = async (termo: string): Promise<Referencia[]> => (await api.listarPessoas({ busca: termo || undefined, limite: 10, ativo: true })).itens.map((item) => ({ id: item.id, nome: item.nome }));
@@ -46,11 +46,13 @@ export function EditorContrato({ contrato, aoFechar, aoSalvar }: { contrato?: Co
     const [tipos, indices] = await Promise.all([api.opcoesContrato('tipos-contrato'), api.opcoesContrato('indices-reajuste')]);
     return { tipos, indices };
   }, []));
+  // Contrato novo já vem com hoje e +1 ano; ao editar, valem as datas gravadas.
+  const periodo = periodoPadraoContrato();
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<ValoresContrato>({
     resolver: zodResolver(esquemaContrato),
     defaultValues: {
       numero_contrato: contrato?.numero_contrato ?? '', imovel_id: contrato?.imovel_id ?? 0, locador_id: contrato?.locador_id ?? 0, locatario_id: contrato?.locatario_id ?? 0, corretor_id: contrato?.corretor_id ?? corretor?.id ?? 0,
-      data_inicio: contrato?.data_inicio ?? '', data_fim: contrato?.data_fim ?? '', valor_aluguel: contrato?.valor_aluguel ?? '', dia_vencimento: contrato?.dia_vencimento ?? 5, taxa_administracao: contrato?.taxa_administracao ?? '',
+      data_inicio: contrato?.data_inicio ?? periodo.data_inicio, data_fim: contrato?.data_fim ?? periodo.data_fim, valor_aluguel: contrato?.valor_aluguel ?? '', dia_vencimento: contrato?.dia_vencimento ?? 5, taxa_administracao: contrato?.taxa_administracao ?? '',
       garantia_locaticia: contrato?.garantia_locaticia ?? '', tipo_contrato_id: contrato?.tipo_contrato_id ?? 0, indice_reajuste_id: contrato?.indice_reajuste_id ?? 0, cobranca_iptu_condominio: contrato?.cobranca_iptu_condominio ?? '', status: contrato?.status ?? 'ATIVO', ativo: contrato?.ativo ?? true, observacoes: contrato?.observacoes ?? '',
     },
   });
