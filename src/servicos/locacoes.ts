@@ -4,6 +4,7 @@ import type { Pagina } from '../tipos';
 
 export type StatusContrato = 'ATIVO' | 'INATIVO';
 export type StatusPastaDrive = 'PENDENTE' | 'CRIADA' | 'FALHOU';
+export interface DocumentoContrato { id: string; nome: string; tipo: string; tamanho: number | null; criado_em: string; url: string | null }
 export type TipoOperacao = 'LOCACAO' | 'VENDA';
 
 export interface Contrato {
@@ -137,6 +138,12 @@ export const locacoesApi = {
   encerrarContrato: (id: number, dados: { data_encerramento: string; motivo: string }) => http<Contrato>(`/admin/contratos/${id}/encerrar`, json('POST', dados)),
   renovarContrato: (id: number, dados: { numero_contrato: string; data_inicio: string; data_fim: string; valor_aluguel: string }) =>
     http<Contrato>(`/admin/contratos/${id}/renovar`, json('POST', dados)),
+  listarDocumentosContrato: (id: number) => http<{ itens: DocumentoContrato[] }>(`/admin/contratos/${id}/documentos`),
+  enviarDocumentosContrato: (id: number, arquivos: File[]) => {
+    const corpo = new FormData();
+    arquivos.forEach((arquivo) => corpo.append('arquivos', arquivo));
+    return http<{ itens: { id: string; nome: string }[] }>(`/admin/contratos/${id}/documentos`, { method: 'POST', body: corpo });
+  },
   prepararPastaDrive: (id: number) => http<Contrato>(`/admin/contratos/${id}/pasta-drive`, json('POST')),
   listarComissoes: (filtros: Filtros & { tipo_operacao?: TipoOperacao; contrato_id?: number; imovel_id?: number; pessoa_id?: number } = {}) =>
     http<Pagina<Comissao>>(`/admin/comissoes?${montarParametros(filtros)}`),

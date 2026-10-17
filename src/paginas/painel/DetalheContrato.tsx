@@ -9,12 +9,13 @@ import { api } from '../../servicos/api';
 import { useDadosPainel } from '../../hooks/useDadosPainel';
 import { dataCivil, dinheiroExato, mensagemErro } from '../../servicos/formato';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina';
-import { IconeArquivar, IconeEditar, IconeAbrirFora, IconeFinalizar, IconeContrato } from '../../componentes/Icones';
+import { IconeArquivar, IconeEditar, IconeFinalizar, IconeContrato } from '../../componentes/Icones';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
 import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import { DadosFicha, DadoFicha, GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 import Comissoes from './Comissoes';
+import DocumentosContrato from './DocumentosContrato';
 import { EditorContrato } from './Contratos';
 import { EncerrarContrato, RenovarContrato } from './AcoesContrato';
 
@@ -49,7 +50,6 @@ export default function DetalheContrato() {
   }
   const podeEncerrar = Boolean(dados?.ativo && dados.status === 'ATIVO' && !dados.motivo_encerramento);
   const podeRenovar = Boolean(dados?.ativo && !dados.motivo_encerramento && !dados.renovacao_id);
-  const urlDrive = dados?.url_pasta_drive && /^https:\/\/drive\.google\.com\/drive\/folders\/[\w-]+$/.test(dados.url_pasta_drive) ? dados.url_pasta_drive : null;
   return <>
     <CabecalhoPagina voltar={{ to: '/admin/contratos', rotulo: 'Voltar para contratos' }} titulo={dados?.numero_contrato ?? 'Contrato'} descricao={dados ? `${dados.status === 'ATIVO' ? 'Ativo' : 'Encerrado'}${dados.ativo ? '' : ', arquivado'}` : undefined}
       acoes={dados && <><AcaoIcone icone={IconeEditar} rotulo="Editar" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setEditando(true)} />{podeEncerrar && <AcaoIcone icone={IconeFinalizar} rotulo="Encerrar antes do fim" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setDialogo('encerrar')} />}{podeRenovar && <AcaoIcone icone={IconeContrato} rotulo="Renovar" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setDialogo('renovar')} />}{dados.ativo && <AcaoIcone icone={IconeArquivar} rotulo="Arquivar" tom="perigo" contexto={dados.numero_contrato} desabilitado={ocupado} aoClicar={() => setArquivando(true)} />}</>} />
@@ -61,7 +61,7 @@ export default function DetalheContrato() {
         {dados.contrato_anterior_id && <p className="m-0">Renovação de <Link to={`/admin/contratos/${dados.contrato_anterior_id}`}>contrato anterior</Link>.</p>}
         {dados.renovacao_id && <p className="m-0">Renovado: <Link to={`/admin/contratos/${dados.renovacao_id}`}>ver o contrato novo</Link>.</p>}
       </Aviso>}
-      <GradePainel colunas={2}>
+      <GradePainel colunas={2} classe="mb-8">
       <SecaoPainel titulo="Partes e imóvel"><DadosFicha>
         <DadoFicha rotulo="Imóvel"><Link to={`/admin/imoveis/${dados.imovel_id}`}>{dados.imovel_titulo ?? `Imóvel #${dados.imovel_id}`}</Link></DadoFicha>
         <DadoFicha rotulo="Intermediador"><Link to={urlFichaCorretor(dados.corretor_id, corretor?.id)}>{dados.corretor_id === corretor?.id ? corretor.nome : `Corretor #${dados.corretor_id}`}</Link></DadoFicha>
@@ -79,9 +79,12 @@ export default function DetalheContrato() {
         <DadoFicha rotulo="IPTU e condomínio">{dados.cobranca_iptu_condominio}</DadoFicha>
       </DadosFicha></SecaoPainel>
       <SecaoPainel titulo="Documentos do contrato" ampla={!dados.observacoes}>
-        {urlDrive && <a href={urlDrive} target="_blank" rel="noopener noreferrer" className="buttonGhost"><IconeAbrirFora size={20} aria-hidden="true" />Abrir pasta no Google Drive</a>}
-        <p className={urlDrive ? 'mb-0 mt-4' : 'm-0'}>{dados.status_pasta_drive === 'CRIADA' ? 'Pasta disponível para as pessoas autorizadas no Drive.' : dados.status_pasta_drive === 'FALHOU' ? 'O contrato foi salvo. A criação ou atualização da pasta não foi concluída.' : 'A pasta será preparada para este contrato quando ele estiver ativo.'}</p>
-        {dados.status === 'ATIVO' && dados.ativo && dados.status_pasta_drive !== 'CRIADA' && <button className="buttonSecondary mt-4" disabled={ocupado} onClick={() => void executar('drive')}>{ocupado ? 'Preparando pasta…' : 'Tentar preparar pasta novamente'}</button>}
+        {dados.status_pasta_drive === 'CRIADA'
+          ? <DocumentosContrato contratoId={dados.id} />
+          : <div className="flex flex-col items-start gap-4">
+            <p className="m-0">{dados.status_pasta_drive === 'FALHOU' ? 'O contrato foi salvo. A criação ou atualização da pasta não foi concluída.' : 'A pasta será preparada para este contrato quando ele estiver ativo.'}</p>
+            {dados.status === 'ATIVO' && dados.ativo && <button className="buttonSecondary" disabled={ocupado} onClick={() => void executar('drive')}>{ocupado ? 'Preparando pasta…' : 'Tentar preparar pasta novamente'}</button>}
+          </div>}
         {erroAcao && <Aviso tom="erro" classe="mt-4">{erroAcao}</Aviso>}
       </SecaoPainel>
       {dados.observacoes && <SecaoPainel titulo="Observações"><p className="m-0 whitespace-pre-wrap">{dados.observacoes}</p></SecaoPainel>}
