@@ -203,3 +203,49 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
   `playwright install chromium`).
 - **Pendências:** API ainda aceita foto por URL (API-FOTO-URL-20261016); pinça só verificada por leitura de código (o teste
   automatizado usa mouse); QA em celular físico/Safari iOS. Filtros e catálogo já estão no commit `81fe5ff`; a foto do perfil, as referências e as docs ficam sem commit.
+
+### 17/10/2026 — Otimizações de cache, imagens, SEO e bundle (Claude)
+
+- **Entregue (plano em `PLANO_OTIMIZACOES.md`, ajustes e motivos em `DECISIONS.md` de 17/10):**
+  - Fase 0: `deploymentRoutes` com `Cache-Control: immutable` só para `/assets/*` com hash (js/css/woff2) e cache de 1 dia +
+    stale-while-revalidate para o resto de `/assets/*` (sem hash); a mesma política em `preview.mjs` (`cacheDeAsset`, mais
+    tipos `.mp3 .ico .json .txt .avif`); HTML SSR indexável com `s-maxage=60, stale-while-revalidate=300`; `Disallow: /admin`.
+  - Fase 1: `src/componentes/ImgOtimizada.tsx` (novo) em todos os `<img>` do app, 14 pontos (hero do catálogo e do login,
+    galeria, cartão, corretor, logos, `Devs`, painel). Hero 1200×896 e login 1400×935 com `sizes` corrigido (`max-width:1023px`).
+  - Fase 2: `og:image:alt` (título) na foto real do detalhe; descrição cortada em limite de palavra com reticências.
+  - Fase 3: `manualChunks` (`react`, `formularios`) restaurado em `scripts/build.mjs`; `FormularioContato` em `React.lazy` com
+    Suspense local, pré-carga em ociosidade/hover/foco e carga antes de abrir (falha vira `Dialogo` local);
+    `telefoneWhatsapp` movido para `servicos/formato.ts`; import dinâmico real de `browser-image-compression`;
+    `vite:preloadError` recarrega uma vez; plugin de preload de 4 fontes em `vite.config.ts`; peso 500 do Source Sans 3
+    removido; âncora para a página inicial no `LimiteErro`.
+  - Sem mudança: sitemap, canonical, JSON-LD, 404/503 (já corretos), debounce/paginação (já existiam). Não feitos: AVIF,
+    CSS crítico inline, medição de INP.
+- **Validação (resultados reais):**
+  - `tsc --noEmit` e `eslint .` limpos; `npm test`: 14 arquivos, **220 testes passaram** (a contagem "214 em 13" de
+    `docs/AGENTS.md` está defasada); `npm run build` ok; `node scripts/seo-smoke.mjs` passou;
+    `visual:build` + `visual:sem-build`: **191/191 passaram**, sem `visual:atualizar` (nenhuma referência alterada), duas vezes
+    (a segunda depois do ajuste do formulário de contato).
+  - Bundle inicial (arquivos gerados em `dist/client/assets`): antes um `index` de 514.739 B (167.529 B gzip); agora `index`
+    142.804 B + `react` 238.225 B = 381.029 B (**125.154 B gzip**, -25%). Fora do caminho inicial: `formularios` 129.182 B
+    (39.251 B gzip) e `browser-image-compression` 53.167 B (20.840 B gzip). CSS inalterado (92.299 B; 17.855 B gzip).
+    `dist/client/index.html` com 4 `<link rel="preload" as="font">` apontando para arquivos existentes; o hash do chunk `react`
+    não muda entre os dois builds (cache estável).
+  - `curl`/HTTP no `preview`: JS, CSS e woff2 com hash → `immutable`; `rua-comercial-960.webp`, logos e mp3 → 1 dia + SWR;
+    `favicon.svg` sem cabeçalho de cache (fora de `/assets`, inalterado).
+  - SSR indexável via `handleRequest` (o `preview` recusa `SEO_INDEXABLE=true` com API local): `/` e detalhe com
+    `s-maxage=60, stale-while-revalidate=300` e `index,follow`; rota inexistente 404 `no-store`; `/admin` `no-store`;
+    `robots.txt` com `Disallow: /api/`, `/api`, `/admin` e `Sitemap`; `sitemap.xml` com 13 URLs; detalhe com foto real:
+    `og:image:alt` = título, sem `og:image:width`; descrição de 161 caracteres terminando em reticências.
+  - Chromium real (Playwright 1.60, script descartável): catálogo não baixa `formularios`; detalhe o pré-carrega em
+    ociosidade e o diálogo abre sem erro nem aviso no console (inclui `fetchPriority`); com o chunk bloqueado, há exatamente
+    uma recarga e o clique mostra o aviso local, sem a tela de erro do roteador.
+- **Defeito encontrado e corrigido durante o QA:** com o chunk do formulário indisponível, o erro caía no ErrorBoundary padrão
+  do React Router ("Unexpected Application Error"), não no `LimiteErro`. Corrigido carregando o chunk antes de abrir.
+- **Pendências / não testado:**
+  - Cabeçalhos de cache da Vercel só foram verificados no `config.json` gerado e no `preview` (equivalente local); não há
+    deploy desta versão, e o deploy de teste está `noindex`. Conferir após publicar e ligar `SEO_INDEXABLE`.
+  - ERRO-ROTAS: rotas sem `errorElement` próprio mostram o ErrorBoundary padrão do roteador para qualquer erro de
+    renderização (já era assim; o `LimiteErro` só cobre o que está fora do roteador).
+  - Sem medição de Core Web Vitals reais (LCP/CLS/INP): nenhuma ferramenta de RUM ou Lighthouse foi executada.
+  - Safari/iOS e celular físico não testados (`requestIdleCallback` tem fallback para `setTimeout`).
+  - Mudanças ainda sem commit; a autorização de commit depende do dono (`docs/AGENTS.md`).

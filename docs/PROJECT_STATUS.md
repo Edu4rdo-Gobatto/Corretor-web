@@ -1,5 +1,14 @@
 # Estado atual — corretor-web
 
+## 17/10/2026 — Otimizações de desempenho e SEO, sem commit (Claude)
+
+Plano `PLANO_OTIMIZACOES.md` executado no working tree da `main` (ainda **sem commit**; o dono confirma antes). Cache imutável
+só de assets com hash, HTML com `stale-while-revalidate`, `Disallow: /admin`, `ImgOtimizada` em todos os `<img>`,
+`og:image:alt`, `manualChunks` restaurado, `FormularioContato` lazy, import dinâmico do `browser-image-compression`, preload
+de 4 fontes e recarga única em chunk órfão. JS inicial: 167,5 → 125,2 kB gzip. Verificado: typecheck, lint, 220 testes,
+build, smoke do SSR e Playwright **191/191** sem atualizar referências. Detalhes em `DECISIONS.md` e `CHANGELOG_AI.md` de
+17/10. Falta: conferir os cabeçalhos na Vercel depois de publicar (o deploy de teste é `noindex`) e medir LCP/CLS/INP reais.
+
 ## 16/10/2026 — CI verde e commits enviados (Codex)
 
 O dono autorizou commit e push do frontend, seguidos do acompanhamento do GitHub Actions. Main sincronizada

@@ -78,8 +78,18 @@ A base já existe em `src/seo/` (title, description, robots, canonical, OG/Twitt
 
 ---
 
-## Status
+## Status (17/10/2026)
 
-- Planejado: todas as fases.
-- Em andamento: nenhuma.
-- Concluído: import dinâmico do `browser-image-compression` + `loading="lazy" decoding="async"` em 4 arquivos (já feito no front).
+Executado com ajustes ao código real; decisões e motivos em `docs/DECISIONS.md` (entrada de 17/10).
+
+- **Fase 0 — feita:** cache imutável só para assets com hash (`src/seo/deployment.ts`), cache moderado para `public/assets/*`
+  (sem hash), HTML SSR com `s-maxage=60, stale-while-revalidate=300`, `Disallow: /admin`. Compressão já era da Vercel.
+  Sitemap sem mudança (categorias seguem `noindex`; corretor não tem página pública). CSS crítico inline: **não feito**.
+- **Fase 1 — feita:** `ImgOtimizada` em todos os `<img>` do app (14 pontos, não só os 6 listados). Sem `srcset` novo
+  para fotos de imóvel (URL única, sem redimensionador). `width`/`height` não são obrigatórios: a API não os informa.
+- **Fase 2 — feita:** `og:image:alt` na foto real do detalhe; descrição cortada em limite de palavra. O restante já existia.
+- **Fase 3 — feita:** `manualChunks` restaurado; `FormularioContato` lazy; `browser-image-compression` com import dinâmico
+  de verdade; recarga única em `vite:preloadError`; preload de 4 fontes; âncora de volta no `LimiteErro`.
+  Já existiam: painel em `React.lazy`, debounce de filtros, paginação no servidor, 404/503 com `<Seo>`.
+- **Adiado:** AVIF (sem encoder nem otimizador), CSS crítico inline, medição de INP/RUM, rotas públicas em `React.lazy`
+  (proibido pelo SSR, ver `DECISIONS.md`).

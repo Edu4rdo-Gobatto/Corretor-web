@@ -6,6 +6,19 @@ Tarefas da API ficam em [../../Corretor-API/docs/TASKS.md](../../Corretor-API/do
 
 ## Abertas
 
+### PERF-20261017 — Otimizações de cache, imagens, SEO e bundle
+
+- **Status:** concluída no working tree em 17/10/2026, **sem commit**. **Responsável:** Claude. Plano e resultado: [PLANO_OTIMIZACOES.md](../PLANO_OTIMIZACOES.md); decisões em [DECISIONS.md](DECISIONS.md).
+- [x] Fase 0: cache de assets (imutável só com hash), HTML com `s-maxage=60, stale-while-revalidate=300`, `Disallow: /admin`.
+- [x] Fase 1: `ImgOtimizada` em todos os `<img>`; Fase 2: `og:image:alt` e descrição em limite de palavra.
+- [x] Fase 3: `manualChunks`, `FormularioContato` lazy, import dinâmico do compressor, preload de fontes, recarga de chunk órfão.
+- [x] Verificação: typecheck, lint, 220 testes, build, smoke e Playwright 191/191 (sem atualizar referências).
+- [ ] Commitar depois da confirmação do dono.
+- [ ] Conferir `Cache-Control` e `robots.txt` no deploy da Vercel com `SEO_INDEXABLE` ligado (o deploy de teste é `noindex`).
+- [ ] Medir LCP/CLS/INP reais (Lighthouse/RUM); não há medição no projeto. AVIF e CSS crítico inline ficaram adiados.
+- [ ] `errorElement` próprio nas rotas: hoje um erro de renderização mostra o ErrorBoundary padrão do React Router.
+- [ ] Atualizar os números de `docs/AGENTS.md` (tabela de comandos diz 214 testes/185 casos; hoje são 220/191).
+
 ### API-FOTO-URL-20261016 — Tirar a foto por URL da API
 
 - **Status:** aberta, aguardando decisão do dono. O web já não envia nem edita `url_foto` por URL (só arquivo ou `null` para remover).

@@ -5,6 +5,55 @@ data. O texto completo das decisões antigas está no Git (versões anteriores d
 
 ## Decisões em vigor
 
+### 17/10 — Cache, imagens, SEO e bundle (PLANO_OTIMIZACOES)
+- **Cache de assets (Vercel):** `deploymentRoutes` (`src/seo/deployment.ts`) acrescenta duas rotas `continue` antes de
+  `filesystem`. Arquivos com hash do Vite (`/assets/nome-HASH8.js|css|woff2`) levam `public, max-age=31536000,
+  immutable`. O resto de `/assets/*` (hero, logos, mp3 de `public/`, copiados **sem hash**) leva `public,
+  max-age=86400, stale-while-revalidate=604800`. As duas regex são complementares (lookahead) para a última não
+  sobrescrever o imutável. `preview.mjs` usa a mesma `cacheDeAsset`. Não marcar imagem sem hash como `immutable`.
+- **Cache do HTML SSR:** indexável passa de `s-maxage=300` para `public, max-age=0, s-maxage=60,
+  stale-while-revalidate=300`. Continua `no-store` em admin, não indexável, 404/503 (com `Retry-After: 30`). Sem
+  `max-age` no navegador: HTML velho apontaria para chunks de um deploy que não existe mais. Pelo mesmo motivo
+  `main.tsx` trata `vite:preloadError` recarregando a página **uma vez** (marca em `sessionStorage`, removida após 10 s).
+- **Compressão:** é da plataforma (`Content-Encoding: br` conferido no deploy de teste em 17/10). `dev` e `preview`
+  não comprimem; não duplicar compressão no código.
+- **robots.txt:** o ramo indexável ganhou `Disallow: /admin`. Sitemap sem mudança: categorias seguem `noindex,follow`
+  e fora do sitemap (decisão do dono); corretor não tem página pública, então não há sitemap nem meta de corretor.
+- **`ImgOtimizada` é o único `<img>`** (`src/componentes/ImgOtimizada.tsx`, sem wrapper). `dimensoes` é obrigatório:
+  `{ width, height }` ou `'caixa-do-pai'`, porque a API não informa dimensões das fotos (a caixa com `aspect-ratio` ou
+  altura fixa reserva o espaço). Padrão `lazy`/`async`; `prioridade` (eager + `fetchpriority="high"`) só para o LCP:
+  hero do catálogo, foto principal da galeria e hero do login. `fetchpriority` vai em minúsculas porque o React 18.3
+  avisa com `fetchPriority`. `reserva` substitui os estados de erro ad hoc. Logo público fica `lazy` nas duas
+  variantes (tema é classe CSS; o SSR não sabe a visível). Foto do corretor na página pública fica `lazy` (avatar de
+  44 px via `/api` `no-store`; prioridade alta competiria com o LCP). Sem `srcset` para fotos de imóvel: URL única e
+  sem redimensionador. Não adicionar loader/otimizador de imagem antes de decidir hospedagem e plano.
+- **AVIF adiado:** o navegador não codifica AVIF no canvas, a API só aceita jpeg/png/webp e não há `sharp` nem
+  otimizador. Reabrir junto com a decisão de hospedagem. Uploads já são WebP (`prepararMidia.ts`, `recorteFoto.ts`).
+- **CSS crítico inline não foi feito:** CSS único de 92 kB (15 kB em brotli) e exigiria dependência nova e novas
+  referências visuais. O ganho de LCP veio do preload das fontes. Reavaliar com medição real.
+- **Preload de fontes:** plugin `precarregar-fontes` em `vite.config.ts` injeta `<link rel="preload" as="font"
+  crossorigin>` de Libre Baskerville 400 (normal e itálico) e Source Sans 3 400 e 600, só no build do cliente (no dev
+  não há hash). Removido o import do peso 500 do Source Sans 3 (nenhum uso).
+- **Bundle (restaura a decisão de 14/10, que tinha se perdido do código):** `scripts/build.mjs` voltou a separar
+  `react` e `formularios` (zod, react-hook-form, resolvers) via `manualChunks`, só no cliente. Para `formularios`
+  realmente sair do caminho inicial: `telefoneWhatsapp` foi para `servicos/formato.ts` (reexportado por `contato.ts`),
+  `FormularioContato` é `React.lazy` com **Suspense local** em `DetalheImovel` (um suspend vindo de clique cairia no
+  fallback global e trocaria a página) e é pré-carregado em ociosidade, hover e foco. O clique **baixa o chunk antes
+  de abrir** (`abrirContato`); se falhar, um `Dialogo` local pede para recarregar. Sem isso o erro cairia no
+  ErrorBoundary padrão do React Router (tela "Unexpected Application Error"), que **não** passa pelo `LimiteErro`.
+  `prepararMidia.ts` importa
+  `browser-image-compression` de forma dinâmica (antes era import estático). Rotas públicas continuam sem
+  `React.lazy` (decisão de 14/10: o `renderToString` entregaria o fallback).
+- **SEO do detalhe:** foto real da capa ganha `og:image:alt` (título do imóvel); `og:image:width/height` só para a
+  imagem padrão (1200×900), nunca inventados para fotos sem dimensões. A descrição corta em limite de palavra com
+  reticências (antes `slice(0, 170)` partia a palavra).
+- **INP:** sem mudança de código. Já existiam debounce (350 ms na digitação, 250 ms na busca remota) e paginação no
+  servidor (9–15 itens). Não há medição de INP/RUM no projeto.
+- **Erros:** `LimiteErro` (fora do Router) ganhou âncora para a página inicial. Atenção: erros de renderização
+  **dentro das rotas** são capturados antes, pelo ErrorBoundary padrão do React Router (conferido no navegador em
+  17/10); o `LimiteErro` só vê o que acontece fora do roteador. Pendência: `errorElement` próprio nas rotas. O canonical
+  em 404/503 continua (travado por `metadata-regressao.test.ts`).
+
 ### 16/10 — Publicação da restauração dos testes
 - Após conferir a entrega local, o dono autorizou commit e push da main do frontend, com acompanhamento do CI.
   A autorização substitui a restrição de publicação da etapa anterior. Sem PR/branch paralela, deploy manual,
