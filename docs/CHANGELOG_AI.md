@@ -249,3 +249,14 @@ Pendências: DEPLOY-20261009, depois da MIGRATION-20261009 da API.
   - Sem medição de Core Web Vitals reais (LCP/CLS/INP): nenhuma ferramenta de RUM ou Lighthouse foi executada.
   - Safari/iOS e celular físico não testados (`requestIdleCallback` tem fallback para `setTimeout`).
   - Mudanças ainda sem commit; a autorização de commit depende do dono (`docs/AGENTS.md`).
+
+### 17/10/2026 — Commit, push e CI verde das otimizações (Claude)
+
+- **Entregue:** a pendência "mudanças ainda sem commit" da entrada anterior foi cumprida a pedido do dono. Commits `4b97026`
+  (`[FEAT]` código: 26 arquivos) e `8c9e1d1` (`[DOCS]`: decisões, status, tarefas e plano) enviados à `origin/main`
+  (`51a393a..8c9e1d1`), com os arquivos adicionados um a um; nada de `.env`, `dist/`, `.vercel/`, `artifacts/` ou
+  `test-results/`, e a busca por segredos no diff não achou nada.
+- **Validação:** workflow do GitHub Actions **verde** sobre `8c9e1d1` (run 38998680075, `conclusion: success`), conferido pela
+  API pública do GitHub porque a máquina não tem o `gh`. O resultado do CI não substitui a homologação na Vercel.
+- **Pendências:** as mesmas da entrada anterior (cabeçalhos de cache na Vercel com `SEO_INDEXABLE` ligado, medição de
+  LCP/CLS/INP reais, `errorElement` nas rotas, números de `docs/AGENTS.md`). Sem deploy.

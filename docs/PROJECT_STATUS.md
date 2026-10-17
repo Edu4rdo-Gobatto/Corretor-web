@@ -1,8 +1,9 @@
 # Estado atual — corretor-web
 
-## 17/10/2026 — Otimizações de desempenho e SEO, sem commit (Claude)
+## 17/10/2026 — Otimizações de desempenho e SEO, enviadas e com CI verde (Claude)
 
-Plano `PLANO_OTIMIZACOES.md` executado no working tree da `main` (ainda **sem commit**; o dono confirma antes). Cache imutável
+Plano `PLANO_OTIMIZACOES.md` executado na `main`. Com autorização do dono, os commits `4b97026` (código) e `8c9e1d1` (docs)
+foram enviados à `origin/main` e o workflow ficou **verde** (run 38998680075). Sem deploy. Cache imutável
 só de assets com hash, HTML com `stale-while-revalidate`, `Disallow: /admin`, `ImgOtimizada` em todos os `<img>`,
 `og:image:alt`, `manualChunks` restaurado, `FormularioContato` lazy, import dinâmico do `browser-image-compression`, preload
 de 4 fontes e recarga única em chunk órfão. JS inicial: 167,5 → 125,2 kB gzip. Verificado: typecheck, lint, 220 testes,
