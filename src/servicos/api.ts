@@ -165,7 +165,7 @@ export const api = {
     http<Pessoa>(`/admin/pessoas${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', { ...dados, ...somenteAlterados(dados, anterior, ['imovel_id', 'corretor_id']) })),
   desativarPessoa: (id: number) => http<void>(`/admin/pessoas/${id}`, json('DELETE')),
 
-  listarCorretores: (pagina = 1, limite = 20, busca?: string) => http<Pagina<Corretor>>(`/admin/corretores?${montarParametros({ pagina, limite, busca })}`),
+  listarCorretores: (pagina = 1, limite = 20, busca?: string, ativo?: boolean) => http<Pagina<Corretor>>(`/admin/corretores?${montarParametros({ pagina, limite, busca, ativo })}`),
   obterCorretor: (id: number) => http<Corretor>(`/admin/corretores/${id}`),
   salvarCorretor: (dados: DadosCorretor, id?: number) => http<Corretor>(`/admin/corretores${id ? `/${id}` : ''}`, json(id ? 'PATCH' : 'POST', dados)),
 
