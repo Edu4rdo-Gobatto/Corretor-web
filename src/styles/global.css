@@ -202,8 +202,10 @@ input[type=checkbox][aria-invalid=true] { outline: 2px solid var(--color-error);
 .painel-ui .indicador-painel p { margin-bottom: 0; }
 .painel-ui .contagem-painel { margin: 0 0 16px; font-size: 16px; color: var(--color-muted); }
 .painel-ui .busca-painel { flex: 1 1 22rem; min-width: 0; }
-.painel-ui .chip-filtro-painel { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; max-width: 100%; border: 1px solid var(--color-line); border-radius: 10px; background: var(--color-soft); padding: 6px 10px; color: var(--color-ink); font-size: 16px; overflow-wrap: anywhere; }
-.painel-ui .chip-filtro-painel svg { width: 16px; height: 16px; flex-shrink: 0; }
+/* X do card de filtros (`BarraFiltros`): no canto, acima da linha de campos; o alvo de toque cresce para 44px no celular. */
+.painel-ui .limpar-filtros-painel { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--color-muted); }
+.painel-ui .limpar-filtros-painel:hover { background: var(--color-soft); color: var(--color-ink); }
+@media (pointer: coarse) { .painel-ui .limpar-filtros-painel { top: 2px; right: 2px; width: 44px; height: 44px; } }
 @container principal (min-width: 44rem) {
   .painel-ui .superficie-painel { padding: 20px; }
 }

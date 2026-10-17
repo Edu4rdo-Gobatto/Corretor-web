@@ -18,7 +18,7 @@ import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import Seletor from '../../componentes/Seletor';
-import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
+import BarraFiltros, { CampoBusca } from '../../componentes/BarraFiltros';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import { IconeSalvar } from '../../componentes/Icones';
 import CampoNumero, { numeroDoCampo } from '../../componentes/CampoNumero';
@@ -117,14 +117,10 @@ export default function Contratos() {
   const [criando, setCriando] = useState(false);
   const { dados, carregando, erro, recarregar } = useDadosPainel(useCallback(() => api.listarContratos({ pagina, limite: 15, busca: filtros.busca || undefined, status: filtros.status || undefined, ativo: filtros.ativo === 'true' }), [pagina, filtros]));
   useAcoesPainel(useMemo(() => [{ id: 'novo-contrato', rotulo: 'Novo contrato', executar: () => setCriando(true), palavrasChave: 'locação aluguel' }], []));
-  const resumo: FiltroAplicado<keyof Filtros>[] = [
-    ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
-    ...(filtros.status ? [{ campo: 'status' as const, rotulo: filtros.status === 'ATIVO' ? 'Ativos' : 'Encerrados' }] : []),
-    ...(filtros.ativo === 'false' ? [{ campo: 'ativo' as const, rotulo: 'Arquivados' }] : []),
-  ];
+  const filtrado = (Object.keys(filtrosIniciais) as (keyof Filtros)[]).some((chave) => filtros[chave] !== filtrosIniciais[chave]);
   return <>
     <CabecalhoPagina titulo="Contratos de locação" descricao="Contratos intermediados e suas pastas de documentos." acoes={<BotaoAdicionar rotulo="Novo contrato" aoClicar={() => setCriando(true)} />} />
-    <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={(campo) => setRascunho({ ...rascunho, [campo]: filtrosIniciais[campo] }, true)} aoLimpar={() => setRascunho(filtrosIniciais, true)}>
+    <BarraFiltros aoEnviar={aplicarAgora} filtrado={filtrado} aoLimpar={() => setRascunho(filtrosIniciais, true)}>
       <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Número, imóvel ou inquilino" />
       <Seletor rotulo="Situação" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, { valor: 'ATIVO' as const, rotulo: 'Ativos' }, { valor: 'INATIVO' as const, rotulo: 'Encerrados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <Seletor rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Em cadastro' }, { valor: 'false' as const, rotulo: 'Arquivados' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />

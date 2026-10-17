@@ -19,7 +19,7 @@ import Paginacao from '../../componentes/Paginacao';
 import SeletorRegistro from '../../componentes/SeletorRegistro';
 import Tabela from '../../componentes/Tabela';
 import AcaoIcone from '../../componentes/AcaoIcone';
-import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
+import BarraFiltros, { CampoBusca } from '../../componentes/BarraFiltros';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import Aviso from '../../componentes/Aviso';
 import EditorPessoa from './EditorPessoa';
@@ -127,19 +127,13 @@ export default function Contatos() {
     finally { mutacaoAtiva.current = false; setOcupado(0); }
   }
   function limpar() { setRascunho(filtrosIniciais, true); }
-  function removerFiltro(campo: keyof Filtros) { setRascunho({ ...filtros, [campo]: filtrosIniciais[campo] }, true); }
-  const resumo: FiltroAplicado<keyof Filtros>[] = [
-    ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
-    ...(filtros.imovel ? [{ campo: 'imovel' as const, rotulo: `Imóvel: ${filtros.imovel.nome}` }] : []),
-    ...(filtros.desde ? [{ campo: 'desde' as const, rotulo: `Desde: ${filtros.desde.split('-').reverse().join('/')}` }] : []),
-    ...(filtros.ate ? [{ campo: 'ate' as const, rotulo: `Até: ${filtros.ate.split('-').reverse().join('/')}` }] : []),
-  ];
+  const filtrado = (Object.keys(filtrosIniciais) as (keyof Filtros)[]).some((chave) => filtros[chave] !== filtrosIniciais[chave]);
   const abas = [...listas, { status: 'FINALIZADO' as const, titulo: 'Finalizados', descricao: 'Histórico dos atendimentos concluídos. Somente administradores podem reabri-los.' }];
   const paginar = useCallback((pagina: number) => setPaginas((atual) => ({ ...atual, [aba]: pagina })), [aba]);
   const listaAtual = abas.find((lista) => lista.status === aba)!;
   return <>
     <CabecalhoPagina titulo="Contatos" descricao="Organize seus retornos e acompanhe cada atendimento." acoes={<BotaoAdicionar rotulo="Nova pessoa" aoClicar={() => setEditando(null)} desabilitado={Boolean(ocupado)} />} />
-    <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={removerFiltro} aoLimpar={limpar}>
+    <BarraFiltros aoEnviar={aplicarAgora} filtrado={filtrado} aoLimpar={limpar}>
       <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Nome, telefone, e-mail ou documento" />
       <div className="w-full min-w-0 @min-[38rem]/principal:w-65"><SeletorRegistro rotulo="Imóvel" valor={rascunho.imovel} buscar={buscarImoveis} aoEscolher={(valor) => setRascunho({ ...rascunho, imovel: valor }, true)} /></div>
       <Campo rotulo="De"><input type="date" value={rascunho.desde} onChange={(evento) => setRascunho({ ...rascunho, desde: evento.target.value }, true)} /></Campo>

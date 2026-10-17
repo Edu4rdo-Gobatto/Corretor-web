@@ -52,7 +52,7 @@ export function EditorCorretor({ corretor, aoFechar, aoSalvar }: { corretor: Cor
   }
   // Ordem pensada para a grade de 2 colunas não deixar célula vazia: Nome / CPF+E-mail / WhatsApp+CRECI / Permissão+Foto / Senha.
   const campos: [keyof Valores, string, string, string?][] = [['nome', 'Nome', 'text', 'col-span-full'], ['cpf', 'CPF (somente números)', 'text'], ['email', 'E-mail', 'email'], ['whatsapp', 'WhatsApp com DDI e DDD', 'tel'], ['creci', 'CRECI', 'text']];
-  const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <Campo key={nome} classe={classe} rotulo={rotulo} obrigatorio={nome === 'nome' || nome === 'cpf' || nome === 'email' || nome === 'whatsapp'} erro={errors[nome]?.message} dica={nome === 'creci' ? 'Opcional. Números com J ou F no final, se houver.' : undefined}>{nome === 'creci' ? <CampoCreci {...register(nome)} /> : <input type={tipo} {...register(nome)} />}</Campo>;
+  const campo = ([nome, rotulo, tipo, classe]: [keyof Valores, string, string, string?]) => <Campo key={nome} classe={classe} rotulo={rotulo} obrigatorio={nome === 'nome' || nome === 'cpf' || nome === 'email' || nome === 'whatsapp'} erro={errors[nome]?.message}>{nome === 'creci' ? <CampoCreci {...register(nome)} /> : <input type={tipo} {...register(nome)} />}</Campo>;
   return (
     <Dialogo titulo={corretor ? 'Editar corretor' : 'Novo corretor'} tamanho="largo" alterado={isDirty} ocupado={isSubmitting} aoFechar={() => { if (!isSubmitting) aoFechar(); }}>
       <form className={estilos.formulario} onSubmit={handleSubmit(salvar)} noValidate data-atalho-salvar>

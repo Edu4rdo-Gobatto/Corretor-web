@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { IconeEdificio, IconeFechar, IconeFiltros, IconeGalpao, IconeLoja, IconePredio, IconeProximo, IconeTerreno, type Icone } from './Icones';
-import FiltroSuspenso from './FiltroSuspenso';
 import Dialogo from './Dialogo';
 import Seletor from './Seletor';
 import { useFiltrosAutomaticos } from '../hooks/useFiltrosAutomaticos';
@@ -18,6 +17,8 @@ const icones: Record<string, Icone> = { galpao: IconeGalpao, 'sala-comercial': I
 const chipBase = 'inline-flex min-h-11 items-center gap-2 rounded-sm border px-3 py-2.5 text-sm';
 const chipInativo = 'border-line bg-transparent text-muted hover:border-navy dark:hover:border-gold';
 const chipSelecionado = 'border-navy bg-navy text-white shadow-[inset_0_-2px_0_var(--color-gold)]';
+const classeSeletorCard = '[&_label]:text-sm [&_.seletor]:min-h-12 [&_.seletor]:bg-transparent';
+const VARIOS_TIPOS = '__varios';
 const rotuloGrupo = 'mb-2 block text-sm font-semibold';
 const ordenacoes = Object.entries(rotulosOrdenacao).map(([valor, rotulo]) => ({ valor, rotulo }));
 const CAMPOS_EXTRAS = ['cidade', 'bairro', 'valor_min', 'valor_max', 'area_min', 'area_max'] as const;
@@ -173,14 +174,13 @@ export default function FiltrosCatalogo({ consulta, chaveConsulta, finalidades, 
 
   return <div role="search" aria-label="Filtrar imóveis" className="rounded-lg border border-line border-t-[3px] border-t-gold bg-paper px-7 pb-4 pt-6 shadow-sm max-[560px]:px-4.5 max-[560px]:pt-5">
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] items-end gap-5 max-[1100px]:gap-3 max-[960px]:grid-cols-2 max-[960px]:gap-y-4 max-[800px]:hidden">
-      <FiltroSuspenso id="filtro-finalidade" rotulo="Alugar ou comprar" resumo={finalidades.find((item) => item.chave === consulta.finalidade)?.nome}
-        opcoes={finalidades.map((item) => ({ valor: item.chave, rotulo: item.nome }))}
-        selecionados={consulta.finalidade ? [consulta.finalidade] : []} aoMudar={([finalidade]) => selecionar({ finalidade })} />
-      <FiltroSuspenso id="filtro-tipos" rotulo="Tipo de imóvel" multiplo resumo={resumoTipos(selecionados, tipos)} selecionados={selecionados}
-        opcoes={tipos.map((tipo) => { const Icone = icones[tipo.chave] || IconeEdificio; return { valor: tipo.chave, rotulo: tipo.nome, icone: <Icone size={17} /> }; })}
-        aoMudar={(proximos) => selecionar({ tipos: proximos.length ? proximos : undefined })} />
-      <FiltroSuspenso id="filtro-ordem" rotulo="Ordenar por" filtro={false} resumo={rotulosOrdenacao[ordenar]} opcoes={ordenacoes}
-        selecionados={[ordenar]} aoMudar={([valor]) => escolherOrdem(valor)} />
+      <Seletor id="filtro-finalidade" classe={classeSeletorCard} rotulo="Alugar ou comprar" valor={consulta.finalidade ?? ''}
+        opcoes={[{ valor: '', rotulo: 'Todos' }, ...opcoesFinalidade]} aoMudar={(finalidade) => selecionar({ finalidade: finalidade || undefined })} />
+      {/* Escolha única; vários tipos (link antigo ou chips do celular) aparecem como um resumo, até escolher outro. */}
+      <Seletor id="filtro-tipos" classe={classeSeletorCard} rotulo="Tipo de imóvel" valor={selecionados.length > 1 ? VARIOS_TIPOS : selecionados[0] ?? ''}
+        opcoes={[{ valor: '', rotulo: 'Todos os tipos' }, ...(selecionados.length > 1 ? [{ valor: VARIOS_TIPOS, rotulo: resumoTipos(selecionados, tipos) }] : []), ...opcoesTipo]}
+        aoMudar={(tipo) => selecionar({ tipos: tipo && tipo !== VARIOS_TIPOS ? [tipo] : undefined })} />
+      <Seletor id="filtro-ordem" classe={classeSeletorCard} rotulo="Ordenar por" valor={ordenar} opcoes={ordenacoes} aoMudar={escolherOrdem} />
       <button type="button" aria-expanded={painelAberto} aria-controls="filtros-extras" onClick={() => setPainelAberto(!painelAberto)}
         className={`buttonSecondary min-h-12 border-control-line focus-visible:border-acao-painel-hover px-4 py-0 ${painelAberto ? 'bg-soft' : ''}`}>
         <IconeFiltros size={18} aria-hidden="true" />Mais filtros{contador(extrasAtivos)}

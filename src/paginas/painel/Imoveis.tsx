@@ -14,7 +14,7 @@ import Etiqueta from '../../componentes/Etiqueta';
 import Paginacao from '../../componentes/Paginacao';
 import Tabela from '../../componentes/Tabela';
 import Seletor from '../../componentes/Seletor';
-import BarraFiltros, { CampoBusca, type FiltroAplicado } from '../../componentes/BarraFiltros';
+import BarraFiltros, { CampoBusca } from '../../componentes/BarraFiltros';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
 import { estilos } from '../../componentes/estilosPainel';
@@ -38,18 +38,11 @@ export default function Imoveis() {
   const itens = dados?.itens ?? [];
   const podeEditar = (imovel: FichaImovel) => corretor?.cargo === 'ADMIN' || corretor?.id === imovel.corretor_id;
 
-  function removerFiltro(campo: keyof Filtros) {
-    setRascunho({ ...rascunho, [campo]: filtrosIniciais[campo] }, true);
-  }
-  const resumo: FiltroAplicado<keyof Filtros>[] = [
-    ...(filtros.busca ? [{ campo: 'busca' as const, rotulo: `Busca: ${filtros.busca}` }] : []),
-    ...(filtros.status ? [{ campo: 'status' as const, rotulo: rotulosStatusImovel[filtros.status] }] : []),
-    ...(filtros.ativo === 'false' ? [{ campo: 'ativo' as const, rotulo: 'Inativos' }] : []),
-  ];
+  const filtrado = (Object.keys(filtrosIniciais) as (keyof Filtros)[]).some((chave) => filtros[chave] !== filtrosIniciais[chave]);
 
   return <>
     <CabecalhoPagina titulo="Imóveis" descricao="Espaços bem apresentados, novas possibilidades." acoes={<BotaoAdicionar rotulo="Novo imóvel" to="/admin/imoveis/novo" />} />
-    <BarraFiltros aoEnviar={aplicarAgora} aplicados={resumo} aoRemover={removerFiltro} aoLimpar={() => setRascunho(filtrosIniciais, true)}>
+    <BarraFiltros aoEnviar={aplicarAgora} filtrado={filtrado} aoLimpar={() => setRascunho(filtrosIniciais, true)}>
       <CampoBusca valor={rascunho.busca} aoMudar={(busca) => setRascunho({ ...rascunho, busca })} placeholder="Título, bairro, cidade ou #código" />
       <Seletor rotulo="Situação do anúncio" valor={rascunho.status} opcoes={[{ valor: '' as const, rotulo: 'Todas' }, ...Object.entries(rotulosStatusImovel).map(([valor, rotulo]) => ({ valor: valor as Filtros['status'], rotulo }))]} aoMudar={(valor) => setRascunho({ ...rascunho, status: valor }, true)} />
       <Seletor rotulo="Cadastro" valor={rascunho.ativo} opcoes={[{ valor: 'true' as const, rotulo: 'Ativos' }, { valor: 'false' as const, rotulo: 'Inativos' }]} aoMudar={(valor) => setRascunho({ ...rascunho, ativo: valor }, true)} />
