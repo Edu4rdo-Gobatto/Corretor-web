@@ -12,6 +12,7 @@ import Aviso from '../../componentes/Aviso';
 import { useVoltarPainel } from '../../hooks/useVoltarPainel';
 import { IconeBuscar } from '../../componentes/Icones';
 import PaletaPainel from '../../componentes/PaletaPainel';
+import ImgOtimizada from '../../componentes/ImgOtimizada';
 import { ProvedorComandosPainel } from '../../hooks/useComandosPainel';
 
 // O ícone só ganha a base dourada no destino ativo; os demais ficam neutros ao lado do nome. O nome segue o estilo
@@ -24,8 +25,8 @@ const botaoIcone = 'linha-nav grid cursor-pointer place-items-center rounded-[10
 const botaoTexto = 'inline-flex cursor-pointer items-center rounded-[10px] border-0 bg-transparent font-semibold text-white [--linha-y:-4px]';
 const baseIcone = 'grid h-9 w-9 shrink-0 place-items-center rounded-lg group-aria-[current]:bg-acao-painel group-aria-[current]:text-sobre-acao';
 // A sidebar é sempre navy: usa a variante do logo com as cores originais (texto claro).
-const logo = (altura: number, classe: string) => <img src={`${brand.logo.temaEscuro}-48.webp`} srcSet={`${brand.logo.temaEscuro}-48.webp 1x, ${brand.logo.temaEscuro}-96.webp 2x, ${brand.logo.temaEscuro}-144.webp 3x`}
-  width={Math.round(altura * brand.logo.proporcao)} height={altura} alt={`${brand.logo.first} — ${brand.logo.second}`} decoding="async" className={`w-auto max-w-full object-contain object-left ${classe}`} />;
+const logo = (altura: number, classe: string) => <ImgOtimizada src={`${brand.logo.temaEscuro}-48.webp`} srcSet={`${brand.logo.temaEscuro}-48.webp 1x, ${brand.logo.temaEscuro}-96.webp 2x, ${brand.logo.temaEscuro}-144.webp 3x`}
+  dimensoes={{ width: Math.round(altura * brand.logo.proporcao), height: altura }} alt={`${brand.logo.first} — ${brand.logo.second}`} loading="eager" className={`w-auto max-w-full object-contain object-left ${classe}`} />;
 const destinos: { to: string; nome: string; icone: Icone; end?: boolean; admin?: boolean }[] = [
   { to: rotas.painel, nome: 'Visão geral', icone: IconeVisaoGeral, end: true },
   { to: rotas.imoveis, nome: 'Imóveis', icone: IconeEdificio },
@@ -102,7 +103,7 @@ function EstruturaPainel() {
   const inicial = corretor.nome.charAt(0).toUpperCase();
   const cargo = corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor';
   const rotuloTema = escuro ? 'Ativar modo claro' : 'Ativar modo escuro';
-  const foto = (classe: string) => mostrarFoto ? <img src={urlFotoCorretor(corretor)} alt="" onError={() => setFotoQuebrada(true)} className={classe} /> : inicial;
+  const foto = (classe: string) => mostrarFoto ? <ImgOtimizada src={urlFotoCorretor(corretor)} alt="" dimensoes="caixa-do-pai" onError={() => setFotoQuebrada(true)} className={classe} /> : inicial;
   const visiveis = destinos.filter((destino) => !destino.admin || corretor.cargo === 'ADMIN');
   const itensMenu = visiveis.length + 1; // + "Ver site"
   const navegacao = (mobile = false) => {

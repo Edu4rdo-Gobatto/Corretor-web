@@ -15,6 +15,14 @@ export function absolute(path: string, config: SeoConfig) { return config.siteUr
 
 const textoFinalidade = (slug?: string) => slug === 'locacao' ? ' para alugar' : slug === 'venda' ? ' para comprar' : '';
 
+/** Corta em limite de palavra e marca o corte com reticências, em vez de partir a palavra ao meio. */
+const resumir = (texto: string, limite: number) => {
+  if (texto.length <= limite) return texto;
+  const corte = texto.slice(0, limite - 1);
+  const espaco = corte.lastIndexOf(' ');
+  return `${(espaco > limite * 0.6 ? corte.slice(0, espaco) : corte).replace(/[\s,;:.\-–—]+$/, '')}…`;
+};
+
 export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = {}, status = 200) {
   const url = new URL(path, 'http://local');
   const catalogo = lerUrlCatalogo(path);
@@ -25,6 +33,7 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
   let title = `${brand.tagline} | ${brand.name}`;
   let description = `Encontre salas comerciais, lojas, galpões, prédios e terrenos para alugar ou comprar em ${brand.region.name}. Consulte os imóveis e fale com o corretor responsável.`;
   let image = absolute(IMAGEM_PADRAO, config);
+  let imageAlt: string | undefined;
   const canonical = absolute(caminhoCanonico, config);
   const graph: Record<string, unknown>[] = [];
   if (config.siteUrl) graph.push(
@@ -51,10 +60,12 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
     const finalidade = imovel.finalidade?.slug === 'locacao' ? 'para alugar' : imovel.finalidade?.slug === 'venda' ? 'à venda' : imovel.finalidade?.nome || '';
     const abertura = disponivel ? `${imovel.tipo?.nome || 'Imóvel'} ${finalidade}` : `Imóvel ${rotulosStatusImovel[imovel.status].toLowerCase()}: ${imovel.tipo?.nome || 'imóvel'}`;
     title = `${imovel.titulo} | ${imovel.cidade}/${imovel.estado} | ${brand.name}`;
-    description = `${abertura} em ${imovel.bairro}, ${imovel.cidade}/${imovel.estado}, com ${Number(imovel.area_util)} m². ${imovel.descricao.replace(/\s+/g, ' ').trim()}`.slice(0, 170);
+    description = resumir(`${abertura} em ${imovel.bairro}, ${imovel.cidade}/${imovel.estado}, com ${Number(imovel.area_util)} m². ${imovel.descricao.replace(/\s+/g, ' ').trim()}`, 170);
     const capa = imovel.midias.find((midia) => midia.tipo === 'IMAGEM' && midia.capa) || imovel.midias.find((midia) => midia.tipo === 'IMAGEM');
     if (capa && /^https?:\/\//.test(capa.url)) image = capa.url;
     else if (capa?.url.startsWith('/') && !capa.url.startsWith('//')) image = absolute(capa.url, config);
+    // A API não informa largura/altura da foto; sem dimensões confiáveis, só o texto alternativo é emitido.
+    if (capa && image !== absolute(IMAGEM_PADRAO, config)) imageAlt = imovel.titulo;
     if (config.siteUrl) graph.push(
       {
         '@type': 'RealEstateListing', '@id': canonical, url: canonical, name: imovel.titulo, description: imovel.descricao, image, dateModified: imovel.alterado_em,
@@ -69,11 +80,11 @@ export function buildSeo(path: string, config: SeoConfig, data: DadosPublicos = 
   if (status >= 500) { title = `Serviço temporariamente indisponível | ${brand.name}`; description = 'Tente novamente em alguns instantes.'; }
   const semDados = (!catalogo && url.pathname.startsWith('/imoveis/') && !imovel) || (catalogo && !data.catalogo);
   const robots = !config.indexable || admin || url.pathname === '/devs' || status !== 200 || semDados ? (url.pathname === '/devs' && status === 200 ? 'noindex,follow' : 'noindex,nofollow') : filtrado ? 'noindex,follow' : 'index,follow';
-  return { title, description, canonical, image, defaultImage: image === absolute(IMAGEM_PADRAO, config), robots, jsonLd: { '@context': 'https://schema.org', '@graph': status === 200 && !admin ? graph : [] } };
+  return { title, description, canonical, image, imageAlt, defaultImage: image === absolute(IMAGEM_PADRAO, config), robots, jsonLd: { '@context': 'https://schema.org', '@graph': status === 200 && !admin ? graph : [] } };
 }
 
 export function renderHead(seo: ReturnType<typeof buildSeo>) {
   const meta = (name: string, content: string, property = false) => `<meta data-seo ${property ? 'property' : 'name'}="${name}" content="${escapeHtml(content)}"/>`;
-  const imagem = seo.image ? meta('og:image', seo.image, true) + (seo.defaultImage ? meta('og:image:width', '1200', true) + meta('og:image:height', '900', true) + meta('og:image:alt', 'Ambiente comercial iluminado, com mesas, vegetação e janelas amplas', true) : '') : '';
+  const imagem = seo.image ? meta('og:image', seo.image, true) + (seo.defaultImage ? meta('og:image:width', '1200', true) + meta('og:image:height', '900', true) + meta('og:image:alt', 'Ambiente comercial iluminado, com mesas, vegetação e janelas amplas', true) : seo.imageAlt ? meta('og:image:alt', seo.imageAlt, true) : '') : '';
   return `<title>${escapeHtml(seo.title)}</title>${meta('description', seo.description)}${meta('robots', seo.robots)}${seo.canonical ? `<link data-seo rel="canonical" href="${escapeHtml(seo.canonical)}"/>` : ''}${meta('og:title', seo.title, true)}${meta('og:description', seo.description, true)}${meta('og:type', 'website', true)}${meta('og:locale', 'pt_BR', true)}${meta('og:site_name', brand.name, true)}${seo.canonical ? meta('og:url', seo.canonical, true) : ''}${imagem}${meta('twitter:card', 'summary_large_image')}${meta('twitter:title', seo.title)}${meta('twitter:description', seo.description)}${seo.image ? meta('twitter:image', seo.image) : ''}<script data-seo type="application/ld+json">${serialize(seo.jsonLd)}</script>`;
 }

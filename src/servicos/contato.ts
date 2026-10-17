@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { codigoImovel } from './formato';
+import { codigoImovel, telefoneWhatsapp } from './formato';
 import { telefoneValido } from './validacao';
 
-export { telefoneValido };
+export { telefoneValido, telefoneWhatsapp };
 
 export const esquemaContato = z.object({
   nome: z.string().trim().min(2, 'Informe seu nome.').max(120),
@@ -25,11 +25,6 @@ export function formatarTelefone(valor: string): string {
   if (digitos.length <= 2) return digitos;
   if (digitos.length <= 7) return `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`;
   return `(${digitos.slice(0, 2)}) ${digitos.length === 11 ? `${digitos.slice(2, 7)}-${digitos.slice(7)}` : `${digitos.slice(2, 6)}-${digitos.slice(6)}`}`;
-}
-
-export function telefoneWhatsapp(valor: string): string {
-  const digitos = valor.replace(/\D/g, '');
-  return !valor.trim().startsWith('+') && (digitos.length === 10 || digitos.length === 11) ? `55${digitos}` : digitos;
 }
 
 export function urlWhatsapp(imovel: { id: number; titulo: string; corretor: { nome: string; whatsapp: string } | null }): string {

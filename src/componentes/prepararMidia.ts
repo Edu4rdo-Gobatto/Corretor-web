@@ -1,5 +1,3 @@
-import imageCompression from 'browser-image-compression';
-
 const CONCORRENCIA_MAXIMA = 2;
 export const TIPOS_ACEITOS = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
 export const LIMITE_ARQUIVOS = 20;
@@ -32,6 +30,8 @@ async function prepararArquivo(arquivo: File): Promise<File> {
   } finally {
     bitmap.close();
   }
+  // Import dinâmico: a biblioteca (~55 kB) só é baixada quando o usuário escolhe uma foto.
+  const { default: imageCompression } = await import('browser-image-compression');
   const comprimido = await imageCompression(arquivo, { maxSizeMB: 2, maxWidthOrHeight: tamanhoMaximo, useWebWorker: false, fileType: 'image/webp', initialQuality: 0.85 });
   return new File([comprimido], arquivo.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
 }

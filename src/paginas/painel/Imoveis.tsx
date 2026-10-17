@@ -17,6 +17,7 @@ import Seletor from '../../componentes/Seletor';
 import BarraFiltros, { CampoBusca } from '../../componentes/BarraFiltros';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import BotaoAdicionar from '../../componentes/BotaoAdicionar';
+import ImgOtimizada from '../../componentes/ImgOtimizada';
 import { estilos } from '../../componentes/estilosPainel';
 import { useAcoesPainel } from '../../hooks/useComandosPainel';
 import { urlFichaCorretor } from '../../servicos/urls';
@@ -58,7 +59,7 @@ export default function Imoveis() {
               { titulo: 'Imóvel', celula: (imovel) => {
                 const capa = imovel.midias.find((midia) => midia.capa) ?? imovel.midias.find((midia) => midia.tipo === 'IMAGEM');
                 return <div className="flex items-center gap-3">
-                  <span className="grid h-14 w-18 shrink-0 place-items-center overflow-hidden rounded bg-soft text-[11px] text-muted">{capa ? <img src={capa.url} alt="" className="h-full w-full object-cover" /> : 'Sem foto'}</span>
+                  <span className="grid h-14 w-18 shrink-0 place-items-center overflow-hidden rounded bg-soft text-[11px] text-muted">{capa ? <ImgOtimizada src={capa.url} alt="" dimensoes="caixa-do-pai" className="h-full w-full object-cover" /> : 'Sem foto'}</span>
                   <span className="min-w-0"><Link to={`/admin/imoveis/${imovel.id}`}><strong>{imovel.titulo}</strong></Link><small className="mt-1 block text-muted">{codigoImovel(imovel.id)} {imovel.tipo?.nome ?? 'Imóvel'} {imovel.bairro}, {imovel.cidade}/{imovel.estado}</small>{imovel.corretor && <small className="block text-muted">Responsável: <Link to={urlFichaCorretor(imovel.corretor.id, corretor?.id)}>{imovel.corretor.nome}</Link></small>}</span>
                 </div>;
               } },

@@ -14,12 +14,13 @@ import {
 } from "../../servicos/api";
 import { lerUrlCatalogo, urlCatalogo } from "../../servicos/urls";
 import { plural } from "../../servicos/formato";
-import { telefoneWhatsapp } from "../../servicos/contato";
+import { telefoneWhatsapp } from "../../servicos/formato";
 import { useRecurso } from "../../hooks/useRecurso";
 import CartaoImovel from "../../componentes/CartaoImovel";
 import EstadoCarregamento from "../../componentes/EstadoCarregamento";
 import FiltrosCatalogo from "../../componentes/FiltrosCatalogo";
 import Paginacao from "../../componentes/Paginacao";
+import ImgOtimizada from "../../componentes/ImgOtimizada";
 import { Seo, useDadosIniciais } from "../../seo/context";
 import { brand } from "../../config/brand";
 import type { ConsultaCatalogo } from "../../tipos";
@@ -133,15 +134,14 @@ export default function Catalogo() {
           </a>
         </div>
         <div className="relative h-75 overflow-hidden rounded-lg bg-soft max-[800px]:h-[clamp(200px,46vw,300px)]">
-          <img
+          <ImgOtimizada
             src="/assets/rua-comercial-1200.webp"
             srcSet="/assets/rua-comercial-640.webp 640w, /assets/rua-comercial-960.webp 960w, /assets/rua-comercial-1200.webp 1200w"
             sizes="(max-width: 800px) calc(100vw - 36px), 600px"
-            width="1200"
-            height="900"
+            dimensoes={{ width: 1200, height: 896 }}
             alt="Rua comercial arborizada ao entardecer, com lojas no térreo, salas nos andares superiores e prédio moderno ao fundo"
             className="h-full w-full rounded-lg object-cover"
-            {...{ fetchpriority: "high" }}
+            prioridade
           />
         </div>
       </section>

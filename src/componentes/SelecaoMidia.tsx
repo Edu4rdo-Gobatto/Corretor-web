@@ -3,6 +3,7 @@ import { IconeExcluir } from './Icones';
 import AcaoIcone from './AcaoIcone';
 import Aviso from './Aviso';
 import Campo from './Campo';
+import ImgOtimizada from './ImgOtimizada';
 import { urlEmbed } from '../servicos/videoEmbed';
 import { LIMITE_ARQUIVOS, TIPOS_ACEITOS, validarSelecaoMidia } from './prepararMidia';
 
@@ -50,7 +51,7 @@ export default function SelecaoMidia({ arquivos, videos, aoAlterar, desabilitado
         <ul className="grid list-none grid-cols-1 gap-4.5 p-0 @min-[28rem]:grid-cols-2 @min-[52rem]:grid-cols-3">
           {previas.map((previa, indice) => (
             <li key={`${previa.arquivo.name}-${indice}`} className="border border-line bg-paper">
-              {previa.url ? <img className="h-37.5 w-full object-cover" src={previa.url} alt={`Prévia ${indice + 1}: ${previa.arquivo.name}`} /> : <div className="grid h-37.5 place-items-center bg-soft p-4 text-sm">{previa.arquivo.name}</div>}
+              {previa.url ? <ImgOtimizada className="h-37.5 w-full object-cover" src={previa.url} alt={`Prévia ${indice + 1}: ${previa.arquivo.name}`} dimensoes="caixa-do-pai" loading="eager" /> : <div className="grid h-37.5 place-items-center bg-soft p-4 text-sm">{previa.arquivo.name}</div>}
               <div className="acoes-linha flex items-center justify-between gap-2 p-3 text-base">
                 <span className="min-w-0 truncate">{indice === 0 && previa.url ? 'Capa ' : ''}{previa.arquivo.name}</span>
                 <AcaoIcone icone={IconeExcluir} rotulo="Remover" contexto={previa.arquivo.name} tom="perigo" desabilitado={desabilitado} aoClicar={() => aoAlterar(arquivos.filter((_, posicao) => posicao !== indice), videos)} />

@@ -6,7 +6,8 @@ import { sinalizarIdaAosDevs } from '../servicos/obra';
 import { brand } from '../config/brand';
 import { useTema } from '../hooks/useTema';
 import { useEscVoltar } from '../hooks/useEscVoltar';
-import { telefoneWhatsapp } from '../servicos/contato';
+import { telefoneWhatsapp } from '../servicos/formato';
+import ImgOtimizada from './ImgOtimizada';
 
 // Uma variante do logo por tema; o CSS escolhe qual aparece (o SSR é o mesmo nos dois temas). `lazy` evita baixar a
 // variante escondida. Tamanhos 1x/2x/3x da altura de 48px, gerados por scripts/gerar-logo.mjs.
@@ -15,14 +16,12 @@ const linhaRodape = 'linha-nav [--linha-y:-4px]';
 const itemRodape = 'flex min-h-11 w-fit items-center text-white';
 const textoRodape = 'flex min-h-8 items-center text-white/80';
 const classeLogo = 'h-12 w-auto max-w-57.5 object-contain object-left max-[900px]:h-10 max-[900px]:max-w-43.75';
+// As duas variantes (tema claro/escuro) ficam lazy: o tema é classe CSS e o SSR não sabe qual é a visível.
 const atributosLogo = (base: string) => ({
   src: `${base}-48.webp`,
   srcSet: `${base}-48.webp 1x, ${base}-96.webp 2x, ${base}-144.webp 3x`,
-  width: Math.round(48 * brand.logo.proporcao),
-  height: 48,
+  dimensoes: { width: Math.round(48 * brand.logo.proporcao), height: 48 },
   alt: `${brand.logo.first} — ${brand.logo.second}`,
-  loading: 'lazy' as const,
-  decoding: 'async' as const,
 });
 
 export default function LayoutPublico() {
@@ -59,8 +58,8 @@ export default function LayoutPublico() {
     <header className="sticky top-0 z-40 border-b border-line bg-paper shadow-[inset_0_-2px_0_var(--color-gold)]">
       <div className="container flex min-h-26 items-center justify-between gap-8 max-[900px]:gap-4 max-[800px]:relative max-[800px]:min-h-21">
         <Link to={rotas.inicio} className="relative z-6 flex min-w-0 items-center gap-3 max-[900px]:gap-2 text-brand no-underline" aria-label={`${brand.name} — início`}>
-          <img {...atributosLogo(brand.logo.temaClaro)} className={`${classeLogo} dark:hidden`} />
-          <img {...atributosLogo(brand.logo.temaEscuro)} className={`${classeLogo} hidden dark:block`} />
+          <ImgOtimizada {...atributosLogo(brand.logo.temaClaro)} className={`${classeLogo} dark:hidden`} />
+          <ImgOtimizada {...atributosLogo(brand.logo.temaEscuro)} className={`${classeLogo} hidden dark:block`} />
         </Link>
         {menuAberto && <button type="button" aria-label="Fechar menu" onClick={() => fecharMenu()} className="fixed inset-0 z-4 hidden cursor-default border-0 bg-navy/60 p-0 max-[650px]:block" />}
         <div className="ml-auto flex shrink-0 items-center gap-4">

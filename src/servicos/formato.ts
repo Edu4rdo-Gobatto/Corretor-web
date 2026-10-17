@@ -15,6 +15,11 @@ export const area = (valor: string | number) => `${new Intl.NumberFormat('pt-BR'
 export const data = (valor: string) => new Date(valor).toLocaleDateString('pt-BR');
 export const dataCivil = (valor: string | null | undefined) => valor ? valor.slice(0, 10).split('-').reverse().join('/') : 'Não informado';
 export const codigoImovel = (id: number) => `#${id}`;
+/** Fica aqui (e não em contato.ts) para o código eager das páginas públicas não puxar o zod. */
+export function telefoneWhatsapp(valor: string): string {
+  const digitos = valor.replace(/\D/g, '');
+  return !valor.trim().startsWith('+') && (digitos.length === 10 || digitos.length === 11) ? `55${digitos}` : digitos;
+}
 export const mensagemErro = (erro: unknown) => erro instanceof Error ? erro.message : 'Não foi possível concluir. Tente novamente.';
 
 /** Preço mostrado no site: venda tem prioridade; sem valores, o imóvel é "sob consulta". */

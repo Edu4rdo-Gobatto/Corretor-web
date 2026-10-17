@@ -9,6 +9,7 @@ import { IconeAbrirFora } from './Icones';
 import Aviso from './Aviso';
 import Campo from './Campo';
 import ConfirmarAcao from './ConfirmarAcao';
+import ImgOtimizada from './ImgOtimizada';
 import { LIMITE_ARQUIVOS, TIPOS_ACEITOS, prepararEnvio, validarSelecaoMidia } from './prepararMidia';
 
 /**
@@ -91,7 +92,7 @@ export default function GerenciadorMidia({ imovel, aoAlterar }: { imovel: Pick<F
           const urlSegura = item.tipo === 'VIDEO_EMBED' ? urlEmbed(item.url) : null;
           return (
             <article className="border border-line bg-paper" key={item.id}>
-              {item.tipo === 'IMAGEM' ? <img className="h-37.5 w-full bg-soft object-cover" src={item.url} alt={`Foto ${indice + 1} do imóvel`} loading="lazy" decoding="async" />
+              {item.tipo === 'IMAGEM' ? <ImgOtimizada className="h-37.5 w-full bg-soft object-cover" src={item.url} alt={`Foto ${indice + 1} do imóvel`} dimensoes="caixa-do-pai" />
                 : item.tipo === 'VIDEO_ARQUIVO' ? <video className="h-37.5 w-full bg-soft object-cover" src={item.url} controls preload="metadata" aria-label={`Vídeo ${indice + 1} do imóvel`} />
                   : <div className="grid h-37.5 place-items-center wrap-anywhere bg-soft p-4 text-ink">{urlSegura ? <a className="inline-flex items-center gap-2" href={urlSegura} target="_blank" rel="noopener noreferrer">Assistir ao vídeo <IconeAbrirFora size={20} aria-hidden="true" /></a> : <span>Vídeo indisponível</span>}</div>}
               <div className="acoes-linha flex flex-wrap items-center justify-end gap-1 p-3">

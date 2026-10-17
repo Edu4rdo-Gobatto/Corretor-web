@@ -17,6 +17,9 @@ export default class LimiteErro extends Component<{ children: ReactNode }, Estad
         <main className="container" role="alert">
           <h1>Não foi possível carregar esta página.</h1>
           <button className="button" onClick={() => window.location.reload()}>Tentar novamente</button>
+          {' '}
+          {/* Fora do Router (não pode usar <Link>): âncora comum leva ao catálogo mesmo se a página atual quebrar. */}
+          <a className="button" href="/">Ir para a página inicial</a>
         </main>
       );
     }

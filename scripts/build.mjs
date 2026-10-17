@@ -7,7 +7,15 @@ const mode = 'production';
 // Vite adota o NODE_ENV do .env quando o processo não define um; com NODE_ENV=development no .env local,
 // o bundle saía com o React de desenvolvimento (~700 kB). O build é sempre de produção.
 process.env.NODE_ENV = 'production';
-await build({ mode, build: { outDir: 'dist/client' } });
+// Bibliotecas em chunks próprios (cache estável entre deploys). `formularios` só é carregado sob demanda: nenhum
+// código do caminho inicial das páginas públicas importa zod ou react-hook-form. O SSR continua um bundle único.
+const manualChunks = (id) => {
+  if (!id.includes('node_modules')) return undefined;
+  if (/node_modules[\\/](?:react|react-dom|scheduler|react-router|react-router-dom)[\\/]/.test(id)) return 'react';
+  if (/node_modules[\\/](?:zod|react-hook-form|@hookform)[\\/]/.test(id)) return 'formularios';
+  return undefined;
+};
+await build({ mode, build: { outDir: 'dist/client', rollupOptions: { output: { manualChunks } } } });
 await build({ mode, build: { outDir: 'dist/server', ssr: 'src/seo/server.tsx' }, ssr: { noExternal: true } });
 const { serverConfig } = await import('../dist/server/server.js');
 const config = serverConfig({ ...loadEnv(mode, process.cwd(), ''), ...process.env, NODE_ENV: 'production' });

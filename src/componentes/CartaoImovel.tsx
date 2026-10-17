@@ -1,21 +1,21 @@
-import { useState } from 'react';
 import { IconeSetaExterna, IconeLocal, IconeArea } from './Icones';
+import ImgOtimizada from './ImgOtimizada';
 import { Link } from 'react-router-dom';
 import type { ImovelResumo } from '../tipos';
 import { urlImovel } from '../servicos/urls';
 import { area, dinheiro, rotulosStatusImovel, valorPrincipal } from '../servicos/formato';
 
 export default function CartaoImovel({ imovel }: { imovel: ImovelResumo }) {
-  const [imagemFalhou, setImagemFalhou] = useState(false);
+  const semFoto = <div className="grid h-full place-items-center text-muted">Foto em breve</div>;
   const capa = imovel.midias.find((midia) => midia.capa && midia.tipo === 'IMAGEM') || imovel.midias.find((midia) => midia.tipo === 'IMAGEM');
   const preco = valorPrincipal(imovel);
   const finalidade = imovel.finalidade?.nome || (preco?.tipo === 'locacao' ? 'Para alugar' : 'À venda');
   return (
     <article className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-line border-t-[3px] border-t-gold bg-paper shadow-sm transition-[transform,box-shadow] duration-1000 ease-in-out [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.05] [@media(hover:hover)]:hover:shadow-2xl motion-reduce:transform-none motion-reduce:transition-none">
       <Link to={urlImovel(imovel.slug)} className="group relative block aspect-[1.47/1] overflow-hidden border-b-[3px] border-b-gold bg-soft max-[560px]:aspect-4/3" aria-label={`Ver ${imovel.titulo}`}>
-        {capa && !imagemFalhou
-          ? <img src={capa.url} alt={imovel.titulo} loading="lazy" decoding="async" onError={() => setImagemFalhou(true)} className="h-full w-full object-cover" />
-          : <div className="grid h-full place-items-center text-muted">Foto em breve</div>}
+        {capa
+          ? <ImgOtimizada src={capa.url} alt={imovel.titulo} dimensoes="caixa-do-pai" reserva={semFoto} className="h-full w-full object-cover" />
+          : semFoto}
         <span className="absolute left-4.25 top-4.25 rounded-sm border-b-2 border-gold bg-navy px-2.75 py-1.5 text-[11px] font-semibold uppercase tracking-[0.065em] text-white">{finalidade}</span>
         <span className="absolute bottom-3.5 right-3.5 z-1 grid h-11 w-11 place-items-center rounded-full bg-paper transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:bg-gold-soft"><IconeSetaExterna size={19} /></span>
       </Link>

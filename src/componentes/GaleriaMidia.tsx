@@ -2,12 +2,13 @@ import { useState, type KeyboardEvent } from 'react';
 import { IconeSemImagem, IconeReproduzir, IconeTelaCheia, IconeAnterior, IconeProximo } from './Icones';
 import type { Midia } from '../tipos';
 import Dialogo from './Dialogo';
+import ImgOtimizada from './ImgOtimizada';
 import { urlEmbed } from '../servicos/videoEmbed';
 
+const fotoIndisponivel = <div className="flex h-full min-h-16 flex-col items-center justify-center gap-2 p-4 text-center text-muted"><IconeSemImagem aria-hidden="true" /><span className="text-sm">Foto indisponível</span></div>;
+
 function Imagem({ url, titulo, prioritaria = false }: { url: string; titulo: string; prioritaria?: boolean }) {
-  const [falhou, setFalhou] = useState(false);
-  if (falhou) return <div className="flex h-full min-h-16 flex-col items-center justify-center gap-2 p-4 text-center text-muted"><IconeSemImagem aria-hidden="true" /><span className="text-sm">Foto indisponível</span></div>;
-  return <img src={url} alt={titulo} decoding="async" onError={() => setFalhou(true)} {...(prioritaria ? { fetchpriority: 'high' } : { loading: 'lazy' as const })} />;
+  return <ImgOtimizada src={url} alt={titulo} dimensoes="caixa-do-pai" prioridade={prioritaria} reserva={fotoIndisponivel} />;
 }
 
 function Visualizacao({ midia, titulo, prioritaria }: { midia: Midia; titulo: string; prioritaria: boolean }) {

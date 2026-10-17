@@ -20,6 +20,7 @@ import Campo from '../../componentes/Campo';
 import CampoCreci from '../../componentes/CampoCreci';
 import { creciParaEnvio, esquemaCreci } from '../../servicos/creci';
 import Aviso from '../../componentes/Aviso';
+import ImgOtimizada from '../../componentes/ImgOtimizada';
 import { GradePainel, SecaoPainel } from '../../componentes/BlocosPainel';
 
 const esquemaPerfil = (creciLegado: () => string) => z.object({
@@ -128,7 +129,7 @@ export default function Perfil() {
       <form className="grid grid-cols-1 items-start gap-4 @min-[28rem]:grid-cols-2" onSubmit={formularioPerfil.handleSubmit(salvarPerfil)} noValidate data-atalho-salvar>
         <fieldset disabled={ocupado} className="contents">
         <div className="col-span-full flex flex-wrap items-center gap-4">
-          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[28px] font-semibold text-ink">{mostrarFoto ? <img src={previaFoto} alt="Prévia da foto do perfil" onError={() => setFotoQuebrada(true)} className="h-full w-full object-cover" /> : corretor.nome.charAt(0).toUpperCase()}</div>
+          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[28px] font-semibold text-ink">{mostrarFoto ? <ImgOtimizada src={previaFoto} alt="Prévia da foto do perfil" dimensoes={{ width: 80, height: 80 }} onError={() => setFotoQuebrada(true)} className="h-full w-full object-cover" /> : corretor.nome.charAt(0).toUpperCase()}</div>
           <div className="min-w-0 flex-1"><p className="mb-1 text-base text-muted">{corretor.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'} · Desde {data(corretor.criado_em)}</p><p className="m-0 break-all text-base">{corretor.email}</p><small className="text-[14px] text-muted">O administrador altera seu e-mail.</small></div>
         </div>
         <div className="col-span-full grid gap-3">

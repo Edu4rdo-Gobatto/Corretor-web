@@ -122,13 +122,13 @@ export async function handleRequest(path: string, config: ServerConfig, fetcher:
   if (normalizada !== url.pathname + url.search) return redirect(normalizada);
   const catalogo = lerUrlCatalogo(path);
   const admin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
-  const headers: Record<string, string> = withSecurityHeaders({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=300', 'X-Robots-Tag': 'noindex,nofollow' });
+  const headers: Record<string, string> = withSecurityHeaders({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': admin || !config.indexable ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=300', 'X-Robots-Tag': 'noindex,nofollow' });
   const boot: Bootstrap = { url: url.pathname + url.search, config: { siteUrl: config.siteUrl, indexable: config.indexable }, data: {}, status: 200 };
   try {
     if (url.pathname === '/robots.txt' || url.pathname === '/llms.txt') {
       headers['Content-Type'] = 'text/plain; charset=utf-8';
       const body = url.pathname === '/robots.txt'
-        ? `User-agent: *\n${config.indexable ? 'Disallow: /api/\nDisallow: /api\n' : 'Disallow: /\n'}${config.siteUrl ? `Sitemap: ${absolute('/sitemap.xml', config)}\n` : ''}`
+        ? `User-agent: *\n${config.indexable ? 'Disallow: /api/\nDisallow: /api\nDisallow: /admin\n' : 'Disallow: /\n'}${config.siteUrl ? `Sitemap: ${absolute('/sitemap.xml', config)}\n` : ''}`
         : `# ${brand.name}\n\n> Catálogo de imóveis comerciais para alugar e comprar em ${brand.region.name}.\n\nSalas comerciais, lojas, galpões, prédios e terrenos. Valores e disponibilidade devem ser consultados no anúncio; o atendimento é realizado pelo corretor responsável.\n\n## Páginas públicas\n- [Catálogo](${absolute('/', config) || '/'}): imóveis disponíveis.\n- [Alugar](${absolute('/imoveis/para-alugar', config) || '/imoveis/para-alugar'}): imóveis para locação.\n- [Comprar](${absolute('/imoveis/para-comprar', config) || '/imoveis/para-comprar'}): imóveis à venda.\n- [Privacidade](${absolute('/privacidade', config) || '/privacidade'}): uso de dados no atendimento.\n- [Sitemap](${absolute('/sitemap.xml', config) || '/sitemap.xml'}): endereços públicos atualizados.\n`;
       return { status: 200, headers, body };
     }

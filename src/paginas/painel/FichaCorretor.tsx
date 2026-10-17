@@ -13,6 +13,7 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import Aviso from '../../componentes/Aviso';
 import AcaoIcone from '../../componentes/AcaoIcone';
 import ConfirmarAcao from '../../componentes/ConfirmarAcao';
+import ImgOtimizada from '../../componentes/ImgOtimizada';
 import { IconeArquivar, IconeDesarquivar, IconeEditar, IconeChave } from '../../componentes/Icones';
 import { DadosFicha, DadoFicha, SecaoPainel } from '../../componentes/BlocosPainel';
 import { EditorCorretor, DialogoSenha, dadosBase } from './EditorCorretor';
@@ -62,7 +63,7 @@ export default function FichaCorretor() {
     <EstadoCarregamento carregando={consulta.carregando} erro={consulta.erro} tentarNovamente={consulta.recarregar} />
     {!consulta.carregando && !consulta.erro && !item && <Aviso>Corretor indisponível.</Aviso>}
     {item && !consulta.carregando && !consulta.erro && <SecaoPainel titulo="Dados do corretor">
-      {item.url_foto && item.url_foto !== fotoQuebrada && <img src={urlFotoCorretor(item)} alt={`Foto de ${item.nome}`} className="mb-5 h-24 w-24 rounded-full object-cover" onError={() => setFotoQuebrada(item.url_foto ?? undefined)} />}
+      {item.url_foto && item.url_foto !== fotoQuebrada && <ImgOtimizada src={urlFotoCorretor(item)} alt={`Foto de ${item.nome}`} dimensoes={{ width: 96, height: 96 }} className="mb-5 h-24 w-24 rounded-full object-cover" onError={() => setFotoQuebrada(item.url_foto ?? undefined)} />}
       <DadosFicha colunas={2}><DadoFicha rotulo="Nome">{item.nome}</DadoFicha><DadoFicha rotulo="WhatsApp">{item.whatsapp}</DadoFicha><DadoFicha rotulo="CRECI">{item.creci}</DadoFicha>
         {completo && <><DadoFicha rotulo="E-mail">{completo.email}</DadoFicha><DadoFicha rotulo="CPF">{completo.cpf}</DadoFicha><DadoFicha rotulo="Permissão">{completo.cargo === 'ADMIN' ? 'Administrador' : 'Corretor'}</DadoFicha><DadoFicha rotulo="Situação">{completo.ativo ? 'Ativo' : 'Inativo'}</DadoFicha></>}
       </DadosFicha>

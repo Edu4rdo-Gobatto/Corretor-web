@@ -1,5 +1,5 @@
 import { urlFotoCorretor } from '../../servicos/fotos';
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { IconeSetaExterna, IconeLocal, IconeArea, IconeEdificio, IconeProtegido, IconeCompartilhar, IconeCama, IconeGota, IconeSofa, IconeAndares, IconeCarro, IconePiscina, IconeModoClaro, IconeTerreno, type Icone } from '../../componentes/Icones';
 import { api } from '../../servicos/api';
@@ -11,9 +11,15 @@ import EstadoCarregamento from '../../componentes/EstadoCarregamento';
 import BotaoVoltar from '../../componentes/BotaoVoltar';
 import GaleriaMidia from '../../componentes/GaleriaMidia';
 import CartaoImovel from '../../componentes/CartaoImovel';
-import FormularioContato from '../../componentes/FormularioContato';
+import ImgOtimizada from '../../componentes/ImgOtimizada';
 import AcaoIcone from '../../componentes/AcaoIcone';
+import Dialogo from '../../componentes/Dialogo';
 import { Seo, useDadosIniciais } from '../../seo/context';
+
+// O formulário (react-hook-form + zod) só aparece depois do clique: fica fora do bundle inicial e o SSR não muda.
+const importarFormularioContato = () => import('../../componentes/FormularioContato');
+const FormularioContato = lazy(importarFormularioContato);
+const preCarregarFormulario = () => { importarFormularioContato().catch(() => undefined); };
 
 const classeCaixa = 'rounded-lg border border-line bg-paper p-6 max-[480px]:p-5';
 // Mesmo acabamento dos cards do painel: filete dourado no topo.
@@ -65,6 +71,18 @@ export default function DetalheImovel() {
   const { valor: imovel, carregando, erro, statusErro, tentarNovamente } = useRecurso(carregar, iniciais?.data.imovel);
   const [contatoAberto, setContatoAberto] = useState(false);
   const [linkCopiado, setLinkCopiado] = useState(false);
+  const [falhaContato, setFalhaContato] = useState(false);
+  // Baixa o chunk antes de abrir: se falhar (rede, deploy novo), o aviso é local; um erro de renderização cairia no
+  // ErrorBoundary padrão do roteador e trocaria a página inteira.
+  async function abrirContato() {
+    try { await importarFormularioContato(); setContatoAberto(true); } catch { setFalhaContato(true); }
+  }
+  // Baixa o formulário quando o navegador está ocioso; hover/foco nos botões antecipam se o usuário for mais rápido.
+  useEffect(() => {
+    if (typeof window.requestIdleCallback === 'function') { const id = window.requestIdleCallback(preCarregarFormulario); return () => window.cancelIdleCallback(id); }
+    const id = window.setTimeout(preCarregarFormulario, 2000);
+    return () => window.clearTimeout(id);
+  }, []);
 
   async function compartilhar() {
     if (!imovel) return;
@@ -127,11 +145,11 @@ export default function DetalheImovel() {
                 {condominio !== null && <div><dt>Condomínio</dt><dd>{dinheiro(condominio)}</dd></div>}
                 {iptu !== null && <div><dt>IPTU informado</dt><dd>{dinheiro(iptu)}</dd></div>}
               </dl>
-              <button className="button w-full" onClick={() => setContatoAberto(true)}>Falar com corretor <IconeSetaExterna size={18} /></button>
+              <button className="button w-full" onPointerEnter={preCarregarFormulario} onFocus={preCarregarFormulario} onClick={() => void abrirContato()}>Falar com corretor <IconeSetaExterna size={18} /></button>
               <p className="mb-5.5 mt-2.5 text-center text-xs text-muted">Converse diretamente com o corretor.</p>
               <div className="flex items-center gap-3 border-t border-line pt-5.5 [&_button]:min-h-11">
                 {imovel.corretor && <>
-                <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <img src={urlFotoCorretor(imovel.corretor)} alt="" /> : imovel.corretor.nome.charAt(0)}</div>
+                <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-soft text-[20px] text-brand [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{imovel.corretor.url_foto ? <ImgOtimizada src={urlFotoCorretor(imovel.corretor)} alt="" dimensoes={{ width: 44, height: 44 }} reserva={imovel.corretor.nome.charAt(0)} /> : imovel.corretor.nome.charAt(0)}</div>
                 <div><strong className="block text-[15px]">{imovel.corretor.nome}</strong><span className="block text-xs text-muted">{imovel.corretor.creci ? `CRECI ${imovel.corretor.creci}` : 'Corretor responsável'}</span></div>
                 </>}
                 <div className="ml-auto shrink-0"><AcaoIcone id="acao-compartilhar" icone={IconeCompartilhar} rotulo="Compartilhar imóvel" aoClicar={compartilhar} /></div>
@@ -179,9 +197,18 @@ export default function DetalheImovel() {
         <Semelhantes key={`semelhantes-${imovel.id}`} atual={imovel} />
         <div className="hidden max-[760px]:fixed max-[760px]:inset-x-0 max-[760px]:bottom-0 max-[760px]:z-30 max-[760px]:flex max-[760px]:items-center max-[760px]:justify-between max-[760px]:gap-3 max-[760px]:border-t max-[760px]:border-gold max-[760px]:bg-navy max-[760px]:px-4 max-[760px]:pt-3 max-[760px]:pb-[calc(12px+env(safe-area-inset-bottom))] max-[760px]:shadow-lg">
           <div className="min-w-0"><span className="block text-xs text-white/80">{imovel.finalidade?.nome || 'Imóvel comercial'}</span><strong className="block font-display text-[19px] text-white wrap-anywhere max-[360px]:text-base">{preco ? <>{dinheiro(preco.valor)}{preco.tipo === 'locacao' && ' /mês'}</> : 'Sob consulta'}</strong></div>
-          <button className="button min-h-12 shrink-0 px-3 text-sm border-b-gold bg-gold text-navy hover:bg-gold/90" onClick={() => setContatoAberto(true)}>Falar com corretor</button>
+          <button className="button min-h-12 shrink-0 px-3 text-sm border-b-gold bg-gold text-navy hover:bg-gold/90" onPointerEnter={preCarregarFormulario} onFocus={preCarregarFormulario} onClick={() => void abrirContato()}>Falar com corretor</button>
         </div>
-        {contatoAberto && <FormularioContato imovel={imovel} aoFechar={() => setContatoAberto(false)} />}
+        {falhaContato && <Dialogo titulo="Não foi possível abrir o formulário" tamanho="estreito" aoFechar={() => setFalhaContato(false)}>
+          <p className="text-muted">Verifique sua conexão e recarregue a página para tentar novamente.</p>
+          <div className="mt-6 flex flex-wrap justify-end gap-3">
+            <button type="button" className="buttonGhost" onClick={() => setFalhaContato(false)}>Fechar</button>
+            {/* Recarregar (e não repetir o import): o navegador pode manter em cache a falha do módulo. */}
+            <button type="button" className="button" data-foco-inicial onClick={() => window.location.reload()}>Recarregar página</button>
+          </div>
+        </Dialogo>}
+        {/* Suspense local: um suspend vindo de clique cairia no fallback global de App.tsx e trocaria a página inteira. */}
+        {contatoAberto && <Suspense fallback={<div role="status" className="sr-only">Carregando formulário…</div>}><FormularioContato imovel={imovel} aoFechar={() => setContatoAberto(false)} /></Suspense>}
       </>}
     </div>
   );

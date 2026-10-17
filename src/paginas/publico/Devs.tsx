@@ -4,28 +4,22 @@ import { Github, Instagram } from 'lucide-react';
 import { Seo } from '../../seo/context';
 import { devs, type Dev } from '../../config/devs';
 import ObraOverlay from '../../componentes/ObraOverlay';
+import ImgOtimizada from '../../componentes/ImgOtimizada';
 
 function DevAvatar({ dev }: { dev: Dev }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) {
-    return (
-      <span
-        aria-hidden="true"
-        className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-2 border-gold bg-navy font-display text-4xl text-white"
-      >
-        {dev.nome.charAt(0)}
-      </span>
-    );
-  }
   return (
-    <img
+    <ImgOtimizada
       src={dev.avatarUrl}
       alt={`Foto de ${dev.nome}`}
-      width={112}
-      height={112}
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
+      dimensoes={{ width: 112, height: 112 }}
+      reserva={
+        <span
+          aria-hidden="true"
+          className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-2 border-gold bg-navy font-display text-4xl text-white"
+        >
+          {dev.nome.charAt(0)}
+        </span>
+      }
       className="mx-auto h-28 w-28 rounded-full border-2 border-gold object-cover"
     />
   );
